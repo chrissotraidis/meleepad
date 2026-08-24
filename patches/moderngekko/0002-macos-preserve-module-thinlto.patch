@@ -1,0 +1,28 @@
+diff --git a/tools/moderngekko_port.cpp b/tools/moderngekko_port.cpp
+index b144507..ccc78ad 100644
+--- a/tools/moderngekko_port.cpp
++++ b/tools/moderngekko_port.cpp
+@@ -461,6 +461,9 @@ std::optional<fs::path> Build(const char* argv0, const fs::path& root,
+   {
+     flags = "compile:-O2 -flto=thin -fvisibility=hidden -ffp-contract=off -fno-fast-math "
+             "link:-flto=thin";
++#if defined(__APPLE__)
++    flags += " cmake:platform-response-files";
++#endif
+ #if defined(__linux__)
+     flags += " -fuse-ld=lld";
+ #endif
+@@ -577,7 +580,12 @@ std::optional<fs::path> Build(const char* argv0, const fs::path& root,
+     std::ofstream{normalized_smc};
+
+   const unsigned compile_jobs = std::max(1u, std::thread::hardware_concurrency());
+-  std::string configure = "cmake -E env CMAKE_NINJA_FORCE_RESPONSE_FILE=1 cmake -S " +
++  std::string configure =
++#if defined(__APPLE__)
++      "cmake -S " +
++#else
++      "cmake -E env CMAKE_NINJA_FORCE_RESPONSE_FILE=1 cmake -S " +
++#endif
+       Quote(source_root / "vendor/dolphin/module-template") +
+       " -B " + Quote(module_build) + " -G Ninja -DCMAKE_BUILD_TYPE=Release" +
+       " -DCMAKE_C_COMPILER=" + compiler + " -DGAME_ID=" + game.disc_id +

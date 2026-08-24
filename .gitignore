@@ -1,0 +1,14 @@
+.DS_Store
+
+# All local references, retail media, generated game code, and build products.
+ref/
+build*/
+/artifacts/
+apple/ios/Provisioned/
+
+# Local logs, profiles, and Xcode output.
+*.log
+*.trace
+DerivedData/
+__pycache__/
+*.pyc

@@ -1,0 +1,5 @@
+[
+  {"action": "press", "button": "START"},
+  {"action": "wait", "seconds": 2.0},
+  {"action": "release", "button": "START"}
+]

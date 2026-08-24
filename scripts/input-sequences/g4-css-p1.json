@@ -1,0 +1,5 @@
+[
+  {"action": "stick", "axis": "MAIN", "x": 0.2, "y": 1.0},
+  {"action": "wait", "seconds": 1.3},
+  {"action": "stick", "axis": "MAIN", "x": 0.0, "y": 0.0}
+]

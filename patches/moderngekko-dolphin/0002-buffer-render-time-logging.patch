@@ -1,0 +1,14 @@
+diff --git a/Source/Core/VideoCommon/PerformanceTracker.cpp b/Source/Core/VideoCommon/PerformanceTracker.cpp
+index 3d519865be..091ffaecb6 100644
+--- a/Source/Core/VideoCommon/PerformanceTracker.cpp
++++ b/Source/Core/VideoCommon/PerformanceTracker.cpp
+@@ -195,5 +195,8 @@ void PerformanceTracker::LogRenderTimeToFile(DT val)
+                       std::ios_base::out);
+   }
+
+-  m_bench_file << std::fixed << std::setprecision(8) << DT_ms(val).count() << std::endl;
++  // Keep benchmark logging off the frame-critical path. std::endl flushes the
++  // stream on every frame, which can introduce large I/O stalls into the very
++  // timings this logger is meant to measure. The stream is flushed on close.
++  m_bench_file << std::fixed << std::setprecision(8) << DT_ms(val).count() << '\n';
+ }

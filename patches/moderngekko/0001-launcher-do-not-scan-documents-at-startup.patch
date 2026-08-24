@@ -1,0 +1,34 @@
+diff --git a/tools/moderngekko_launcher.cpp b/tools/moderngekko_launcher.cpp
+index 7d821dd..6ca8674 100644
+--- a/tools/moderngekko_launcher.cpp
++++ b/tools/moderngekko_launcher.cpp
+@@ -578,8 +578,10 @@ int main(int argc, char** argv)
+   ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
+   ImGui_ImplSDLRenderer3_Init(renderer);
+
+-  std::vector<fs::path> images = FindDiscImages();
+-  std::optional<fs::path> selected_image = images.empty() ? std::nullopt : std::optional(images[0]);
++  // Disc access should be an explicit user action. Recursively scanning the
++  // Documents directory at startup can block behind macOS privacy consent
++  // before the launcher has created a responsive window.
++  std::optional<fs::path> selected_image;
+   fs::path current_game = ReadDefaultGame(user_directory, release_directory);
+   bool current_dol_changed = false;
+   std::string current_dol_error;
+@@ -1146,7 +1148,15 @@ int main(int argc, char** argv)
+       {
+         SDL_HideWindow(window);
+         int exit_code = 1;
+-        const bool waited = SDL_WaitProcess(process, true, &exit_code);
++        bool waited = false;
++        while (!(waited = SDL_WaitProcess(process, false, &exit_code)))
++        {
++          SDL_Event event;
++          while (SDL_PollEvent(&event))
++          {
++          }
++          SDL_Delay(10);
++        }
+         SDL_DestroyProcess(process);
+         if (!waited || exit_code != 0)
+         {
