@@ -432,3 +432,126 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Next: compare the scene with the reference renderer, then instrument or fix
   the smallest shared Metal texture-cache / EFB-copy mismatch. Remeasure
   Fountain and Final Destination only after visual parity is restored.
+
+## 2026-08-25 — G5 Fountain reference-parity correction
+
+- Goal: decide whether the reported Fountain lower-surface distortion is an
+  ssbmpad renderer defect or reference behavior.
+- Work: ran the pinned runtime without a generated module using
+  `--allow-interpreter`; then fetched, signature-checked, and ran official
+  Dolphin 2606a from a temporary non-installed app copy. Both controls used
+  Metal, native internal resolution, separate user/save directories, the same
+  private GALE01 revision-0 image, and a controlled Fountain match.
+- Result: **REFLECTION CLOSED AS REFERENCE PARITY; REAL-MESH REPORT OPEN**.
+  Both no-module and official Dolphin controls reproduce the same blurred and
+  blocky lower Fountain reflection. The earlier EFB-copy experiments targeted
+  normal stage behavior and remain rejected. The original single Bowser/DK
+  overlap frame does not prove actual mesh deformation; a short time-adjacent
+  capture is still required for `VISUAL-001B`.
+- Cleanup: the official reference process required SIGKILL after its batch
+  window closed and ignored SIGTERM; no Dolphin, runner, or Simulator remains.
+  The DMG was detached and Jump Desktop Audio restored. No official app was
+  installed globally and no game data entered Git.
+- Evidence: `docs/artifacts/2026-08-25/g5-fountain-no-module-reference.jpeg`,
+  `g5-fountain-official-dolphin-2606a-reference.jpeg`, and
+  `g5-fountain-visual-warping.md`.
+- Next: capture a fresh real-fighter time sequence if the report recurs, while
+  resuming the independent G5 generated-compute tail investigation.
+
+## 2026-08-25 — G5 real-mesh temporal capture and route correction
+
+- Goal: test the remaining fighter-body morph report with time-adjacent native
+  gameplay evidence instead of a single overlap frame.
+- Work: recorded only the SsbmPad window for 29.985 seconds, retained a 9.8
+  second 640x480 gameplay clip, and sampled the interaction interval at 5 FPS.
+  The 49-frame dense sheet covers movement, attacks, jumps, specials, CPU
+  overlap, hit sparks, and damage. The prelaunch MemoryWatcher also exposed one
+  extra `START` in the committed title-to-CSS sequence; that input entered
+  1-P Mode, so it was removed and a focused action-order regression added.
+- Result: **REAL-MESH DEFORMATION NOT REPRODUCED; AUTOMATION FIX RETAINED**.
+  Real Bowser and CPU meshes remain coherent across adjacent frames. The report
+  stays monitored and reopens on fresh temporal evidence, but it is not a
+  current promotion blocker. The corrected manual route visibly reached VS
+  character select; full cold-route replay remains required before calling the
+  memory-gated sequence deterministic.
+- Cleanup: the 94 MiB source recording was moved outside Git to
+  `/private/tmp/ssbmpad-g5-fountain-real-mesh-capture-original.mov`; the 6.2 MiB
+  compressed clip and dense sheet are the committable evidence. No runner or
+  Simulator remains, and Jump Desktop Audio was restored.
+- Evidence: `docs/artifacts/2026-08-25/g5-fountain-real-mesh-capture.m4v`,
+  `g5-fountain-real-mesh-dense-contact-sheet.jpeg`, and
+  `g5-fountain-visual-warping.md`.
+- Next: cold-replay the corrected memory-gated route, then resume the G5
+  generated-compute tail experiment on both required stages.
+
+## 2026-08-25 — G5 cold-route predicate audit
+
+- Goal: prove the revised memory-gated title-to-CSS route from a cold launch.
+- Work: performed three bounded cold replays while preserving one runtime per
+  run. The first exposed the extra `START` by entering 1-P Event Match. The
+  second showed the original watched word `0x80477D68` could time out or match
+  during attract gameplay. Source attribution then replaced it with
+  `gm_80479D30`, the decomp-backed `GameState` routing word, using exact
+  `GM_TITLE/GS_TITLE`, `GM_MENU/GS_MENU`, and `GM_VS/GS_CSS` predicates. The
+  final bounded replay still fell into How to Play because scene entry occurs
+  before title accepts input. `gmtitle.c` proves `gmTitle_804D6714` starts at
+  `0x14` and `OnFrame` ignores input until it reaches zero, so an explicit
+  `0x804D6714 == 0` wait was added with a focused regression.
+- Result: **PARTIAL; AUTOMATION NOT YET DETERMINISTIC**. The action-order,
+  authoritative scene word, exact scene predicates, and title lockout gate are
+  now source-backed and unit-tested, but the final lockout-aware sequence has
+  not been cold-replayed. Per the loop's repetition rule, no fourth launch was
+  attempted. Manual FIFO routing remains available and visually verified.
+- Cleanup: no runner or Simulator remains; Jump Desktop Audio is restored.
+- Evidence: the live 1-P Event Match and How to Play outcomes plus
+  `ref/melee/src/melee/gm/gm_1A3F.c`, `gm/types.h`, `gm/forward.h`, and
+  `gm/gmtitle.c`; no misleading pass screenshot was retained.
+- Next: one future cold replay of the lockout-aware sequence. If it fails,
+  capture all watched values and emitted actions to a trace file before any
+  further input change. Continue G5 performance work manually in the meantime.
+
+## 2026-08-25 — G5 FP fast-path rejection and visual recurrence
+
+- Goal: remove the hottest safe generated-runtime helper call, remeasure a
+  matched screen, and keep the user's fighter-warp report visible during the
+  performance loop.
+- Work: inlined the common `MSR.FP` enabled test while preserving the existing
+  exception fallback; passed generated-C compile/execute and PowerPC reference
+  tests; built all 237 game chunks with O2 + ThinLTO; and ran clean candidate
+  and unchanged 500+1,000-frame controls. The longer candidate run also covered
+  four-player scenes and retained a fresh suspected vertical fighter stretch.
+- Result: **CANDIDATE REJECTED; `VISUAL-001B` REOPENED**. p95/p99 improved
+  3.1%/3.4%, but worst regressed from 27.987 to 34.777 ms and the <=16.7 ms
+  share slipped. Four-player scenes remained about 45-48 FPS. One Pokémon
+  Stadium montage frame shows an orange fighter stretched implausibly above
+  Captain Falcon; the adjacent capture was contaminated and later samples were
+  coherent, so attribution remains open and promotion is blocked conservatively.
+- Cleanup: DolRecomp source and its candidate patch-stack entry were restored.
+  No runner or Simulator remains; Jump Desktop Audio is restored.
+- Evidence:
+  `docs/artifacts/2026-08-25/g5-fp-fast-path-and-watcher-audit.md` and the raw
+  traces and screenshot named there.
+- Next: fix static-recomp-aware watched memory with a unit-testable reader and
+  initial-zero delivery, then obtain uncontaminated temporal mesh evidence and
+  required-stage timing.
+
+## 2026-08-25 — G5 static-recomp MemoryWatcher audit
+
+- Goal: cold-replay the source-backed title lockout sequence without another
+  fixed-delay guess.
+- Work: started MemoryWatcher before the runner and attempted the exact
+  `gm_80479D30` and `gmTitle_804D6714` predicates. No input action was emitted.
+  The runtime reported both addresses as unresolved because ordinary Dolphin
+  MMU state is not synchronized for static-recomp guest RAM. A direct-MEM1
+  experiment compiled and removed the panic lines.
+- Result: **NOT RETAINED; ROUTE STILL OPEN**. The freshly linked runner then
+  hung while CoreAudio instantiated Jump Desktop Audio. Its window close did
+  not terminate the process, so a subsequent launch briefly created a second
+  runner. The two exact SsbmPad PIDs were detected and terminated immediately.
+- Cleanup: the unverified direct-read source was restored, both processes and
+  the driver are gone, Simulator remains off, and Jump Desktop Audio is again
+  the default output. The bootstrap patch-scope audit was simplified so all
+  stacked ModernGekko changes are validated once per checkout.
+- Next: add a pure static-recomp MEM1 read regression, make MemoryWatcher send
+  the first zero value, preselect built-in audio for a fresh runner, and prove
+  process count after every close and before every launch.

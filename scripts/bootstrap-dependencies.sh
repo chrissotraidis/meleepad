@@ -119,12 +119,10 @@ apply_patch_once "$MG" "$pipe_input_patch"
 apply_patch_once "$MG/vendor/dolphin" "$render_log_patch"
 apply_patch_once "$MG/vendor/dolphin" "$idle_patch"
 verify_patch_scope "$MG" "$mg_patch" vendor/dolphin tools/moderngekko_launcher.cpp \
-  tools/moderngekko_port.cpp
+  tools/moderngekko_port.cpp tests/frontend_config_test.cpp \
+  tools/frontend_config.cpp tools/frontend_config.hpp tools/moderngekko_run.cpp
 verify_patch_scope "$MG/vendor/dolphin" "$dolphin_patch" \
   Source/Core/VideoCommon/PerformanceTracker.cpp \
   Data/Sys/GameSettings/GALE01r0.ini
-verify_patch_scope "$MG" "$pipe_input_patch" \
-  tests/frontend_config_test.cpp tools/frontend_config.cpp \
-  tools/frontend_config.hpp tools/moderngekko_run.cpp
 
 echo "ssbmpad dependencies are pinned and patched."

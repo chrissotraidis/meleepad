@@ -59,17 +59,24 @@ still ran around 40-55 FPS and reached 16.9 FPS on Jungle Japes. Further work
 must train and measure visually verified required-stage combat with idle
 skipping active, rather than profile idle polling.
 
+The next C-emitter experiment inlined the common `MSR.FP` enabled check while
+preserving the existing FP-unavailable exception fallback. A clean matched
+1,000-frame screen improved p95/p99 by 3.1%/3.4%, but regressed worst frame
+from 27.987 to 34.777 ms and the <=16.7 ms share from 49.80% to 49.20%.
+Four-player scenes still ran around 45-48 FPS. The candidate is rejected under
+the strict retention rule and dependency source is restored.
+
 No Simulator is booted. G6 remains gated on G5.
 
-The current Fountain combat-profile run also exposed a reported repeated
-visual-warping/morphing defect. It is tracked as `VISUAL-001`. Normal-speed PGO
-and profile-free controls reproduce corrupted lower-stage reflection imagery
-while the real fighter meshes above it remain coherent. EFB-to-RAM and
-non-deferred-copy controls reproduce the same corruption and materially hurt
-performance, so neither is retained. The defect is now narrowed to a shared
-Fountain reflection / EFB-copy renderer path below those high-level switches;
-reference comparison and a targeted fix remain required before macOS
-promotion.
+The Fountain visual report is split as `VISUAL-001A/B`. The blurred/blocky
+lower reflection is closed as reference parity: it appears in profile-use,
+profile-free, no-module, and signed official Dolphin 2606a native-scale Metal
+runs. EFB-to-RAM and non-deferred-copy experiments were unnecessary and were
+reverted. The separate fighter-body report was not reproduced in an initial
+9.8-second interaction clip, but a later four-player montage retained one fresh
+suspected vertical fighter stretch. `VISUAL-001B` is reopened and conservatively
+blocks promotion until uncontaminated adjacent frames or a matched reference
+sequence classify it.
 
 ## Goal ledger
 
@@ -80,7 +87,7 @@ promotion.
 | G2 Module recompiles and links | Pass | `docs/artifacts/2026-08-24/g2-module-and-package.md` |
 | G3 macOS boots to title | Pass | `docs/artifacts/2026-08-24/g3-macos-title-and-input.md`; retained title and A-transition screenshots |
 | G4 macOS playable | Pass | `docs/artifacts/2026-08-24/g4-controlled-match.md`; clean CSS -> 1v1 -> results plus live Cubeb/CoreAudio mixing evidence |
-| G5 macOS 60 fps | In progress | Fresh 2:1 combat PGO Fountain interval: 16.688 ms median / 18.494 ms p95 / 21.445 ms p99 / 1334.501 ms worst; visual corruption and tail reduction remain |
+| G5 macOS 60 fps | In progress | FP fast path rejected on worst frame; four-player scenes remain 45-48 FPS; `VISUAL-001B` reopened |
 | G6 Simulator core boots | Not started | G5 first; no Simulator booted |
 | G7 Shell ported | Not started | G6 first |
 | G8 Test matrix green | Not started | G7 first |
@@ -180,20 +187,33 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   sharply reduces idle dispatch/cycle counts without changing guest behavior.
   Profile-free active combat still fails G5, so this closes wasted idle work,
   not the performance gate.
-- **INPUT-004:** A one-port P1 Bowser versus level-1 CPU Mario route reached
-  stage select, but fixed-delay title and old stage-cursor sequences are not
-  deterministic: the opening-movie title card is not interactive, and the old
-  Final Destination sequence visibly landed on Battlefield. Required-stage
-  profiling must be gated by the actual title prompt and visually verified
-  before the measurement interval.
-- **VISUAL-001:** During the instrumented Fountain combat-profile run, the user
-  reported repeated bizarre fighter warping/morphing. Normal-speed profile-use
-  and profile-free controls reproduce a smeared/stretched lower reflection
-  while the real fighter meshes above it remain coherent. Switching EFB copies
-  from texture to RAM and disabling deferred EFB copies independently failed to
-  correct it and severely reduced performance; both settings were restored.
-  The shared Fountain reflection / EFB-copy path remains the leading scope, but
-  a fresh video must still distinguish any real-mesh deformation from copied
-  reflection corruption. Reference parity and a targeted fix are required.
-  Any persistent normal-speed release defect blocks G5 and G6. Evidence:
+- **PERF-014:** Inlining the common `MSR.FP` enabled check preserved the
+  exception fallback and passed generated-C plus PowerPC reference tests. A
+  clean matched screen improved p95/p99 from 20.622/21.597 to
+  19.979/20.854 ms, but worst regressed from 27.987 to 34.777 ms and the
+  <=16.7 ms share slipped. It is rejected; see
+  `docs/artifacts/2026-08-25/g5-fp-fast-path-and-watcher-audit.md`.
+- **INPUT-004:** Manual FIFO control is reliable, but the cold automated
+  title-to-CSS route remains unverified. The first sequence had an extra
+  `START` and entered 1-P Mode. Cold replay then proved that the old watched
+  word `0x80477D68` can match during attract gameplay. The replacement uses the
+  decomp-backed `GameState` word at `0x80479D30` and exact title/menu/CSS mode
+  plus scene values, but two bounded cold runs showed that scene entry alone is
+  too early: title input is ignored during `gmTitle_804D6714`'s 20-frame
+  lockout and the game falls into How to Play. An explicit lockout-zero wait is
+  implemented and unit-tested. Its next cold replay emitted no input because
+  ordinary Dolphin MemoryWatcher cannot resolve the static-recomp guest RAM
+  through the unsynchronized MMU state. A direct-MEM1 experiment removed those
+  panic lines but was not verified due a fresh-runner CoreAudio hang and was
+  restored. Required-stage profiling remains visually gated.
+- **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
+  floor reflection appears in PGO, profile-free, no-module, and signed official
+  Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual
+  regression. EFB-to-RAM and non-deferred-copy controls were reverted.
+- **VISUAL-001B (reopened):** The initial 9.8-second interaction clip and
+  49-frame review were coherent, but a fresh four-player frame shows an orange
+  fighter in a suspected implausible vertical stretch. The adjacent capture was
+  contaminated and a later sample was coherent, so subsystem attribution is
+  still open. Promotion is blocked conservatively pending clean temporal or
+  matched-reference evidence. Evidence:
   `docs/artifacts/2026-08-25/g5-fountain-visual-warping.md`.
