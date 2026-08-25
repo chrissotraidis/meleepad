@@ -109,6 +109,14 @@ regressed attract median/p95/p99 to 16.814/21.459/22.548 ms. PGO's useful
 information includes internal branch weights and hot/cold block layout, not
 just call boundaries or symbol presence.
 
+A second local PGO corpus added three minutes of no-input attract coverage and
+weighted the original Fountain profile 2:1. The portable combined-profile
+module slightly improved attract p95 from 17.848 ms to 17.682 ms and improved
+vblank tail, but worsened render mean from 17.528 ms to 17.744 ms and p99 from
+18.814 ms to 20.654 ms. It was rejected before required-stage replay. Further
+PGO training must cover Fountain and Final Destination directly rather than
+generic attract scenes.
+
 Required next work:
 
 1. Use the retained PGO binary/profile as an oracle for a smaller static

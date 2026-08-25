@@ -330,3 +330,24 @@ Append-only execution ledger. Claims are limited to observed evidence.
   the two raw cold-outline traces named there.
 - Next: broaden the local PGO training set across both required stages instead
   of continuing static symbol imitation.
+
+## 2026-08-24 — G5 balanced Fountain/attract PGO corpus
+
+- Goal: add internal branch/block coverage without diluting the original
+  required-stage PGO tuning.
+- Work: preserved the original 43 MiB Fountain profile; collected a separate
+  cleanly flushed three-minute attract profile; merged Fountain 2:1 over
+  attract; built a clean-source portable macOS 14 O2 + ThinLTO module; and ran
+  the matched attract diagnostic.
+- Result: **NOT RETAINED**. p95 improved modestly from 17.848 to 17.682 ms and
+  vblank tail improved, but render mean regressed from 17.528 to 17.744 ms and
+  p99 from 18.814 to 20.654 ms. That fails the retention rule and does not
+  justify required-stage replay.
+- Cleanup: signed original Fountain-PGO app restored exactly; no runner or
+  Simulator remains active. Both raw profiles and merged profile remain local
+  and uncommitted.
+- Evidence: appended to
+  `docs/artifacts/2026-08-24/g5-timing-attribution-and-pgo-noexram.md`, plus
+  the two raw combined-PGO traces named there.
+- Next: repair/re-establish the controlled FIFO route and train directly on
+  both Fountain and Final Destination; generic attract coverage is rejected.

@@ -155,3 +155,42 @@ Raw evidence:
   `0aa68813c5622c5ff6a8f1193177a9a7a6a105131a1e9a9752c680d0bf3f976b`
 - `g5-cold-outline247-attract-90s-vblank-times.txt` — SHA-256
   `2b293a4f6d2bf70367ee8e176891b3194dcc6f0991242b30cedba6d6d838e267`
+
+## Broader local PGO corpus
+
+The original instrumented module and Fountain profile were preserved. A new
+three-minute no-input attract run produced a separate valid 43 MiB `.profraw`,
+SHA-256
+`7ed5a14aad9351719ddcd9105c28fede2e7a2d57abdd5aa332fe70415146610d`.
+The original Fountain raw profile was weighted 2:1 over attract and merged to a
+22 MiB profile with the same 6,531 functions and 2,733,180 blocks, SHA-256
+`e95c0a2c64413713e687a68135bf10b43b27add423e5eeb9189dab93e6858314`.
+
+The resulting clean-source arm64 macOS 14 O2 + ThinLTO module exposed 775 loop
+symbols and had unsigned SHA-256
+`1102ff900c5e638ba68a9678e090cdc433017e5a306117ec7dd724550e530763`.
+It loaded successfully. Against the same retained PGO attract window:
+
+| Metric | Fountain PGO | Fountain 2 + attract 1 PGO |
+|---|---:|---:|
+| Frames | 5,135 | 4,995 |
+| Mean | 17.528468 ms | 17.743956 ms |
+| Median | 16.682666 ms | 16.683125 ms |
+| p95 | 17.848100 ms | 17.682021 ms |
+| p99 | 18.813991 ms | 20.654338 ms |
+| Worst | 3132.187584 ms | 3618.040375 ms |
+| Frames <=16.7 ms | 61.25% | 62.84% |
+
+Candidate vblank timing improved to 16.685468 ms mean / 18.533521 ms p95 /
+19.611345 ms p99 / 105.444291 ms worst. **Rejected before required-stage
+replay.** The generic attract corpus slightly improved p95 and vblank tail but
+worsened render mean, p99, and worst. A broader useful profile must train on
+Fountain and Final Destination directly rather than generic attract coverage.
+The instrumented and profile-use artifacts remain local and uncommitted.
+
+Raw evidence:
+
+- `g5-combined-pgo-attract-90s-render-times.txt` — SHA-256
+  `e8fb7a9efb504250572e75d4e07ca32694ee31934f8847c1525f0707e85fd6f3`
+- `g5-combined-pgo-attract-90s-vblank-times.txt` — SHA-256
+  `cd6f91b93660ff6a58d29a297526cea39e3d61a5a3da14f146a2329fdda38da1`

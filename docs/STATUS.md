@@ -43,6 +43,9 @@ matched attract p95 to 22.926 ms and is rejected; the default 256 is retained.
 Exact `noinline` reproduction of all 247 PGO-cold helper symbols regressed
 matched attract p95 to 21.459 ms, proving symbol outlining alone is also
 insufficient.
+A 2:1 Fountain/attract combined PGO profile improved attract p95 slightly to
+17.682 ms but worsened mean and p99 to 17.744/20.654 ms, so it was rejected.
+The next profile experiment must train both required stages directly.
 
 No Simulator is booted. G6 remains gated on G5.
 
@@ -144,3 +147,7 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   retained the hot polling helper, but regressed attract median/p95/p99 to
   16.814/21.459/22.548 ms. PGO branch weights and internal block layout, not
   helper symbol presence alone, are material.
+- **PERF-012:** A separate three-minute attract profile merged at 1:2 weight
+  with the original Fountain corpus improved attract p95 and vblank tail but
+  regressed render mean/p99 to 17.744/20.654 ms. It was rejected before real
+  stages; useful broader PGO must train Fountain and Final Destination.
