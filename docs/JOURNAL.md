@@ -635,3 +635,31 @@ Append-only execution ledger. Claims are limited to observed evidence.
   17.1 ms p95 and rare 59 ms tail before changing one code path; rerun matched
   Fountain and Final Destination only if the focused candidate improves the
   strict worst-case distribution.
+
+## 2026-08-25 — G5 locked-cache pointer fast-path rejection
+
+- Goal: test whether the sampled `ppc_psq_store -> external write -> MMU` path
+  is the remaining required-stage compute bottleneck.
+- Work: added a regression that failed before GXRuntime consulted its existing
+  external-pointer callback, implemented the narrow pointer path, and disabled
+  it during lockstep journaling. The test passed afterward and the arm64 runner
+  plus fresh idle-clean Fountain/FD PGO module built. A cold native run proved
+  46 pointer-hook samples and moved the CPU thread from almost fully inside
+  static-recompiled compute to 6,844/9,774 samples in pacing sleep. A separate
+  capture-free bracket ran 20 scripted combat cycles with Cubeb.
+- Result: **CANDIDATE REJECTED; G5 STILL OPEN**. The 5,803-frame diagnostic
+  measured render p95/p99/worst 18.899/20.513/35.250 ms and only 46.631% at or
+  below 16.7 ms. Despite improved compute headroom and rare worst frame, the
+  sustained distribution is worse than the retained visually verified
+  Fountain interval. Final Destination was not run.
+- Evidence boundary: the SDL child was inaccessible to app-window capture, so
+  the controller route and performance bracket are screening evidence only;
+  no stage-identity or visual claim is made. `VISUAL-001B` remains open.
+- Cleanup: temporary dependency edits and tests were removed; the ignored app
+  bundle was restored to the retained runner/module hashes; no runner,
+  controller, frontend, or Simulator remains active.
+- Evidence:
+  `docs/artifacts/2026-08-25/g5-locked-cache-pointer-rejection.md`.
+- Next: re-evaluate pacing only in the measured locked-cache-headroom state;
+  retain nothing unless both required stages improve under the full strict
+  distribution and visual gates.

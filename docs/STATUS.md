@@ -73,6 +73,14 @@ The same run reached a visually verified, audio-enabled Fountain match. Its
 capture-free combat interval still fails G5 at 17.115 ms p95, 17.318 ms p99,
 59.024 ms worst, and 54.714% of render frames at or below 16.7 ms.
 
+A subsequent locked-cache pointer experiment proved that paired-single traffic
+could bypass the full MMU and moved the CPU thread from almost continuous
+generated compute to predominantly pacing sleep. It was nevertheless rejected:
+a clean 5,803-frame screening bracket regressed render p95/p99 to
+18.899/20.513 ms and the <=16.7 ms share to 46.631%. The temporary source,
+test, and app-bundle changes were restored. See
+`docs/artifacts/2026-08-25/g5-locked-cache-pointer-rejection.md`.
+
 No Simulator is booted. G6 remains gated on G5.
 
 The Fountain visual report is split as `VISUAL-001A/B`. The blurred/blocky
@@ -218,6 +226,14 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   59.9 FPS title concealed a failing tail: render p95/p99/worst were
   17.115/17.318/59.024 ms and only 54.714% of frames were <=16.7 ms. G5 remains
   open; see `docs/artifacts/2026-08-25/g5-watcher-pump-fountain-replay.md`.
+- **PERF-016 (rejected):** GXRuntime's unused external-pointer callback was
+  wired to Dolphin's locked-cache pointer under a failing regression and an
+  explicit lockstep-journaling guard. The callback was live and created large
+  CPU headroom, but a clean 5,803-frame screening interval regressed render
+  p95/p99 to 18.899/20.513 ms and the <=16.7 ms share to 46.631%. It was
+  rejected before Final Destination; all temporary code and staged build
+  artifacts were restored. Evidence:
+  `docs/artifacts/2026-08-25/g5-locked-cache-pointer-rejection.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual
