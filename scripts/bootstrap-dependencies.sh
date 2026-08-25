@@ -113,6 +113,7 @@ memory_watcher_test_patch="$ROOT/patches/moderngekko/0004-static-recomp-memory-w
 render_log_patch="$ROOT/patches/moderngekko-dolphin/0002-buffer-render-time-logging.patch"
 idle_patch="$ROOT/patches/moderngekko-dolphin/0003-gale01r0-staticrecomp-idle.patch"
 memory_watcher_patch="$ROOT/patches/moderngekko-dolphin/0004-static-recomp-memory-watcher.patch"
+profile_hooks_patch="$ROOT/patches/moderngekko-dolphin/0005-instrumentation-profile-hooks.patch"
 apply_patch_once "$MG" "$mg_patch"
 apply_patch_once "$MG/vendor/dolphin" "$dolphin_patch"
 apply_patch_once "$MG" "$launcher_patch"
@@ -122,6 +123,7 @@ apply_patch_once "$MG" "$memory_watcher_test_patch"
 apply_patch_once "$MG/vendor/dolphin" "$render_log_patch"
 apply_patch_once "$MG/vendor/dolphin" "$idle_patch"
 apply_patch_once "$MG/vendor/dolphin" "$memory_watcher_patch"
+apply_patch_once "$MG/vendor/dolphin" "$profile_hooks_patch"
 verify_patch_scope "$MG" "$mg_patch" vendor/dolphin tools/moderngekko_launcher.cpp \
   tools/moderngekko_port.cpp tests/frontend_config_test.cpp \
   tools/frontend_config.cpp tools/frontend_config.hpp tools/moderngekko_run.cpp \
@@ -129,10 +131,15 @@ verify_patch_scope "$MG" "$mg_patch" vendor/dolphin tools/moderngekko_launcher.c
 verify_patch_scope "$MG/vendor/dolphin" "$dolphin_patch" \
   Source/Core/VideoCommon/PerformanceTracker.cpp \
   Data/Sys/GameSettings/GALE01r0.ini \
+  Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp \
+  Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h \
+  Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp \
   Source/Core/Core/Cheats/MemoryWatcher.cpp \
   Source/Core/Core/Cheats/MemoryWatcher.h \
   Source/Core/Core/Cheats/MemoryWatcherUtils.h \
   Source/UnitTests/Core/CMakeLists.txt \
-  Source/UnitTests/Core/Cheats/MemoryWatcherUtilsTest.cpp
+  Source/UnitTests/Core/Cheats/MemoryWatcherUtilsTest.cpp \
+  module-template/module.exports \
+  module-template/module_export.c
 
 echo "ssbmpad dependencies are pinned and patched."

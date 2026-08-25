@@ -733,3 +733,32 @@ Append-only execution ledger. Claims are limited to observed evidence.
   revision-0 idle-PC skip using only visually verified required-stage runs.
   The old retained PGO corpus predates idle skipping and is no longer a sound
   layout baseline for the next optimization.
+
+## 2026-08-25 — G5 reduced-idle PGO rejection and combat-profile control
+
+- Goal: determine whether a fresh visually verified idle-skipping Fountain
+  corpus improves the strict frame distribution, then remove remaining
+  boot/menu counts before another training run.
+- Performance result: **CANDIDATE REJECTED; G5 STILL OPEN**. The candidate's
+  clean Fountain render p95/p99/worst were 17.216/17.459/88.407 ms versus the
+  retained 17.115/17.318/59.024 ms, and <=16.7 ms coverage fell from 54.714%
+  to 54.212%. Final Destination was not run.
+- Visual result: the independently trained candidate reproduced impossible
+  Fountain scale/displacement while its title read 59.9 FPS. `VISUAL-001B`
+  remains open and promotion-blocking.
+- Control implementation: instrumented modules now optionally export LLVM
+  counter reset/dump hooks. The host resolves them from the retained module
+  handle and drives a one-shot address/mask/value predicate on the emulated CPU
+  thread. Uninstrumented modules keep the prior exported surface and ABI.
+- Focused regression: the actual GALE01 instrumented dylib excluded seven
+  pre-reset descriptor calls, retained three post-reset calls, and dumped once;
+  the PGO-use module exported neither hook.
+- Live proof: a cold MemoryWatcher route armed on main-menu state, reset there,
+  entered VS CSS, and dumped with result zero. The 43 MB raw profile remains
+  outside Git; the native runner was stopped and no Simulator is booted.
+- Evidence:
+  `docs/artifacts/2026-08-25/g5-reduced-idle-pgo-rejection.md` and
+  `docs/artifacts/2026-08-25/g5-combat-profile-control.md`.
+- Next: collect a visually verified match-only Fountain corpus with the new
+  trigger, build a PGO-use candidate, and reject it before Final Destination
+  unless the complete strict Fountain distribution improves.

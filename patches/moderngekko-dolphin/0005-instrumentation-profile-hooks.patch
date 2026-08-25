@@ -1,0 +1,139 @@
+diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp
+--- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp
++++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp
+@@ -303,6 +303,27 @@ void StaticRecompCore::LoadModule()
+ 
+   m_module = desc;
+   m_module_active = (desc != nullptr);
++  if (m_library.IsOpen())
++  {
++    m_profile_reset = reinterpret_cast<ProfileResetFn>(
++        m_library.GetSymbolAddress("staticrecomp_profile_reset"));
++    m_profile_dump = reinterpret_cast<ProfileDumpFn>(
++        m_library.GetSymbolAddress("staticrecomp_profile_dump"));
++  }
++  const char* profile_trigger = std::getenv("STATICRECOMP_PROFILE_TRIGGER");
++  if (m_profile_reset && m_profile_dump && profile_trigger &&
++      std::sscanf(profile_trigger, "%x,%x,%x", &m_profile_trigger_address,
++                  &m_profile_trigger_mask, &m_profile_trigger_value) == 3 &&
++      m_profile_trigger_address != 0 && m_profile_trigger_mask != 0)
++  {
++    std::fprintf(stderr,
++                 "[staticrecomp] profile trigger armed: address=%08x mask=%08x value=%08x\n",
++                 m_profile_trigger_address, m_profile_trigger_mask, m_profile_trigger_value);
++  }
++  else
++  {
++    m_profile_trigger_address = 0;
++  }
+   m_chunk_state.assign(desc->num_chunk_ranges, CHUNK_UNVERIFIED);
+   m_chunk_host_call_state.assign(desc->num_chunk_ranges, 0);
+   m_effective_chunk_hashes.assign(desc->chunk_hashes,
+diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h
+--- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h
++++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h
+@@ -96,6 +96,7 @@ private:
+   };
+ 
+   void LoadModule();
++  void UpdateProfileCapture();
+ 
+   // D4 SMC guard, verify-on-entry model. Every chunk starts Unverified; the
+   // first native dispatch into it hashes its guest RAM against the module's
+@@ -150,6 +151,15 @@ private:
+ 
+   CPUState m_guest{};
+   Common::DynamicLibrary m_library;
++  using ProfileResetFn = void (*)();
++  using ProfileDumpFn = int (*)();
++  ProfileResetFn m_profile_reset = nullptr;
++  ProfileDumpFn m_profile_dump = nullptr;
++  u32 m_profile_trigger_address = 0;
++  u32 m_profile_trigger_mask = 0;
++  u32 m_profile_trigger_value = 0;
++  bool m_profile_capture_active = false;
++  bool m_profile_capture_complete = false;
+   StaticRecompModuleSource m_module_source;
+   const StaticRecompModuleDesc* m_module = nullptr;
+   bool m_module_active = false;
+diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
+--- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
++++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
+@@ -20,6 +20,28 @@ constexpr u32 SYNC_EXCEPTION_MASK = ~static_cast<u32>(
+     EXCEPTION_EXTERNAL_INT | EXCEPTION_DECREMENTER | EXCEPTION_PERFORMANCE_MONITOR);
+ }
+ 
++void StaticRecompCore::UpdateProfileCapture()
++{
++  if (m_profile_trigger_address == 0 || m_profile_capture_complete)
++    return;
++
++  const u32 value = m_system.GetMemory().Read_U32(m_profile_trigger_address);
++  const bool matches = (value & m_profile_trigger_mask) == m_profile_trigger_value;
++  if (matches && !m_profile_capture_active)
++  {
++    m_profile_reset();
++    m_profile_capture_active = true;
++    std::fprintf(stderr, "[staticrecomp] profile capture started\n");
++  }
++  else if (!matches && m_profile_capture_active)
++  {
++    const int result = m_profile_dump();
++    m_profile_capture_active = false;
++    m_profile_capture_complete = true;
++    std::fprintf(stderr, "[staticrecomp] profile capture dumped: result=%d\n", result);
++  }
++}
++
+ void StaticRecompCore::Run()
+ {
+   auto& core_timing = m_system.GetCoreTiming();
+@@ -47,6 +69,7 @@ void StaticRecompCore::Run()
+   while (*state_ptr == CPU::State::Running)
+   {
+     core_timing.Advance();
++    UpdateProfileCapture();
+     const std::string current_game_id = SConfig::GetInstance().GetGameID();
+     m_module_active = m_module && (current_game_id.empty() || current_game_id == m_module->game_id);
+ 
+diff --git a/module-template/module.exports b/module-template/module.exports
+--- a/module-template/module.exports
++++ b/module-template/module.exports
+@@ -1,5 +1,7 @@
+ {
+   global:
+     staticrecomp_get_module;
++    staticrecomp_profile_reset;
++    staticrecomp_profile_dump;
+   local:
+     *;
+diff --git a/module-template/module_export.c b/module-template/module_export.c
+--- a/module-template/module_export.c
++++ b/module-template/module_export.c
+@@ -8,6 +8,10 @@
+ 
+ #include "StaticRecompABI.h"
+ 
++#ifdef __LLVM_INSTR_PROFILE_GENERATE
++#include <profile/instr_prof_interface.h>
++#endif
++
+ static int chassis_dispatch(CPUState* ctx, u32 address)
+ {
+     return dolrecomp_call(ctx, address);
+@@ -50,3 +54,15 @@ RECOMP_MODULE_EXPORT const StaticRecompModuleDesc* staticrecomp_get_module(void)
+ {
+     return &s_desc;
+ }
++
++#ifdef __LLVM_INSTR_PROFILE_GENERATE
++RECOMP_MODULE_EXPORT void staticrecomp_profile_reset(void)
++{
++    __llvm_profile_reset_counters();
++}
++
++RECOMP_MODULE_EXPORT int staticrecomp_profile_dump(void)
++{
++    return __llvm_profile_dump();
++}
++#endif

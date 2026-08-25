@@ -123,3 +123,12 @@ deformation, character teleportation, invalid pose transitions, and copied
 stage-surface effects. The reference-matching Fountain reflection remains
 closed. The fresh real-body recurrence now blocks promotion conservatively;
 one frame is not enough to assign its subsystem or call it persistent.
+
+## Reduced-idle PGO recurrence
+
+A later, independently trained reduced-idle PGO candidate reproduced clearly
+impossible scale/displacement during a freshly verified Fountain match while
+the native title read 59.9 FPS. The retained frame and exact candidate timing
+rejection are documented in `g5-reduced-idle-pgo-rejection.md`. This separates
+the corruption from the earlier idle-contaminated profile and confirms that
+frame-rate recovery alone does not close `VISUAL-001B`.

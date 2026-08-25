@@ -103,6 +103,23 @@ but not a clean acceptance interval because sampling ran concurrently. It also
 shows that the retained PGO module was trained before the idle-PC optimization,
 making a fresh visually verified idle-skipping corpus the next focused test.
 
+That fresh reduced-idle corpus did not improve Fountain. Its PGO-use candidate
+regressed clean render p95/p99/worst to 17.216/17.459/88.407 ms and reduced the
+<=16.7 ms share to 54.212%, so it was rejected without a Final Destination
+run. The same visibly verified match reproduced impossible scale/displacement
+at a 59.9 FPS title, providing independent positive evidence for
+`VISUAL-001B`.
+
+The counter-control prerequisite for a truly combat-only corpus is now
+verified. Instrumented modules optionally export LLVM reset/dump hooks; the
+host resolves them without changing the module ABI and invokes them on the
+emulated CPU thread from an explicit one-shot memory predicate. The real-module
+fixture excluded seven pre-reset calls and retained exactly three post-reset
+calls. A live main-menu-to-VS transition then logged reset followed by a
+successful dump. Release/PGO-use modules export neither hook. The next G5
+experiment is a visually verified Fountain combat-only corpus and candidate
+screen, not another reduced-idle merge.
+
 No Simulator is booted. G6 remains gated on G5.
 
 The Fountain visual report is split as `VISUAL-001A/B`. The blurred/blocky
@@ -124,7 +141,7 @@ sequence classify it.
 | G2 Module recompiles and links | Pass | `docs/artifacts/2026-08-24/g2-module-and-package.md` |
 | G3 macOS boots to title | Pass | `docs/artifacts/2026-08-24/g3-macos-title-and-input.md`; retained title and A-transition screenshots |
 | G4 macOS playable | Pass | `docs/artifacts/2026-08-24/g4-controlled-match.md`; clean CSS -> 1v1 -> results plus live Cubeb/CoreAudio mixing evidence |
-| G5 macOS 60 fps | In progress | Clean Fountain p95/worst 17.115/59.024 ms; verified sampled Fountain p95/worst 17.565/30.615 ms; `VISUAL-001B` open |
+| G5 macOS 60 fps | In progress | Clean Fountain p95/worst 17.115/59.024 ms; reduced-idle PGO rejected at 17.216/88.407 ms; combat-only reset/dump path verified; `VISUAL-001B` open |
 | G6 Simulator core boots | Not started | G5 first; no Simulator booted |
 | G7 Shell ported | Not started | G6 first |
 | G8 Test matrix green | Not started | G7 first |
