@@ -663,3 +663,27 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Next: re-evaluate pacing only in the measured locked-cache-headroom state;
   retain nothing unless both required stages improve under the full strict
   distribution and visual gates.
+
+## 2026-08-25 — G5 locked-cache plus precise-spin rejection
+
+- Goal: test the newly falsifiable pacing hypothesis after the locked-cache
+  candidate moved 70% of sampled CPU time into `PrecisionTimer::SleepUntil`.
+- Work: held the pointer module, lockstep guard, Cubeb, Metal, cold route, and
+  20-cycle combat script fixed; changed only the final Apple-silicon precision
+  spin from scheduler `yield()` to the ARM `yield` hint. The arm64 runner built
+  and the revision-0 watcher route again reached CSS before the bounded route.
+- Result: **COMPOSITION REJECTED; G5 STILL OPEN**. The 4,780-frame render
+  interval measured 16.678 ms median but 19.658/21.009/70.455 ms
+  p95/p99/worst and only 51.318% <=16.7 ms. This is worse in every retained
+  tail metric than the required-stage reference, and worse in p95/p99/worst
+  than the standalone pointer screening run. Final Destination was not run.
+- Evidence boundary: as in the parent diagnostic, the raw SDL child was not
+  accessibility-visible, so no stage or visual claim is made. `VISUAL-001B`
+  remains open and promotion-blocking.
+- Cleanup: the temporary timer and hook changes were removed; the ignored app
+  bundle was restored to the retained hashes; no runner, frontend, controller,
+  or Simulator remains active.
+- Evidence:
+  `docs/artifacts/2026-08-25/g5-locked-cache-pointer-rejection.md`.
+- Next: stop tuning final-spin behavior. Attribute the retained Fountain tail
+  to a different single path, keeping compute and pacing evidence separate.

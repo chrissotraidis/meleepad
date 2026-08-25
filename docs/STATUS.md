@@ -81,6 +81,11 @@ a clean 5,803-frame screening bracket regressed render p95/p99 to
 test, and app-bundle changes were restored. See
 `docs/artifacts/2026-08-25/g5-locked-cache-pointer-rejection.md`.
 
+Re-testing the Apple-silicon final-spin hint in that new compute-headroom state
+also failed retention. Median returned to 16.678 ms, but render p95/p99/worst
+regressed to 19.658/21.009/70.455 ms. The composed timer/hook experiment was
+removed and Final Destination was not run.
+
 No Simulator is booted. G6 remains gated on G5.
 
 The Fountain visual report is split as `VISUAL-001A/B`. The blurred/blocky
@@ -233,6 +238,12 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   p95/p99 to 18.899/20.513 ms and the <=16.7 ms share to 46.631%. It was
   rejected before Final Destination; all temporary code and staged build
   artifacts were restored. Evidence:
+  `docs/artifacts/2026-08-25/g5-locked-cache-pointer-rejection.md`.
+- **PERF-017 (rejected):** Replacing the final macOS scheduler yield with the
+  ARM `yield` hint was re-tested specifically on top of the locked-cache
+  compute-headroom state. It recovered a 16.678 ms median but regressed render
+  p95/p99/worst to 19.658/21.009/70.455 ms, so the composition was removed
+  before Final Destination. Evidence:
   `docs/artifacts/2026-08-25/g5-locked-cache-pointer-rejection.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official

@@ -95,9 +95,46 @@ No runner, controller driver, frontend, or Simulator remains active.
 The sample changes the next falsifiable question: after locked-cache compute is
 removed, the CPU becomes predominantly pacing-sleep bound. The earlier precise
 spin timer was tested while the game was compute-bound and was correctly
-rejected. A future single pacing experiment may re-evaluate the timer only on
-top of this measured compute-headroom state; neither change is retained until
-the complete Fountain and Final Destination distributions improve together.
+rejected. That exact pacing change was therefore re-evaluated on top of the
+measured compute-headroom state in the follow-up below.
 
 `VISUAL-001B` is unaffected. No image was captured in this run, and the user's
 intermittent fighter-body warping remains promotion-blocking.
+
+## Follow-up: Apple-silicon final-spin composition
+
+Status: **COMPOSITION REJECTED**
+
+The follow-up changed only the final precision-timer spin in the fixed
+locked-cache candidate state. On Apple silicon, `std::this_thread::yield()` was
+temporarily replaced by the ARM `yield` hint; target time, the preceding
+`sleep_until(target - 1.02 ms)`, game module, graphics, audio, controller route,
+and combat script were unchanged. The lockstep pointer guard remained active.
+
+- unsigned composed runner SHA-256:
+  `e1952ef33928496edcf9af9c51e278cb35d936d0b7fcc33b7c108c87f40a74b8`
+- exact render bracket: records 11,606-16,385
+- exact vblank bracket: records 12,292-17,071
+
+| Metric | Render | Vblank |
+|---|---:|---:|
+| Samples | 4,780 | 4,780 |
+| Mean | 16.682757 ms | 16.683331 ms |
+| Median | 16.678000 ms | 16.697333 ms |
+| p95 | 19.658000 ms | 18.439958 ms |
+| p99 | 21.008584 ms | 18.876250 ms |
+| Worst | 70.455125 ms | 63.977000 ms |
+| Frames <=16.7 ms | 51.318% | 50.439% |
+
+The ARM hint recovered the render median and slightly improved the <=16.7 ms
+share relative to the standalone pointer diagnostic, but it worsened render
+p95, p99, and worst. Avoiding the scheduler yield therefore adds contention or
+tail risk in this state rather than solving frame delivery. The composition is
+rejected before Final Destination and neither temporary change is retained.
+
+The stopped full composed-run logs had SHA-256
+`4ae7ab2086d4d94de7a122ac13d096de9c437707199aa7ef94c6862343fa6625`
+(render) and
+`7ed3edc080951306016f4cf27071ea09fc09268a0971799cb07784a4032441b7`
+(vblank). The timer and hook edits were removed, the retained app runner/module
+hashes were restored again, and no runner or Simulator remains active.
