@@ -1,14 +1,21 @@
 [
   {
     "action": "wait_memory",
-    "address": "0x80479D30",
+    "address": "0x80477D68",
     "mask": "0xFF0000FF",
     "equals": "0x00000000",
     "timeout": 420
   },
   {
     "action": "wait_memory",
-    "address": "0x804D6714",
+    "address": "0x804D4594",
+    "mask": "0xFFFFFFFF",
+    "not_equals": "0x00000000",
+    "timeout": 420
+  },
+  {
+    "action": "wait_memory",
+    "address": "0x804D4594",
     "mask": "0xFFFFFFFF",
     "equals": "0x00000000",
     "timeout": 60
@@ -16,22 +23,22 @@
   {"action": "tap", "button": "START", "hold": 1.0},
   {
     "action": "wait_memory",
-    "address": "0x80479D30",
+    "address": "0x80477D68",
     "mask": "0xFF0000FF",
-    "equals": "0x01000001",
+    "equals": "0x01000000",
     "timeout": 120
   },
-  {"action": "wait", "seconds": 1.0},
+  {"action": "wait", "seconds": 5.0},
   {"action": "tap", "button": "D_DOWN", "hold": 0.12},
   {"action": "wait", "seconds": 0.5},
   {"action": "tap", "button": "A", "hold": 0.3},
-  {"action": "wait", "seconds": 2.0},
+  {"action": "wait", "seconds": 5.0},
   {"action": "tap", "button": "A", "hold": 0.3},
   {
     "action": "wait_memory",
-    "address": "0x80479D30",
+    "address": "0x80477D68",
     "mask": "0xFF0000FF",
-    "equals": "0x02000008",
+    "equals": "0x02000000",
     "timeout": 120
   }
 ]

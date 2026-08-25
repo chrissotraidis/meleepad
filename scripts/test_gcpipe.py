@@ -17,7 +17,7 @@ class MemoryWatcherClientTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temp_dir = tempfile.TemporaryDirectory()
         self.user_dir = Path(self.temp_dir.name) / "user"
-        self.address = 0x80479D30
+        self.address = 0x80477D68
         self.client = gcpipe.MemoryWatcherClient(self.user_dir, {self.address})
 
     def tearDown(self) -> None:
@@ -49,14 +49,26 @@ class MemoryWatcherClientTests(unittest.TestCase):
         locations = (self.user_dir / "MemoryWatcher/Locations.txt").read_text(
             encoding="ascii"
         )
-        self.assertEqual(locations, "80479D30\n")
+        self.assertEqual(locations, "80477D68\n")
+
+    def test_wait_value_not_rejects_boot_zero(self) -> None:
+        thread = self.send_values([0, 0x13])
+        value = self.client.wait_value_not(self.address, 0xFFFFFFFF, 0, 1.0)
+        thread.join()
+        self.assertEqual(value, 0x13)
 
 
 class SequenceTests(unittest.TestCase):
-    def test_collects_revision_zero_memory_address(self) -> None:
-        sequence = [{"action": "wait_memory", "address": "0x80479D30"}]
+    def test_isolated_user_dir_uses_its_fifo_by_default(self) -> None:
+        user_dir = Path("/private/tmp/ssbmpad-test/user")
         self.assertEqual(
-            gcpipe.sequence_addresses(sequence), {0x80479D30}
+            gcpipe.default_pipe_path(user_dir), user_dir / "Pipes/ssbmpad"
+        )
+
+    def test_collects_revision_zero_memory_address(self) -> None:
+        sequence = [{"action": "wait_memory", "address": "0x80477D68"}]
+        self.assertEqual(
+            gcpipe.sequence_addresses(sequence), {0x80477D68}
         )
 
     def test_title_to_css_does_not_press_start_on_the_main_menu(self) -> None:
@@ -68,7 +80,7 @@ class SequenceTests(unittest.TestCase):
             index
             for index, step in enumerate(sequence)
             if step.get("action") == "wait_memory"
-            and step.get("equals") == "0x01000001"
+            and step.get("equals") == "0x01000000"
         )
         start_taps = [
             step
@@ -76,6 +88,40 @@ class SequenceTests(unittest.TestCase):
             if step.get("action") == "tap" and step.get("button") == "START"
         ]
         self.assertEqual(len(start_taps), 1)
+
+    def test_title_to_css_uses_per_mode_revision_zero_scene_indices(self) -> None:
+        sequence_path = (
+            Path(__file__).parent / "input-sequences/g5-r0-title-to-css.json"
+        )
+        sequence = json.loads(sequence_path.read_text(encoding="utf-8"))
+        routing_values = [
+            step.get("equals")
+            for step in sequence
+            if step.get("action") == "wait_memory"
+            and step.get("address") == "0x80477D68"
+        ]
+        self.assertEqual(
+            routing_values,
+            ["0x00000000", "0x01000000", "0x02000000"],
+        )
+
+    def test_title_to_css_waits_for_menu_input_animations(self) -> None:
+        sequence_path = (
+            Path(__file__).parent / "input-sequences/g5-r0-title-to-css.json"
+        )
+        sequence = json.loads(sequence_path.read_text(encoding="utf-8"))
+        down_index = next(
+            index
+            for index, step in enumerate(sequence)
+            if step.get("action") == "tap" and step.get("button") == "D_DOWN"
+        )
+        a_indices = [
+            index
+            for index, step in enumerate(sequence)
+            if step.get("action") == "tap" and step.get("button") == "A"
+        ]
+        self.assertGreaterEqual(sequence[down_index - 1].get("seconds", 0), 5)
+        self.assertGreaterEqual(sequence[a_indices[1] - 1].get("seconds", 0), 5)
 
     def test_title_to_css_waits_out_the_title_input_lockout(self) -> None:
         sequence_path = (
@@ -87,13 +133,18 @@ class SequenceTests(unittest.TestCase):
             for index, step in enumerate(sequence)
             if step.get("action") == "tap" and step.get("button") == "START"
         )
-        self.assertTrue(
-            any(
-                step.get("action") == "wait_memory"
-                and step.get("address") == "0x804D6714"
-                and step.get("equals") == "0x00000000"
-                for step in sequence[:start_index]
-            )
+        lockout_predicates = [
+            ("not_equals", step.get("not_equals"))
+            if "not_equals" in step
+            else ("equals", step.get("equals"))
+            for step in sequence[:start_index]
+            if step.get("action") == "wait_memory"
+            and step.get("address") == "0x804D4594"
+        ]
+        self.assertEqual(
+            lockout_predicates,
+            [("not_equals", "0x00000000"), ("equals", "0x00000000")],
+            "must observe title initialization before accepting its final zero",
         )
 
 

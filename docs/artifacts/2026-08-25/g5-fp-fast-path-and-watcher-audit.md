@@ -2,7 +2,7 @@
 
 Date: 2026-08-25
 
-Status: **FP CANDIDATE REJECTED; WATCHER ROUTE STILL OPEN; VISUAL-001B REOPENED**
+Status: **FP CANDIDATE REJECTED; WATCHED MEMORY FIXED; VISUAL-001B REOPENED**
 
 ## FP candidate
 
@@ -102,3 +102,9 @@ MEM1 reader, ensure an initial zero value is transmitted, use the built-in
 speaker for the fresh runner, and prove the first watched values before any
 controller action. Process count must be checked after every close and before
 every launch.
+
+Follow-up completed those prerequisites. The direct bounded reader and initial
+zero publication are packaged and tested, and the cold replay exposed and
+corrected mixed revision-1.02/revision-0 route addresses. The route now visibly
+reaches VS CSS, but its terminal watcher predicate remains open. See
+`g5-static-recomp-memory-watcher-route.md`.

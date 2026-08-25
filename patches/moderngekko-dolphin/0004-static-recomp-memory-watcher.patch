@@ -1,0 +1,232 @@
+diff --git a/Source/Core/Core/Cheats/MemoryWatcher.cpp b/Source/Core/Core/Cheats/MemoryWatcher.cpp
+--- a/Source/Core/Core/Cheats/MemoryWatcher.cpp
++++ b/Source/Core/Core/Cheats/MemoryWatcher.cpp
+@@ -3,6 +3,8 @@
+
+ #include "Core/Cheats/MemoryWatcher.h"
+
++#include "Core/Cheats/MemoryWatcherUtils.h"
++
+ #include <cstring>
+ #include <fstream>
+ #include <iostream>
+@@ -10,7 +12,10 @@
+ #include <unistd.h>
+
+ #include "Common/FileUtil.h"
++#include "Core/HW/Memmap.h"
+ #include "Core/PowerPC/MMU.h"
++#include "Core/PowerPC/StaticRecomp/StaticRecompCore.h"
++#include "Core/System.h"
+
+ MemoryWatcher::MemoryWatcher()
+ {
+@@ -47,7 +52,7 @@ bool MemoryWatcher::LoadAddresses(const std::string& path)
+
+ void MemoryWatcher::ParseLine(const std::string& line)
+ {
+-  m_values[line] = 0;
++  m_values[line] = std::nullopt;
+   m_addresses[line] = std::vector<u32>();
+
+   std::istringstream offsets(line);
+@@ -69,11 +74,30 @@ bool MemoryWatcher::OpenSocket(const std::string& path)
+ u32 MemoryWatcher::ChasePointer(const Core::CPUThreadGuard& guard, const std::string& line)
+ {
+   u32 value = 0;
++  const bool use_static_recomp_memory =
++      g_static_recomp_core && g_static_recomp_core->IsModuleActive();
++  auto& memory = guard.GetSystem().GetMemory();
++  const std::span<const u8> mem1{memory.GetRAM(), memory.GetRamSizeReal()};
++  const std::span<const u8> mem2{memory.GetEXRAM(), memory.GetExRamSizeReal()};
++
+   for (u32 offset : m_addresses[line])
+   {
+-    value = PowerPC::MMU::HostRead<u32>(guard, value + offset);
+-    if (!PowerPC::MMU::HostIsRAMAddress(guard, value))
+-      break;
++    if (use_static_recomp_memory)
++    {
++      const auto new_value =
++          MemoryWatcherUtils::ReadStaticRecompU32(mem1, mem2, value + offset);
++      if (!new_value)
++        return 0;
++      value = *new_value;
++      if (!MemoryWatcherUtils::IsStaticRecompRAMAddress(mem1, mem2, value))
++        break;
++    }
++    else
++    {
++      value = PowerPC::MMU::HostRead<u32>(guard, value + offset);
++      if (!PowerPC::MMU::HostIsRAMAddress(guard, value))
++        break;
++    }
+   }
+   return value;
+ }
+@@ -86,10 +110,10 @@ std::string MemoryWatcher::ComposeMessages(const Core::CPUThreadGuard& guard)
+   for (auto& entry : m_values)
+   {
+     std::string address = entry.first;
+-    u32& current_value = entry.second;
++    std::optional<u32>& current_value = entry.second;
+
+     u32 new_value = ChasePointer(guard, address);
+-    if (new_value != current_value)
++    if (MemoryWatcherUtils::ShouldPublish(current_value, new_value))
+     {
+       // Update the value
+       current_value = new_value;
+diff --git a/Source/Core/Core/Cheats/MemoryWatcher.h b/Source/Core/Core/Cheats/MemoryWatcher.h
+--- a/Source/Core/Core/Cheats/MemoryWatcher.h
++++ b/Source/Core/Core/Cheats/MemoryWatcher.h
+@@ -6,6 +6,7 @@
+ #include "Common/CommonTypes.h"
+
+ #include <map>
++#include <optional>
+ #include <string>
+ #include <sys/socket.h>
+ #include <sys/un.h>
+@@ -47,5 +48,5 @@ private:
+   // Address as stored in the file -> list of offsets to follow
+   std::map<std::string, std::vector<u32>> m_addresses;
+   // Address as stored in the file -> current value
+-  std::map<std::string, u32> m_values;
++  std::map<std::string, std::optional<u32>> m_values;
+ };
+diff --git a/Source/Core/Core/Cheats/MemoryWatcherUtils.h b/Source/Core/Core/Cheats/MemoryWatcherUtils.h
+new file mode 100644
+--- /dev/null
++++ b/Source/Core/Core/Cheats/MemoryWatcherUtils.h
+@@ -0,0 +1,64 @@
++// Copyright 2026 Dolphin Emulator Project
++// SPDX-License-Identifier: GPL-2.0-or-later
++
++#pragma once
++
++#include <optional>
++#include <span>
++
++#include "Common/CommonTypes.h"
++
++namespace MemoryWatcherUtils
++{
++namespace detail
++{
++struct MemoryLocation
++{
++  std::span<const u8> memory;
++  u32 offset;
++};
++
++inline std::optional<MemoryLocation> ResolveStaticRecompAddress(std::span<const u8> mem1,
++                                                               std::span<const u8> mem2,
++                                                               u32 address)
++{
++  const u32 segment = address & 0xf0000000u;
++  if (segment == 0x80000000u || segment == 0xc0000000u)
++  {
++    const u32 offset = address & 0x0fffffffu;
++    if (offset < mem1.size())
++      return MemoryLocation{mem1, offset};
++  }
++  else if (segment == 0x90000000u || segment == 0xd0000000u)
++  {
++    const u32 offset = address & 0x0fffffffu;
++    if (offset < mem2.size())
++      return MemoryLocation{mem2, offset};
++  }
++  return std::nullopt;
++}
++}  // namespace detail
++
++inline bool IsStaticRecompRAMAddress(std::span<const u8> mem1, std::span<const u8> mem2,
++                                     u32 address)
++{
++  return detail::ResolveStaticRecompAddress(mem1, mem2, address).has_value();
++}
++
++inline std::optional<u32> ReadStaticRecompU32(std::span<const u8> mem1,
++                                             std::span<const u8> mem2, u32 address)
++{
++  const auto location = detail::ResolveStaticRecompAddress(mem1, mem2, address);
++  if (!location || location->memory.size() - location->offset < sizeof(u32))
++    return std::nullopt;
++
++  const u8* const bytes = location->memory.data() + location->offset;
++  return (static_cast<u32>(bytes[0]) << 24) | (static_cast<u32>(bytes[1]) << 16) |
++         (static_cast<u32>(bytes[2]) << 8) | static_cast<u32>(bytes[3]);
++}
++
++inline bool ShouldPublish(const std::optional<u32>& current_value, u32 new_value)
++{
++  return !current_value || *current_value != new_value;
++}
++}  // namespace MemoryWatcherUtils
+diff --git a/Source/UnitTests/Core/CMakeLists.txt b/Source/UnitTests/Core/CMakeLists.txt
+--- a/Source/UnitTests/Core/CMakeLists.txt
++++ b/Source/UnitTests/Core/CMakeLists.txt
+@@ -2,6 +2,7 @@ add_dolphin_test(MMIOTest MMIOTest.cpp)
+ add_dolphin_test(PageFaultTest PageFaultTest.cpp)
+ add_dolphin_test(CoreTimingTest CoreTimingTest.cpp)
+ add_dolphin_test(PatchAllowlistTest PatchAllowlistTest.cpp)
++add_dolphin_test(MemoryWatcherUtilsTest Cheats/MemoryWatcherUtilsTest.cpp)
+
+ add_dolphin_test(DSPAcceleratorTest DSP/DSPAcceleratorTest.cpp)
+ add_dolphin_test(DSPAssemblyTest
+diff --git a/Source/UnitTests/Core/Cheats/MemoryWatcherUtilsTest.cpp b/Source/UnitTests/Core/Cheats/MemoryWatcherUtilsTest.cpp
+new file mode 100644
+--- /dev/null
++++ b/Source/UnitTests/Core/Cheats/MemoryWatcherUtilsTest.cpp
+@@ -0,0 +1,50 @@
++// Copyright 2026 Dolphin Emulator Project
++// SPDX-License-Identifier: GPL-2.0-or-later
++
++#include <array>
++#include <optional>
++
++#include <gtest/gtest.h>
++
++#include "Core/Cheats/MemoryWatcherUtils.h"
++
++namespace
++{
++using MemoryWatcherUtils::ReadStaticRecompU32;
++using MemoryWatcherUtils::ShouldPublish;
++
++TEST(MemoryWatcherUtils, ReadsBigEndianCachedAndUncachedMem1)
++{
++  const std::array<u8, 8> mem1{{0x00, 0x00, 0x00, 0x00, 0x12, 0x34, 0x56, 0x78}};
++  const std::array<u8, 1> mem2{};
++
++  EXPECT_EQ(ReadStaticRecompU32(mem1, mem2, 0x80000004), 0x12345678u);
++  EXPECT_EQ(ReadStaticRecompU32(mem1, mem2, 0xc0000004), 0x12345678u);
++}
++
++TEST(MemoryWatcherUtils, ReadsBigEndianCachedAndUncachedMem2)
++{
++  const std::array<u8, 1> mem1{};
++  const std::array<u8, 8> mem2{{0x00, 0x00, 0x00, 0x00, 0x89, 0xab, 0xcd, 0xef}};
++
++  EXPECT_EQ(ReadStaticRecompU32(mem1, mem2, 0x90000004), 0x89abcdefu);
++  EXPECT_EQ(ReadStaticRecompU32(mem1, mem2, 0xd0000004), 0x89abcdefu);
++}
++
++TEST(MemoryWatcherUtils, RejectsInvalidAndTruncatedRanges)
++{
++  const std::array<u8, 8> mem1{};
++  const std::array<u8, 8> mem2{};
++
++  EXPECT_EQ(ReadStaticRecompU32(mem1, mem2, 0x7ffffffcu), std::nullopt);
++  EXPECT_EQ(ReadStaticRecompU32(mem1, mem2, 0x80000005u), std::nullopt);
++  EXPECT_EQ(ReadStaticRecompU32(mem1, mem2, 0xffffffffu), std::nullopt);
++}
++
++TEST(MemoryWatcherUtils, PublishesInitialZeroThenSuppressesUnchangedValue)
++{
++  EXPECT_TRUE(ShouldPublish(std::nullopt, 0));
++  EXPECT_FALSE(ShouldPublish(std::optional<u32>{0}, 0));
++  EXPECT_TRUE(ShouldPublish(std::optional<u32>{0}, 1));
++}
++}  // namespace

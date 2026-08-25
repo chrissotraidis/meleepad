@@ -555,3 +555,47 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Next: add a pure static-recomp MEM1 read regression, make MemoryWatcher send
   the first zero value, preselect built-in audio for a fresh runner, and prove
   process count after every close and before every launch.
+
+## 2026-08-25 — User reconfirmation of real-mesh warping blocker
+
+- Goal: ensure the reported bizarre character morphing/warping remains visible
+  in the goal loop and is not conflated with Fountain's reference-matching
+  lower reflection.
+- Evidence: the reattached 1230 x 848 screenshot has SHA-256
+  `a524450eb97c9bb99722a4d48a5d1f55998dc300aac0a7984a2f2af576e19b6c`,
+  exactly matching the already retained
+  `g5-fountain-warping-user-observation.png`; no duplicate was created.
+- Result: `VISUAL-001B` remains open and promotion-blocking. The next accepted
+  classification evidence must contain uncontaminated adjacent frames or a
+  matched official-reference sequence; a coherent later sample does not erase
+  the reported recurrence.
+
+## 2026-08-25 — G5 static-recomp watcher fix and R0 cold route
+
+- Goal: make watched-memory input deterministic enough to collect clean
+  temporal mesh evidence and required-stage performance samples.
+- Work: added a pure bounded static-recomp MEM1/MEM2 reader, initial-zero
+  publication, upstream-style and always-built regressions, reproducible
+  ModernGekko/Dolphin patches, isolated-user FIFO derivation, memory tracing,
+  and nonzero-to-zero predicates. Generated revision-0 instructions proved the
+  prior sequence mixed revision-1.02 addresses into revision 0; corrected
+  `GameState` to `0x80477D68` and title lockout to `0x804D4594`. Corrected
+  routing predicates to per-mode scene index zero and retained conservative
+  five-second menu animation windows.
+- Result: **PARTIAL PASS**. The watcher streamed live R0 boot state and the
+  complete 20-to-zero title lockout. A cold route sent no early input, reached
+  Main Menu, and visibly reached four-slot VS CSS. The terminal `GM_VS`
+  notification still timed out despite visible CSS, so predicate completion is
+  unresolved and no full automation-pass claim is made.
+- Verification: focused test failed before each fix; nine Python regressions,
+  the standalone C++ watcher regression, four focused ModernGekko regressions,
+  patched Dolphin core compile, full arm64 runner link, bootstrap patch audit,
+  code-signature verification, and repository checks pass.
+- Cleanup: the runner and driver are stopped, Simulator remains off, the
+  unexpected microphone request was not accepted, and Jump Desktop Audio was
+  restored.
+- Evidence:
+  `docs/artifacts/2026-08-25/g5-static-recomp-memory-watcher-route.md`.
+- Next: explain or replace the terminal CSS state signal, then use the reliable
+  cold/input path for uncontaminated adjacent-frame mesh capture and required-
+  stage G5 timing.

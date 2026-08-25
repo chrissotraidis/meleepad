@@ -13,6 +13,13 @@ heavily distorted/blurred lower-stage region:
 - SHA-256: `a524450eb97c9bb99722a4d48a5d1f55998dc300aac0a7984a2f2af576e19b6c`
 - Dimensions: 1230 x 848
 
+The user reconfirmed on 2026-08-25 that the promotion gate must explicitly
+track the bizarre character morphing and body warping, not only the stage
+surface effect. The reattached screenshot was byte-for-byte identical to the
+retained observation above (same SHA-256), so no duplicate evidence file was
+created. This reconfirmation keeps `VISUAL-001B` open even though the distinct
+Fountain reflection issue is closed as reference parity.
+
 This frame was captured from the fully instrumented profile-generation module,
 which was running Fountain at roughly 12-14 host FPS. A single overlapping
 combat frame was not enough to assign the cause. The repeated user observation

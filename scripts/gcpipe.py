@@ -17,6 +17,12 @@ DEFAULT_PIPE = (
 )
 
 
+def default_pipe_path(memory_user_dir: Path | None = None) -> Path:
+    if memory_user_dir is not None:
+        return memory_user_dir / "Pipes/ssbmpad"
+    return DEFAULT_PIPE
+
+
 def parse_int(value: int | str) -> int:
     if isinstance(value, int):
         return value
@@ -26,7 +32,9 @@ def parse_int(value: int | str) -> int:
 class MemoryWatcherClient:
     """Receive Dolphin MemoryWatcher values from an isolated user directory."""
 
-    def __init__(self, user_dir: Path, addresses: set[int]):
+    def __init__(
+        self, user_dir: Path, addresses: set[int], trace: bool = False
+    ):
         watcher_dir = user_dir / "MemoryWatcher"
         watcher_dir.mkdir(parents=True, exist_ok=True)
         (watcher_dir / "Locations.txt").write_text(
@@ -41,6 +49,7 @@ class MemoryWatcherClient:
         self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
         self.socket.bind(str(self.socket_path))
         self.values: dict[int, int] = {}
+        self.trace = trace
 
     def _receive(self, deadline: float) -> None:
         remaining = deadline - time.monotonic()
@@ -53,7 +62,11 @@ class MemoryWatcherClient:
             return
         lines = payload.splitlines()
         for index in range(0, len(lines) - 1, 2):
-            self.values[int(lines[index].split()[0], 16)] = int(lines[index + 1], 16)
+            address = int(lines[index].split()[0], 16)
+            value = int(lines[index + 1], 16)
+            self.values[address] = value
+            if self.trace:
+                print(f"[memory] {address:08X}={value:08X}", flush=True)
 
     def wait_value(
         self, address: int, mask: int, expected: int, timeout_s: float
@@ -62,6 +75,16 @@ class MemoryWatcherClient:
         while True:
             value = self.values.get(address)
             if value is not None and value & mask == expected:
+                return value
+            self._receive(deadline)
+
+    def wait_value_not(
+        self, address: int, mask: int, rejected: int, timeout_s: float
+    ) -> int:
+        deadline = time.monotonic() + timeout_s
+        while True:
+            value = self.values.get(address)
+            if value is not None and value & mask != rejected:
                 return value
             self._receive(deadline)
 
@@ -134,12 +157,17 @@ def run_sequence(
         elif action == "wait_memory":
             if watcher is None:
                 raise ValueError("wait_memory requires --memory-user-dir")
-            watcher.wait_value(
-                parse_int(step["address"]),
-                parse_int(step.get("mask", "0xffffffff")),
-                parse_int(step["equals"]),
-                float(step.get("timeout", 60.0)),
-            )
+            address = parse_int(step["address"])
+            mask = parse_int(step.get("mask", "0xffffffff"))
+            timeout_s = float(step.get("timeout", 60.0))
+            if "not_equals" in step:
+                watcher.wait_value_not(
+                    address, mask, parse_int(step["not_equals"]), timeout_s
+                )
+            else:
+                watcher.wait_value(
+                    address, mask, parse_int(step["equals"]), timeout_s
+                )
         else:
             raise ValueError(f"unknown action: {action}")
         print(f"[{time.monotonic() - started:7.2f}s] {json.dumps(step)}", flush=True)
@@ -147,10 +175,11 @@ def run_sequence(
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--pipe", type=Path, default=DEFAULT_PIPE)
+    parser.add_argument("--pipe", type=Path)
     parser.add_argument("--open-timeout", type=float, default=60.0)
     parser.add_argument("--sequence", type=Path)
     parser.add_argument("--memory-user-dir", type=Path)
+    parser.add_argument("--trace-memory", action="store_true")
     parser.add_argument("--tap", metavar="BUTTON")
     parser.add_argument("--stick", nargs=3, metavar=("AXIS", "X", "Y"))
     args = parser.parse_args()
@@ -165,9 +194,12 @@ def main() -> int:
         addresses = sequence_addresses(sequence)
         if not addresses:
             parser.error("--memory-user-dir requires a memory-aware sequence")
-        watcher = MemoryWatcherClient(args.memory_user_dir, addresses)
+        watcher = MemoryWatcherClient(
+            args.memory_user_dir, addresses, trace=args.trace_memory
+        )
 
-    writer = PadWriter(args.pipe, args.open_timeout)
+    pipe_path = args.pipe or default_pipe_path(args.memory_user_dir)
+    writer = PadWriter(pipe_path, args.open_timeout)
     try:
         if sequence:
             run_sequence(writer, sequence, watcher)

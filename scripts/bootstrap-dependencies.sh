@@ -109,20 +109,30 @@ dolphin_patch="$SUNPAD/patches/ModernGekko-dolphin/0001-sunpad-ios-runtime.patch
 launcher_patch="$ROOT/patches/moderngekko/0001-launcher-do-not-scan-documents-at-startup.patch"
 thinlto_patch="$ROOT/patches/moderngekko/0002-macos-preserve-module-thinlto.patch"
 pipe_input_patch="$ROOT/patches/moderngekko/0003-pipe-input-background.patch"
+memory_watcher_test_patch="$ROOT/patches/moderngekko/0004-static-recomp-memory-watcher-test.patch"
 render_log_patch="$ROOT/patches/moderngekko-dolphin/0002-buffer-render-time-logging.patch"
 idle_patch="$ROOT/patches/moderngekko-dolphin/0003-gale01r0-staticrecomp-idle.patch"
+memory_watcher_patch="$ROOT/patches/moderngekko-dolphin/0004-static-recomp-memory-watcher.patch"
 apply_patch_once "$MG" "$mg_patch"
 apply_patch_once "$MG/vendor/dolphin" "$dolphin_patch"
 apply_patch_once "$MG" "$launcher_patch"
 apply_patch_once "$MG" "$thinlto_patch"
 apply_patch_once "$MG" "$pipe_input_patch"
+apply_patch_once "$MG" "$memory_watcher_test_patch"
 apply_patch_once "$MG/vendor/dolphin" "$render_log_patch"
 apply_patch_once "$MG/vendor/dolphin" "$idle_patch"
+apply_patch_once "$MG/vendor/dolphin" "$memory_watcher_patch"
 verify_patch_scope "$MG" "$mg_patch" vendor/dolphin tools/moderngekko_launcher.cpp \
   tools/moderngekko_port.cpp tests/frontend_config_test.cpp \
-  tools/frontend_config.cpp tools/frontend_config.hpp tools/moderngekko_run.cpp
+  tools/frontend_config.cpp tools/frontend_config.hpp tools/moderngekko_run.cpp \
+  CMakeLists.txt tests/memory_watcher_utils_test.cpp
 verify_patch_scope "$MG/vendor/dolphin" "$dolphin_patch" \
   Source/Core/VideoCommon/PerformanceTracker.cpp \
-  Data/Sys/GameSettings/GALE01r0.ini
+  Data/Sys/GameSettings/GALE01r0.ini \
+  Source/Core/Core/Cheats/MemoryWatcher.cpp \
+  Source/Core/Core/Cheats/MemoryWatcher.h \
+  Source/Core/Core/Cheats/MemoryWatcherUtils.h \
+  Source/UnitTests/Core/CMakeLists.txt \
+  Source/UnitTests/Core/Cheats/MemoryWatcherUtilsTest.cpp
 
 echo "ssbmpad dependencies are pinned and patched."

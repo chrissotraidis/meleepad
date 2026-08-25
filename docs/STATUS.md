@@ -193,19 +193,18 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   19.979/20.854 ms, but worst regressed from 27.987 to 34.777 ms and the
   <=16.7 ms share slipped. It is rejected; see
   `docs/artifacts/2026-08-25/g5-fp-fast-path-and-watcher-audit.md`.
-- **INPUT-004:** Manual FIFO control is reliable, but the cold automated
-  title-to-CSS route remains unverified. The first sequence had an extra
-  `START` and entered 1-P Mode. Cold replay then proved that the old watched
-  word `0x80477D68` can match during attract gameplay. The replacement uses the
-  decomp-backed `GameState` word at `0x80479D30` and exact title/menu/CSS mode
-  plus scene values, but two bounded cold runs showed that scene entry alone is
-  too early: title input is ignored during `gmTitle_804D6714`'s 20-frame
-  lockout and the game falls into How to Play. An explicit lockout-zero wait is
-  implemented and unit-tested. Its next cold replay emitted no input because
-  ordinary Dolphin MemoryWatcher cannot resolve the static-recomp guest RAM
-  through the unsynchronized MMU state. A direct-MEM1 experiment removed those
-  panic lines but was not verified due a fresh-runner CoreAudio hang and was
-  restored. Required-stage profiling remains visually gated.
+- **INPUT-004:** Static-recomp watched memory is fixed and reproducibly
+  packaged. Direct bounded MEM1/MEM2 reads are used only for an active static
+  module; ordinary cores retain the MMU path, and initial zero is now
+  published. Generated revision-0 instructions corrected the mixed-revision
+  predicates to `GameState=0x80477D68` and title lockout `0x804D4594`. A cold
+  replay observed the complete 20-to-zero lockout transition, sent one START,
+  reached Main Menu, and visibly reached four-slot VS CSS after bounded menu
+  readiness windows. The final `GM_VS` watcher notification still timed out
+  despite visible CSS, so the route is a visual pass but not yet a fully
+  self-verifying predicate pass. Required-stage profiling remains visually
+  gated. Evidence:
+  `docs/artifacts/2026-08-25/g5-static-recomp-memory-watcher-route.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual
@@ -214,6 +213,8 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   49-frame review were coherent, but a fresh four-player frame shows an orange
   fighter in a suspected implausible vertical stretch. The adjacent capture was
   contaminated and a later sample was coherent, so subsystem attribution is
-  still open. Promotion is blocked conservatively pending clean temporal or
-  matched-reference evidence. Evidence:
+  still open. The user explicitly reconfirmed that bizarre character morphing
+  and body warping must remain tracked independently of the reference-matching
+  Fountain reflection. Promotion is blocked conservatively pending clean
+  temporal or matched-reference evidence. Evidence:
   `docs/artifacts/2026-08-25/g5-fountain-visual-warping.md`.
