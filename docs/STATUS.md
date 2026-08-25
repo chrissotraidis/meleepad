@@ -40,6 +40,9 @@ matched attract p95 from 17.848 ms to 19.335 ms, so it was also rejected. A
 smaller static reproduction and causal compute-tail reduction are still
 required. A profile-free 1024-cycle generated-loop budget also regressed
 matched attract p95 to 22.926 ms and is rejected; the default 256 is retained.
+Exact `noinline` reproduction of all 247 PGO-cold helper symbols regressed
+matched attract p95 to 21.459 ms, proving symbol outlining alone is also
+insufficient.
 
 No Simulator is booted. G6 remains gated on G5.
 
@@ -136,3 +139,8 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   cycles reduced potential dispatcher boundaries but regressed matched attract
   median/p95/p99 to 16.757/22.926/24.989 ms and vblank in parallel. The
   profile-free experiment was rejected and default 256 restored.
+- **PERF-011:** All 247 PGO-only loop helpers had profile entry counts zero
+  through nine. A profile-free candidate outlined exactly those helpers and
+  retained the hot polling helper, but regressed attract median/p95/p99 to
+  16.814/21.459/22.548 ms. PGO branch weights and internal block layout, not
+  helper symbol presence alone, are material.

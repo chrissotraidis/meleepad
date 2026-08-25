@@ -310,3 +310,23 @@ Append-only execution ledger. Claims are limited to observed evidence.
   the two raw budget-1024 traces named there.
 - Next: do not sweep intermediate budgets without a narrower timing mechanism;
   continue with PGO-guided static compute-path differences.
+
+## 2026-08-24 — G5 exact PGO-cold helper outlining
+
+- Goal: reproduce PGO's cold helper separation without the hot-helper damage
+  caused by blanket `noinline`.
+- Work: confirmed all 247 PGO-only loop symbols had profile entry counts zero
+  through nine; forced exactly those helpers `noinline` across 55 chunks;
+  verified all intended symbols and the unchanged hot polling helper in a full
+  profile-free macOS 14 O2 + ThinLTO module; and ran the matched attract
+  diagnostic.
+- Result: **NOT RETAINED**. Median/p95/p99 regressed to
+  16.814/21.459/22.548 ms and the <=16.7 ms share fell to 43.68%. Symbol
+  outlining alone does not reproduce PGO's branch-weight and block-layout win.
+- Cleanup: all generated chunks restored byte-for-byte; signed portable-PGO
+  app restored exactly; no runner or Simulator remains active.
+- Evidence: appended to
+  `docs/artifacts/2026-08-24/g5-timing-attribution-and-pgo-noexram.md`, plus
+  the two raw cold-outline traces named there.
+- Next: broaden the local PGO training set across both required stages instead
+  of continuing static symbol imitation.

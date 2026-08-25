@@ -101,6 +101,14 @@ p95 to 22.926 ms, and p99 to 24.989 ms; vblank regressed in parallel. Reduced
 host dispatch frequency does not justify the wider timing-check interval, so
 the default budget is retained.
 
+An exact static reproduction of PGO's cold helper symbols was also insufficient.
+All 247 PGO-only loop helpers had profile entry counts of zero through nine;
+forcing only those helpers `noinline` reproduced all 247 symbols without
+touching the hot polling helper. The profile-free candidate nevertheless
+regressed attract median/p95/p99 to 16.814/21.459/22.548 ms. PGO's useful
+information includes internal branch weights and hot/cold block layout, not
+just call boundaries or symbol presence.
+
 Required next work:
 
 1. Use the retained PGO binary/profile as an oracle for a smaller static

@@ -114,3 +114,44 @@ Raw evidence:
   `987cf448d0b6083c1f8877dd67c2ce4013eb37a8ac3bc722ae08da4abdae47a4`
 - `g5-loopbudget1024-attract-90s-vblank-times.txt` — SHA-256
   `12a6c590d42d80315ebe0de3eb9032ff43e1be0931ceec6eb4add387309cef83`
+
+## Exact PGO-cold helper outlining
+
+Binary/profile comparison found 247 loop helpers present only as symbols in
+the PGO module. Every one had a profile entry count from zero through nine and
+196 were never entered. Unlike the rejected blanket experiment, a clean
+candidate forced `noinline` on exactly those 247 cold helpers across 55 chunks;
+hot and common helpers retained normal compiler policy.
+
+A single-chunk oracle first proved the transformation moved all five selected
+helpers out of the hottest chunk's giant dispatcher, reducing that dispatcher's
+LLVM IR by about 2,410 lines. The full profile-free arm64 macOS 14 O2 + ThinLTO
+candidate contained all 247 intended symbols plus the unchanged hot polling
+helper. It exposed 839 loop symbols, between clean's 592 and PGO's 779, with
+unsigned dylib SHA-256
+`282460556c0f8051f7b07846f1ad03be55a1f4c30b196e061e34029efd4c2be4`.
+
+The matched no-input attract diagnostic regressed:
+
+| Metric | Default 256 + PGO | Clean cold-outline 247 |
+|---|---:|---:|
+| Frames | 5,135 | 4,714 |
+| Mean | 17.528468 ms | 18.309539 ms |
+| Median | 16.682666 ms | 16.813833 ms |
+| p95 | 17.848100 ms | 21.458772 ms |
+| p99 | 18.813991 ms | 22.548414 ms |
+| Worst | 3132.187584 ms | 3778.770166 ms |
+| Frames <=16.7 ms | 61.25% | 43.68% |
+
+Candidate vblank timing was 17.180410 ms mean / 16.712042 ms median /
+22.494150 ms p95 / 23.229264 ms p99 / 86.862708 ms worst. **Rejected.** Exact
+cold helper symbol reproduction is not sufficient; PGO's internal branch
+weights and hot/cold block layout are material. Generated sources were restored
+byte-for-byte and the portable-PGO app restored exactly.
+
+Raw evidence:
+
+- `g5-cold-outline247-attract-90s-render-times.txt` — SHA-256
+  `0aa68813c5622c5ff6a8f1193177a9a7a6a105131a1e9a9752c680d0bf3f976b`
+- `g5-cold-outline247-attract-90s-vblank-times.txt` — SHA-256
+  `2b293a4f6d2bf70367ee8e176891b3194dcc6f0991242b30cedba6d6d838e267`
