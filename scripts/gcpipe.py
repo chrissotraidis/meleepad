@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import socket
 import sys
 import time
 from pathlib import Path
@@ -14,6 +15,59 @@ from pathlib import Path
 DEFAULT_PIPE = (
     Path.home() / "Library/Application Support/SsbmPad/Pipes/ssbmpad"
 )
+
+
+def parse_int(value: int | str) -> int:
+    if isinstance(value, int):
+        return value
+    return int(value, 0)
+
+
+class MemoryWatcherClient:
+    """Receive Dolphin MemoryWatcher values from an isolated user directory."""
+
+    def __init__(self, user_dir: Path, addresses: set[int]):
+        watcher_dir = user_dir / "MemoryWatcher"
+        watcher_dir.mkdir(parents=True, exist_ok=True)
+        (watcher_dir / "Locations.txt").write_text(
+            "".join(f"{address:08X}\n" for address in sorted(addresses)),
+            encoding="ascii",
+        )
+
+        self.socket_path = watcher_dir / "MemoryWatcher"
+        if len(os.fsencode(self.socket_path)) >= 104:
+            raise ValueError(f"MemoryWatcher socket path is too long: {self.socket_path}")
+        self.socket_path.unlink(missing_ok=True)
+        self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
+        self.socket.bind(str(self.socket_path))
+        self.values: dict[int, int] = {}
+
+    def _receive(self, deadline: float) -> None:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise TimeoutError("MemoryWatcher predicate timed out")
+        self.socket.settimeout(min(remaining, 0.5))
+        try:
+            payload = self.socket.recv(65536).rstrip(b"\0").decode("ascii")
+        except socket.timeout:
+            return
+        lines = payload.splitlines()
+        for index in range(0, len(lines) - 1, 2):
+            self.values[int(lines[index].split()[0], 16)] = int(lines[index + 1], 16)
+
+    def wait_value(
+        self, address: int, mask: int, expected: int, timeout_s: float
+    ) -> int:
+        deadline = time.monotonic() + timeout_s
+        while True:
+            value = self.values.get(address)
+            if value is not None and value & mask == expected:
+                return value
+            self._receive(deadline)
+
+    def close(self) -> None:
+        self.socket.close()
+        self.socket_path.unlink(missing_ok=True)
 
 
 class PadWriter:
@@ -47,7 +101,20 @@ class PadWriter:
             self.fd = None
 
 
-def run_sequence(writer: PadWriter, sequence: list[dict]) -> None:
+def sequence_addresses(sequence: list[dict]) -> set[int]:
+    addresses: set[int] = set()
+    for step in sequence:
+        action = step.get("action", "tap")
+        if action == "wait_memory":
+            addresses.add(parse_int(step["address"]))
+    return addresses
+
+
+def run_sequence(
+    writer: PadWriter,
+    sequence: list[dict],
+    watcher: MemoryWatcherClient | None = None,
+) -> None:
     started = time.monotonic()
     for step in sequence:
         delay = float(step.get("delay", 0.0))
@@ -64,6 +131,15 @@ def run_sequence(writer: PadWriter, sequence: list[dict]) -> None:
             writer.set_stick(step["axis"], float(step["x"]), float(step["y"]))
         elif action == "wait":
             time.sleep(float(step.get("seconds", 1.0)))
+        elif action == "wait_memory":
+            if watcher is None:
+                raise ValueError("wait_memory requires --memory-user-dir")
+            watcher.wait_value(
+                parse_int(step["address"]),
+                parse_int(step.get("mask", "0xffffffff")),
+                parse_int(step["equals"]),
+                float(step.get("timeout", 60.0)),
+            )
         else:
             raise ValueError(f"unknown action: {action}")
         print(f"[{time.monotonic() - started:7.2f}s] {json.dumps(step)}", flush=True)
@@ -74,21 +150,35 @@ def main() -> int:
     parser.add_argument("--pipe", type=Path, default=DEFAULT_PIPE)
     parser.add_argument("--open-timeout", type=float, default=60.0)
     parser.add_argument("--sequence", type=Path)
+    parser.add_argument("--memory-user-dir", type=Path)
     parser.add_argument("--tap", metavar="BUTTON")
     parser.add_argument("--stick", nargs=3, metavar=("AXIS", "X", "Y"))
     args = parser.parse_args()
 
+    sequence: list[dict] = []
+    if args.sequence:
+        with args.sequence.open(encoding="utf-8") as sequence_file:
+            sequence = json.load(sequence_file)
+
+    watcher: MemoryWatcherClient | None = None
+    if args.memory_user_dir:
+        addresses = sequence_addresses(sequence)
+        if not addresses:
+            parser.error("--memory-user-dir requires a memory-aware sequence")
+        watcher = MemoryWatcherClient(args.memory_user_dir, addresses)
+
     writer = PadWriter(args.pipe, args.open_timeout)
     try:
-        if args.sequence:
-            with args.sequence.open(encoding="utf-8") as sequence_file:
-                run_sequence(writer, json.load(sequence_file))
+        if sequence:
+            run_sequence(writer, sequence, watcher)
         if args.tap:
             writer.tap(args.tap)
         if args.stick:
             writer.set_stick(args.stick[0], float(args.stick[1]), float(args.stick[2]))
     finally:
         writer.close()
+        if watcher:
+            watcher.close()
     return 0
 
 

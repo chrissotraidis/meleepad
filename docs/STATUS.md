@@ -61,6 +61,16 @@ skipping active, rather than profile idle polling.
 
 No Simulator is booted. G6 remains gated on G5.
 
+The current Fountain combat-profile run also exposed a reported repeated
+visual-warping/morphing defect. It is tracked as `VISUAL-001`. Normal-speed PGO
+and profile-free controls reproduce corrupted lower-stage reflection imagery
+while the real fighter meshes above it remain coherent. EFB-to-RAM and
+non-deferred-copy controls reproduce the same corruption and materially hurt
+performance, so neither is retained. The defect is now narrowed to a shared
+Fountain reflection / EFB-copy renderer path below those high-level switches;
+reference comparison and a targeted fix remain required before macOS
+promotion.
+
 ## Goal ledger
 
 | Goal | State | Evidence / blocker |
@@ -70,7 +80,7 @@ No Simulator is booted. G6 remains gated on G5.
 | G2 Module recompiles and links | Pass | `docs/artifacts/2026-08-24/g2-module-and-package.md` |
 | G3 macOS boots to title | Pass | `docs/artifacts/2026-08-24/g3-macos-title-and-input.md`; retained title and A-transition screenshots |
 | G4 macOS playable | Pass | `docs/artifacts/2026-08-24/g4-controlled-match.md`; clean CSS -> 1v1 -> results plus live Cubeb/CoreAudio mixing evidence |
-| G5 macOS 60 fps | In progress | Portable PGO: Fountain 16.682 ms median / 16.846 ms p95 / 45.425 ms worst; Final Destination 16.678 ms median / 16.946 ms p95 / 1385.242 ms worst; tail reduction remains |
+| G5 macOS 60 fps | In progress | Fresh 2:1 combat PGO Fountain interval: 16.688 ms median / 18.494 ms p95 / 21.445 ms p99 / 1334.501 ms worst; visual corruption and tail reduction remain |
 | G6 Simulator core boots | Not started | G5 first; no Simulator booted |
 | G7 Shell ported | Not started | G6 first |
 | G8 Test matrix green | Not started | G7 first |
@@ -176,3 +186,14 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   Final Destination sequence visibly landed on Battlefield. Required-stage
   profiling must be gated by the actual title prompt and visually verified
   before the measurement interval.
+- **VISUAL-001:** During the instrumented Fountain combat-profile run, the user
+  reported repeated bizarre fighter warping/morphing. Normal-speed profile-use
+  and profile-free controls reproduce a smeared/stretched lower reflection
+  while the real fighter meshes above it remain coherent. Switching EFB copies
+  from texture to RAM and disabling deferred EFB copies independently failed to
+  correct it and severely reduced performance; both settings were restored.
+  The shared Fountain reflection / EFB-copy path remains the leading scope, but
+  a fresh video must still distinguish any real-mesh deformation from copied
+  reflection corruption. Reference parity and a targeted fix are required.
+  Any persistent normal-speed release defect blocks G5 and G6. Evidence:
+  `docs/artifacts/2026-08-25/g5-fountain-visual-warping.md`.

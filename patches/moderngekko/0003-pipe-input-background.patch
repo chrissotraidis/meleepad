@@ -1,0 +1,84 @@
+diff --git a/tests/frontend_config_test.cpp b/tests/frontend_config_test.cpp
+--- a/tests/frontend_config_test.cpp
++++ b/tests/frontend_config_test.cpp
+@@ -22,14 +22,23 @@ int main() {
+
+   std::string error;
+   const std::string controller = "SDL/0/Test Controller";
++  if (moderngekko::frontend::ControllerRequiresBackgroundInput(controller) ||
++      !moderngekko::frontend::ControllerRequiresBackgroundInput(
++          "Pipe/0/ssbmpad"))
++    return 14;
+   if (!moderngekko::frontend::SaveConfig(directory, "1920x1080", false,
+                                          controller, &error))
+     return 1;
+
+   const auto loaded = moderngekko::frontend::LoadConfig(directory, false);
++#if defined(__APPLE__)
++  constexpr std::string_view expected_backend = "Metal";
++#else
++  constexpr std::string_view expected_backend = "Vulkan";
++#endif
+   if (!loaded || loaded.dolphin_scale != 3 || loaded.show_fps_in_title ||
+       loaded.controller != controller ||
+-      loaded.graphics_backend != "Vulkan") {
++      loaded.graphics_backend != expected_backend) {
+     return 2;
+   }
+
+diff --git a/tools/frontend_config.cpp b/tools/frontend_config.cpp
+--- a/tools/frontend_config.cpp
++++ b/tools/frontend_config.cpp
+@@ -98,6 +98,10 @@ const std::vector<GraphicsBackendOption> &SupportedGraphicsBackends() {
+   return backends;
+ }
+
++bool ControllerRequiresBackgroundInput(std::string_view controller) {
++  return controller.starts_with("Pipe/");
++}
++
+ ConfigResult LoadConfig(const fs::path &user_directory,
+                         bool create_if_missing) {
+   const fs::path path = user_directory / "config.ini";
+diff --git a/tools/frontend_config.hpp b/tools/frontend_config.hpp
+--- a/tools/frontend_config.hpp
++++ b/tools/frontend_config.hpp
+@@ -41,6 +41,7 @@ struct ConfigResult {
+
+ const std::vector<ResolutionOption> &SupportedResolutions();
+ const std::vector<GraphicsBackendOption> &SupportedGraphicsBackends();
++bool ControllerRequiresBackgroundInput(std::string_view controller);
+ ConfigResult LoadConfig(const std::filesystem::path &user_directory,
+                         bool create_if_missing);
+ bool SaveConfig(const std::filesystem::path &user_directory,
+diff --git a/tools/moderngekko_run.cpp b/tools/moderngekko_run.cpp
+--- a/tools/moderngekko_run.cpp
++++ b/tools/moderngekko_run.cpp
+@@ -4,6 +4,7 @@
+ #include "moderngekko/runtime.hpp"
+ #include "netplay_session.hpp"
+
++#include <algorithm>
+ #include <charconv>
+ #include <chrono>
+ #include <csignal>
+@@ -222,6 +223,9 @@ int RunMain(int argc, char **argv) {
+     config.graphics.backend = frontend_config.graphics_backend;
+   config.fullscreen = frontend_config.fullscreen;
+   config.show_fps_in_title = frontend_config.show_fps_in_title;
++  config.input.background_input =
++      moderngekko::frontend::ControllerRequiresBackgroundInput(
++          frontend_config.controller);
+   if (use_default_mods) {
+     config.mod_directories.push_back(executable_directory / "Mods");
+     config.mod_directories.push_back(config.user_directory / "Mods");
+@@ -334,6 +338,9 @@ int RunMain(int argc, char **argv) {
+       std::cerr << "netplay requires at least one selected controller\n";
+       return 2;
+     }
++    config.input.background_input = std::ranges::any_of(
++        options.controllers,
++        moderngekko::frontend::ControllerRequiresBackgroundInput);
+     frontend_config.netplay_address = options.address;
+     frontend_config.netplay_port = options.port;
+     frontend_config.netplay_nickname = options.nickname;

@@ -108,12 +108,14 @@ mg_patch="$SUNPAD/patches/ModernGekko/0001-sunpad-apple-runtime.patch"
 dolphin_patch="$SUNPAD/patches/ModernGekko-dolphin/0001-sunpad-ios-runtime.patch"
 launcher_patch="$ROOT/patches/moderngekko/0001-launcher-do-not-scan-documents-at-startup.patch"
 thinlto_patch="$ROOT/patches/moderngekko/0002-macos-preserve-module-thinlto.patch"
+pipe_input_patch="$ROOT/patches/moderngekko/0003-pipe-input-background.patch"
 render_log_patch="$ROOT/patches/moderngekko-dolphin/0002-buffer-render-time-logging.patch"
 idle_patch="$ROOT/patches/moderngekko-dolphin/0003-gale01r0-staticrecomp-idle.patch"
 apply_patch_once "$MG" "$mg_patch"
 apply_patch_once "$MG/vendor/dolphin" "$dolphin_patch"
 apply_patch_once "$MG" "$launcher_patch"
 apply_patch_once "$MG" "$thinlto_patch"
+apply_patch_once "$MG" "$pipe_input_patch"
 apply_patch_once "$MG/vendor/dolphin" "$render_log_patch"
 apply_patch_once "$MG/vendor/dolphin" "$idle_patch"
 verify_patch_scope "$MG" "$mg_patch" vendor/dolphin tools/moderngekko_launcher.cpp \
@@ -121,5 +123,8 @@ verify_patch_scope "$MG" "$mg_patch" vendor/dolphin tools/moderngekko_launcher.c
 verify_patch_scope "$MG/vendor/dolphin" "$dolphin_patch" \
   Source/Core/VideoCommon/PerformanceTracker.cpp \
   Data/Sys/GameSettings/GALE01r0.ini
+verify_patch_scope "$MG" "$pipe_input_patch" \
+  tests/frontend_config_test.cpp tools/frontend_config.cpp \
+  tools/frontend_config.hpp tools/moderngekko_run.cpp
 
 echo "ssbmpad dependencies are pinned and patched."

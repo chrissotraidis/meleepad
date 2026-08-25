@@ -404,3 +404,31 @@ Append-only execution ledger. Claims are limited to observed evidence.
   and local Fountain-PGO module hashes are unchanged.
 - Next: collect a visually verified Fountain/Final Destination combat-only PGO
   corpus with idle skipping enabled, then compare both required stages.
+
+## 2026-08-25 — G5 combat PGO rejection and Fountain visual attribution
+
+- Goal: train on visually verified required-stage combat, measure the resulting
+  candidate without capture contamination, and preserve the user's reported
+  Fountain warping as a promotion-blocking defect.
+- Work: fixed the Pipe controller focus gate; completed two-minute Fountain and
+  Final Destination CPU matches; merged their profiles 2:1; built a clean
+  macOS 14 O2 + strict-FP + ThinLTO candidate; completed a normal-speed Fountain
+  match; and retained the full render/vblank logs. Replayed the same scene with
+  the profile-free module, accurate EFB-to-RAM copies, and non-deferred texture
+  copies, changing one graphics setting per control.
+- Result: **CANDIDATE REJECTED; `VISUAL-001` NARROWED BUT OPEN**. The capture-free
+  Fountain interval measured 16.953 ms mean / 16.688 ms median / 18.494 ms p95 /
+  21.445 ms p99 / 1334.501 ms worst, so it fails G5 despite a 59.9 FPS title
+  counter. Normal-speed PGO and profile-free controls both show corrupted lower
+  reflection imagery. RAM and non-deferred EFB controls did not fix it and
+  materially reduced performance. The evidence points to a shared Fountain
+  reflection / EFB-copy renderer path below those high-level switches; real
+  fighter-mesh morphing still requires a short fresh video to classify.
+- Cleanup: both graphics experiments were reverted to the baseline defaults;
+  the trace-free runner is retained; no runner or Simulator remains active.
+- Evidence: `docs/artifacts/2026-08-25/g5-fountain-visual-warping.md`,
+  `g5-combat-pgo-fountain-render-times.txt`, and
+  `g5-combat-pgo-fountain-vblank-times.txt` in the same artifact directory.
+- Next: compare the scene with the reference renderer, then instrument or fix
+  the smallest shared Metal texture-cache / EFB-copy mismatch. Remeasure
+  Fountain and Final Destination only after visual parity is restored.

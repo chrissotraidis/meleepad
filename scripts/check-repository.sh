@@ -10,7 +10,7 @@ for script in scripts/*.sh; do
 done
 
 prohibited=$(git ls-files | grep -E \
-  '(^|/)(ref|DerivedData|Provisioned|build[^/]*)/|\.(iso|gcm|rvz|wia|wbfs|gcz|dylib|ipa|xcarchive|mobileprovision|p12|pem|key|gci|sav|raw)$' || true)
+  '(^|/)(ref|DerivedData|Provisioned|build[^/]*)/|\.(iso|gcm|rvz|wia|wbfs|gcz|dylib|ipa|xcarchive|mobileprovision|p12|pem|key|gci|sav|raw|profraw|profdata)$' || true)
 if [[ -n "$prohibited" ]]; then
   echo "prohibited tracked material:" >&2
   echo "$prohibited" >&2
