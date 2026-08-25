@@ -86,6 +86,13 @@ also failed retention. Median returned to 16.678 ms, but render p95/p99/worst
 regressed to 19.658/21.009/70.455 ms. The composed timer/hook experiment was
 removed and Final Destination was not run.
 
+The older 03:30:57 sample that motivated the pointer experiment is now
+withdrawn as combat attribution: its dominant address maps inside Melee's
+640x480 THP video decoder, proving it sampled boot/opening/menu work. A
+subsequent `mach_wait_until` pacing idea was rejected without a game build
+because a 1,000-frame host preflight was worse than the current timer in p95,
+p99, worst, and <=16.7 share.
+
 No Simulator is booted. G6 remains gated on G5.
 
 The Fountain visual report is split as `VISUAL-001A/B`. The blurred/blocky
@@ -245,6 +252,12 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   p95/p99/worst to 19.658/21.009/70.455 ms, so the composition was removed
   before Final Destination. Evidence:
   `docs/artifacts/2026-08-25/g5-locked-cache-pointer-rejection.md`.
+- **PERF-018 (preflight rejected):** A 1,000-frame host benchmark rejected
+  `mach_wait_until` before a game build: p95/p99/worst were
+  23.431/24.530/24.951 ms versus 22.852/23.525/23.543 ms for the current loop,
+  and the <=16.7 share also fell. The same audit withdrew the 03:30:57 sample
+  as combat evidence because its dominant PC is the THP video decoder.
+  Evidence: `docs/artifacts/2026-08-25/g5-locked-cache-pointer-rejection.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual

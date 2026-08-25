@@ -687,3 +687,20 @@ Append-only execution ledger. Claims are limited to observed evidence.
   `docs/artifacts/2026-08-25/g5-locked-cache-pointer-rejection.md`.
 - Next: stop tuning final-spin behavior. Attribute the retained Fountain tail
   to a different single path, keeping compute and pacing evidence separate.
+
+## 2026-08-25 — G5 sample-attribution correction and kernel-wait preflight
+
+- Goal: audit the source identity of the retained hotspot and test a non-busy
+  macOS deadline wait before another expensive boot.
+- Finding: the 03:30:57 sample's dominant `0x80331940` PC lies inside
+  `__THPDecompressiMCURow640x480`, not Fountain gameplay. The sample captured
+  boot/opening/menu video work and is withdrawn as combat attribution. The
+  later pointer/timer timing rejections remain valid independently.
+- Preflight: a 1,000-frame benchmark compared the current precision loop with
+  `mach_wait_until`. The kernel wait regressed p95/p99/worst from
+  22.852/23.525/23.543 ms to 23.431/24.530/24.951 ms and reduced the <=16.7
+  share from 54.3% to 53.4%.
+- Result: **ATTRIBUTION CORRECTED; KERNEL WAIT REJECTED WITHOUT GAME BUILD**.
+  No product/dependency source or runtime artifact changed.
+- Next: obtain a fresh visually stage-gated Fountain sample before selecting
+  another generated-code optimization.

@@ -138,3 +138,35 @@ The stopped full composed-run logs had SHA-256
 `7ed3edc080951306016f4cf27071ea09fc09268a0971799cb07784a4032441b7`
 (vblank). The timer and hook edits were removed, the retained app runner/module
 hashes were restored again, and no runner or Simulator remains active.
+
+## Attribution correction: the motivating sample was not combat
+
+The pre-candidate sample at
+`/private/tmp/SsbmPadRunner_2026-08-25_033056_8jXn.sample.txt` was captured at
+03:30:57. Its dominant generated address was `0x80331940` (176 of 685 CPU
+samples). The revision-0 symbol map places that address inside
+`__THPDecompressiMCURow640x480` (`0x80331470-0x80332E7C`), Melee's THP video
+decoder. It also sampled `MCCExit` and `__CARDVerify`.
+
+That workload is consistent with boot/opening/menu activity, not a bounded
+Fountain combat interval. The sample must not be cited as combat attribution.
+The pointer and pacing candidates remain rejected by their independent timing
+screens above, but the original hotspot rationale is withdrawn. Further G5
+optimization requires a fresh visually stage-gated sample.
+
+## Kernel-deadline preflight
+
+A standalone 1,000-frame macOS benchmark compared the current precision loop
+with a single `mach_wait_until` absolute kernel deadline before any game build:
+
+| Metric | Current loop | `mach_wait_until` |
+|---|---:|---:|
+| Mean | 16.684594 ms | 16.688896 ms |
+| Median | 16.512791 ms | 16.604125 ms |
+| p95 | 22.851875 ms | 23.431000 ms |
+| p99 | 23.525250 ms | 24.530125 ms |
+| Worst | 23.543042 ms | 24.951333 ms |
+| Frames <=16.7 ms | 54.300% | 53.400% |
+
+The kernel deadline was worse in every tail metric and pass share. It was
+rejected at preflight; no Dolphin source, runner, or game process was changed.
