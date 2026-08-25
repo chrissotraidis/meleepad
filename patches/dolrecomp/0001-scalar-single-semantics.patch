@@ -1,0 +1,130 @@
+diff --git a/src/backend/emitter.c b/src/backend/emitter.c
+index b7a536a..e76f615 100644
+--- a/src/backend/emitter.c
++++ b/src/backend/emitter.c
+@@ -969,23 +969,27 @@ static void emit_instruction_with_range(FILE* out, const PPCInst* inst,
+         break;
+
+     case PPC_OP_FADDS:
+-        fprintf(out, "    ctx->fpr[%u] = (f64)(f32)(ctx->fpr[%u] + ctx->fpr[%u]);\n",
++        fprintf(out, "    ppc_fadds(ctx, %u, %u, %u);\n",
+                 inst->rD, inst->rA, inst->rB);
++        if (inst->rc) emit_set_cr1_from_fpscr(out);
+         break;
+
+     case PPC_OP_FSUBS:
+-        fprintf(out, "    ctx->fpr[%u] = (f64)(f32)(ctx->fpr[%u] - ctx->fpr[%u]);\n",
++        fprintf(out, "    ppc_fsubs(ctx, %u, %u, %u);\n",
+                 inst->rD, inst->rA, inst->rB);
++        if (inst->rc) emit_set_cr1_from_fpscr(out);
+         break;
+
+     case PPC_OP_FMULS:
+-        fprintf(out, "    ctx->fpr[%u] = (f64)(f32)(ctx->fpr[%u] * ctx->fpr[%u]);\n",
++        fprintf(out, "    ppc_fmuls(ctx, %u, %u, %u);\n",
+                 inst->rD, inst->rA, inst->rC);
++        if (inst->rc) emit_set_cr1_from_fpscr(out);
+         break;
+
+     case PPC_OP_FDIVS:
+-        fprintf(out, "    ctx->fpr[%u] = (f64)(f32)(ctx->fpr[%u] / ctx->fpr[%u]);\n",
++        fprintf(out, "    ppc_fdivs(ctx, %u, %u, %u);\n",
+                 inst->rD, inst->rA, inst->rB);
++        if (inst->rc) emit_set_cr1_from_fpscr(out);
+         break;
+
+     case PPC_OP_FRES:
+@@ -1079,7 +1083,8 @@ static void emit_instruction_with_range(FILE* out, const PPCInst* inst,
+         break;
+
+     case PPC_OP_FRSP:
+-        fprintf(out, "    ctx->fpr[%u] = (f64)(f32)ctx->fpr[%u];\n", inst->rD, inst->rB);
++        fprintf(out, "    ppc_frsp(ctx, %u, %u);\n", inst->rD, inst->rB);
++        if (inst->rc) emit_set_cr1_from_fpscr(out);
+         break;
+
+     case PPC_OP_FSEL:
+diff --git a/tests/test_c_execute.c b/tests/test_c_execute.c
+index 36d5b8d..dddf186 100644
+--- a/tests/test_c_execute.c
++++ b/tests/test_c_execute.c
+@@ -4,6 +4,7 @@
+
+ void func_80004020(CPUState* ctx);
+ void func_80004040(CPUState* ctx);
++void func_80004060(CPUState* ctx);
+
+ int main(void) {
+     CPUState cpu;
+@@ -47,6 +48,39 @@ int main(void) {
+                 cpu.pc, cpu.gpr[3], cpu.gpr[4], cpu.gpr[5], calls);
+     }
+
++    cpu.pc = 0x80004060u;
++    cpu.lr = 0x81234564u;
++    cpu.msr = 0x00002000u;
++    cpu.fpscr = 0xA0060000u;
++    cpu.fpr[2] = 1.25;
++    cpu.fpr[3] = 2.5;
++    cpu.fpr[5] = 7.0;
++    cpu.fpr[6] = 1.5;
++    cpu.fpr[8] = 3.0;
++    cpu.fpr[9] = 2.0;
++    cpu.fpr[11] = 7.0;
++    cpu.fpr[12] = 2.0;
++    cpu.fpr[14] = 1.5;
++    cpu.ps1[1] = cpu.ps1[4] = cpu.ps1[7] = cpu.ps1[10] =
++        cpu.ps1[13] = -1234.0;
++    func_80004060(&cpu);
++    int scalar_single_ok = cpu.pc == cpu.lr &&
++                           cpu.fpr[1] == 3.75 && cpu.ps1[1] == 3.75 &&
++                           cpu.fpr[4] == 5.5 && cpu.ps1[4] == 5.5 &&
++                           cpu.fpr[7] == 6.0 && cpu.ps1[7] == 6.0 &&
++                           cpu.fpr[10] == 3.5 && cpu.ps1[10] == 3.5 &&
++                           cpu.fpr[13] == 1.5 && cpu.ps1[13] == 1.5 &&
++                           (cpu.fpscr & 0x0007F000u) == 0x00004000u &&
++                           (cpu.cr & 0x0F000000u) == 0x0A000000u;
++    if (!scalar_single_ok) {
++        fprintf(stderr,
++                "scalar single pc=%08X f1=(%g,%g) f4=(%g,%g) "
++                "f7=(%g,%g) f10=(%g,%g) f13=(%g,%g) fpscr=%08X cr=%08X\n",
++                cpu.pc, cpu.fpr[1], cpu.ps1[1], cpu.fpr[4], cpu.ps1[4],
++                cpu.fpr[7], cpu.ps1[7], cpu.fpr[10], cpu.ps1[10],
++                cpu.fpr[13], cpu.ps1[13], cpu.fpscr, cpu.cr);
++    }
++
+     cpu_free(&cpu);
+-    return !(integer_ok && memory_ok);
++    return !(integer_ok && memory_ok && scalar_single_ok);
+ }
+diff --git a/tests/test_codegen_emit.c b/tests/test_codegen_emit.c
+index a6d5380..fa8c7b4 100644
+--- a/tests/test_codegen_emit.c
++++ b/tests/test_codegen_emit.c
+@@ -155,6 +155,16 @@ int main(int argc, char** argv) {
+     if (!emit_function(out, memory_loop, 6, BASE + 0x1040))
+         return 1;
+
++    PPCInst scalar_single[6];
++    scalar_single[0] = ppc_decode(0xEC22182Bu, BASE + 0x1060); /* fadds. f1,f2,f3 */
++    scalar_single[1] = ppc_decode(0xEC853029u, BASE + 0x1064); /* fsubs. f4,f5,f6 */
++    scalar_single[2] = ppc_decode(0xECE80273u, BASE + 0x1068); /* fmuls. f7,f8,f9 */
++    scalar_single[3] = ppc_decode(0xED4B6025u, BASE + 0x106C); /* fdivs. f10,f11,f12 */
++    scalar_single[4] = ppc_decode(0xFDA07019u, BASE + 0x1070); /* frsp. f13,f14 */
++    scalar_single[5] = ppc_decode(0x4E800020u, BASE + 0x1074); /* blr */
++    if (!emit_function(out, scalar_single, 6, BASE + 0x1060))
++        return 1;
++
+     FunctionList funcs = {0};
+     if (!function_list_add(&funcs, BASE, BASE + (u32)count * 4u) ||
+         !function_list_add(&funcs, BASE + 0x1000, BASE + 0x100C) ||
+@@ -162,7 +172,8 @@ int main(int argc, char** argv) {
+         !function_list_add(&funcs, BASE + 0x1018, BASE + 0x101C) ||
+         !function_list_add(&funcs, BASE + 0x1020, BASE + 0x1030) ||
+         !function_list_add(&funcs, BASE + 0x1030, BASE + 0x1040) ||
+-        !function_list_add(&funcs, BASE + 0x1040, BASE + 0x1058)) {
++        !function_list_add(&funcs, BASE + 0x1040, BASE + 0x1058) ||
++        !function_list_add(&funcs, BASE + 0x1060, BASE + 0x1078)) {
+         function_list_free(&funcs);
+         free(insts);
+         if (out != stdout) fclose(out);

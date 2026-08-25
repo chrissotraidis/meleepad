@@ -115,6 +115,8 @@ idle_patch="$ROOT/patches/moderngekko-dolphin/0003-gale01r0-staticrecomp-idle.pa
 memory_watcher_patch="$ROOT/patches/moderngekko-dolphin/0004-static-recomp-memory-watcher.patch"
 profile_hooks_patch="$ROOT/patches/moderngekko-dolphin/0005-instrumentation-profile-hooks.patch"
 frame_phase_patch="$ROOT/patches/moderngekko-dolphin/0006-buffered-frame-phase-timing.patch"
+dolrecomp_scalar_patch="$ROOT/patches/dolrecomp/0001-scalar-single-semantics.patch"
+gxruntime_scalar_patch="$ROOT/patches/moderngekko-dolphin/0007-gxruntime-scalar-single-semantics.patch"
 apply_patch_once "$MG" "$mg_patch"
 apply_patch_once "$MG/vendor/dolphin" "$dolphin_patch"
 apply_patch_once "$MG" "$launcher_patch"
@@ -126,6 +128,8 @@ apply_patch_once "$MG/vendor/dolphin" "$idle_patch"
 apply_patch_once "$MG/vendor/dolphin" "$memory_watcher_patch"
 apply_patch_once "$MG/vendor/dolphin" "$profile_hooks_patch"
 apply_patch_once "$MG/vendor/dolphin" "$frame_phase_patch"
+apply_patch_once "$MG/vendor/dolphin/DolRecomp" "$dolrecomp_scalar_patch"
+apply_patch_once "$MG/vendor/dolphin" "$gxruntime_scalar_patch"
 verify_patch_scope "$MG" "$mg_patch" vendor/dolphin tools/moderngekko_launcher.cpp \
   tools/moderngekko_port.cpp tests/frontend_config_test.cpp \
   tools/frontend_config.cpp tools/frontend_config.hpp tools/moderngekko_run.cpp \
@@ -146,6 +150,9 @@ verify_patch_scope "$MG/vendor/dolphin" "$dolphin_patch" \
   Source/UnitTests/Core/CMakeLists.txt \
   Source/UnitTests/Core/Cheats/MemoryWatcherUtilsTest.cpp \
   module-template/module.exports \
-  module-template/module_export.c
+  module-template/module_export.c \
+  GXRuntime/src/core/cpu_interpreter_float.c \
+  GXRuntime/tests/runtime_tests.c
+verify_patch_scope "$MG/vendor/dolphin/DolRecomp" "$dolrecomp_scalar_patch"
 
 echo "ssbmpad dependencies are pinned and patched."

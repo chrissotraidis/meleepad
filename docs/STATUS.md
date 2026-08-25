@@ -136,10 +136,17 @@ corrects `0x80374174` from a claimed cause site to a later comparison point,
 and identifies the same lane-1 defect at 1,237 `frsp` sites. It also falsifies
 the claim that PGO prevented helper call-site inlining and shows that the
 12-15 versus 45-48 FPS observations used unmatched scenes. The large inline
-candidate is not retained. The next step is a no-rebuild matched-scene A/B of
-the existing exact-helper dylibs, followed by helper-call `frsp` correction
-and stronger semantic/parity tests. See
-`docs/artifacts/2026-08-25/g5-independent-scalar-single-review.md`.
+candidate is not retained. The report-driven follow-up is now complete:
+DolRecomp routes scalar-single arithmetic and all 1,237 `frsp` sites through
+exact GXRuntime
+helpers, writes both lanes, and preserves Rc/FPSCR behavior. Focused DolRecomp
+and GXRuntime suites pass. A 200-frame corrected corpus containing Peach stayed
+coherent but did not reproduce the exact known Battlefield composition, so it
+is strong negative evidence rather than visual closure. Exact-source PGO
+improved a matched no-input render p95 from 20.616 to 18.232 ms, falsifying the
+feared helper-PGO collapse, but still fails 16.7 ms and is not required-stage
+acceptance. See
+`docs/artifacts/2026-08-25/g5-scalar-single-frsp-correction.md`.
 
 No Simulator is booted. G6 remains gated on G5.
 
@@ -151,8 +158,9 @@ reverted. The separate fighter-body report was not reproduced in an initial
 9.8-second interaction clip, but a later uncontaminated adjacent sequence
 confirms impossible multi-frame Peach hair/arm deformation at a 59.9 FPS title,
 recovering by frame 186. `VISUAL-001B` is confirmed real and remains promotion-
-blocking. The scalar-single diagnosis is not closure because the corrected
-helper module still contains 1,237 lane-0-only `frsp` sites.
+blocking. The scalar-single and `frsp` correction is not closure until the
+corrected module survives the known recurrence or a sufficiently long matched
+equivalent.
 
 ## Goal ledger
 
@@ -163,7 +171,7 @@ helper module still contains 1,237 lane-0-only `frsp` sites.
 | G2 Module recompiles and links | Pass | `docs/artifacts/2026-08-24/g2-module-and-package.md` |
 | G3 macOS boots to title | Pass | `docs/artifacts/2026-08-24/g3-macos-title-and-input.md`; retained title and A-transition screenshots |
 | G4 macOS playable | Pass | `docs/artifacts/2026-08-24/g4-controlled-match.md`; clean CSS -> 1v1 -> results plus live Cubeb/CoreAudio mixing evidence |
-| G5 macOS 60 fps | In progress | Fountain p95/worst 17.237/19.112 ms; stale-`ps1` mechanism confirmed but 1,237-site `frsp` hole and `VISUAL-001B` remain open; matched helper A/B next |
+| G5 macOS 60 fps | In progress | Fountain p95/worst 17.237/19.112 ms; scalar-single + `frsp` correction and exact PGO screen complete; `VISUAL-001B` recurrence and strict Fountain/FD tails remain open |
 | G6 Simulator core boots | Not started | G5 first; no Simulator booted |
 | G7 Shell ported | Not started | G6 first |
 | G8 Test matrix green | Not started | G7 first |

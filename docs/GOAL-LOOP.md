@@ -57,17 +57,21 @@ When blocked, escalate through these in order. Journal each rung you use.
 
 ## Active G5 scalar-single sub-loop (2026-08-25)
 
-The independent stale-`ps1` review is reconciled in
-`docs/artifacts/2026-08-25/g5-independent-scalar-single-review.md`. For this
-investigation: matched-scene A/B the existing corrected helper dylibs; retain
-exact helper semantics and close the analogous C-emitter `frsp` hole; extend
-semantic and C/LLVM parity tests before a full rebuild; require bounded
-lockstep plus an extended Peach-inclusive adjacent-frame corpus; then train
-PGO from the exact corrected source before resuming Fountain and Final
-Destination acceptance measurement.
+The independent stale-`ps1` review and its implemented correction are recorded
+in `docs/artifacts/2026-08-25/g5-independent-scalar-single-review.md` and
+`docs/artifacts/2026-08-25/g5-scalar-single-frsp-correction.md`. Exact helpers
+now cover scalar-single arithmetic and `frsp`; focused semantic/generated-C
+tests pass; 200 consecutive corrected frames are coherent; and an exact-source
+PGO screen improves rather than collapses the matched no-input tail. This
+closes the report's source-level action items, not the gates.
 
-The completed large-inline module is comparison evidence only. G5,
-`VISUAL-001B`, and the ban on starting G6 remain in force.
+The next falsifiable step is to reproduce the known Peach recurrence or an
+extended matched equivalent with the corrected module. If coherent, close
+`VISUAL-001B`; if it recurs, locate the first divergent state before another
+performance change. Only then run visually verified, capture-free Fountain and
+Final Destination combat intervals and attribute the remaining >16.7 ms tail
+one cause at a time. The no-input PGO screen is not required-stage acceptance.
+G5 and the ban on starting G6 remain in force.
 
 ## Testing rhythm
 

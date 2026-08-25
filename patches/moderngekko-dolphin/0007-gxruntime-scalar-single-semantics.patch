@@ -1,0 +1,243 @@
+diff --git a/GXRuntime/src/core/cpu_interpreter_float.c b/GXRuntime/src/core/cpu_interpreter_float.c
+index 6b530cfc66..69f0b74954 100644
+--- a/GXRuntime/src/core/cpu_interpreter_float.c
++++ b/GXRuntime/src/core/cpu_interpreter_float.c
+@@ -1,6 +1,12 @@
+ #include "cpu_interpreter_private.h"
+ #include <string.h>
+
++#if defined(__clang__) || defined(__GNUC__)
++#define GXRUNTIME_ALWAYS_INLINE __attribute__((always_inline))
++#else
++#define GXRUNTIME_ALWAYS_INLINE
++#endif
++
+ f64 ppc_approx_rsqrt(f64 value) {
+     u64 bits = f64_bits(value);
+     u64 mantissa = bits & 0x000FFFFFFFFFFFFFull;
+@@ -159,7 +165,7 @@ u32 classify_f64(f64 value) {
+     return sign ? 0x08u : 0x04u;
+ }
+
+-u32 classify_f32(f32 value) {
++GXRUNTIME_ALWAYS_INLINE u32 classify_f32(f32 value) {
+     u32 bits;
+     memcpy(&bits, &value, sizeof(bits));
+     u32 sign = bits >> 31;
+@@ -172,7 +178,7 @@ u32 classify_f32(f32 value) {
+     return sign ? 0x08u : 0x04u;
+ }
+
+-void set_fprf(CPUState* cpu, u32 value) {
++GXRUNTIME_ALWAYS_INLINE void set_fprf(CPUState* cpu, u32 value) {
+     cpu->fpscr = (cpu->fpscr & ~(0x1Fu << 12)) | ((value & 0x1Fu) << 12);
+ }
+
+@@ -346,7 +352,7 @@ f64 make_quiet(f64 value) {
+     return f64_value(f64_bits(value) | 0x0008000000000000ull);
+ }
+
+-f32 force_single(const CPUState* cpu, f64 value) {
++GXRUNTIME_ALWAYS_INLINE f32 force_single(const CPUState* cpu, f64 value) {
+     if (cpu->fpscr & FPSCR_NI_BIT) {
+         u64 no_sign = f64_bits(value) & 0x7FFFFFFFFFFFFFFFull;
+         if (no_sign < 0x3810000000000000ull) {
+@@ -362,7 +368,7 @@ f64 force_double(const CPUState* cpu, f64 d) {
+     return d;
+ }
+
+-f64 force_25bit_c(f64 d) {
++GXRUNTIME_ALWAYS_INLINE f64 force_25bit_c(f64 d) {
+     u64 integral = f64_bits(d);
+     u64 exponent = integral & 0x7FF0000000000000ull;
+     u64 fraction = integral & 0x000FFFFFFFFFFFFFull;
+@@ -380,7 +386,7 @@ f64 force_25bit_c(f64 d) {
+     return f64_value(integral);
+ }
+
+-FPRes ni_add(CPUState* cpu, f64 a, f64 b) {
++GXRUNTIME_ALWAYS_INLINE FPRes ni_add(CPUState* cpu, f64 a, f64 b) {
+     FPRes result = {a + b, 0};
+
+     if (isnan(result.value)) {
+@@ -402,7 +408,7 @@ FPRes ni_add(CPUState* cpu, f64 a, f64 b) {
+     return result;
+ }
+
+-FPRes ni_sub(CPUState* cpu, f64 a, f64 b) {
++GXRUNTIME_ALWAYS_INLINE FPRes ni_sub(CPUState* cpu, f64 a, f64 b) {
+     FPRes result = {a - b, 0};
+
+     if (isnan(result.value)) {
+@@ -424,7 +430,7 @@ FPRes ni_sub(CPUState* cpu, f64 a, f64 b) {
+     return result;
+ }
+
+-FPRes ni_mul(CPUState* cpu, f64 a, f64 b) {
++GXRUNTIME_ALWAYS_INLINE FPRes ni_mul(CPUState* cpu, f64 a, f64 b) {
+     FPRes result = {a * b, 0};
+
+     if (isnan(result.value)) {
+@@ -444,7 +450,7 @@ FPRes ni_mul(CPUState* cpu, f64 a, f64 b) {
+     return result;
+ }
+
+-FPRes ni_div(CPUState* cpu, f64 a, f64 b) {
++GXRUNTIME_ALWAYS_INLINE FPRes ni_div(CPUState* cpu, f64 a, f64 b) {
+     FPRes result = {a / b, 0};
+
+     if (isinf(result.value)) {
+@@ -523,11 +529,11 @@ FPRes ni_madd_msub(CPUState* cpu, f64 a, f64 c, f64 b, bool sub, bool single) {
+     return result;
+ }
+
+-bool fp_invalid_gated(const CPUState* cpu, const FPRes* res) {
++GXRUNTIME_ALWAYS_INLINE bool fp_invalid_gated(const CPUState* cpu, const FPRes* res) {
+     return (cpu->fpscr & FPSCR_VE_BIT) != 0 && (res->exception & FPSCR_VX_ANY_MASK) != 0;
+ }
+
+-void fp_write_single(CPUState* cpu, u8 d, f32 rounded) {
++GXRUNTIME_ALWAYS_INLINE void fp_write_single(CPUState* cpu, u8 d, f32 rounded) {
+     cpu->fpr[d] = (f64)rounded;
+     cpu->ps1[d] = (f64)rounded;
+     set_fprf(cpu, classify_f32(rounded));
+diff --git a/GXRuntime/tests/runtime_tests.c b/GXRuntime/tests/runtime_tests.c
+index 8e94628ed8..354cd6a527 100644
+--- a/GXRuntime/tests/runtime_tests.c
++++ b/GXRuntime/tests/runtime_tests.c
+@@ -23,6 +23,7 @@
+ #include "gxruntime/vi_clock.h"
+
+ #include <assert.h>
++#include <math.h>
+ #include <stddef.h>
+ #include <stdio.h>
+ #include <string.h>
+@@ -130,6 +131,119 @@ static void put_be16(u8* p, u16 value) {
+     p[1] = (u8)value;
+ }
+
++static f64 test_f64_from_bits(u64 bits) {
++    f64 value;
++    memcpy(&value, &bits, sizeof(value));
++    return value;
++}
++
++static u32 test_f32_bits(f32 value) {
++    u32 bits;
++    memcpy(&bits, &value, sizeof(bits));
++    return bits;
++}
++
++static void test_scalar_single_semantics(void) {
++    enum {
++        FPSCR_FX = 0x80000000u,
++        FPSCR_ZX = 0x04000000u,
++        FPSCR_VXSNAN = 0x01000000u,
++        FPSCR_VXISI = 0x00800000u,
++        FPSCR_FR = 0x00040000u,
++        FPSCR_FI = 0x00020000u,
++        FPSCR_FPRF = 0x0001F000u,
++        FPSCR_VE = 0x00000080u,
++        FPSCR_ZE = 0x00000010u,
++        FPSCR_NI = 0x00000004u,
++    };
++
++    CPUState cpu;
++    assert(cpu_init(&cpu));
++
++    cpu.fpr[1] = 1.25;
++    cpu.fpr[2] = 2.5;
++    cpu.ps1[3] = -1234.0;
++    ppc_fadds(&cpu, 3, 1, 2);
++    assert(cpu.fpr[3] == 3.75 && cpu.ps1[3] == 3.75);
++    assert((cpu.fpscr & FPSCR_FPRF) == (0x04u << 12));
++
++    cpu_reset(&cpu);
++    cpu.fpr[1] = 1.1;
++    cpu.ps1[4] = -1234.0;
++    ppc_frsp(&cpu, 4, 1);
++    assert(test_f32_bits((f32)cpu.fpr[4]) == 0x3F8CCCCDu);
++    assert(cpu.fpr[4] == cpu.ps1[4]);
++    assert((cpu.fpscr & FPSCR_FPRF) == (0x04u << 12));
++
++    cpu_reset(&cpu);
++    cpu.fpscr = FPSCR_FI | FPSCR_FR;
++    cpu.fpr[1] = test_f64_from_bits(0xC12971EA801974D8ull);
++    cpu.fpr[2] = test_f64_from_bits(0x418694A6991D1100ull);
++    cpu.ps1[3] = -1234.0;
++    ppc_fmuls(&cpu, 3, 1, 2);
++    assert(test_f32_bits((f32)cpu.fpr[3]) == 0xD60FA425u);
++    assert(cpu.fpr[3] == cpu.ps1[3]);
++    assert((cpu.fpscr & (FPSCR_FI | FPSCR_FR)) == 0);
++
++    cpu_reset(&cpu);
++    cpu.fpr[1] = test_f64_from_bits(0x7FF0000000000001ull);
++    cpu.fpr[2] = 1.0;
++    cpu.ps1[3] = -1234.0;
++    ppc_fadds(&cpu, 3, 1, 2);
++    assert(isnan(cpu.fpr[3]) && isnan(cpu.ps1[3]));
++    assert((cpu.fpscr & (FPSCR_FX | FPSCR_VXSNAN)) ==
++           (FPSCR_FX | FPSCR_VXSNAN));
++
++    cpu_reset(&cpu);
++    cpu.fpr[1] = INFINITY;
++    cpu.fpr[2] = INFINITY;
++    ppc_fsubs(&cpu, 3, 1, 2);
++    assert(isnan(cpu.fpr[3]) && isnan(cpu.ps1[3]));
++    assert((cpu.fpscr & (FPSCR_FX | FPSCR_VXISI)) ==
++           (FPSCR_FX | FPSCR_VXISI));
++
++    cpu_reset(&cpu);
++    cpu.fpr[1] = 1.0;
++    cpu.fpr[2] = 0.0;
++    ppc_fdivs(&cpu, 3, 1, 2);
++    assert(isinf(cpu.fpr[3]) && cpu.fpr[3] > 0.0);
++    assert(cpu.fpr[3] == cpu.ps1[3]);
++    assert((cpu.fpscr & (FPSCR_FX | FPSCR_ZX)) ==
++           (FPSCR_FX | FPSCR_ZX));
++
++    cpu_reset(&cpu);
++    cpu.fpscr = FPSCR_ZE;
++    cpu.fpr[1] = 1.0;
++    cpu.fpr[2] = 0.0;
++    cpu.fpr[3] = 77.0;
++    cpu.ps1[3] = 88.0;
++    ppc_fdivs(&cpu, 3, 1, 2);
++    assert(cpu.fpr[3] == 77.0 && cpu.ps1[3] == 88.0);
++    assert((cpu.fpscr & (FPSCR_FX | FPSCR_ZX)) ==
++           (FPSCR_FX | FPSCR_ZX));
++
++    cpu_reset(&cpu);
++    cpu.fpscr = FPSCR_VE;
++    cpu.fpr[1] = test_f64_from_bits(0x7FF0000000000001ull);
++    cpu.fpr[2] = 1.0;
++    cpu.fpr[3] = 77.0;
++    cpu.ps1[3] = 88.0;
++    ppc_fadds(&cpu, 3, 1, 2);
++    assert(cpu.fpr[3] == 77.0 && cpu.ps1[3] == 88.0);
++    assert((cpu.fpscr & (FPSCR_FX | FPSCR_VXSNAN)) ==
++           (FPSCR_FX | FPSCR_VXSNAN));
++
++    cpu_reset(&cpu);
++    cpu.fpscr = FPSCR_NI;
++    cpu.fpr[1] = 1.0e-40;
++    cpu.ps1[3] = -1234.0;
++    ppc_frsp(&cpu, 3, 1);
++    assert(test_f32_bits((f32)cpu.fpr[3]) == 0u);
++    assert(cpu.fpr[3] == cpu.ps1[3]);
++
++    cpu_free(&cpu);
++}
++
+ static void test_gx_write(u64 value, u8 size) {
+     assert(value == 0x12345678u);
+     assert(size == 4);
+@@ -2299,6 +2413,7 @@ static void test_native_system_helpers(void) {
+ }
+
+ int main(void) {
++    test_scalar_single_semantics();
+     test_guest_memory();
+     test_store_reservation();
+     test_native_system_helpers();

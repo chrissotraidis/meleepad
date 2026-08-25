@@ -808,3 +808,29 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Next: matched deterministic A/B the two existing corrected helper dylibs;
   then close `frsp`, extend semantic/C-LLVM parity tests, rebuild once, and
   require extended Peach-inclusive visual evidence before exact-source PGO.
+
+## 2026-08-25 — G5 scalar-single/`frsp` correction and exact-source PGO
+
+- Goal: execute the independent report's falsifiable source, visual, and PGO
+  actions without weakening G5 or promoting to Simulator work.
+- Source: scalar-single arithmetic and `frsp` now emit exact GXRuntime helper
+  calls, update both lanes, and preserve Rc/FPSCR behavior. Focused generated-C
+  and runtime tests cover lane sentinels, Force25Bit, exceptional values,
+  write suppression, FPRF, FI/FR, and NI flushing.
+- Verification: DolRecomp passed 14/14 and GXRuntime 1/1. Clean pinned checkout
+  application of the full Dolphin patch stack plus the new DolRecomp patch
+  passes `git apply` and `diff --check`.
+- Visual: all 200 consecutive corrected app-window frames were coherent and
+  included Peach, but not the exact known Battlefield recurrence. This is
+  strong negative evidence; `VISUAL-001B` remains open.
+- PGO: rebuilt generation/use modules from the identical corrected source and
+  exactly one fresh no-input profile. Matched render p95 improved from 20.616
+  to 18.232 ms and worst from 37.348 to 30.571 ms, falsifying the feared PGO
+  collapse. Both candidates still fail the 16.7 ms rule.
+- Result: **CORRECTION RETAINED; G5 AND VISUAL GATE OPEN**. No Simulator is
+  booted. No ROM, generated module, or profile is added to Git.
+- Evidence:
+  `docs/artifacts/2026-08-25/g5-scalar-single-frsp-correction.md`.
+- Next: reproduce the known Peach composition or an extended matched equivalent
+  under the corrected module, then resume clean visually verified Fountain and
+  Final Destination tail attribution one variable at a time.
