@@ -93,6 +93,16 @@ subsequent `mach_wait_until` pacing idea was rejected without a game build
 because a 1,000-frame host preflight was worse than the current timer in p95,
 p99, worst, and <=16.7 share.
 
+The stage-attribution gap is now closed for a fresh diagnostic. Visible native
+window evidence shows Pikachu, level-1 CPU Kirby, the Stage Select screen, an
+explicit `Fountain of Dreams` highlight, live Fountain combat, and results.
+The concurrent 12-second combat sample placed 5,367 of 8,396 CPU-thread samples
+in `StaticRecompCore::Run`; its diagnostic render bracket measured 17.565 ms
+p95, 22.530 ms p99, and 30.615 ms worst. This is valid Fountain attribution,
+but not a clean acceptance interval because sampling ran concurrently. It also
+shows that the retained PGO module was trained before the idle-PC optimization,
+making a fresh visually verified idle-skipping corpus the next focused test.
+
 No Simulator is booted. G6 remains gated on G5.
 
 The Fountain visual report is split as `VISUAL-001A/B`. The blurred/blocky
@@ -114,7 +124,7 @@ sequence classify it.
 | G2 Module recompiles and links | Pass | `docs/artifacts/2026-08-24/g2-module-and-package.md` |
 | G3 macOS boots to title | Pass | `docs/artifacts/2026-08-24/g3-macos-title-and-input.md`; retained title and A-transition screenshots |
 | G4 macOS playable | Pass | `docs/artifacts/2026-08-24/g4-controlled-match.md`; clean CSS -> 1v1 -> results plus live Cubeb/CoreAudio mixing evidence |
-| G5 macOS 60 fps | In progress | Fountain clean combat p95/worst 17.115/59.024 ms; only 54.714% <=16.7 ms; `VISUAL-001B` open |
+| G5 macOS 60 fps | In progress | Clean Fountain p95/worst 17.115/59.024 ms; verified sampled Fountain p95/worst 17.565/30.615 ms; `VISUAL-001B` open |
 | G6 Simulator core boots | Not started | G5 first; no Simulator booted |
 | G7 Shell ported | Not started | G6 first |
 | G8 Test matrix green | Not started | G7 first |
@@ -258,6 +268,13 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   and the <=16.7 share also fell. The same audit withdrew the 03:30:57 sample
   as combat evidence because its dominant PC is the THP video decoder.
   Evidence: `docs/artifacts/2026-08-25/g5-locked-cache-pointer-rejection.md`.
+- **PERF-019 (attribution restored):** A visually gated native route proved
+  Pikachu versus level-1 CPU Kirby on Fountain from CSS through results. The
+  12-second combat-only process sample placed 5,367/8,396 CPU-thread samples in
+  `StaticRecompCore::Run`; its concurrent diagnostic bracket measured render
+  p95/p99/worst 17.565/22.530/30.615 ms. Sampling overhead excludes it from G5
+  acceptance, but it is the first valid post-correction combat hotspot sample.
+  Evidence: `docs/artifacts/2026-08-25/g5-visually-verified-fountain-sample.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual
@@ -273,4 +290,7 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   `docs/artifacts/2026-08-25/g5-fountain-visual-warping.md`. A fresh 12-frame
   app-only Fountain combat burst kept Yoshi, Popo, and Nana coherent through
   overlap and separation. That bounded negative sample does not close the
-  intermittent recurrence; `VISUAL-001B` remains open.
+  intermittent recurrence. A later verified Pikachu/Kirby Fountain match
+  retained four adjacent frames with a large Kirby silhouette change and a
+  flat horizontal pose. This may be legitimate squash animation, so matched
+  reference classification is still required and `VISUAL-001B` remains open.

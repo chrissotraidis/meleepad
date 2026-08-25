@@ -51,22 +51,34 @@ class MemoryWatcherClient:
         self.values: dict[int, int] = {}
         self.trace = trace
 
-    def _receive(self, deadline: float) -> None:
-        remaining = deadline - time.monotonic()
-        if remaining <= 0:
-            raise TimeoutError("MemoryWatcher predicate timed out")
-        self.socket.settimeout(min(remaining, 0.5))
-        try:
-            payload = self.socket.recv(65536).rstrip(b"\0").decode("ascii")
-        except socket.timeout:
-            return
-        lines = payload.splitlines()
+    def _process_payload(self, payload: bytes) -> None:
+        lines = payload.rstrip(b"\0").decode("ascii").splitlines()
         for index in range(0, len(lines) - 1, 2):
             address = int(lines[index].split()[0], 16)
             value = int(lines[index + 1], 16)
             self.values[address] = value
             if self.trace:
                 print(f"[memory] {address:08X}={value:08X}", flush=True)
+
+    def _receive(self, deadline: float) -> None:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise TimeoutError("MemoryWatcher predicate timed out")
+        self.socket.settimeout(min(remaining, 0.5))
+        try:
+            payload = self.socket.recv(65536)
+        except socket.timeout:
+            return
+        self._process_payload(payload)
+
+    def _drain(self) -> None:
+        """Consume watcher packets queued before a new timed action."""
+        self.socket.setblocking(False)
+        while True:
+            try:
+                self._process_payload(self.socket.recv(65536))
+            except BlockingIOError:
+                return
 
     def wait_value(
         self, address: int, mask: int, expected: int, timeout_s: float
@@ -87,6 +99,38 @@ class MemoryWatcherClient:
             if value is not None and value & mask != rejected:
                 return value
             self._receive(deadline)
+
+    def wait_counter(
+        self, address: int, increments: int, timeout_s: float
+    ) -> int:
+        """Wait for a watched unsigned 32-bit counter to advance."""
+        if increments < 1:
+            raise ValueError("increments must be at least 1")
+
+        deadline = time.monotonic() + timeout_s
+        self._drain()
+        baseline = self.values.get(address)
+        while self.values.get(address) == baseline:
+            self._receive(deadline)
+
+        previous = self.values[address]
+        remaining = increments
+        while True:
+            self._receive(deadline)
+            current = self.values[address]
+            delta = (current - previous) & 0xFFFFFFFF
+            if delta == 0:
+                continue
+            if delta > 0x7FFFFFFF:
+                # Treat a large backwards jump as a counter reset, not as
+                # billions of forward increments. Normal u32 wrap produces a
+                # small positive delta and is counted above.
+                previous = current
+                continue
+            if delta >= remaining:
+                return current
+            remaining -= delta
+            previous = current
 
     def pump_for(self, seconds: float) -> None:
         """Drain watcher traffic while a scripted input delay elapses."""
@@ -134,7 +178,7 @@ def sequence_addresses(sequence: list[dict]) -> set[int]:
     addresses: set[int] = set()
     for step in sequence:
         action = step.get("action", "tap")
-        if action == "wait_memory":
+        if action in {"wait_memory", "wait_counter"}:
             addresses.add(parse_int(step["address"]))
     return addresses
 
@@ -186,6 +230,17 @@ def run_sequence(
                 watcher.wait_value(
                     address, mask, parse_int(step["equals"]), timeout_s
                 )
+        elif action == "wait_counter":
+            if watcher is None:
+                raise ValueError("wait_counter requires --memory-user-dir")
+            increments = parse_int(step["increments"])
+            if increments < 1:
+                raise ValueError("increments must be at least 1")
+            watcher.wait_counter(
+                parse_int(step["address"]),
+                increments,
+                float(step.get("timeout", 60.0)),
+            )
         else:
             raise ValueError(f"unknown action: {action}")
         print(f"[{time.monotonic() - started:7.2f}s] {json.dumps(step)}", flush=True)

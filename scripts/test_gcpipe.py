@@ -39,6 +39,15 @@ class MemoryWatcherClientTests(unittest.TestCase):
         thread.start()
         return thread
 
+    def send_values_now(self, values: list[int]) -> None:
+        sock = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
+        try:
+            for value in values:
+                message = f"{self.address:08X}\n{value:x}\n\0".encode("ascii")
+                sock.sendto(message, str(self.client.socket_path))
+        finally:
+            sock.close()
+
     def test_wait_value_uses_revision_zero_state_mask(self) -> None:
         thread = self.send_values([0x18000000, 0x01000002])
         value = self.client.wait_value(self.address, 0xFF000000, 0x01000000, 1.0)
@@ -56,6 +65,25 @@ class MemoryWatcherClientTests(unittest.TestCase):
         value = self.client.wait_value_not(self.address, 0xFFFFFFFF, 0, 1.0)
         thread.join()
         self.assertEqual(value, 0x13)
+
+    def test_wait_counter_counts_increments_across_u32_wrap(self) -> None:
+        thread = self.send_values([0xFFFFFFFE, 0xFFFFFFFF, 0, 1])
+        value = self.client.wait_counter(self.address, 3, 1.0)
+        thread.join()
+        self.assertEqual(value, 1)
+
+    def test_wait_counter_counts_dropped_observations_by_value_delta(self) -> None:
+        thread = self.send_values([10, 13])
+        value = self.client.wait_counter(self.address, 3, 1.0)
+        thread.join()
+        self.assertEqual(value, 13)
+
+    def test_wait_counter_discards_packets_queued_before_action(self) -> None:
+        self.send_values_now([5, 10])
+        thread = self.send_values([20, 23])
+        value = self.client.wait_counter(self.address, 3, 1.0)
+        thread.join()
+        self.assertEqual(value, 23)
 
 
 class SequenceTests(unittest.TestCase):
@@ -92,10 +120,69 @@ class SequenceTests(unittest.TestCase):
         )
 
     def test_collects_revision_zero_memory_address(self) -> None:
-        sequence = [{"action": "wait_memory", "address": "0x80477D68"}]
+        sequence = [
+            {"action": "wait_memory", "address": "0x80477D68"},
+            {
+                "action": "wait_counter",
+                "address": "0x804D5324",
+                "increments": 4,
+            },
+        ]
         self.assertEqual(
-            gcpipe.sequence_addresses(sequence), {0x80477D68}
+            gcpipe.sequence_addresses(sequence), {0x80477D68, 0x804D5324}
         )
+
+    def test_wait_counter_sequence_action_uses_watcher(self) -> None:
+        class FakeWriter:
+            pass
+
+        class FakeWatcher:
+            def __init__(self) -> None:
+                self.calls: list[tuple[int, int, float]] = []
+
+            def wait_counter(
+                self, address: int, increments: int, timeout_s: float
+            ) -> int:
+                self.calls.append((address, increments, timeout_s))
+                return 123
+
+        watcher = FakeWatcher()
+        gcpipe.run_sequence(
+            FakeWriter(),
+            [
+                {
+                    "action": "wait_counter",
+                    "address": "0x804D5324",
+                    "increments": 6,
+                    "timeout": 2.5,
+                }
+            ],
+            watcher,
+        )
+        self.assertEqual(watcher.calls, [(0x804D5324, 6, 2.5)])
+
+    def test_wait_counter_rejects_non_positive_increment_count(self) -> None:
+        class FakeWriter:
+            pass
+
+        class FakeWatcher:
+            def wait_counter(
+                self, address: int, increments: int, timeout_s: float
+            ) -> int:
+                raise AssertionError("invalid action must fail before watcher call")
+
+        with self.assertRaisesRegex(ValueError, "increments must be at least 1"):
+            gcpipe.run_sequence(
+                FakeWriter(),
+                [
+                    {
+                        "action": "wait_counter",
+                        "address": "0x804D5324",
+                        "increments": 0,
+                    }
+                ],
+                FakeWatcher(),
+            )
 
     def test_title_to_css_does_not_press_start_on_the_main_menu(self) -> None:
         sequence_path = (

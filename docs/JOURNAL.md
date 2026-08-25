@@ -704,3 +704,32 @@ Append-only execution ledger. Claims are limited to observed evidence.
   No product/dependency source or runtime artifact changed.
 - Next: obtain a fresh visually stage-gated Fountain sample before selecting
   another generated-code optimization.
+
+## 2026-08-25 — G5 visually verified Fountain attribution
+
+- Goal: replace the withdrawn opening-video attribution with a sample whose
+  character, opponent, stage, combat state, and completion are visible.
+- Route correction: the exploratory `css-p2-iceclimbers.json` actually moved
+  player one to Fox and left all opponent slots inactive. Blind runs that
+  depended on that filename are excluded from stage evidence.
+- Work: a fresh native Metal/Cubeb run visibly established Pikachu versus
+  level-1 CPU Kirby, Stage Select, an explicit `Fountain of Dreams` highlight,
+  live combat, and the results screen. A 12-second sample ran four combat
+  cycles only after the stage was visible.
+- Result: **ATTRIBUTION RESTORED; G5 STILL FAILS; VISUAL-001B OPEN**. The CPU
+  thread spent 5,367/8,396 samples in `StaticRecompCore::Run`. The concurrent
+  1,707-frame render bracket measured 16.715 ms mean, 17.565 ms p95,
+  22.530 ms p99, 30.615 ms worst, and 54.013% <=16.7 ms. Sampling overhead
+  makes this a diagnostic rather than acceptance evidence.
+- Visual: four adjacent verified-match frames show a large Kirby silhouette
+  transition including a flat horizontal pose. It may be legitimate squash
+  animation; a matched reference action is still required. The issue remains
+  promotion-blocking.
+- Cleanup: route frames, adjacent frames, and the sample are retained; the
+  exact native runner was closed and no Simulator is booted.
+- Evidence:
+  `docs/artifacts/2026-08-25/g5-visually-verified-fountain-sample.md`.
+- Next: rebuild a fresh instrumented module and train it under the retained
+  revision-0 idle-PC skip using only visually verified required-stage runs.
+  The old retained PGO corpus predates idle skipping and is no longer a sound
+  layout baseline for the next optimization.
