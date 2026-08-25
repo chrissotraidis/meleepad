@@ -65,13 +65,18 @@ tests pass; 200 consecutive corrected frames are coherent; and an exact-source
 PGO screen improves rather than collapses the matched no-input tail. This
 closes the report's source-level action items, not the gates.
 
-The next falsifiable step is to reproduce the known Peach recurrence or an
-extended matched equivalent with the corrected module. If coherent, close
-`VISUAL-001B`; if it recurs, locate the first divergent state before another
-performance change. Only then run visually verified, capture-free Fountain and
-Final Destination combat intervals and attribute the remaining >16.7 ms tail
-one cause at a time. The no-input PGO screen is not required-stage acceptance.
-G5 and the ban on starting G6 remain in force.
+The corrected module survived a 402.7-second, 2,110-frame extended matched
+visual corpus with Brinstar, multiple four-player scenes, and dense Peach
+combat. `VISUAL-001B` is closed under its documented boundary and reopens on
+any recurrence. A clean corrected-module Fountain interval still fails G5 at
+17.000 ms render p95, 17.301 ms p99, and 79.167 ms worst.
+
+The next falsifiable step is to replay the same visually verified Fountain
+route with the already-smoke-tested phase-CSV runner and attribute the current
+>16.7 ms tail before changing one subsystem. Do not reuse capture-heavy logs,
+mix runner builds, or infer subsystem cost from render/vblank alone. Retain a
+change only if the complete strict Fountain distribution improves, then repeat
+on Final Destination. G5 and the ban on starting G6 remain in force.
 
 ## Testing rhythm
 

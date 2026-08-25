@@ -150,17 +150,18 @@ acceptance. See
 
 No Simulator is booted. G6 remains gated on G5.
 
-The Fountain visual report is split as `VISUAL-001A/B`. The blurred/blocky
+The Fountain visual report is split as `VISUAL-001A/B`. Both parts are now
+closed. The blurred/blocky
 lower reflection is closed as reference parity: it appears in profile-use,
 profile-free, no-module, and signed official Dolphin 2606a native-scale Metal
 runs. EFB-to-RAM and non-deferred-copy experiments were unnecessary and were
 reverted. The separate fighter-body report was not reproduced in an initial
 9.8-second interaction clip, but a later uncontaminated adjacent sequence
 confirms impossible multi-frame Peach hair/arm deformation at a 59.9 FPS title,
-recovering by frame 186. `VISUAL-001B` is confirmed real and remains promotion-
-blocking. The scalar-single and `frsp` correction is not closure until the
-corrected module survives the known recurrence or a sufficiently long matched
-equivalent.
+recovering by frame 186. The exact scalar-single/`frsp` correction subsequently
+survived a 402.7-second, 2,110-frame extended matched corpus with Brinstar,
+multiple four-player scenes, and dense Peach combat. `VISUAL-001B` is closed
+under that documented boundary and reopens on any recurrence.
 
 ## Goal ledger
 
@@ -171,7 +172,7 @@ equivalent.
 | G2 Module recompiles and links | Pass | `docs/artifacts/2026-08-24/g2-module-and-package.md` |
 | G3 macOS boots to title | Pass | `docs/artifacts/2026-08-24/g3-macos-title-and-input.md`; retained title and A-transition screenshots |
 | G4 macOS playable | Pass | `docs/artifacts/2026-08-24/g4-controlled-match.md`; clean CSS -> 1v1 -> results plus live Cubeb/CoreAudio mixing evidence |
-| G5 macOS 60 fps | In progress | Fountain p95/worst 17.237/19.112 ms; scalar-single + `frsp` correction and exact PGO screen complete; `VISUAL-001B` recurrence and strict Fountain/FD tails remain open |
+| G5 macOS 60 fps | In progress | Corrected Fountain render p95/p99/worst 17.000/17.301/79.167 ms; `VISUAL-001B` closed; phase attribution and strict Fountain/FD tails remain open |
 | G6 Simulator core boots | Not started | G5 first; no Simulator booted |
 | G7 Shell ported | Not started | G6 first |
 | G8 Test matrix green | Not started | G7 first |
@@ -335,17 +336,14 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual
   regression. EFB-to-RAM and non-deferred-copy controls were reverted.
-- **VISUAL-001B (confirmed real, open):** Adjacent `.png` frames 176-184 show
+- **VISUAL-001B (confirmed real, fixed/closed):** Adjacent `.png` frames 176-184 showed
   Peach's hair and arms deforming into impossible spike/blade shapes over
-  multiple frames before recovery at frame 186. The stale-`ps1` mechanism is
-  sufficient to explain this, but the corrected helper module still contains
-  1,237 lane-0-only `frsp` sites, so it cannot close the defect. The user
-  explicitly reconfirmed that character morphing must remain tracked
-  independently of the reference-matching Fountain reflection. Evidence:
-  `docs/artifacts/2026-08-25/g5-fountain-visual-warping.md`. A fresh 12-frame
-  app-only Fountain combat burst kept Yoshi, Popo, and Nana coherent through
-  overlap and separation. That bounded negative sample does not close the
-  intermittent recurrence. A later verified Pikachu/Kirby Fountain match
-  retained four adjacent frames with a large Kirby silhouette change and a
-  flat horizontal pose. This may be legitimate squash animation, so matched
-  reference classification is still required and `VISUAL-001B` remains open.
+  multiple frames before recovery at frame 186. Exact GXRuntime helpers now
+  cover scalar-single arithmetic and all 1,237 `frsp` sites. The corrected
+  exact-source PGO module then survived 402.7 seconds and 2,110 retained frames
+  spanning Brinstar, several four-player scenes, and dense Peach combat without
+  deformation. This satisfies the documented extended-matched-equivalent
+  closure boundary. Evidence:
+  `docs/artifacts/2026-08-25/g5-fountain-visual-warping.md` and
+  `docs/artifacts/2026-08-25/g5-corrected-visual-closure-and-fountain-baseline.md`.
+  Any future character morphing immediately reopens the defect.

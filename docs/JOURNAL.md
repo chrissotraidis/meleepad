@@ -834,3 +834,30 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Next: reproduce the known Peach composition or an extended matched equivalent
   under the corrected module, then resume clean visually verified Fountain and
   Final Destination tail attribution one variable at a time.
+
+## 2026-08-25 — Corrected visual closure and clean Fountain baseline
+
+- Goal: satisfy the intermittent visual closure boundary, then establish the
+  first required-stage timing baseline from the exact corrected PGO module.
+- Visual: retained 2,110 native-window frames over 402.7 seconds. The corpus
+  covers Brinstar, several four-player demos, multiple Peach scenes, and 54
+  dense ordered Battlefield Peach combat frames. No fighter deformation
+  recurred. This satisfies the loop's extended-matched-equivalent boundary;
+  `VISUAL-001B` is closed and reopens on any recurrence.
+- Route: two pre-game setup attempts were excluded for missing SI/FIFO setup.
+  The valid cold run passed the title/CSS state barrier. Stale P2 cursor
+  assumptions were corrected under live visual inspection, then Character
+  Select showed Pikachu and level-1 CPU Zelda, Stage Select explicitly showed
+  Fountain of Dreams, and live Fountain combat held a 60.0 FPS title.
+- Timing: a 66-second, capture-free, audio-enabled bracket retained its final
+  3,900 frames. Render mean/median/p95/p99/worst were
+  16.683/16.684/17.000/17.301/79.167 ms with 54.846% <=16.7 ms. Vblank was
+  16.683/16.683/16.855/16.883/79.085 ms with 65.231% <=16.7 ms.
+- Result: **VISUAL DEFECT CLOSED; G5 STILL FAILS**. The acceptance runner did
+  not emit phase CSV, so no subsystem attribution is claimed. A newer runner
+  separately passed a phase-CSV smoke test; its data is not mixed here.
+- Evidence:
+  `docs/artifacts/2026-08-25/g5-corrected-visual-closure-and-fountain-baseline.md`.
+- Next: replay verified Fountain with the phase-CSV runner, attribute the tail,
+  and test exactly one implicated subsystem before repeating on Final
+  Destination. No Simulator work begins.
