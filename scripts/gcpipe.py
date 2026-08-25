@@ -88,6 +88,12 @@ class MemoryWatcherClient:
                 return value
             self._receive(deadline)
 
+    def pump_for(self, seconds: float) -> None:
+        """Drain watcher traffic while a scripted input delay elapses."""
+        deadline = time.monotonic() + seconds
+        while time.monotonic() < deadline:
+            self._receive(deadline)
+
     def close(self) -> None:
         self.socket.close()
         self.socket_path.unlink(missing_ok=True)
@@ -138,14 +144,26 @@ def run_sequence(
     sequence: list[dict],
     watcher: MemoryWatcherClient | None = None,
 ) -> None:
+    def pause(seconds: float) -> None:
+        if watcher is None:
+            time.sleep(seconds)
+        else:
+            watcher.pump_for(seconds)
+
     started = time.monotonic()
     for step in sequence:
         delay = float(step.get("delay", 0.0))
         if delay:
-            time.sleep(delay)
+            pause(delay)
         action = step.get("action", "tap")
         if action == "tap":
-            writer.tap(step["button"], float(step.get("hold", 0.12)))
+            hold_s = float(step.get("hold", 0.12))
+            if watcher is None:
+                writer.tap(step["button"], hold_s)
+            else:
+                writer.send(f"PRESS {step['button']}")
+                pause(hold_s)
+                writer.send(f"RELEASE {step['button']}")
         elif action == "press":
             writer.send(f"PRESS {step['button']}")
         elif action == "release":
@@ -153,7 +171,7 @@ def run_sequence(
         elif action == "stick":
             writer.set_stick(step["axis"], float(step["x"]), float(step["y"]))
         elif action == "wait":
-            time.sleep(float(step.get("seconds", 1.0)))
+            pause(float(step.get("seconds", 1.0)))
         elif action == "wait_memory":
             if watcher is None:
                 raise ValueError("wait_memory requires --memory-user-dir")
@@ -178,11 +196,14 @@ def main() -> int:
     parser.add_argument("--pipe", type=Path)
     parser.add_argument("--open-timeout", type=float, default=60.0)
     parser.add_argument("--sequence", type=Path)
+    parser.add_argument("--repeat", type=int, default=1)
     parser.add_argument("--memory-user-dir", type=Path)
     parser.add_argument("--trace-memory", action="store_true")
     parser.add_argument("--tap", metavar="BUTTON")
     parser.add_argument("--stick", nargs=3, metavar=("AXIS", "X", "Y"))
     args = parser.parse_args()
+    if args.repeat < 1:
+        parser.error("--repeat must be at least 1")
 
     sequence: list[dict] = []
     if args.sequence:
@@ -202,7 +223,8 @@ def main() -> int:
     writer = PadWriter(pipe_path, args.open_timeout)
     try:
         if sequence:
-            run_sequence(writer, sequence, watcher)
+            for _ in range(args.repeat):
+                run_sequence(writer, sequence, watcher)
         if args.tap:
             writer.tap(args.tap)
         if args.stick:

@@ -599,3 +599,39 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Next: explain or replace the terminal CSS state signal, then use the reliable
   cold/input path for uncontaminated adjacent-frame mesh capture and required-
   stage G5 timing.
+
+## 2026-08-25 — G5 self-verifying CSS and clean Fountain replay
+
+- Goal: explain the missing VS terminal signal, retain uncontaminated temporal
+  fighter evidence, and measure a visually verified audio-inclusive Fountain
+  interval.
+- Work: proved the source transition is `GM_MENU -> GM_VS/CSS`; reproduced the
+  controller's unread-datagram window; added watched-delay pumping and removed
+  the timing-dependent initial-zero prerequisite under failing regressions. A
+  watcher-first cold retry reached `GameState=0x02020100` and exited zero.
+  App-only capture retained clean CSS plus twelve Fountain combat frames while
+  leaving the unexpected microphone permission unanswered. After capture, a
+  visually verified rematch ran twenty combat cycles with no UI inspection.
+- Result: **INPUT-004 CLOSED; G5 STILL FAILS; VISUAL-001B STILL OPEN**. The
+  self-verifying route completed at 143.83 seconds. All twelve fresh temporal
+  frames were coherent, which is bounded negative evidence only. The clean
+  5,463-frame Fountain interval measured 16.683 ms mean, 17.115 ms p95,
+  17.318 ms p99, 59.024 ms worst, and 54.714% <=16.7 ms despite a 59.9 FPS
+  title. Vblank p95/worst were 17.180/73.595 ms.
+- Invalid diagnostics: one attempt started the runner before the watcher; its
+  missing stream was discarded. That runner then ignored Ctrl-C/TERM and
+  survived into one retry; the duplicate PIDs were detected, force-stopped,
+  and excluded. The accepted run began only after proving one watcher, zero
+  runners, and zero Simulators.
+- Verification: the new regression failed before the pump; eleven controller
+  tests, repository audit, bootstrap patch audit, cold terminal predicate,
+  clean CSS capture, original 12-frame burst, and exact full timing-log hashes
+  pass. No Simulator was booted.
+- Cleanup: the app close control terminated the exact runner, no controller or
+  Simulator remains, and Jump Desktop Audio is restored.
+- Evidence:
+  `docs/artifacts/2026-08-25/g5-watcher-pump-fountain-replay.md`.
+- Next: profile the retained clean Fountain interval to identify the shared
+  17.1 ms p95 and rare 59 ms tail before changing one code path; rerun matched
+  Fountain and Final Destination only if the focused candidate improves the
+  strict worst-case distribution.

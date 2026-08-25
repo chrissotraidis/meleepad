@@ -105,6 +105,8 @@ every launch.
 
 Follow-up completed those prerequisites. The direct bounded reader and initial
 zero publication are packaged and tested, and the cold replay exposed and
-corrected mixed revision-1.02/revision-0 route addresses. The route now visibly
-reaches VS CSS, but its terminal watcher predicate remains open. See
-`g5-static-recomp-memory-watcher-route.md`.
+corrected mixed revision-1.02/revision-0 route addresses. A later client fix
+drains empty watcher datagrams during menu delays; the route now exits zero on
+`GameState=0x02020100` and self-verifies VS CSS. See
+`g5-static-recomp-memory-watcher-route.md` and
+`g5-watcher-pump-fountain-replay.md`.

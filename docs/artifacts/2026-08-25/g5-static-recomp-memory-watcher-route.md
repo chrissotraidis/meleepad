@@ -2,7 +2,7 @@
 
 Date: 2026-08-25
 
-Status: **WATCHED MEMORY FIXED; COLD ROUTE VISIBLY REACHES CSS; TERMINAL PREDICATE OPEN**
+Status: **WATCHED MEMORY FIXED; COLD ROUTE SELF-VERIFIES VS CSS**
 
 ## Static-recomp watched memory
 
@@ -71,12 +71,18 @@ and two-second windows sent input during menu animations. The corrected route
 visibly reached the four-slot Melee VS character-select screen from a cold
 launch without manual gameplay input.
 
-The final `0x02000000` notification did not arrive before the 120-second
-terminal timeout even though CSS was visibly active. That terminal predicate
-is still open and the route is not claimed as a fully self-verifying pass.
-Future visual capture can use the now reliable title/menu input path, but must
-retain a screenshot or adjacent-frame evidence until the terminal state signal
-is explained.
+The original final timeout was caused by socket starvation in `gcpipe.py`, not
+an incorrect game-state model. Dolphin emits an empty MemoryWatcher datagram
+each frame, while the controller originally stopped reading during roughly
+eleven seconds of menu delays. The client now pumps the watcher throughout
+delays and watched tap holds. It also no longer requires a timing-dependent
+initial GameState zero packet; the nonzero-to-zero title lockout is sufficient.
+
+A clean retry observed `80477D68=02020100` and exited zero at 143.83 seconds.
+That word proves current mode `GM_VS=2`, previous mode `GM_MENU=1`, and CSS
+route index zero. The route is now fully self-verifying. Clean CSS, temporal
+mesh, and Fountain timing evidence is retained in
+`g5-watcher-pump-fountain-replay.md`.
 
 Local-only diagnostic screenshots (not publication-quality because the
 foreground macOS microphone permission sheet contaminated them):

@@ -59,6 +59,32 @@ class MemoryWatcherClientTests(unittest.TestCase):
 
 
 class SequenceTests(unittest.TestCase):
+    def test_memory_aware_sequence_pumps_watcher_during_delays(self) -> None:
+        class FakeWriter:
+            def tap(self, button: str, hold_s: float = 0.12) -> None:
+                raise AssertionError("watcher-aware taps must not sleep inside PadWriter")
+
+            def send(self, command: str) -> None:
+                pass
+
+        class FakeWatcher:
+            def __init__(self) -> None:
+                self.pumped: list[float] = []
+
+            def pump_for(self, seconds: float) -> None:
+                self.pumped.append(seconds)
+
+        watcher = FakeWatcher()
+        gcpipe.run_sequence(
+            FakeWriter(),
+            [
+                {"action": "wait", "seconds": 5.0},
+                {"action": "tap", "button": "A", "hold": 0.3, "delay": 0.5},
+            ],
+            watcher,
+        )
+        self.assertEqual(watcher.pumped, [5.0, 0.5, 0.3])
+
     def test_isolated_user_dir_uses_its_fifo_by_default(self) -> None:
         user_dir = Path("/private/tmp/ssbmpad-test/user")
         self.assertEqual(
@@ -89,6 +115,14 @@ class SequenceTests(unittest.TestCase):
         ]
         self.assertEqual(len(start_taps), 1)
 
+    def test_title_to_css_does_not_require_a_boot_time_zero_packet(self) -> None:
+        sequence_path = (
+            Path(__file__).parent / "input-sequences/g5-r0-title-to-css.json"
+        )
+        sequence = json.loads(sequence_path.read_text(encoding="utf-8"))
+        self.assertEqual(sequence[0].get("address"), "0x804D4594")
+        self.assertEqual(sequence[0].get("not_equals"), "0x00000000")
+
     def test_title_to_css_uses_per_mode_revision_zero_scene_indices(self) -> None:
         sequence_path = (
             Path(__file__).parent / "input-sequences/g5-r0-title-to-css.json"
@@ -102,7 +136,7 @@ class SequenceTests(unittest.TestCase):
         ]
         self.assertEqual(
             routing_values,
-            ["0x00000000", "0x01000000", "0x02000000"],
+            ["0x01000000", "0x02000000"],
         )
 
     def test_title_to_css_waits_for_menu_input_animations(self) -> None:

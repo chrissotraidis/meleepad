@@ -95,6 +95,14 @@ adjacent frames or a matched reference sequence classify it.
 - Fresh four-player recurrence:
   `g5-fp-fast-path-attract-mesh-warp.jpeg`
   (`47831e1fb4862e66221c3772fda55c7425848e70e890f2127b08bf09c81fb099`).
+- Fresh app-only temporal control: twelve original JPEG frames under
+  `g5-fountain-temporal-mesh-burst/` show Ice Climbers and Yoshi remaining
+  coherent through scripted overlap, movement, attacks, and separation. First
+  and last frame SHA-256 are
+  `16ae52b3538857ae5f27dd72b00a4a04de2ac8fc6898d5c52e53cb669ea9ddf9`
+  and `8a815d79765e44d729d89e062c21f33a145c00b11759a91398d2bd5b6d2dac73`.
+  This is a bounded non-reproduction and does not close `VISUAL-001B`; see
+  `g5-watcher-pump-fountain-replay.md`.
 
 The official reference was fetched through Homebrew's `dolphin` cask without
 global installation. It reported Dolphin 2606a and carried Developer ID

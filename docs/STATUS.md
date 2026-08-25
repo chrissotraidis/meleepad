@@ -66,6 +66,13 @@ from 27.987 to 34.777 ms and the <=16.7 ms share from 49.80% to 49.20%.
 Four-player scenes still ran around 45-48 FPS. The candidate is rejected under
 the strict retention rule and dependency source is restored.
 
+The revision-0 cold route now self-verifies VS CSS. `gcpipe.py` pumps watched
+memory during animation delays so Dolphin's empty per-frame datagrams cannot
+starve the terminal update; a clean retry exited on `GameState=0x02020100`.
+The same run reached a visually verified, audio-enabled Fountain match. Its
+capture-free combat interval still fails G5 at 17.115 ms p95, 17.318 ms p99,
+59.024 ms worst, and 54.714% of render frames at or below 16.7 ms.
+
 No Simulator is booted. G6 remains gated on G5.
 
 The Fountain visual report is split as `VISUAL-001A/B`. The blurred/blocky
@@ -87,7 +94,7 @@ sequence classify it.
 | G2 Module recompiles and links | Pass | `docs/artifacts/2026-08-24/g2-module-and-package.md` |
 | G3 macOS boots to title | Pass | `docs/artifacts/2026-08-24/g3-macos-title-and-input.md`; retained title and A-transition screenshots |
 | G4 macOS playable | Pass | `docs/artifacts/2026-08-24/g4-controlled-match.md`; clean CSS -> 1v1 -> results plus live Cubeb/CoreAudio mixing evidence |
-| G5 macOS 60 fps | In progress | FP fast path rejected on worst frame; four-player scenes remain 45-48 FPS; `VISUAL-001B` reopened |
+| G5 macOS 60 fps | In progress | Fountain clean combat p95/worst 17.115/59.024 ms; only 54.714% <=16.7 ms; `VISUAL-001B` open |
 | G6 Simulator core boots | Not started | G5 first; no Simulator booted |
 | G7 Shell ported | Not started | G6 first |
 | G8 Test matrix green | Not started | G7 first |
@@ -193,18 +200,24 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   19.979/20.854 ms, but worst regressed from 27.987 to 34.777 ms and the
   <=16.7 ms share slipped. It is rejected; see
   `docs/artifacts/2026-08-25/g5-fp-fast-path-and-watcher-audit.md`.
-- **INPUT-004:** Static-recomp watched memory is fixed and reproducibly
+- **INPUT-004 (fixed):** Static-recomp watched memory is fixed and reproducibly
   packaged. Direct bounded MEM1/MEM2 reads are used only for an active static
   module; ordinary cores retain the MMU path, and initial zero is now
   published. Generated revision-0 instructions corrected the mixed-revision
   predicates to `GameState=0x80477D68` and title lockout `0x804D4594`. A cold
   replay observed the complete 20-to-zero lockout transition, sent one START,
-  reached Main Menu, and visibly reached four-slot VS CSS after bounded menu
-  readiness windows. The final `GM_VS` watcher notification still timed out
-  despite visible CSS, so the route is a visual pass but not yet a fully
-  self-verifying predicate pass. Required-stage profiling remains visually
-  gated. Evidence:
-  `docs/artifacts/2026-08-25/g5-static-recomp-memory-watcher-route.md`.
+  reached Main Menu, and reached four-slot VS CSS after bounded menu readiness
+  windows. The earlier terminal timeout was empty-datagram socket starvation:
+  the client did not read during menu sleeps. Watched delays are now pumped,
+  the timing-dependent initial-zero prerequisite is removed, and a cold retry
+  exited zero on `GameState=0x02020100` (`GM_VS`, CSS index zero). Evidence:
+  `docs/artifacts/2026-08-25/g5-static-recomp-memory-watcher-route.md` and
+  `docs/artifacts/2026-08-25/g5-watcher-pump-fountain-replay.md`.
+- **PERF-015:** The repaired route reached a visually verified Fountain match
+  with Cubeb audio, then ran a capture-free 5,463-frame combat interval. The
+  59.9 FPS title concealed a failing tail: render p95/p99/worst were
+  17.115/17.318/59.024 ms and only 54.714% of frames were <=16.7 ms. G5 remains
+  open; see `docs/artifacts/2026-08-25/g5-watcher-pump-fountain-replay.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual
@@ -217,4 +230,7 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   and body warping must remain tracked independently of the reference-matching
   Fountain reflection. Promotion is blocked conservatively pending clean
   temporal or matched-reference evidence. Evidence:
-  `docs/artifacts/2026-08-25/g5-fountain-visual-warping.md`.
+  `docs/artifacts/2026-08-25/g5-fountain-visual-warping.md`. A fresh 12-frame
+  app-only Fountain combat burst kept Yoshi, Popo, and Nana coherent through
+  overlap and separation. That bounded negative sample does not close the
+  intermittent recurrence; `VISUAL-001B` remains open.
