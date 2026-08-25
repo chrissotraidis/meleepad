@@ -292,3 +292,21 @@ Append-only execution ledger. Claims are limited to observed evidence.
   and the three raw traces named there.
 - Next: use PGO as an oracle for one smaller static compute-path decision, then
   require both real stages to improve before retaining it.
+
+## 2026-08-24 — G5 generated loop-cycle budget
+
+- Goal: reduce the dominant polling helper's repeated returns to the host
+  dispatcher without profile data or forced inlining.
+- Work: built a complete profile-free macOS 14 arm64 O2 + ThinLTO module with
+  only `DOLRECOMP_C_LOOP_CYCLE_BUDGET` raised from 256 to 1024, then ran the
+  matched cumulative 60-150 second no-input attract diagnostic.
+- Result: **NOT RETAINED**. Median regressed to 16.757 ms, p95 to 22.926 ms,
+  p99 to 24.989 ms, and the <=16.7 ms share fell to 44.77%. Vblank regressed in
+  parallel. Wider host timing-check latency overwhelms reduced dispatch cost.
+- Cleanup: default budget and signed portable-PGO module restored exactly; no
+  runner or Simulator remains active.
+- Evidence: appended to
+  `docs/artifacts/2026-08-24/g5-timing-attribution-and-pgo-noexram.md`, plus
+  the two raw budget-1024 traces named there.
+- Next: do not sweep intermediate budgets without a narrower timing mechanism;
+  continue with PGO-guided static compute-path differences.

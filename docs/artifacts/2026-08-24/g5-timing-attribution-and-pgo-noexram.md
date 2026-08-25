@@ -78,3 +78,39 @@ Candidate raw evidence:
   `17b2cdd710e83149fe94bcc77a0be0804fd627dc031cc9a210a186fc47f21076`
 - `g5-pgo-noexram-attract-90s-vblank-times.txt` — SHA-256
   `597f3599af89eaedd7cbdb788c00e1209058ac58e04095c4143af4716529834d`
+
+## Generated loop-cycle budget
+
+The profile's dominant `loop_80349494` helper entered 135,977,937 times and
+executed approximately 86 guest polling iterations per entry, matching the
+default 256-cycle return budget at three charged cycles per iteration. A
+profile-free experiment raised only `DOLRECOMP_C_LOOP_CYCLE_BUDGET` to 1024,
+reducing potential host-dispatch returns by about four while widening the host
+timing-check interval to approximately 2.1 microseconds at GameCube CPU speed.
+
+The full arm64 macOS 14 O2 + ThinLTO module was 79 MiB with unsigned SHA-256
+`47f8a8deda64254e11207f8103e2180ef30d443ba6fb555a0cfe32fd1c509953`.
+It loaded successfully, but the matched no-input attract window regressed:
+
+| Metric | Default 256 + PGO | Clean budget 1024 |
+|---|---:|---:|
+| Frames | 5,135 | 4,863 |
+| Mean | 17.528468 ms | 18.508955 ms |
+| Median | 16.682666 ms | 16.757250 ms |
+| p95 | 17.848100 ms | 22.926175 ms |
+| p99 | 18.813991 ms | 24.989434 ms |
+| Worst | 3132.187584 ms | 3597.894417 ms |
+| Frames <=16.7 ms | 61.25% | 44.77% |
+
+Candidate vblank timing also regressed to 17.284516 ms mean / 22.410896 ms
+p95 / 24.254269 ms p99 / 103.979333 ms worst. **Rejected.** Reducing host
+returns this way harms timing/pacing enough to overwhelm any dispatch saving.
+The default 256-cycle setting is restored; an intermediate budget is not
+justified without a narrower mechanism.
+
+Raw evidence:
+
+- `g5-loopbudget1024-attract-90s-render-times.txt` — SHA-256
+  `987cf448d0b6083c1f8877dd67c2ce4013eb37a8ac3bc722ae08da4abdae47a4`
+- `g5-loopbudget1024-attract-90s-vblank-times.txt` — SHA-256
+  `12a6c590d42d80315ebe0de3eb9032ff43e1be0931ceec6eb4add387309cef83`

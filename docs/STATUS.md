@@ -38,7 +38,8 @@ the remaining steady-state tail primarily to generated-module compute. A
 combined portable-PGO/no-EXRAM candidate left median unchanged and regressed a
 matched attract p95 from 17.848 ms to 19.335 ms, so it was also rejected. A
 smaller static reproduction and causal compute-tail reduction are still
-required.
+required. A profile-free 1024-cycle generated-loop budget also regressed
+matched attract p95 to 22.926 ms and is rejected; the default 256 is retained.
 
 No Simulator is booted. G6 remains gated on G5.
 
@@ -131,3 +132,7 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   no-EXRAM specialization left median unchanged and regressed a matched attract
   p95/p99 to 19.335/20.477 ms, so the combination was rejected before
   required-stage replay. The portable-PGO app was restored.
+- **PERF-010:** Raising the generated loop return budget from 256 to 1024
+  cycles reduced potential dispatcher boundaries but regressed matched attract
+  median/p95/p99 to 16.757/22.926/24.989 ms and vblank in parallel. The
+  profile-free experiment was rejected and default 256 restored.

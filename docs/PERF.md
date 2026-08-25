@@ -95,6 +95,12 @@ matched attract window. The candidate was rejected before required-stage
 replay. See
 `docs/artifacts/2026-08-24/g5-timing-attribution-and-pgo-noexram.md`.
 
+The dominant polling helper's 256-cycle host-return budget was tested directly
+with a profile-free 1024-cycle build. It regressed attract median to 16.757 ms,
+p95 to 22.926 ms, and p99 to 24.989 ms; vblank regressed in parallel. Reduced
+host dispatch frequency does not justify the wider timing-check interval, so
+the default budget is retained.
+
 Required next work:
 
 1. Use the retained PGO binary/profile as an oracle for a smaller static
