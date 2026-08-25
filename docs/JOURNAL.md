@@ -245,3 +245,24 @@ Append-only execution ledger. Claims are limited to observed evidence.
   `g5-buffered-pgo-yoshi-ice-final-destination-90s-render-times.txt`.
 - Next: reduce the shared PGO tail on Fountain and Final Destination, and make
   the unlock setup repository-native without distributing save or ROM data.
+
+## 2026-08-24 — G5 outlining and timer experiments
+
+- Goal: test whether PGO primarily benefits from outlined loop helpers or
+  whether the narrow 16.7 ms tail is caused by macOS timer overshoot.
+- Work: built an all-969-loop `noinline` module; then restored it and ran a
+  default-off Apple Silicon precise-spin timer against the default timer in
+  matched cumulative 60-150 second no-input attract windows. Temporary FIFO
+  and pad traces also proved `A=0x0100` and `Start=0x1000` reached port 1; all
+  traces and the rejected Always Connected profile flag were removed.
+- Result: **BOTH NOT RETAINED**. Blanket outlining collapsed an active attract
+  battle to 4.1 FPS. Precise-spin moved render p95 only from 17.848 ms to
+  17.841 ms and p99 from 18.814 ms to 18.696 ms while multi-second tails
+  remained. That does not justify its approximately 1 ms/frame spin cost.
+- Cleanup: generated sources, clean cache, default timer, user controller
+  profile, and signed portable PGO app were restored; no process or Simulator
+  remains active.
+- Evidence: `docs/artifacts/2026-08-24/g5-outline-and-timer-experiments.md`
+  and the four selected raw traces named there.
+- Next: correlate the next large required-stage tail with compute,
+  shader/pipeline creation, audio, and host scheduling before changing code.

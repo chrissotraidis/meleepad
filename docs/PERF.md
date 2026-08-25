@@ -75,11 +75,19 @@ clean no-mod portable-PGO run measured 16.941 ms mean, 16.678 ms median,
 steady state than Fountain, but still fails p95, p99, and worst. See
 `docs/artifacts/2026-08-24/g5-final-destination.md`.
 
+Two broader explanations were then rejected. Marking all 969 generated loop
+helpers `noinline` collapsed a four-player attract battle to 4.1 FPS, so PGO's
+gain is not reproducible through blanket outlining. Replacing macOS's final
+precision-timer scheduler yields with ARM spin hints improved a matched
+attract p99 by only 0.63%, left p95 effectively unchanged, and retained
+multi-second tail events while spending about 1 ms per frame spinning. See
+`docs/artifacts/2026-08-24/g5-outline-and-timer-experiments.md`.
+
 Required next work:
 
-1. Compare the remaining PGO-eliminated helpers and layout/code-generation
-   decisions, then test the next smallest static clean-checkout change; the
-   single `loop_80349494` forced-inline attempt is rejected.
+1. Attribute the remaining tail to compute, shader/pipeline creation, audio, or
+   host scheduling with one timestamp-correlated trace before another rebuild;
+   single-helper inlining, blanket outlining, and timer spinning are rejected.
 2. Continue reducing the real p99/worst tail to at most 16.7 ms.
 3. Turn the proven isolated-save unlock procedure into a repository-native,
    data-free setup without distributing the generated GCI.

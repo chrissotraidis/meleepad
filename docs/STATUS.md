@@ -30,8 +30,11 @@ pauses. With buffered logging, a capture-free 90-second clean control had a
 median / 16.846 ms p95 / 17.031 ms p99 / 45.425 ms worst; a macOS 14 rebuild
 reproduced the result. That portable module is retained locally as the
 best-known build, but its ROM-trained profile is not a committable shipping
-input. A static reproduction and further tail reduction are required. Final
-Destination remains locked/unmeasured.
+input. Final Destination is now unlocked through an isolated ROM-safe save and
+measured at 16.678 ms median / 16.946 ms p95 / 17.189 ms p99 / 1385.242 ms
+worst. Single-loop inlining, blanket loop outlining, and an Apple Silicon
+precision-timer spin experiment are rejected. A static reproduction and
+causal tail reduction are still required.
 
 No Simulator is booted. G6 remains gated on G5.
 
@@ -86,8 +89,7 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   nonblocking event-pumping wait so macOS no longer marks it unresponsive while
   the runner is active.
 - **PERF-001:** Fountain of Dreams is CPU-bound and fails G5: the clean exact
-  trace is 19.326 ms median / 22.862 ms p95 / 111.083 ms worst. Final
-  Destination remains locked in the current save and unmeasured.
+  trace is 19.326 ms median / 22.862 ms p95 / 111.083 ms worst.
 - **PERF-002 (fixed):** Forced Ninja response files broke CMake's Apple IPO
   probe while the cache identity still claimed ThinLTO. The macOS configure path
   now uses platform-default response files and a distinct cache identity.
@@ -95,8 +97,7 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   median 6.8%, p95 20.4%, p99 22.6%, and worst 17.6%. The portable macOS 14
   module is retained locally as the best-known build, but the ROM-trained
   profile remains local and cannot be the reproducible shipping solution.
-  PGO still fails the 16.7 ms p95/p99/worst gate, and Final Destination is
-  unavailable.
+  PGO still fails the 16.7 ms p95/p99/worst gate.
 - **PERF-004:** A GameCube-only RAM specialization improved an equal Fountain
   pair by 3.0-4.4% across mean/median/p95/p99 but was rejected below the 5%
   retention threshold. Its reported 1385.798 ms worst-frame comparison is
@@ -116,3 +117,8 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   verified after a clean no-mod restart. Its matched portable-PGO run measured
   16.678 ms median / 16.946 ms p95 / 17.189 ms p99 / 1385.242 ms worst. The
   stage blocker is closed, but G5 still fails on shared tail behavior.
+- **PERF-008:** Blanket `noinline` on all 969 generated loop helpers collapsed
+  an active attract battle to 4.1 FPS and was rejected. A default-off Apple
+  Silicon precise-spin timer improved a matched attract p99 by only 0.63%,
+  left p95 effectively unchanged, retained multi-second tails, and was also
+  rejected. Default source, profile, cache, and app state were restored.
