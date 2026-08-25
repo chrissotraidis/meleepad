@@ -1,0 +1,12 @@
+diff --git a/Data/Sys/GameSettings/GALE01r0.ini b/Data/Sys/GameSettings/GALE01r0.ini
+--- a/Data/Sys/GameSettings/GALE01r0.ini
++++ b/Data/Sys/GameSettings/GALE01r0.ini
+@@ -1,5 +1,8 @@
+ # GALE01 - Super Smash Bros. Melee
+ 
++[Core]
++StaticRecompIdlePC = 0x80349494
++
+ [ActionReplay]
+ # Add action replay cheats here.
+ $All 293 trophies

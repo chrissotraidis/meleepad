@@ -376,3 +376,31 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Next: preserve the Fountain profile's useful branch/block weighting and
   target the generated compute tail directly; retain nothing until both
   required stages and the strict worst-frame requirement improve.
+
+## 2026-08-25 — G5 revision-0 scheduler idle attribution
+
+- Goal: identify the dominant `loop_80349494` work from the actual GALE01
+  revision-0 module and remove only proven host-side waste.
+- Work: rejected revision-2 symbol maps for the revision-0 disc; traced the
+  address in generated r0 source to the scheduler's `RunQueueBits == 0` idle
+  loop; enabled Dolphin's existing `StaticRecompIdlePC` facility through a
+  revision-specific game-settings patch; verified the idle PC disappeared from
+  the shutdown dispatch histogram; and replayed native profile-free and PGO
+  builds with the same isolated user directory.
+- Result: **OPTIMIZATION RETAINED; G5 STILL OPEN**. The PGO screen improved
+  p95/p99/worst from 18.077/18.721/19.088 ms to
+  17.824/18.186/18.987 ms, while median and <=16.7 ms share were slightly worse.
+  Profile-free four-player scenes remained around 40-55 FPS and Jungle Japes
+  reached 16.9 FPS. The setting removes dominant idle dispatch work but does
+  not solve active combat.
+- Input boundary: a live one-port P1 Bowser versus CPU Mario route reached
+  stage select. The old exploratory Final Destination cursor sequence visibly
+  selected Battlefield and was rejected. Fixed-delay boot automation also
+  confused the non-interactive opening title card with the real title prompt;
+  future profiling must visually gate both title and stage.
+- Evidence: `docs/artifacts/2026-08-25/g5-gale01r0-idle-loop.md` and the two raw
+  profile-free traces named there.
+- Cleanup: no runner or Simulator remains active. The retained production app
+  and local Fountain-PGO module hashes are unchanged.
+- Next: collect a visually verified Fountain/Final Destination combat-only PGO
+  corpus with idle skipping enabled, then compare both required stages.

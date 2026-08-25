@@ -50,8 +50,14 @@ visible Fountain and Final Destination 1v1s. A direct 2:1 Fountain/Final
 Destination PGO profile also failed its matched attract screen: median/p95
 regressed from 16.684/18.077 ms to 16.778/18.383 ms and worst rose from 19.088
 ms to 57.091 ms. That candidate is rejected and the retained Fountain-only
-module is restored. Further work must preserve its useful weighting while
-targeting the generated compute tail directly.
+module is restored. Revision-0 source attribution then identified
+`loop_80349494` as the scheduler idle loop. Configuring Dolphin's existing
+`StaticRecompIdlePC` facility removes it from the hot-dispatch histogram and
+roughly halves host dispatch/cycle work in comparable attract runs. The
+optimization is retained, but it is not a G5 pass: profile-free active scenes
+still ran around 40-55 FPS and reached 16.9 FPS on Jungle Japes. Further work
+must train and measure visually verified required-stage combat with idle
+skipping active, rather than profile idle polling.
 
 No Simulator is booted. G6 remains gated on G5.
 
@@ -157,3 +163,16 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   with the original Fountain corpus improved attract p95 and vblank tail but
   regressed render mean/p99 to 17.744/20.654 ms. It was rejected before real
   stages; useful broader PGO must train Fountain and Final Destination.
+- **PERF-013 (fixed):** Revision-0 generated source proves `loop_80349494` is
+  the OS scheduler idle loop, not an active-gameplay helper. The retained
+  GALE01r0 game-settings patch routes that PC through ModernGekko's existing
+  `CoreTiming().Idle()` path. It disappears from the top dispatch sites and
+  sharply reduces idle dispatch/cycle counts without changing guest behavior.
+  Profile-free active combat still fails G5, so this closes wasted idle work,
+  not the performance gate.
+- **INPUT-004:** A one-port P1 Bowser versus level-1 CPU Mario route reached
+  stage select, but fixed-delay title and old stage-cursor sequences are not
+  deterministic: the opening-movie title card is not interactive, and the old
+  Final Destination sequence visibly landed on Battlefield. Required-stage
+  profiling must be gated by the actual title prompt and visually verified
+  before the measurement interval.
