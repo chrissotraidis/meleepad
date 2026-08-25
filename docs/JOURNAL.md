@@ -762,3 +762,27 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Next: collect a visually verified match-only Fountain corpus with the new
   trigger, build a PGO-use candidate, and reject it before Final Destination
   unless the complete strict Fountain distribution improves.
+
+## 2026-08-25 — G5 release frame-phase correction and timer rejection
+
+- Goal: step back from the visibly slow instrumented trainer and determine
+  whether the normal release is actually compute-bound on verified Fountain.
+- Work: added default-off buffered present-aligned timing for static-recompiler
+  CPU-loop wall time, configured guest idle, throttle sleep, video construction,
+  present, and Cubeb mixing. A visible Pikachu-versus-CPU Fountain route held a
+  59.9 FPS title while scripted combat ran without capture during measurement.
+- Correction: the first counter set included `CoreTiming::Throttle()` sleep in
+  CPU wall time. After separating it, 4,094 combat frames showed 8.574 ms mean /
+  9.875 ms p95 guest compute and 8.088 ms mean throttle sleep. Present-to-present
+  remained 16.683 ms mean / 17.237 ms p95 / 19.112 ms worst, with 53.395% <=16.7.
+- Result: **RELEASE IS NOT STEADY-STATE COMPUTE-BOUND; G5 STILL OPEN**. Metal,
+  present, audio, and compute did not correlate strongly with the remaining
+  tail. The 12.5-22 FPS observation belonged to LLVM instrumentation.
+- Experiment: doubling the Apple precision spin window regressed an active-scene
+  p95 to 19.314 ms and was removed. The normal 1.02 ms path was rebuilt.
+- Visual boundary: impossible Fountain scale/displacement remained visible at
+  59.9 FPS. `VISUAL-001B` remains independently promotion-blocking.
+- Evidence:
+  `docs/artifacts/2026-08-25/g5-release-frame-phase-attribution.md`.
+- Next: retain the logger, stop timer/PGO guessing, and find the first divergent
+  geometry/state frame against a matched reference before another product fix.

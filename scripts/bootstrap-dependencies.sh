@@ -114,6 +114,7 @@ render_log_patch="$ROOT/patches/moderngekko-dolphin/0002-buffer-render-time-logg
 idle_patch="$ROOT/patches/moderngekko-dolphin/0003-gale01r0-staticrecomp-idle.patch"
 memory_watcher_patch="$ROOT/patches/moderngekko-dolphin/0004-static-recomp-memory-watcher.patch"
 profile_hooks_patch="$ROOT/patches/moderngekko-dolphin/0005-instrumentation-profile-hooks.patch"
+frame_phase_patch="$ROOT/patches/moderngekko-dolphin/0006-buffered-frame-phase-timing.patch"
 apply_patch_once "$MG" "$mg_patch"
 apply_patch_once "$MG/vendor/dolphin" "$dolphin_patch"
 apply_patch_once "$MG" "$launcher_patch"
@@ -124,6 +125,7 @@ apply_patch_once "$MG/vendor/dolphin" "$render_log_patch"
 apply_patch_once "$MG/vendor/dolphin" "$idle_patch"
 apply_patch_once "$MG/vendor/dolphin" "$memory_watcher_patch"
 apply_patch_once "$MG/vendor/dolphin" "$profile_hooks_patch"
+apply_patch_once "$MG/vendor/dolphin" "$frame_phase_patch"
 verify_patch_scope "$MG" "$mg_patch" vendor/dolphin tools/moderngekko_launcher.cpp \
   tools/moderngekko_port.cpp tests/frontend_config_test.cpp \
   tools/frontend_config.cpp tools/frontend_config.hpp tools/moderngekko_run.cpp \
@@ -134,6 +136,10 @@ verify_patch_scope "$MG/vendor/dolphin" "$dolphin_patch" \
   Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp \
   Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h \
   Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp \
+  Source/Core/Common/FramePhaseTiming.h \
+  Source/Core/Core/CoreTiming.cpp \
+  Source/Core/AudioCommon/Mixer.cpp \
+  Source/Core/VideoCommon/Present.cpp \
   Source/Core/Core/Cheats/MemoryWatcher.cpp \
   Source/Core/Core/Cheats/MemoryWatcher.h \
   Source/Core/Core/Cheats/MemoryWatcherUtils.h \

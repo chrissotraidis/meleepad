@@ -1,0 +1,205 @@
+diff --git a/Source/Core/AudioCommon/Mixer.cpp b/Source/Core/AudioCommon/Mixer.cpp
+index a3a89d59be..17bec8b6a6 100644
+--- a/Source/Core/AudioCommon/Mixer.cpp
++++ b/Source/Core/AudioCommon/Mixer.cpp
+@@ -11,6 +11,7 @@
+ #include "AudioCommon/Enums.h"
+ #include "Common/ChunkFile.h"
+ #include "Common/CommonTypes.h"
++#include "Common/FramePhaseTiming.h"
+ #include "Common/Logging/Log.h"
+ #include "Common/MathUtil.h"
+ #include "Common/Swap.h"
+@@ -194,6 +195,9 @@ std::size_t Mixer::Mix(s16* samples, std::size_t num_samples)
+   if (!samples)
+     return 0;
+ 
++  const bool log_phase = Common::FramePhaseTiming::IsEnabled();
++  const TimePoint phase_start = log_phase ? Clock::now() : TimePoint{};
++
+   memset(samples, 0, num_samples * 2 * sizeof(s16));
+ 
+   m_dma_mixer.Mix(samples, num_samples);
+@@ -207,6 +211,9 @@ std::size_t Mixer::Mix(s16* samples, std::size_t num_samples)
+   for (auto& mixer : m_gba_mixers)
+     mixer.Mix(samples, num_samples);
+ 
++  if (log_phase)
++    Common::FramePhaseTiming::AddAudioMix(Clock::now() - phase_start);
++
+   return num_samples;
+ }
+ 
+diff --git a/Source/Core/Core/CoreTiming.cpp b/Source/Core/Core/CoreTiming.cpp
+index 26e9973fcc..0b05542604 100644
+--- a/Source/Core/Core/CoreTiming.cpp
++++ b/Source/Core/Core/CoreTiming.cpp
+@@ -13,6 +13,7 @@
+ 
+ #include "Common/Assert.h"
+ #include "Common/ChunkFile.h"
++#include "Common/FramePhaseTiming.h"
+ #include "Common/Logging/Log.h"
+ #include "Common/SPSCQueue.h"
+ #include "Common/ScopeGuard.h"
+@@ -423,6 +424,8 @@ void CoreTimingManager::SleepUntil(TimePoint time_point)
+     // Count amount of time sleeping for analytics
+     const TimePoint time_after_sleep = Clock::now();
+     m_system.GetPerfMetrics().CountThrottleSleep(time_after_sleep - time);
++    if (Common::FramePhaseTiming::IsEnabled())
++      Common::FramePhaseTiming::AddCpuThrottleSleep(time_after_sleep - time);
+   }
+   else
+   {
+diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
+index 6011078449..062a01f080 100644
+--- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
++++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
+@@ -11,6 +11,7 @@
+ #include "Core/Config/MainSettings.h"
+ #include "Core/Config/ConfigManager.h"
+ #include "Core/HW/SystemTimers.h"
++#include "Common/FramePhaseTiming.h"
+ 
+ #include <cstdio>
+ 
+@@ -50,6 +51,7 @@ void StaticRecompCore::Run()
+   auto& interpreter = m_system.GetInterpreter();
+   auto& memory = m_system.GetMemory();
+   const CPU::State* state_ptr = m_system.GetCPU().GetStatePtr();
++  const bool log_phase = Common::FramePhaseTiming::IsEnabled();
+ 
+   m_guest.ram = memory.GetRAM();
+   m_guest.ram_size = memory.GetRamSizeReal();
+@@ -68,6 +70,7 @@ void StaticRecompCore::Run()
+ 
+   while (*state_ptr == CPU::State::Running)
+   {
++    const TimePoint cpu_slice_start = log_phase ? Clock::now() : TimePoint{};
+     core_timing.Advance();
+     UpdateProfileCapture();
+     const std::string current_game_id = SConfig::GetInstance().GetGameID();
+@@ -130,7 +133,10 @@ void StaticRecompCore::Run()
+           // Idle loop skipping for configured target loops (e.g. Wii Menu OSIdleThread)
+           if (m_guest.pc == m_idle_pc && m_idle_pc != 0)
+           {
++            const TimePoint idle_start = log_phase ? Clock::now() : TimePoint{};
+             m_system.GetCoreTiming().Idle();
++            if (log_phase)
++              Common::FramePhaseTiming::AddCpuIdle(Clock::now() - idle_start);
+           }
+ 
+           // ctx->timebase is refreshed at burst start (SyncIn), and here we
+@@ -203,6 +209,8 @@ void StaticRecompCore::Run()
+         }
+       }
+     } while (ppc.downcount > 0 && *state_ptr == CPU::State::Running);
++    if (log_phase)
++      Common::FramePhaseTiming::AddCpuWall(Clock::now() - cpu_slice_start);
+   }
+ }
+ 
+diff --git a/Source/Core/VideoCommon/Present.cpp b/Source/Core/VideoCommon/Present.cpp
+index 7c62730667..e76a0c6767 100644
+--- a/Source/Core/VideoCommon/Present.cpp
++++ b/Source/Core/VideoCommon/Present.cpp
+@@ -4,6 +4,7 @@
+ #include "VideoCommon/Present.h"
+ 
+ #include "Common/ChunkFile.h"
++#include "Common/FramePhaseTiming.h"
+ #include "Core/Config/GraphicsSettings.h"
+ #include "Core/Config/MainSettings.h"
+ #include "Core/CoreTiming.h"
+@@ -24,10 +25,66 @@
+ #include "VideoCommon/VideoEvents.h"
+ #include "VideoCommon/Widescreen.h"
+ 
++#include <fstream>
++#include <iomanip>
++
+ std::unique_ptr<VideoCommon::Presenter> g_presenter;
+ 
+ namespace VideoCommon
+ {
++namespace
++{
++class FramePhaseLogger
++{
++public:
++  void Log(TimePoint frame_start, TimePoint present_start, TimePoint frame_end)
++  {
++    if (!Common::FramePhaseTiming::IsEnabled())
++      return;
++
++    if (!m_file.is_open())
++    {
++      const char* path = std::getenv("SSBMPAD_FRAME_PHASE_LOG");
++      m_file.open(path, std::ios_base::out);
++      if (!m_file.is_open())
++        return;
++      m_file << "frame,total_ms,cpu_wall_ms,cpu_idle_ms,cpu_throttle_sleep_ms,video_build_ms,"
++                "present_ms,audio_mix_ms\n";
++      m_previous_frame_start = frame_start;
++      m_previous_totals = Common::FramePhaseTiming::GetTotals();
++    }
++
++    const Common::FramePhaseTiming::Totals totals = Common::FramePhaseTiming::GetTotals();
++    const auto milliseconds = [](DT duration) { return DT_ms(duration).count(); };
++    const auto counter_ms = [](u64 current, u64 previous) {
++      return static_cast<double>(current - previous) / 1'000'000.0;
++    };
++
++    m_file << m_frame++ << ',' << std::fixed << std::setprecision(6)
++           << milliseconds(frame_start - m_previous_frame_start) << ','
++           << counter_ms(totals.cpu_wall_ns, m_previous_totals.cpu_wall_ns) << ','
++           << counter_ms(totals.cpu_idle_ns, m_previous_totals.cpu_idle_ns) << ','
++           << counter_ms(totals.cpu_throttle_sleep_ns,
++                         m_previous_totals.cpu_throttle_sleep_ns)
++           << ','
++           << milliseconds(present_start - frame_start) << ','
++           << milliseconds(frame_end - present_start) << ','
++           << counter_ms(totals.audio_mix_ns, m_previous_totals.audio_mix_ns) << '\n';
++
++    m_previous_frame_start = frame_start;
++    m_previous_totals = totals;
++  }
++
++private:
++  std::ofstream m_file;
++  TimePoint m_previous_frame_start{};
++  Common::FramePhaseTiming::Totals m_previous_totals{};
++  u64 m_frame = 0;
++};
++
++FramePhaseLogger s_frame_phase_logger;
++}  // namespace
++
+ // Stretches the native/internal analog resolution aspect ratio from ~4:3 to ~16:9
+ static float SourceAspectRatioToWidescreen(float source_aspect)
+ {
+@@ -901,6 +958,7 @@ void Presenter::RenderXFBToScreen(const MathUtil::Rectangle<int>& target_rc,
+ 
+ void Presenter::Present(PresentInfo* present_info)
+ {
++  const TimePoint frame_phase_start = Clock::now();
+   m_present_count++;
+ 
+   if (g_gfx->IsHeadless() || (!m_onscreen_ui && !m_xfb_entry))
+@@ -951,6 +1009,7 @@ void Presenter::Present(PresentInfo* present_info)
+   }
+ 
+   // Present to the window system.
++  const TimePoint present_phase_start = Clock::now();
+   {
+     std::lock_guard<std::mutex> guard(m_swap_mutex);
+ 
+@@ -967,6 +1026,8 @@ void Presenter::Present(PresentInfo* present_info)
+ 
+     g_gfx->PresentBackbuffer();
+   }
++  const TimePoint frame_phase_end = Clock::now();
++  s_frame_phase_logger.Log(frame_phase_start, present_phase_start, frame_phase_end);
+ 
+   if (m_xfb_entry)
+   {

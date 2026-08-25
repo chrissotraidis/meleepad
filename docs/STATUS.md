@@ -117,8 +117,19 @@ emulated CPU thread from an explicit one-shot memory predicate. The real-module
 fixture excluded seven pre-reset calls and retained exactly three post-reset
 calls. A live main-menu-to-VS transition then logged reset followed by a
 successful dump. Release/PGO-use modules export neither hook. The next G5
-experiment is a visually verified Fountain combat-only corpus and candidate
-screen, not another reduced-idle merge.
+experiment was therefore paused for a release-only attribution audit rather
+than another blind training run.
+
+That audit corrected the current bottleneck model. In 4,094 visually verified
+Fountain combat frames, the release spent 8.574 ms mean / 9.875 ms p95 in
+guest compute and 8.088 ms mean in deliberate throttle sleep. Total frame time
+was 16.683 ms mean / 17.237 ms p95 / 19.112 ms worst; compute correlation with
+the total was only 0.0794. The 12.5-22 FPS window was an LLVM-instrumented
+trainer, not the release. A bounded Apple 2.02 ms precision-spin experiment
+regressed active-scene p95 to 19.314 ms and was removed. G5 remains open under
+its strict tail rule, but the normal release has substantial compute headroom;
+the active source investigation moves to the independent visual-state
+corruption rather than more timer or PGO guessing.
 
 No Simulator is booted. G6 remains gated on G5.
 
@@ -141,7 +152,7 @@ sequence classify it.
 | G2 Module recompiles and links | Pass | `docs/artifacts/2026-08-24/g2-module-and-package.md` |
 | G3 macOS boots to title | Pass | `docs/artifacts/2026-08-24/g3-macos-title-and-input.md`; retained title and A-transition screenshots |
 | G4 macOS playable | Pass | `docs/artifacts/2026-08-24/g4-controlled-match.md`; clean CSS -> 1v1 -> results plus live Cubeb/CoreAudio mixing evidence |
-| G5 macOS 60 fps | In progress | Clean Fountain p95/worst 17.115/59.024 ms; reduced-idle PGO rejected at 17.216/88.407 ms; combat-only reset/dump path verified; `VISUAL-001B` open |
+| G5 macOS 60 fps | In progress | Corrected release Fountain p95/worst 17.237/19.112 ms with 9.875 ms compute p95 and deliberate throttle headroom; 2.02 ms timer spin rejected; `VISUAL-001B` open |
 | G6 Simulator core boots | Not started | G5 first; no Simulator booted |
 | G7 Shell ported | Not started | G6 first |
 | G8 Test matrix green | Not started | G7 first |
@@ -182,8 +193,9 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
 - **LAUNCHER-002 (fixed):** Replaced the frontend's blocking child wait with a
   nonblocking event-pumping wait so macOS no longer marks it unresponsive while
   the runner is active.
-- **PERF-001:** Fountain of Dreams is CPU-bound and fails G5: the clean exact
-  trace is 19.326 ms median / 22.862 ms p95 / 111.083 ms worst.
+- **PERF-001 (historical attribution superseded):** The early exact trace was
+  genuinely slow, but later release-only phase timing disproves the blanket
+  conclusion that the current retained release is steady-state CPU-bound.
 - **PERF-002 (fixed):** Forced Ninja response files broke CMake's Apple IPO
   probe while the cache identity still claimed ThinLTO. The macOS configure path
   now uses platform-default response files and a distinct cache identity.
@@ -292,6 +304,14 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   p95/p99/worst 17.565/22.530/30.615 ms. Sampling overhead excludes it from G5
   acceptance, but it is the first valid post-correction combat hotspot sample.
   Evidence: `docs/artifacts/2026-08-25/g5-visually-verified-fountain-sample.md`.
+- **PERF-020 (phase attribution corrected):** Buffered present-aligned timing
+  on 4,094 verified Fountain combat frames measured 8.574 ms mean / 9.875 ms
+  p95 guest compute, 8.088 ms mean throttle sleep, and 16.683/17.237/19.112 ms
+  total mean/p95/worst. Compute correlation with total was 0.0794. A 2.02 ms
+  Apple precision-spin candidate regressed active-scene p95 to 19.314 ms and
+  was removed. G5 remains open, but the current release is not steady-state
+  compute-bound. Evidence:
+  `docs/artifacts/2026-08-25/g5-release-frame-phase-attribution.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual
