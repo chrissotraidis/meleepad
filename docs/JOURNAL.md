@@ -786,3 +786,25 @@ Append-only execution ledger. Claims are limited to observed evidence.
   `docs/artifacts/2026-08-25/g5-release-frame-phase-attribution.md`.
 - Next: retain the logger, stop timer/PGO guessing, and find the first divergent
   geometry/state frame against a matched reference before another product fix.
+
+## 2026-08-25 — Independent stale-`ps1` review reconciliation
+
+- Goal: ingest the user-supplied independent report, distinguish evidence from
+  instructions, and use it to correct the active G5/visual sub-loop.
+- Confirmed: scalar-single C emission formerly wrote only lane 0; exact
+  GXRuntime helpers restore both lanes and full Gekko semantics. Adjacent
+  frames 176-184 confirm real multi-frame Peach deformation. The same defect
+  class remains at 1,237 lane-0-only C-emitter `frsp` sites.
+- Corrections: `0x80374174` is a later lockstep comparison/return point, not
+  the producing instruction. The prior PGO slowdown comparison used unmatched
+  scenes, and disassembly falsifies the call-site-inlining story; only helper-
+  body degradation from missing profile records is established.
+- Result: **REPORT INGESTED; LOOP REORIENTED; NO FIX CLAIM.** The completed
+  large-inline dylib is temporary comparison evidence. Exact helper calls
+  remain the product baseline. G5 and `VISUAL-001B` stay open; no Simulator is
+  booted.
+- Evidence:
+  `docs/artifacts/2026-08-25/g5-independent-scalar-single-review.md`.
+- Next: matched deterministic A/B the two existing corrected helper dylibs;
+  then close `frsp`, extend semantic/C-LLVM parity tests, rebuild once, and
+  require extended Peach-inclusive visual evidence before exact-source PGO.

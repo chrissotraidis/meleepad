@@ -52,7 +52,22 @@ When blocked, escalate through these in order. Journal each rung you use.
 5. **Reduce the problem.** Smaller repro: interpreter-only run (skip the module) to isolate recomp bugs; software vs Metal comparisons for render bugs; a different stage/character to isolate content-specific faults; C backend vs LLVM backend to isolate codegen bugs.
 6. **Route around.** If a specific function miscompiles, patch or replace that function (DolRecomp replacement mechanism) and keep moving; the interpreter fallback means one bad function never has to stop the port ("slower, never broken").
 7. **Park and pivot.** If a blocker on the current goal survives all of the above in a working day, journal it as an open defect with a full repro, and take the largest step available that does not depend on it (e.g. shell-porting work while a perf question stews). Return next session with fresh state.
+
 8. **Stop conditions.** Stop and write a clear handoff (JOURNAL + STATUS + the specific decision needed) only if: the ROM appears to be an unusable dump; a required upstream repo is gone and no mirror exists; or continuing would require violating a hard rule in the PRD (uploading game data, pushing to a remote, physical-device deployment). Everything else has an unblocking path.
+
+## Active G5 scalar-single sub-loop (2026-08-25)
+
+The independent stale-`ps1` review is reconciled in
+`docs/artifacts/2026-08-25/g5-independent-scalar-single-review.md`. For this
+investigation: matched-scene A/B the existing corrected helper dylibs; retain
+exact helper semantics and close the analogous C-emitter `frsp` hole; extend
+semantic and C/LLVM parity tests before a full rebuild; require bounded
+lockstep plus an extended Peach-inclusive adjacent-frame corpus; then train
+PGO from the exact corrected source before resuming Fountain and Final
+Destination acceptance measurement.
+
+The completed large-inline module is comparison evidence only. G5,
+`VISUAL-001B`, and the ban on starting G6 remain in force.
 
 ## Testing rhythm
 

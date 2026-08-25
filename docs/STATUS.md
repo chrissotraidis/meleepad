@@ -131,6 +131,16 @@ its strict tail rule, but the normal release has substantial compute headroom;
 the active source investigation moves to the independent visual-state
 corruption rather than more timer or PGO guessing.
 
+An independent source/disassembly review confirms the stale-`ps1` mechanism,
+corrects `0x80374174` from a claimed cause site to a later comparison point,
+and identifies the same lane-1 defect at 1,237 `frsp` sites. It also falsifies
+the claim that PGO prevented helper call-site inlining and shows that the
+12-15 versus 45-48 FPS observations used unmatched scenes. The large inline
+candidate is not retained. The next step is a no-rebuild matched-scene A/B of
+the existing exact-helper dylibs, followed by helper-call `frsp` correction
+and stronger semantic/parity tests. See
+`docs/artifacts/2026-08-25/g5-independent-scalar-single-review.md`.
+
 No Simulator is booted. G6 remains gated on G5.
 
 The Fountain visual report is split as `VISUAL-001A/B`. The blurred/blocky
@@ -138,10 +148,11 @@ lower reflection is closed as reference parity: it appears in profile-use,
 profile-free, no-module, and signed official Dolphin 2606a native-scale Metal
 runs. EFB-to-RAM and non-deferred-copy experiments were unnecessary and were
 reverted. The separate fighter-body report was not reproduced in an initial
-9.8-second interaction clip, but a later four-player montage retained one fresh
-suspected vertical fighter stretch. `VISUAL-001B` is reopened and conservatively
-blocks promotion until uncontaminated adjacent frames or a matched reference
-sequence classify it.
+9.8-second interaction clip, but a later uncontaminated adjacent sequence
+confirms impossible multi-frame Peach hair/arm deformation at a 59.9 FPS title,
+recovering by frame 186. `VISUAL-001B` is confirmed real and remains promotion-
+blocking. The scalar-single diagnosis is not closure because the corrected
+helper module still contains 1,237 lane-0-only `frsp` sites.
 
 ## Goal ledger
 
@@ -152,7 +163,7 @@ sequence classify it.
 | G2 Module recompiles and links | Pass | `docs/artifacts/2026-08-24/g2-module-and-package.md` |
 | G3 macOS boots to title | Pass | `docs/artifacts/2026-08-24/g3-macos-title-and-input.md`; retained title and A-transition screenshots |
 | G4 macOS playable | Pass | `docs/artifacts/2026-08-24/g4-controlled-match.md`; clean CSS -> 1v1 -> results plus live Cubeb/CoreAudio mixing evidence |
-| G5 macOS 60 fps | In progress | Corrected release Fountain p95/worst 17.237/19.112 ms with 9.875 ms compute p95 and deliberate throttle headroom; 2.02 ms timer spin rejected; `VISUAL-001B` open |
+| G5 macOS 60 fps | In progress | Fountain p95/worst 17.237/19.112 ms; stale-`ps1` mechanism confirmed but 1,237-site `frsp` hole and `VISUAL-001B` remain open; matched helper A/B next |
 | G6 Simulator core boots | Not started | G5 first; no Simulator booted |
 | G7 Shell ported | Not started | G6 first |
 | G8 Test matrix green | Not started | G7 first |
@@ -316,14 +327,13 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual
   regression. EFB-to-RAM and non-deferred-copy controls were reverted.
-- **VISUAL-001B (reopened):** The initial 9.8-second interaction clip and
-  49-frame review were coherent, but a fresh four-player frame shows an orange
-  fighter in a suspected implausible vertical stretch. The adjacent capture was
-  contaminated and a later sample was coherent, so subsystem attribution is
-  still open. The user explicitly reconfirmed that bizarre character morphing
-  and body warping must remain tracked independently of the reference-matching
-  Fountain reflection. Promotion is blocked conservatively pending clean
-  temporal or matched-reference evidence. Evidence:
+- **VISUAL-001B (confirmed real, open):** Adjacent `.png` frames 176-184 show
+  Peach's hair and arms deforming into impossible spike/blade shapes over
+  multiple frames before recovery at frame 186. The stale-`ps1` mechanism is
+  sufficient to explain this, but the corrected helper module still contains
+  1,237 lane-0-only `frsp` sites, so it cannot close the defect. The user
+  explicitly reconfirmed that character morphing must remain tracked
+  independently of the reference-matching Fountain reflection. Evidence:
   `docs/artifacts/2026-08-25/g5-fountain-visual-warping.md`. A fresh 12-frame
   app-only Fountain combat burst kept Yoshi, Popo, and Nana coherent through
   overlap and separation. That bounded negative sample does not close the
