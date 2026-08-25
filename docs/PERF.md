@@ -83,12 +83,24 @@ attract p99 by only 0.63%, left p95 effectively unchanged, and retained
 multi-second tail events while spending about 1 ms per frame spinning. See
 `docs/artifacts/2026-08-24/g5-outline-and-timer-experiments.md`.
 
+A timestamp-correlated attract diagnostic then separated render delta, CPU
+work, requested throttle sleep, and host-clock delta. Frames above 17 ms
+averaged 16.757 ms of CPU work and only 2.562 ms of requested sleep; the worst
+transition combined 933.964 ms work with 636.776 ms catch-up sleep. The
+remaining steady-state tail is primarily generated-module compute rather than
+timer overshoot. Combining portable PGO with the earlier GameCube-only
+no-EXRAM specialization did not compose: median stayed at 16.683 ms while p95
+regressed from 17.848 ms to 19.335 ms and p99 from 18.814 ms to 20.477 ms in a
+matched attract window. The candidate was rejected before required-stage
+replay. See
+`docs/artifacts/2026-08-24/g5-timing-attribution-and-pgo-noexram.md`.
+
 Required next work:
 
-1. Attribute the remaining tail to compute, shader/pipeline creation, audio, or
-   host scheduling with one timestamp-correlated trace before another rebuild;
-   single-helper inlining, blanket outlining, and timer spinning are rejected.
-2. Continue reducing the real p99/worst tail to at most 16.7 ms.
+1. Use the retained PGO binary/profile as an oracle for a smaller static
+   compute-path decision; blind size thresholds, single-helper inlining,
+   blanket outlining, timer spinning, and combined no-EXRAM are rejected.
+2. Continue reducing the real p95/p99/worst tail to at most 16.7 ms.
 3. Turn the proven isolated-save unlock procedure into a repository-native,
    data-free setup without distributing the generated GCI.
 4. Retain an optimization only after both required stages improve and the G5

@@ -33,8 +33,12 @@ best-known build, but its ROM-trained profile is not a committable shipping
 input. Final Destination is now unlocked through an isolated ROM-safe save and
 measured at 16.678 ms median / 16.946 ms p95 / 17.189 ms p99 / 1385.242 ms
 worst. Single-loop inlining, blanket loop outlining, and an Apple Silicon
-precision-timer spin experiment are rejected. A static reproduction and
-causal tail reduction are still required.
+precision-timer spin experiment are rejected. Timestamp correlation attributes
+the remaining steady-state tail primarily to generated-module compute. A
+combined portable-PGO/no-EXRAM candidate left median unchanged and regressed a
+matched attract p95 from 17.848 ms to 19.335 ms, so it was also rejected. A
+smaller static reproduction and causal compute-tail reduction are still
+required.
 
 No Simulator is booted. G6 remains gated on G5.
 
@@ -122,3 +126,8 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   Silicon precise-spin timer improved a matched attract p99 by only 0.63%,
   left p95 effectively unchanged, retained multi-second tails, and was also
   rejected. Default source, profile, cache, and app state were restored.
+- **PERF-009:** Timestamp correlation attributes frames above 17 ms primarily
+  to generated-module work rather than timer overshoot. Combining PGO with the
+  no-EXRAM specialization left median unchanged and regressed a matched attract
+  p95/p99 to 19.335/20.477 ms, so the combination was rejected before
+  required-stage replay. The portable-PGO app was restored.

@@ -266,3 +266,29 @@ Append-only execution ledger. Claims are limited to observed evidence.
   and the four selected raw traces named there.
 - Next: correlate the next large required-stage tail with compute,
   shader/pipeline creation, audio, and host scheduling before changing code.
+
+## 2026-08-24 — G5 timing attribution and PGO/no-EXRAM composition
+
+- Goal: identify whether the remaining tail is compute or host pacing, then
+  test the smallest previously positive optimization in combination with PGO.
+- Work: temporarily correlated render timestamps with CPU work, requested
+  throttle sleep, and host-clock deltas; restored that instrumentation; built
+  a complete macOS 14 arm64 O2 + ThinLTO PGO module with only the GameCube-only
+  MEM2 branch eliminated; and ran a matched cumulative 60-150 second no-input
+  attract diagnostic.
+- Attribution: frames above 17 ms averaged 16.757 ms CPU work and 2.562 ms
+  requested sleep. The sustained tail is primarily generated-module compute;
+  large transitions can combine excess work and catch-up sleep.
+- Result: **NOT RETAINED**. The combined candidate left median unchanged at
+  16.683 ms and regressed p95 from 17.848 ms to 19.335 ms and p99 from 18.814
+  ms to 20.477 ms. That rejects the combination before expensive Fountain and
+  Final Destination replays.
+- Cleanup: temporary source changes were restored byte-for-byte; the signed
+  portable-PGO module SHA-256 `a961abecb1f14fe3da2c7fd101713f191f9d9d7b6225ce850bffacf4d718577b`
+  and native runner SHA-256 `d2642b463a41e0a94a3cc2869b836ed3ab5cb7777eb0ea9d9f0240c7c760cff6`
+  were restored; no runner or Simulator remains active.
+- Evidence:
+  `docs/artifacts/2026-08-24/g5-timing-attribution-and-pgo-noexram.md`
+  and the three raw traces named there.
+- Next: use PGO as an oracle for one smaller static compute-path decision, then
+  require both real stages to improve before retaining it.
