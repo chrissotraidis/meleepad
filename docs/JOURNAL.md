@@ -351,3 +351,28 @@ Append-only execution ledger. Claims are limited to observed evidence.
   the two raw combined-PGO traces named there.
 - Next: repair/re-establish the controlled FIFO route and train directly on
   both Fountain and Final Destination; generic attract coverage is rejected.
+
+## 2026-08-25 — G5 controller-route recovery and required-stage PGO
+
+- Goal: re-establish deterministic controller automation, collect direct Final
+  Destination coverage, and decide whether a balanced required-stage profile
+  improves the retained Fountain-only PGO build.
+- Work: traced one temporary Pipe -> GCPad -> SI button edge; confirmed the
+  original route was correct after the native input gate opened; removed all
+  traces; used two isolated FIFO devices and a ROM-safe local save for visible
+  Fountain and Final Destination 1v1s; collected a clean Final Destination
+  profile; merged Fountain 2:1 over Final Destination; and built a complete
+  macOS 14 O2 + strict-FP + ThinLTO candidate.
+- Result: **INPUT ROUTE RECOVERED; PGO CANDIDATE NOT RETAINED**. On the matched
+  1,000-frame attract screen, median/p95 regressed from 16.684/18.077 ms to
+  16.778/18.383 ms, worst rose from 19.088 to 57.091 ms, and the <=16.7 ms
+  share fell from 50.80% to 46.60%.
+- Cleanup: all trace hooks were removed, the normal save was untouched, and
+  the signed Fountain-PGO module and native runner were restored to their exact
+  retained hashes. No runner or Simulator remains active.
+- Evidence:
+  `docs/artifacts/2026-08-25/g5-fountain-fd-pgo-and-input-route.md` and the four
+  selected raw traces named there.
+- Next: preserve the Fountain profile's useful branch/block weighting and
+  target the generated compute tail directly; retain nothing until both
+  required stages and the strict worst-frame requirement improve.

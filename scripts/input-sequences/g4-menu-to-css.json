@@ -1,7 +1,5 @@
 [
-  {"action": "stick", "axis": "MAIN", "x": 0.0, "y": -1.0},
-  {"action": "wait", "seconds": 0.3},
-  {"action": "stick", "axis": "MAIN", "x": 0.0, "y": 0.0},
+  {"action": "tap", "button": "D_DOWN", "hold": 0.12},
   {"action": "wait", "seconds": 0.5},
   {"action": "tap", "button": "A", "hold": 0.3},
   {"action": "wait", "seconds": 2.0},

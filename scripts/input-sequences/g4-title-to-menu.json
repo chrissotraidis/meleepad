@@ -1,5 +1,6 @@
 [
   {"action": "tap", "button": "START", "hold": 1.0},
   {"action": "wait", "seconds": 7.0},
-  {"action": "tap", "button": "START", "hold": 0.5}
+  {"action": "tap", "button": "START", "hold": 0.5},
+  {"action": "wait", "seconds": 3.0}
 ]

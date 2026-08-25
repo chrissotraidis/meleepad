@@ -1,6 +1,6 @@
 # ssbmpad status
 
-Last updated: 2026-08-24
+Last updated: 2026-08-25
 
 ## Current goal
 
@@ -45,7 +45,13 @@ matched attract p95 to 21.459 ms, proving symbol outlining alone is also
 insufficient.
 A 2:1 Fountain/attract combined PGO profile improved attract p95 slightly to
 17.682 ms but worsened mean and p99 to 17.744/20.654 ms, so it was rejected.
-The next profile experiment must train both required stages directly.
+The controlled FIFO route was then re-established end to end and used for
+visible Fountain and Final Destination 1v1s. A direct 2:1 Fountain/Final
+Destination PGO profile also failed its matched attract screen: median/p95
+regressed from 16.684/18.077 ms to 16.778/18.383 ms and worst rose from 19.088
+ms to 57.091 ms. That candidate is rejected and the retained Fountain-only
+module is restored. Further work must preserve its useful weighting while
+targeting the generated compute tail directly.
 
 No Simulator is booted. G6 remains gated on G5.
 

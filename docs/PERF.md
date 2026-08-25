@@ -117,11 +117,21 @@ vblank tail, but worsened render mean from 17.528 ms to 17.744 ms and p99 from
 PGO training must cover Fountain and Final Destination directly rather than
 generic attract scenes.
 
+Direct required-stage training was then tested after repairing the complete
+FIFO-to-SI input route and recording controlled 1v1s on both stages. A 2:1
+Fountain/Final Destination profile built successfully, but a matched 1,000-frame
+attract screen regressed median from 16.684 to 16.778 ms, p95 from 18.077 to
+18.383 ms, and worst from 19.088 to 57.091 ms; its <=16.7 ms share fell from
+50.80% to 46.60%. The candidate was rejected and the retained Fountain-only
+module restored. See
+`docs/artifacts/2026-08-25/g5-fountain-fd-pgo-and-input-route.md`.
+
 Required next work:
 
 1. Use the retained PGO binary/profile as an oracle for a smaller static
    compute-path decision; blind size thresholds, single-helper inlining,
-   blanket outlining, timer spinning, and combined no-EXRAM are rejected.
+   blanket outlining, timer spinning, combined no-EXRAM, and simply diluting
+   its Fountain weighting with another stage are rejected.
 2. Continue reducing the real p95/p99/worst tail to at most 16.7 ms.
 3. Turn the proven isolated-save unlock procedure into a repository-native,
    data-free setup without distributing the generated GCI.
