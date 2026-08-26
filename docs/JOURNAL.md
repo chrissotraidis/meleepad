@@ -1322,3 +1322,59 @@ Append-only execution ledger. Claims are limited to observed evidence.
   phase, marker, and native-sample files.
 - Next: return to the required-stage strict tail with the normal product; only
   reopen the major-menu branch for a multi-second sub-55 recurrence.
+
+## 2026-08-26 — current Fountain strict-control cycle (in progress)
+
+- Goal: re-establish a visually verified, audio-inclusive Fountain combat
+  baseline on the current signed runner and corrected module before selecting
+  another G5 source change.
+- Start state: root `de63c22`, clean `main`; local and `origin/main` agree;
+  supplied GALE01 revision-0 image still hashes `2393aadd...`; runner
+  `9bff54e4...` and module `2dce1352...` verify and target macOS 14. No runtime
+  or Simulator was present.
+- Next: watcher-first cold route, explicit Fountain highlight and live-combat
+  visual gates, then a capture-free combat phase bracket. Do not run Final
+  Destination or begin G6 unless Fountain passes.
+
+## 2026-08-26 — dispatch-boundary candidates rejected
+
+- Control: the fresh visually verified Pikachu-versus-level-1-CPU-Mario
+  Fountain interval measured 16.686490 ms mean / 17.622406 ms p95 /
+  18.651252 ms p99 / 51.633708 ms worst, or 59.928720 FPS. The tail added
+  dispatches and CPU-thread time while guest cycles stayed flat.
+- Batch 2: rejected before performance testing. It produced 9 lockstep
+  divergences in 88 checks versus the byte-identical batch-1 control's four
+  known reports across 163 checks.
+- Direct-original: matched the control's 163-check lockstep report set and
+  improved aligned title animation from 56.944 to 58.420 FPS while cutting
+  >25 ms frames from 626 to 41. A visible Main Menu bracket held 59.940 FPS.
+- Required-stage result: the same candidate's visually verified Fountain
+  combat bracket measured 20.066726 ms mean / 22.767865 ms p95, only
+  49.833741 FPS. The menu win therefore cannot be retained.
+- Decision: **BOTH CANDIDATES REJECTED; G5 OPEN; FINAL DESTINATION NOT RUN;
+  G6 BLOCKED.** Candidate source was removed and the packaged signed module
+  remained `2dce1352...`. No runtime or Simulator remains.
+- Evidence: `docs/artifacts/2026-08-26/g5-dispatch-boundary-candidates.md` and
+  the screenshots/trimmed phase CSVs named there.
+- Next: test chassis-specific original-first dispatch with the unchanged
+  generic path on a miss. This preserves alias/host-call semantics while
+  avoiding their probes on the common linked-address path. Require matched
+  lockstep, title/menu, and Fountain before retention.
+
+## 2026-08-26 — original-first fallback candidate rejected
+
+- Semantics: isolated early-boot lockstep matched the control exactly at 163
+  checks, the same four known report PCs, five fallback skips, one zero skip,
+  and zero undercharges.
+- Visible result: the route entered a coherent Brinstar attract battle at only
+  15.1 FPS. This reproduces the class of major slowdown reported by the user
+  and shows that the lookup-order saving is not a broad active-scene fix. It
+  is not labeled a regression because the battle lacks a matched control.
+- Decision: **CANDIDATE REJECTED; G5 OPEN.** Source was restored; the packaged
+  app remained on signed module `2dce1352...`; no runtime or Simulator remains.
+- Evidence: `docs/artifacts/2026-08-26/g5-dispatch-boundary-candidates.md` and
+  `g5-original-first-15fps-attract-regression.jpeg` beside it.
+- Next: add default-off generic-dispatch branch counts and compare normal
+  title/menu with visually verified Fountain control. Optimize only the hot
+  branch and preserve the current ordering; do not pay for another ThinLTO
+  candidate without a material per-frame target.
