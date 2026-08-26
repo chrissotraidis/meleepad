@@ -546,6 +546,17 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   chunk crossings outweighed smaller host functions. The candidate is removed;
   product module `2dce1352...` is restored. Evidence:
   `docs/artifacts/2026-08-26/g5-generated-chunk-size-rejection.md`.
+- **PERF-037 (larger C chunks rejected semantically):** An isolated
+  8,192-instruction C candidate reduced hashed chunks from 237 to 119 and
+  linked an 83 MB module, but a matched headless lockstep screen recorded 91
+  reports versus the canonical control's 88. Both had seven fallback skips,
+  three zero skips, and zero undercharges; the candidate alone added
+  memory-writing report PCs `0x80339460`, `0x803394C4`, and `0x80339510`.
+  It was rejected before visual/performance testing and never installed. The
+  generator limit is restored to 4,096 and the candidate is in Trash. Next
+  work must preserve canonical segment boundaries or strengthen proof before
+  transforming them. Evidence:
+  `docs/artifacts/2026-08-26/g5-c8192-semantic-rejection.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual

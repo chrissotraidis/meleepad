@@ -307,6 +307,16 @@ canonicalizes the default-off frame/PC sampler after a verified clean patch
 chain; it does not change the normal product path. See
 `docs/artifacts/2026-08-26/g5-generated-chunk-size-rejection.md`.
 
+The opposite 8,192-instruction C control is also rejected, at the semantic
+gate. It reduced hashed chunks from 237 to 119 and linked successfully, but a
+matched headless lockstep screen produced 91 reports versus the canonical
+control's 88, adding memory-writing mismatch entries at `0x80339460`,
+`0x803394C4`, and `0x80339510`. It was never installed or performance-tested.
+The generator limit is restored to 4,096. Do not retry larger monolithic
+chunks; preserve canonical segment boundaries or strengthen the equivalence
+proof before transforming them. See
+`docs/artifacts/2026-08-26/g5-c8192-semantic-rejection.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

@@ -1511,3 +1511,29 @@ Append-only execution ledger. Claims are limited to observed evidence.
   one-in-4,096 sample point records a frame/PC pair when the environment
   variable is enabled.
 - Decision: **DIAGNOSTIC RETAINED; PRODUCT DEFAULT UNCHANGED.**
+
+## 2026-08-26 — 8,192-instruction C chunks rejected semantically
+
+- Rationale: the inverse 1,024 experiment added about 33,000 dispatches and
+  2.6 ms CPU/frame, so a larger-chunk control was a coherent test of
+  cross-segment boundary cost without adding runtime batching.
+- Isolation: temporarily extended only the ignored generator's accepted C
+  chunk range. A stale sibling generator explicitly warned and emitted 4,096;
+  that compile was stopped and trashed. The corrected temporary tool pair
+  emitted 119 hashed 8,192-instruction chunks versus canonical 237.
+- Build: the isolated 83 MB module linked successfully with SHA-256
+  `8bba5fca26361bf0cebe34d05a9d1f54fec262349f244e683e5cf8d701f9e292`.
+  It was never copied into the app or active module cache.
+- Matched semantic gate: candidate recorded 1,245 checks / 91 reports / seven
+  fallback skips / three zero skips / zero undercharges. Canonical C4096 under
+  identical settings recorded 1,398 / 88 / seven / three / zero. Candidate
+  alone added large memory-journal mismatch entries at `0x80339460`,
+  `0x803394C4`, and `0x80339510`.
+- Decision: **C8192 REJECTED BEFORE VISUAL/PERFORMANCE TESTING; G5 OPEN; G6
+  BLOCKED.** Generator source/binary were restored to the 4,096 limit; the
+  548 MB candidate and tools were moved to Trash; product remained canonical.
+- Evidence:
+  `docs/artifacts/2026-08-26/g5-c8192-semantic-rejection.md`.
+- Next: preserve the existing generated segment boundaries in any dispatcher
+  optimization, or first improve the verifier so a boundary transformation can
+  be proven equivalent. Do not retry larger monolithic chunks.
