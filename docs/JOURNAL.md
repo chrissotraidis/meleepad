@@ -1378,3 +1378,32 @@ Append-only execution ledger. Claims are limited to observed evidence.
   title/menu with visually verified Fountain control. Optimize only the hot
   branch and preserve the current ordering; do not pay for another ThinLTO
   candidate without a material per-frame target.
+
+## 2026-08-26 — dispatch branch attribution retained; lookup order rejected
+
+- Attribution: a watcher-gated Main Menu interval counted 373,345,803 generic
+  dispatches. All 373,345,803 resolved through generated original code; there
+  were zero replacement hits, host probes/hits, aliases, and misses.
+- Menu classification: matched packaged-control and lookup-candidate cold
+  routes both produced approximately 2.9-second and 3.15-second scene-load
+  present gaps. The first rows each represented about 174 ordinary guest
+  frames and included about 1.22 seconds of normal throttle sleep; Metal
+  presentation was approximately 0.03 ms. Stable menu presentation remained
+  59.936/59.928 FPS. The lookup change neither caused nor fixed the gaps.
+- Fountain: visibly verified P1 Pikachu, level-1 CPU Captain Falcon, explicit
+  Fountain of Dreams, Cubeb, live controls, and a 3,078-frame combat bracket
+  measured 16.833022/18.587556/20.262101/101.925583 ms
+  mean/p95/p99/worst, or 59.407039 FPS. It fails G5 absolutely and is worse
+  than the retained control; Final Destination was not run.
+- Visual: a 12-frame adjacent burst after an elongated orange hit silhouette
+  showed coherent Pikachu and Falcon proportions through the final countdown.
+  This is a bounded non-recurrence; the documented recurrence rule remains.
+- Decision: **DEFAULT-OFF BRANCH DIAGNOSTIC RETAINED AS PATCH 0010; LOOKUP
+  CANDIDATE REMOVED; G5 OPEN; G6 BLOCKED.** The packaged runner/module remain
+  `9bff54e4...`/`2dce1352...`; no runtime or Simulator remains.
+- Evidence:
+  `docs/artifacts/2026-08-26/g5-dispatch-branch-attribution-and-lookup-rejection.md`.
+- Next: compare per-address native-dispatch distribution in ordinary Fountain
+  frames versus the p95 tail before changing another coherent hot loop. Do not
+  retry whole-dispatch ordering, host-probe removal, timers, or isolated
+  low-frequency leaves.

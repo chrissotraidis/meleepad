@@ -492,6 +492,19 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   Two/five/ten-second windows remained 57.316/58.866/59.399 FPS, so a sustained
   12-15 FPS menu collapse is not reproduced. Evidence:
   `docs/artifacts/2026-08-26/g5-css-slow-window-capture.md`.
+- **PERF-032 (dispatch branch attribution retained; lookup order rejected):**
+  A watcher-gated Main Menu interval counted 373,345,803 generic dispatches;
+  every call hit generated original code, with zero replacement, host, alias,
+  or miss branches. Packaged-control and candidate cold routes both reproduced
+  approximately 2.9-second and 3.15-second scene-load present gaps containing
+  about 174/188 normally paced guest frames and negligible Metal present work.
+  Stable menu presentation remained 59.936/59.928 FPS. The lookup candidate's
+  visually verified 3,078-frame Pikachu/CPU-Captain-Falcon Fountain bracket
+  measured 16.833/18.588/20.262/101.926 ms mean/p95/p99/worst, or 59.407 FPS,
+  and was rejected before Final Destination. The exact-order counter remains
+  default-off as patch 0010; normal packages export no hooks. G5 remains open.
+  Evidence:
+  `docs/artifacts/2026-08-26/g5-dispatch-branch-attribution-and-lookup-rejection.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual

@@ -1,0 +1,6 @@
+[staticrecomp] core init
+[staticrecomp] profile trigger armed: address=80477d68 mask=ff0000ff value=01000000
+[staticrecomp] module loaded: /Users/chrissotraidis/GitHub/ssbmpad/ref/ModernGekko-Template/build/modules-macos14/GALE01/0f09e240e37586a996b2bcbc8904fb589cf2d7cfa79c916e33a7cf1c316a2448-06852d9fd6223c6a/module-build/gGALE01_recomp.dylib entry=0x8000522C
+[staticrecomp] profile capture started
+[dispatch-counts] dispatches=373345803 replacement_hits=0 host_probes=0 host_hits=0 original_hits=373345803 alias_attempts=0 alias_replacement_hits=0 alias_host_probes=0 alias_host_hits=0 alias_original_hits=0 misses=0
+[staticrecomp] profile capture dumped: result=0
