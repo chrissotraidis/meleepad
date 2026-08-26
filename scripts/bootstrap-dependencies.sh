@@ -131,7 +131,8 @@ dolrecomp_scalar_patch="$ROOT/patches/dolrecomp/0001-scalar-single-semantics.pat
 gxruntime_scalar_patch="$ROOT/patches/moderngekko-dolphin/0007-gxruntime-scalar-single-semantics.patch"
 cache_control_patch="$ROOT/patches/moderngekko-dolphin/0008-static-recomp-cache-control-parity.patch"
 apply_patch_once "$MG" "$mg_patch"
-apply_patch_once "$MG/vendor/dolphin" "$dolphin_patch"
+apply_patch_once_or_marker "$MG/vendor/dolphin" "$dolphin_patch" \
+  Source/Core/DolphinNoGUI/PlatformIOS.mm 'class PlatformIOS : public Platform'
 apply_patch_once "$MG" "$launcher_patch"
 apply_patch_once "$MG" "$thinlto_patch"
 apply_patch_once "$MG" "$pipe_input_patch"
@@ -145,7 +146,8 @@ apply_patch_once_or_marker "$MG/vendor/dolphin" "$frame_phase_patch" \
   Source/Core/Common/FramePhaseTiming.h s_cpu_throttle_requested_ns
 apply_patch_once "$MG/vendor/dolphin/DolRecomp" "$dolrecomp_scalar_patch"
 apply_patch_once "$MG/vendor/dolphin" "$gxruntime_scalar_patch"
-apply_patch_once "$MG/vendor/dolphin" "$cache_control_patch"
+apply_patch_once_or_marker "$MG/vendor/dolphin" "$cache_control_patch" \
+  Source/Core/Common/FramePhaseTiming.h s_static_recomp_cache_controls
 verify_patch_scope "$MG" "$mg_patch" vendor/dolphin tools/moderngekko_launcher.cpp \
   tools/moderngekko_port.cpp tests/frontend_config_test.cpp \
   tools/frontend_config.cpp tools/frontend_config.hpp tools/moderngekko_run.cpp \

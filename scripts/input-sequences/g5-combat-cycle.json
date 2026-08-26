@@ -1,0 +1,12 @@
+[
+  {"action": "stick", "axis": "MAIN", "x": 0.7, "y": 0.0},
+  {"action": "wait", "seconds": 0.5},
+  {"action": "stick", "axis": "MAIN", "x": 0.0, "y": 0.0},
+  {"action": "tap", "button": "A", "hold": 0.12, "delay": 0.2},
+  {"action": "tap", "button": "X", "hold": 0.12, "delay": 0.3},
+  {"action": "stick", "axis": "MAIN", "x": -0.7, "y": 0.0},
+  {"action": "wait", "seconds": 0.5},
+  {"action": "stick", "axis": "MAIN", "x": 0.0, "y": 0.0},
+  {"action": "tap", "button": "B", "hold": 0.12, "delay": 0.2},
+  {"action": "wait", "seconds": 0.5}
+]

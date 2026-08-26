@@ -1,6 +1,6 @@
 # ssbmpad status
 
-Last updated: 2026-08-25
+Last updated: 2026-08-26
 
 ## Current goal
 
@@ -205,6 +205,21 @@ per frame remained exactly accounted. This correction is retained, but only
 19.285% of frames meet 16.7 ms, so G5 stays open. See
 `docs/artifacts/2026-08-25/g5-cache-control-parity.md`.
 
+Dispatch-return attribution was rejected after its exact form visibly reduced
+Stage Select to about 44.5 FPS and sampled forms could not exclude observer
+cost. All of that instrumentation was removed and the normal signed runner was
+restored. A clean normal-runner Pikachu-versus-level-1-CPU-Donkey-Kong Fountain
+interval still averaged 19.761 ms / 50.605 FPS, with 21.551 ms p95 and only
+2.000% of frames at or below 16.7 ms. Its CPU thread averaged 19.575 ms despite
+fewer native dispatches than the earlier 59.932 FPS Pikachu/Kirby control.
+This proves a real roster/scene-sensitive CPU slow path. Animated menus also
+visibly slow, so menu behavior remains in the regression scope; only the exact
+classifier's menu reading is numeric and therefore cannot be used as a clean
+baseline. The next experiment is a non-invasive, phase-gated native sample of
+the slow DK scene versus the fast Kirby control, not more timer tuning or hot-
+path counter instrumentation. See
+`docs/artifacts/2026-08-26/g5-normal-dk-fountain-slowpath.md`.
+
 ## Goal ledger
 
 | Goal | State | Evidence / blocker |
@@ -214,7 +229,7 @@ per frame remained exactly accounted. This correction is retained, but only
 | G2 Module recompiles and links | Pass | `docs/artifacts/2026-08-24/g2-module-and-package.md` |
 | G3 macOS boots to title | Pass | `docs/artifacts/2026-08-24/g3-macos-title-and-input.md`; retained title and A-transition screenshots |
 | G4 macOS playable | Pass | `docs/artifacts/2026-08-24/g4-controlled-match.md`; clean CSS -> 1v1 -> results plus live Cubeb/CoreAudio mixing evidence |
-| G5 macOS 60 fps | In progress | Cache-control parity retained; PGO and 3.02 ms busy-spin pacing rejected. Restored normal-timer Fountain control: 16.686 ms mean / 17.656 ms p95 / 59.932 FPS. Dispatch-return attribution next |
+| G5 macOS 60 fps | In progress | Cache-control parity retained; PGO, busy-spin pacing, and observer-heavy dispatch attribution rejected. Normal Pikachu/DK Fountain proves a real slow path: 19.761 ms mean / 21.551 ms p95 / 50.605 FPS. Native slow-vs-fast sample next |
 | G6 Simulator core boots | Not started | G5 first; no Simulator booted |
 | G7 Shell ported | Not started | G6 first |
 | G8 Test matrix green | Not started | G7 first |

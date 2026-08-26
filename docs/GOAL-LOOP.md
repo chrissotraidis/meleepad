@@ -141,10 +141,23 @@ direct cache controls/frame. This confirms the busy-spin regression was timer
 contention, but G5 still fails its tail gate. Relative to the <=16.7 ms body,
 the p95 tail has nearly unchanged bursts and guest cycles but 13,634 more
 native dispatches/frame (+10.5%) and 5.8% more CPU-thread nanoseconds per
-dispatch. The next single experiment is default-off dispatch-return
-attribution. Do not retry timer variants or the rejected 1024-cycle loop
+dispatch.
+
+Dispatch-return attribution was then screened at exact, one-in-256, and
+piggybacked one-in-4096 rates. Exact classification visibly reduced Stage
+Select to about 44.5 FPS; the sampled variants also could not rule out observer
+cost, so all attribution code was removed. A matched run with the restored
+normal signed runner then proved a real content-sensitive slow path: Pikachu
+versus CPU Donkey Kong on Fountain averaged 19.761 ms / 50.605 FPS, with a
+19.575 ms CPU-thread mean, despite fewer native dispatches and essentially the
+same guest-cycle budget as the 59.932 FPS Pikachu/Kirby control. Animated-menu
+slowdown is also in the regression scope, though it does not yet have a clean
+numeric bracket. The next single experiment is a non-invasive, phase-gated
+native CPU sample of slow DK versus fast Kirby to identify the generated chunk
+or host helper responsible for the higher cost per dispatch. Do not retry
+timer variants, hot-path instrumentation, or the rejected 1024-cycle loop
 budget; do not run Final Destination or start G6. See
-`docs/artifacts/2026-08-26/g5-macos-pacing-contention-rejection.md`.
+`docs/artifacts/2026-08-26/g5-normal-dk-fountain-slowpath.md`.
 
 ## Testing rhythm
 

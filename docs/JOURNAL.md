@@ -1085,3 +1085,36 @@ Append-only execution ledger. Claims are limited to observed evidence.
   flow boundaries behind the extra tail dispatches. Do not retry the rejected
   1024-cycle budget or another timer variant; do not run Final Destination or
   start G6.
+
+## 2026-08-26 — Dispatch observer rejection and normal DK slow-path proof
+
+- Goal: determine whether the new menu/combat slowdown was diagnostic observer
+  cost or a real normal-runner workload regression.
+- Diagnostic screen: exact dispatch-return classification visibly reduced
+  Stage Select to about 44.5 FPS and was excluded before combat. One-in-256
+  classification averaged 17.945 ms / 55.727 FPS in live Pikachu/CPU-DK
+  Fountain. Piggybacking on the existing one-in-4096 sampler restored a
+  59.935 FPS no-input preflight but still fell to 50-55 FPS under sustained
+  interaction. None is eligible for acceptance timing; all attribution code
+  and its proposed patch were removed.
+- Normal control: rebuilt, signed, and restored runner SHA `c26625db...` with
+  corrected module `2dce1352...`; watcher-first cold boot visibly established
+  P1 Pikachu, level-1 CPU Donkey Kong, explicit Fountain of Dreams, coherent
+  live combat, and Cubeb. No Simulator was booted.
+- Result: the 600-row capture-free pre-results bracket measured
+  19.761/21.551/23.098/26.278 ms mean/p95/p99/worst, 50.605 FPS average, and
+  only 2.000% <=16.7 ms. CPU-thread mean was 19.575 ms with zero interpreter
+  or cache fallbacks. Compared with the 59.932 FPS Pikachu/Kirby control, DK
+  costs about 3.53 ms more CPU/frame despite fewer dispatches and essentially
+  equal guest cycles. **REAL CONTENT-SENSITIVE SLOW PATH; G5 OPEN; FD NOT RUN;
+  G6 BLOCKED.**
+- Menu boundary: animated menus visibly slowed too. Retain that as a regression
+  requirement, but do not claim a clean menu metric because the explicit 44.5
+  FPS reading came from rejected instrumentation.
+- Evidence:
+  `docs/artifacts/2026-08-26/g5-normal-dk-fountain-slowpath.md` and its CSV.
+  No normal-runner screenshot was retained; the temporary UI capture expired.
+- Next: take a non-invasive, phase-gated native CPU sample of slow DK and a
+  matched fast Kirby control, then identify the generated chunks or host
+  helpers whose cost per dispatch changes. Do not return to timer tuning or
+  add a new branch to every dispatch.
