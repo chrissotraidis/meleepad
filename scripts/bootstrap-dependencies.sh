@@ -50,6 +50,18 @@ apply_patch_once() {
   fi
 }
 
+# A later canonical patch may intentionally edit a hunk introduced by an
+# earlier one, making that earlier patch impossible to reverse-check in
+# isolation. In those explicit cases, use a unique retained source marker.
+apply_patch_once_or_marker() {
+  local checkout=$1 patch=$2 marker_file=$3 marker=$4
+  if grep -Fq "$marker" "$checkout/$marker_file"; then
+    echo "already applied (composed): ${patch#$ROOT/}"
+  else
+    apply_patch_once "$checkout" "$patch"
+  fi
+}
+
 verify_patch_scope() {
   local checkout=$1 patch=$2
   shift 2
@@ -127,8 +139,10 @@ apply_patch_once "$MG" "$memory_watcher_test_patch"
 apply_patch_once "$MG/vendor/dolphin" "$render_log_patch"
 apply_patch_once "$MG/vendor/dolphin" "$idle_patch"
 apply_patch_once "$MG/vendor/dolphin" "$memory_watcher_patch"
-apply_patch_once "$MG/vendor/dolphin" "$profile_hooks_patch"
-apply_patch_once "$MG/vendor/dolphin" "$frame_phase_patch"
+apply_patch_once_or_marker "$MG/vendor/dolphin" "$profile_hooks_patch" \
+  module-template/module_export.c staticrecomp_profile_reset
+apply_patch_once_or_marker "$MG/vendor/dolphin" "$frame_phase_patch" \
+  Source/Core/Common/FramePhaseTiming.h s_cpu_throttle_requested_ns
 apply_patch_once "$MG/vendor/dolphin/DolRecomp" "$dolrecomp_scalar_patch"
 apply_patch_once "$MG/vendor/dolphin" "$gxruntime_scalar_patch"
 apply_patch_once "$MG/vendor/dolphin" "$cache_control_patch"
@@ -137,6 +151,7 @@ verify_patch_scope "$MG" "$mg_patch" vendor/dolphin tools/moderngekko_launcher.c
   tools/frontend_config.cpp tools/frontend_config.hpp tools/moderngekko_run.cpp \
   CMakeLists.txt tests/memory_watcher_utils_test.cpp
 verify_patch_scope "$MG/vendor/dolphin" "$dolphin_patch" \
+  DolRecomp \
   Source/Core/VideoCommon/PerformanceTracker.cpp \
   Data/Sys/GameSettings/GALE01r0.ini \
   Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp \

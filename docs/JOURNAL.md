@@ -993,7 +993,7 @@ Append-only execution ledger. Claims are limited to observed evidence.
   source/module/profile hashes, then rerun strict Fountain. Attempt Final
   Destination only if Fountain passes; do not start G6.
 
-## 2026-08-26 — Exact-source cache-control PGO rejection and visual reopen
+## 2026-08-26 — Exact-source cache-control PGO rejection and visual re-audit
 
 - Goal: finish the report-adjusted next experiment by training and testing PGO
   on the retained generated cache-control path.
@@ -1013,13 +1013,52 @@ Append-only execution ledger. Claims are limited to observed evidence.
   16.894/17.860/18.080/1,367.699 ms; 55.009% were <=16.7 ms. The 1.367-second
   frame carried 41,469,067 native dispatches and is not capture overhead, but
   p95 already fails without it.
-- Visual result: severe lower-frame warping and Bowser duplication/morphing
-  reproduced. The profile-free cache-control path showed the same class.
-  `VISUAL-001B` is reopened.
+- Visual re-audit: the two Bowsers are the accepted Bowser/Bowser roster and
+  both real meshes are coherent. The deformation is confined to Fountain's
+  known reference-parity reflection. The profile-free Bowser/Ice Climbers
+  screen agrees. The initial `VISUAL-001B` reopening is withdrawn.
 - Result: **PGO REJECTED; G5 OPEN; FINAL DESTINATION NOT RUN; G6 BLOCKED.**
   No PGO dylib/profile or game data is retained.
 - Evidence: `docs/artifacts/2026-08-26/g5-cache-control-pgo-rejection.md`, its
   trimmed CSV, and its visual capture.
-- Next: deterministic adjacent-frame profile-free reproduction of
-  `VISUAL-001B`, then earliest divergent generated draw/vertex attribution.
-  Replace the stale cold-boot predicate before accepting another timing run.
+- Next: throttle-deadline attribution and a focused host-pacing regression.
+  In the <=100 ms population, p95-tail CPU-thread work is 0.301 ms lower while
+  throttle sleep is 1.972 ms higher and measured wake lateness is 0.526 ms
+  higher. Replace the stale cold-boot predicate before another timing run.
+
+## 2026-08-26 — macOS precision-pacing contention rejection
+
+- Goal: execute the report-adjusted throttle-deadline experiment without
+  repeating previously rejected pacing changes.
+- Report provenance: retained the exact user attachment byte-for-byte as
+  `docs/artifacts/2026-08-26/g5-stale-ps1-report-verbatim.txt` and recorded its
+  current disposition in `g5-stale-ps1-report-ingestion.md`. The prior
+  2026-08-25 verbatim artifact has identical text plus one final newline.
+- Host screen: a new 3.02 ms wake-lead plus true busy-spin combination passed
+  900/900 synthetic frames at <=16.7 ms; changing only the final spin at the
+  existing 1.02 ms lead did not improve p95 and was excluded before build.
+- Source/package correction: the first package followed a stale generated-
+  module pointer and its bracket was excluded after counters showed 20.4M
+  cache fallbacks. Canonical `prepare-game.sh` regeneration selected exact
+  corrected suffix `06852d9f...` and reproduced module SHA `2dce1352...`.
+  Bootstrap now recognizes composed overlapping patches 0005/0006 by unique
+  retained markers and permits the separately verified DolRecomp submodule.
+- Route: watcher-first cold trace separated opening-movie GameState values
+  from the genuine 0x14-to-zero title lockout; the exact one-second START hold
+  then reached menu/CSS. A retained 80 ms stage-cursor correction reached an
+  explicit Fountain highlight without overshoot. P1 Pikachu, CPU Peach,
+  coherent live Fountain, and Cubeb were visibly verified.
+- Result: the 3,074-frame capture-free candidate measured
+  19.667/22.357/24.690/141.484 ms mean/p95/p99/worst and only 2.895% <=16.7
+  ms. CPU-thread work rose to 19.437 ms mean, requested throttle time vanished,
+  cache fallbacks remained zero, and 6,062.409 direct helpers/frame remained
+  accounted. **CANDIDATE REJECTED; G5 OPEN; FD NOT RUN; G6 BLOCKED.**
+- Cleanup: timer source and patch entry removed; normal runner rebuilt and app
+  repackaged as SHA `c26625db...` with corrected module `2dce1352...`. No
+  runtime or Simulator remains.
+- Evidence:
+  `docs/artifacts/2026-08-26/g5-macos-pacing-contention-rejection.md`, its CSV,
+  retained visual, and `scripts/g5_pacing_preflight.cpp`.
+- Next: exact matched Fountain control with the restored runner, corrected
+  module, watcher-first route, same roster/stage/audio, and same 20-cycle
+  bracket. Do not test another timer variant first.

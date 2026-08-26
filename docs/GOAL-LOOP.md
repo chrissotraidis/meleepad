@@ -112,20 +112,32 @@ but its 6,428-frame strict Fountain bracket measured 16.894 ms mean,
 17.860 ms p95, 18.080 ms p99, and 1,367.699 ms worst. Only 55.009% of frames
 were <=16.7 ms. Final Destination was therefore not run.
 
-The same acceptance run reproduced severe lower-viewport warping and Bowser
-duplication/morphing on both the profile-free and PGO paths. `VISUAL-001B` is
-reopened under its recurrence rule. Cold-boot testing also proved the current
-title-lockout predicate cannot distinguish the opening movie from the title
-and attract path reliably; invalid demo routes were excluded by visual gates.
+Visual re-audit classified the acceptance screen correctly: its two real
+Bowsers match the accepted Bowser/Bowser roster and remain coherent; only the
+known reference-parity Fountain reflection is distorted. The profile-free
+Bowser/Ice Climbers screen agrees. `VISUAL-001B` remains closed under its prior
+extended-corpus boundary. Cold-boot testing did prove the current title-
+lockout predicate cannot distinguish the opening movie from the title and
+attract path reliably; invalid demo routes were excluded by visual gates.
 
-The next single experiment is a deterministic adjacent-frame profile-free
-reproduction of `VISUAL-001B`: retain the last coherent and first corrupted
-frame from one match state, then attribute the earliest divergent generated
-draw/vertex data. Correct the cold-boot state predicate alongside that evidence
-so future brackets cannot enter attract mode. Do not resume PGO/performance
-experiments, run Final Destination, or start G6 until visual coherence and the
-route gate are restored. See
-`docs/artifacts/2026-08-26/g5-cache-control-pgo-rejection.md`.
+Throttle-deadline attribution and its focused host regression are complete.
+A 3.02 ms macOS wake lead plus true busy spin passed 900/900 host samples at
+<=16.7 ms, but the real corrected-module Fountain bracket regressed to
+19.667 ms mean, 22.357 ms p95, 24.690 ms p99, and only 2.895% <=16.7 ms.
+CPU-thread work rose to 19.437 ms mean and the emulator no longer reached its
+throttle point. The candidate is rejected and removed; no other timer variant
+may be tried without new evidence.
+
+The same work caught and excluded a stale generated-module package, restored
+the canonical corrected `06852d9f...` source/module path, and proved the cold
+route is deterministic when MemoryWatcher starts before the runner: opening-
+movie state precedes the genuine 0x14-to-zero title lockout, then the exact
+one-second START hold reaches menu/CSS. The next single experiment is a matched
+Fountain control with the restored normal runner, corrected module, that
+watcher-first route, and the same capture-free 20-cycle bracket. It must show
+zero cache fallbacks before timing is accepted. Do not run Final Destination
+or start G6. See
+`docs/artifacts/2026-08-26/g5-macos-pacing-contention-rejection.md`.
 
 ## Testing rhythm
 

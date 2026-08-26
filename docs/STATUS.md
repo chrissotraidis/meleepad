@@ -214,7 +214,7 @@ per frame remained exactly accounted. This correction is retained, but only
 | G2 Module recompiles and links | Pass | `docs/artifacts/2026-08-24/g2-module-and-package.md` |
 | G3 macOS boots to title | Pass | `docs/artifacts/2026-08-24/g3-macos-title-and-input.md`; retained title and A-transition screenshots |
 | G4 macOS playable | Pass | `docs/artifacts/2026-08-24/g4-controlled-match.md`; clean CSS -> 1v1 -> results plus live Cubeb/CoreAudio mixing evidence |
-| G5 macOS 60 fps | In progress | Exact cache-control C/LLVM parity retained: matched Fountain mean 17.858 ms / p95 20.054 ms / 55.997 FPS from mean; fresh exact-source PGO and strict Fountain/FD tails remain open |
+| G5 macOS 60 fps | In progress | Cache-control parity retained; PGO and 3.02 ms busy-spin pacing rejected. Latest valid candidate: Fountain 19.667 ms mean / 22.357 ms p95 / 50.845 FPS. Restored-runner matched control next |
 | G6 Simulator core boots | Not started | G5 first; no Simulator booted |
 | G7 Shell ported | Not started | G6 first |
 | G8 Test matrix green | Not started | G7 first |
@@ -393,11 +393,21 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   routes and a roster-unmatched profile-free run were explicitly excluded from
   A/B claims. Evidence:
   `docs/artifacts/2026-08-26/g5-cache-control-pgo-rejection.md`.
+- **PERF-023 (macOS pacing rejected):** A 3.02 ms early wake plus true busy
+  spin passed 900/900 host-preflight samples at <=16.7 ms, but a corrected-
+  module Fountain bracket measured 19.667/22.357/24.690/141.484 ms
+  mean/p95/p99/worst and only 2.895% <=16.7 ms. CPU-thread work rose to
+  19.437 ms mean, requested throttle time vanished, cache fallbacks stayed
+  zero, and 6,062.409 direct cache helpers/frame remained accounted. The
+  timer candidate is removed. A stale generated-module bracket was separately
+  excluded; canonical regeneration restored exact source suffix `06852d9f...`
+  and module SHA `2dce1352...`. Evidence:
+  `docs/artifacts/2026-08-26/g5-macos-pacing-contention-rejection.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual
   regression. EFB-to-RAM and non-deferred-copy controls were reverted.
-- **VISUAL-001B (reopened):** Adjacent `.png` frames 176-184 showed
+- **VISUAL-001B (closed; recurrence rule remains):** Adjacent `.png` frames 176-184 showed
   Peach's hair and arms deforming into impossible spike/blade shapes over
   multiple frames before recovery at frame 186. Exact GXRuntime helpers now
   cover scalar-single arithmetic and all 1,237 `frsp` sites. The corrected
@@ -407,9 +417,9 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   closure boundary. Evidence:
   `docs/artifacts/2026-08-25/g5-fountain-visual-warping.md` and
   `docs/artifacts/2026-08-25/g5-corrected-visual-closure-and-fountain-baseline.md`.
-  The 2026-08-26 exact-source PGO acceptance run reproduced severe lower-
-  viewport warping plus Bowser duplication/morphing. The retained profile-free
-  cache-control path reproduced the same class, so this is not attributed to
-  PGO. The recurrence rule is satisfied and the defect is promotion-blocking
-  again. Evidence:
+  A 2026-08-26 re-audit withdrew an incorrect reopening: the PGO acceptance
+  roster intentionally contained two Bowsers and both real meshes were
+  coherent; only Fountain's known reference-parity reflection was distorted.
+  The profile-free Bowser/Ice Climbers screen agrees. This does not satisfy the
+  real-mesh recurrence rule. Evidence:
   `docs/artifacts/2026-08-26/g5-cache-control-pgo-rejection.md`.

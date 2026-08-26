@@ -78,11 +78,13 @@ capture cost.
 
 ## Visual and route findings
 
-The live acceptance screen reproduced severe lower-viewport warping and
-Bowser duplication/morphing. This reopens `VISUAL-001B` under its explicit
-recurrence rule. The same class of corruption was also seen with the current
-profile-free cache-control module, so the evidence does not attribute it to
-PGO.
+The live acceptance screen contains two legitimate real Bowser meshes because
+the accepted roster is P1 Bowser versus CPU Bowser. Both real meshes above the
+platform are coherent. The deformation is confined to Fountain's lower floor
+reflection, which the prior official-Dolphin comparison already closed as
+reference-parity `VISUAL-001A`. The profile-free Bowser/Ice Climbers screen is
+consistent with the same classification. This evidence does **not** reopen
+`VISUAL-001B` and does not support a new draw/vertex attribution.
 
 Cold-boot routing also has a reproducibility defect. The memory-watched route's
 first title-lockout predicate timed out during the opening movie, while an
@@ -92,17 +94,21 @@ the accepted bracket.
 
 ## Decision
 
-**PGO CANDIDATE REJECTED; G5 OPEN; VISUAL-001B REOPENED.** Do not retain or
-package the PGO-use dylib. Do not run Final Destination and do not start G6.
+**PGO CANDIDATE REJECTED; G5 OPEN.** Do not retain or package the PGO-use
+dylib. Do not run Final Destination and do not start G6. `VISUAL-001B` remains
+closed under its prior extended-corpus boundary and still reopens on a genuine
+real-mesh recurrence.
 
-The next single experiment is a deterministic adjacent-frame reproduction of
-`VISUAL-001B` on the retained profile-free cache-control module. Capture the
-first coherent frame and first corrupted frame with the same match state, then
-attribute the earliest divergent generated draw/vertex data before resuming
-performance experiments. In parallel with that evidence, replace the stale
-cold-boot title predicate with a state transition that distinguishes opening
-movie, title, menu, and attract match; no future timing bracket is accepted
-without explicit roster, stage-label, and live-stage proof.
+The next single experiment is throttle-deadline attribution on the rejected
+PGO bracket before changing pacing again. After excluding the single >100 ms
+guest-work stall, the slow p95 tail has 0.301 ms *less* CPU-thread work but
+1.972 ms more throttle sleep, including 0.526 ms more measured wake lateness.
+Confirm the exact deadline/request arithmetic in the retained runner and build
+one focused host-pacing regression before selecting a replacement. Also
+replace the stale cold-boot title predicate with a state transition that
+distinguishes opening movie, title, menu, and attract match; no future timing
+bracket is accepted without explicit roster, stage-label, and live-stage
+proof.
 
 ## Retained artifacts
 
