@@ -1175,3 +1175,25 @@ Append-only execution ledger. Claims are limited to observed evidence.
   unchanged 1.02 ms final-yield window. Only combine it locally with the
   cycle-preserving shortcut if it reduces long-sleep lateness without adding
   sustained busy-spin contention.
+
+## 2026-08-26 — Long-sleep pacing fixed; residual menu tail reattributed
+
+- Goal: recover the cycle-preserving idle optimization's compute headroom
+  without its long-sleep wake-lateness regression.
+- Preflight: extended the host harness to reproduce 5.5 ms compute / about
+  11 ms sleep and interleave one-shot/chunked plus yield/spin modes. A harness
+  `%3` typo was caught by ASan/UBSan and corrected to `%4`. At 600 samples,
+  500 us chunks plus yield measured 16.692 ms p95; chunks plus true spin
+  measured 16.683 ms p95 and 99.833% <=16.7 ms.
+- Chunked-yield game result: coherent watcher-gated CSS, matched guest cycles,
+  6.42-6.47 ms CPU-thread mean, and wake-lateness p95 0.013-0.016 ms. Two
+  brackets still measured 16.933/16.902 ms p95. Rejected.
+- Chunked-spin game result: coherent watcher-gated CSS, 6.64-6.88 ms CPU-
+  thread mean, and wake-lateness p95 below 0.001 ms. Two brackets still
+  measured 16.928/16.890 ms p95. Rejected.
+- Cleanup: all Timer/generated-source candidates removed; normal runner
+  `c26625db...` and module `2dce1352...` restored and signed. No runtime or
+  Simulator remains. The improved host preflight is retained.
+- Next: instrument phase-log frame/present sequence and throttle-target
+  identity on the normal path. Attribute the residual 16.89-16.93 ms tail
+  before any further behavior change.

@@ -178,6 +178,18 @@ cycle-preserving shortcut only if the preflight improves long-sleep lateness
 without busy-spin contention. G5 remains open; do not run Final Destination or
 start G6. See `docs/artifacts/2026-08-26/g5-menu-idle-loop-rejections.md`.
 
+The long-sleep preflight passed for 500 us chunks: chunked yield measured
+16.692 ms p95 and chunked true spin 16.683 ms p95. Both were then combined
+locally with the cycle-preserving idle collapse on watcher-gated CSS. Chunked
+yield fixed wake-lateness p95 to 0.013-0.016 ms but repeated at 16.933/16.902 ms
+frame p95. Chunked true spin reduced wake-lateness p95 below 0.001 ms but
+repeated at 16.928/16.890 ms. Neither passes 16.7 ms or consistently beats the
+16.896 ms normal control, so all product changes are removed. Retain the
+extended host preflight only. The next single experiment is diagnostic phase-
+log attribution of CPU-slice, throttle-target, and present-frame boundaries;
+do not retry timer or generated-loop variants. See
+`docs/artifacts/2026-08-26/g5-menu-pacing-followup-rejections.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

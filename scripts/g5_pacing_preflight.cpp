@@ -18,12 +18,15 @@ using Clock = std::chrono::steady_clock;
 using Ns = std::chrono::nanoseconds;
 
 constexpr auto FRAME_PERIOD = Ns{16'683'333};
-constexpr auto SYNTHETIC_WORK = Ns{10'000'000};
 Ns g_spin_time{1'020'000};
+Ns g_synthetic_work{5'500'000};
+Ns g_sleep_chunk{1'000'000};
 
 enum class Mode
 {
   SchedulerYield,
+  ChunkedSchedulerYield,
+  ChunkedBusySpin,
   BusySpin,
 };
 
@@ -46,16 +49,29 @@ Sample RunFrame(Mode mode)
 {
   const auto start = Clock::now();
   const auto target = start + FRAME_PERIOD;
-  BusyUntil(start + SYNTHETIC_WORK);
+  BusyUntil(start + g_synthetic_work);
 
   const auto requested_wake = target - g_spin_time;
   const auto sleep_start = Clock::now();
-  std::this_thread::sleep_until(requested_wake);
+  if (mode == Mode::ChunkedSchedulerYield || mode == Mode::ChunkedBusySpin)
+  {
+    while (true)
+    {
+      const auto now = Clock::now();
+      if (now >= requested_wake)
+        break;
+      std::this_thread::sleep_until(std::min(requested_wake, now + g_sleep_chunk));
+    }
+  }
+  else
+  {
+    std::this_thread::sleep_until(requested_wake);
+  }
   const auto woke = Clock::now();
 
   while (Clock::now() < target)
   {
-    if (mode == Mode::SchedulerYield)
+    if (mode != Mode::BusySpin && mode != Mode::ChunkedBusySpin)
       std::this_thread::yield();
     else
       std::atomic_signal_fence(std::memory_order_seq_cst);
@@ -123,6 +139,8 @@ int main(int argc, char** argv)
 {
   const int frames_per_mode = argc >= 2 ? std::atoi(argv[1]) : 600;
   const int spin_microseconds = argc >= 3 ? std::atoi(argv[2]) : 1020;
+  const int work_microseconds = argc >= 4 ? std::atoi(argv[3]) : 5500;
+  const int chunk_microseconds = argc >= 5 ? std::atoi(argv[4]) : 1000;
   if (frames_per_mode < 100)
   {
     std::fprintf(stderr, "frames per mode must be at least 100\n");
@@ -133,27 +151,53 @@ int main(int argc, char** argv)
     std::fprintf(stderr, "spin lead must be between 100 and 9999 microseconds\n");
     return 2;
   }
+  if (work_microseconds < 0 || work_microseconds >= 15'000)
+  {
+    std::fprintf(stderr, "synthetic work must be between 0 and 14999 microseconds\n");
+    return 2;
+  }
+  if (chunk_microseconds < 100 || chunk_microseconds >= 10'000)
+  {
+    std::fprintf(stderr, "sleep chunk must be between 100 and 9999 microseconds\n");
+    return 2;
+  }
   g_spin_time = std::chrono::microseconds{spin_microseconds};
-  std::printf("spin_lead_us=%d frame_period_ns=%lld synthetic_work_ns=%lld\n", spin_microseconds,
-              static_cast<long long>(FRAME_PERIOD.count()),
-              static_cast<long long>(SYNTHETIC_WORK.count()));
+  g_synthetic_work = std::chrono::microseconds{work_microseconds};
+  g_sleep_chunk = std::chrono::microseconds{chunk_microseconds};
+  std::printf(
+      "spin_lead_us=%d frame_period_ns=%lld synthetic_work_us=%d sleep_chunk_us=%d\n",
+      spin_microseconds, static_cast<long long>(FRAME_PERIOD.count()), work_microseconds,
+      chunk_microseconds);
 
   // Warm both paths before measuring. Alternation gives the modes the same
   // changing host conditions instead of running one entire cohort first.
   for (int i = 0; i < 30; ++i)
-    RunFrame(i % 2 == 0 ? Mode::SchedulerYield : Mode::BusySpin);
+    RunFrame(static_cast<Mode>(i % 4));
 
   std::vector<Sample> scheduler_yield;
+  std::vector<Sample> chunked_scheduler_yield;
+  std::vector<Sample> chunked_busy_spin;
   std::vector<Sample> busy_spin;
   scheduler_yield.reserve(frames_per_mode);
+  chunked_scheduler_yield.reserve(frames_per_mode);
+  chunked_busy_spin.reserve(frames_per_mode);
   busy_spin.reserve(frames_per_mode);
-  for (int i = 0; i < frames_per_mode * 2; ++i)
+  for (int i = 0; i < frames_per_mode * 4; ++i)
   {
-    const Mode mode = i % 2 == 0 ? Mode::SchedulerYield : Mode::BusySpin;
-    (mode == Mode::SchedulerYield ? scheduler_yield : busy_spin).push_back(RunFrame(mode));
+    const Mode mode = static_cast<Mode>(i % 4);
+    if (mode == Mode::SchedulerYield)
+      scheduler_yield.push_back(RunFrame(mode));
+    else if (mode == Mode::ChunkedSchedulerYield)
+      chunked_scheduler_yield.push_back(RunFrame(mode));
+    else if (mode == Mode::ChunkedBusySpin)
+      chunked_busy_spin.push_back(RunFrame(mode));
+    else
+      busy_spin.push_back(RunFrame(mode));
   }
 
   Report("scheduler_yield", scheduler_yield);
+  Report("chunked_scheduler_yield", chunked_scheduler_yield);
+  Report("chunked_busy_spin", chunked_busy_spin);
   Report("busy_spin", busy_spin);
   return 0;
 }

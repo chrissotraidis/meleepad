@@ -437,6 +437,15 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   18.479/18.468 ms as mean precision-timer wake lateness rose from 0.070 ms to
   0.375-0.407 ms. Both candidates are removed; G5 remains open. Evidence:
   `docs/artifacts/2026-08-26/g5-menu-idle-loop-rejections.md`.
+- **PERF-025 (menu pacing follow-ups rejected):** A retained host harness
+  proved 500 us sleep chunks eliminate the newly exposed long-sleep miss, and
+  chunked true spin achieved 16.683 ms p95 synthetically. In coherent watched
+  CSS, chunked yield plus the idle collapse repeated at 16.933/16.902 ms p95;
+  chunked true spin repeated at 16.928/16.890 ms despite <0.001 ms wake-
+  lateness p95. Neither passes 16.7 ms or consistently beats the 16.896 ms
+  normal control. All product changes are removed; the diagnostic harness is
+  retained. Evidence:
+  `docs/artifacts/2026-08-26/g5-menu-pacing-followup-rejections.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual
