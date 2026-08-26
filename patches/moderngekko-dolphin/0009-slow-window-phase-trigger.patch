@@ -10,7 +10,7 @@ index aee78c0299..9f6688be8f 100644
  #include <fstream>
  #include <iomanip>
 
-@@ -56,16 +57,23 @@ public:
+@@ -56,17 +57,24 @@ public:
                  "fallback_other,cache_controls,cache_control_dcbst,cache_control_dcbf,"
                  "cache_control_dcbi,cache_control_icbi\n";
 +      if (const char* start_frame = std::getenv("SSBMPAD_FRAME_PHASE_SLOW_START_FRAME"))
@@ -29,6 +29,8 @@ index aee78c0299..9f6688be8f 100644
      const auto counter_ms = [](u64 current, u64 previous) {
        return static_cast<double>(current - previous) / 1'000'000.0;
      };
+-
++
 -    m_file << m_frame++ << ',' << std::fixed << std::setprecision(6)
 -           << milliseconds(frame_start - m_previous_frame_start) << ','
 +    const double total_ms = milliseconds(frame_start - m_previous_frame_start);

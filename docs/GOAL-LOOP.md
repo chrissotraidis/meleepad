@@ -262,6 +262,51 @@ required-stage strict tail and reopen this branch only for a multi-second
 sub-55 recurrence. See
 `docs/artifacts/2026-08-26/g5-css-slow-window-capture.md`.
 
+Frame-correlated native sampling now separates the two open symptoms. A
+visually verified Pikachu/CPU-DK Fountain bracket measured 16.664 ms p50 and
+17.881 ms p95; about 8,008 extra dispatches in tail frames were distributed
+across many addresses, so do not retry isolated leaves. The same cold route
+captured four 1.87-3.17 second CPU-bound scene transitions dominated by Melee
+`lbDvd`/`DVDCancel` synchronous wait paths, with negligible Metal present
+time. The next single experiment is an isolated control using Dolphin's
+existing fast-disc setting. It must retain correct visible behavior and
+deterministic/netplay configuration as well as reduce the measured transition
+gaps. See
+`docs/artifacts/2026-08-26/g5-fountain-frame-address-attribution.md`.
+
+The isolated fast-disc control is complete and rejected. It preserved visible
+Pikachu/CPU-DK Fountain behavior but did not remove four 1.85-3.23 second
+scene-change rows, and Fountain still measured 17.827 ms p95. The long rows
+aggregate roughly 111-193 normal frames' worth of guest cycles; do not treat
+them as sustained animated-menu FPS or optimize DVD code from them. Tail PCs
+instead map broadly across HSD matrix/material/animation work and GX state
+setters. The next single experiment is a host preflight for coherent
+cross-segment dispatch reduction that preserves SMC verification, exception
+and host-call boundaries, guest cycle accounting, and bounded event delivery.
+See `docs/artifacts/2026-08-26/g5-fast-disc-rejection.md`.
+
+A renewed canonical live check now distinguishes the user's menu report more
+sharply. The untouched animated Main Menu held 59.936 FPS over 5,042 frames
+with 16.946 ms p95, so a sustained 12.5-30 FPS state did not recur. It still
+produced a visible 102.552 ms hitch, and the complete route reproduced four
+1.90-3.72 second CPU-bound transition freezes with 58-92 million dispatches
+and negligible Metal present time. Keep all three performance scopes
+separate: steady menu pacing, transition freezes, and the required Fountain
+strict tail. G5 remains open for all visible failures; the 59.9 title is not
+acceptance proof. See
+`docs/artifacts/2026-08-26/g5-live-main-menu-reproduction.md`.
+
+The 1,024-instruction generated C chunk candidate is also complete and
+rejected. Although its bounded lockstep screen introduced no new divergence
+class and visible Pikachu/CPU-Ness Fountain remained coherent, the bracket
+measured 17.867 ms p95 / 59.740 FPS and native dispatches increased to about
+161,478/frame. Smaller host functions therefore lose to more cross-chunk
+returns. LLVM is not a bounded alternative because the backend rejects Apple
+arm64 production targets. Do not retry either route. Patch 0011 now
+canonicalizes the default-off frame/PC sampler after a verified clean patch
+chain; it does not change the normal product path. See
+`docs/artifacts/2026-08-26/g5-generated-chunk-size-rejection.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

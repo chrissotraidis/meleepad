@@ -505,6 +505,47 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   default-off as patch 0010; normal packages export no hooks. G5 remains open.
   Evidence:
   `docs/artifacts/2026-08-26/g5-dispatch-branch-attribution-and-lookup-rejection.md`.
+- **PERF-033 (Fountain frame-address attribution retained):** A visually
+  verified Pikachu/CPU-Donkey-Kong Fountain bracket measured 16.664 ms p50 and
+  17.881 ms p95. Tail frames executed about 8,008 extra native dispatches, but
+  the delta was spread across many PCs; the largest individual site accounted
+  for only about 525/frame. Separately, the cold route captured four 1.87-3.17
+  second CPU-bound transition gaps with 55-99 million dispatches, dominated by
+  `lbDvd`/`DVDCancel` wait paths while Metal present stayed near 0.02-0.05 ms.
+  The major menu transition stalls and combat tail are therefore separate.
+  Next: isolated fast-disc control; no isolated-leaf retry. Evidence:
+  `docs/artifacts/2026-08-26/g5-fountain-frame-address-attribution.md`.
+- **PERF-034 (fast-disc rejected):** An isolated GALE01r0 game-settings layer
+  with `FastDiscSpeed = True` preserved coherent CSS and Pikachu/CPU-DK
+  Fountain behavior, but still produced 1.85-3.23 second scene-change rows
+  with 54-93 million dispatches. Those rows aggregate 111-193 ordinary
+  frames' worth of guest cycles and are not sustained animated-menu FPS.
+  A visually gated 2,500-row Fountain interval measured 16.671 ms p50 and
+  17.827 ms p95, so G5 still fails. Fast-disc is removed. The combat tail maps
+  broadly to HSD/GX rendering work; next is a coherent dispatch-boundary
+  preflight, not DVD or isolated leaves. Evidence:
+  `docs/artifacts/2026-08-26/g5-fast-disc-rejection.md`.
+- **PERF-035 (live Main Menu reproduction):** The restored canonical runner
+  was driven through the genuine title lockout to CSS and deliberately backed
+  out to the animated Main Menu. A 5,042-frame untouched Main Menu bracket
+  averaged 59.936 FPS with 16.946 ms p95, but included a visible 102.552 ms
+  hitch. The same route reproduced four 1.90-3.72 second CPU-bound transition
+  freezes with 58-92 million native dispatches and only 0.019-0.031 ms Metal
+  present time. A sustained 12.5-30 FPS Main Menu state did not recur, but the
+  transition freezes and pacing hitch keep menu behavior in G5's failure
+  scope. Do not use the 59.9 title alone as acceptance evidence or retry
+  fast-disc. Evidence:
+  `docs/artifacts/2026-08-26/g5-live-main-menu-reproduction.md`.
+- **PERF-036 (generated chunk-size candidate rejected):** LLVM generation is
+  not a bounded Apple-arm64 option: the installed LLVM is 22.1.8 versus
+  DolRecomp's 19/20 check, and the backend rejects production targets other
+  than x86-64 Linux/Windows. An isolated C backend candidate reduced generated
+  chunks from 4,096 to 1,024 instructions and passed a bounded lockstep screen,
+  but visibly verified Pikachu/CPU-Ness Fountain measured 17.867 ms p95 and
+  only 59.740 FPS. Mean native dispatches rose to 161,478/frame because more
+  chunk crossings outweighed smaller host functions. The candidate is removed;
+  product module `2dce1352...` is restored. Evidence:
+  `docs/artifacts/2026-08-26/g5-generated-chunk-size-rejection.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual

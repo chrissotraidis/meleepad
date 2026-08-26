@@ -1,0 +1,126 @@
+diff --git a/Source/Core/Common/FramePhaseTiming.h b/Source/Core/Common/FramePhaseTiming.h
+index ac6791c318..ba42e6d3cf 100644
+--- a/Source/Core/Common/FramePhaseTiming.h
++++ b/Source/Core/Common/FramePhaseTiming.h
+@@ -35,6 +35,7 @@ inline std::atomic<u64> s_static_recomp_cache_control_dcbf{0};
+ inline std::atomic<u64> s_static_recomp_cache_control_dcbi{0};
+ inline std::atomic<u64> s_static_recomp_cache_control_icbi{0};
+ inline std::atomic<u64> s_audio_mix_ns{0};
++inline std::atomic<u64> s_present_frame_index{0};
+-
++
+ inline bool IsEnabled()
+ {
+@@ -150,6 +151,16 @@ inline void AddAudioMix(DT duration)
+   s_audio_mix_ns.fetch_add(ToNanoseconds(duration), std::memory_order_relaxed);
+ }
+-
++
++inline void SetPresentFrameIndex(u64 frame)
++{
++  s_present_frame_index.store(frame, std::memory_order_release);
++}
++
++inline u64 GetPresentFrameIndex()
++{
++  return s_present_frame_index.load(std::memory_order_acquire);
++}
++
+ struct Totals
+ {
+   u64 cpu_wall_ns;
+diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp
+index ca973eff9c..ffd21fd2d5 100644
+--- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp
++++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp
+@@ -177,6 +177,12 @@ void StaticRecompCore::Init()
+   m_guest.host_call = m_module_source.host_call ? HookHostCall : nullptr;
+   m_guest.external_user_data = this;
+-
++
++  if (const char* path = std::getenv("STATICRECOMP_DISPATCH_FRAME_LOG"); path && path[0] != '\0')
++  {
++    m_dispatch_frame_log_path = path;
++    m_dispatch_frame_samples.reserve(262144);
++  }
++
+   std::fprintf(stderr, "[staticrecomp] core init\n");
+-
++
+   LoadModule();
+@@ -223,6 +229,24 @@ void StaticRecompCore::Shutdown()
+                  dispatch_samples[i].first,
+                  static_cast<unsigned long long>(dispatch_samples[i].second));
+   }
++  if (!m_dispatch_frame_log_path.empty())
++  {
++    if (FILE* file = std::fopen(m_dispatch_frame_log_path.c_str(), "w"))
++    {
++      std::fprintf(file, "frame,pc\n");
++      for (const DispatchFrameSample& sample : m_dispatch_frame_samples)
++        std::fprintf(file, "%llu,%08x\n", static_cast<unsigned long long>(sample.frame),
++                     sample.pc);
++      std::fclose(file);
++      std::fprintf(stderr, "[staticrecomp] dispatch-frame samples=%zu path=%s\n",
++                   m_dispatch_frame_samples.size(), m_dispatch_frame_log_path.c_str());
++    }
++    else
++    {
++      std::fprintf(stderr, "[staticrecomp] dispatch-frame open failed: %s\n",
++                   m_dispatch_frame_log_path.c_str());
++    }
++  }
+   NOTICE_LOG_FMT(POWERPC,
+                  "StaticRecomp: shutdown. native_dispatches={} fallback_steps={} "
+                  "native_exceptions={} hook_fallback_instructions={} smc_failed_chunks={} "
+diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h
+index a3385d93b5..e09c003a22 100644
+--- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h
++++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h
+@@ -172,5 +172,12 @@ private:
+   u64 m_native_exceptions = 0;
+   u64 m_hook_fallback_instructions = 0;
+   std::unordered_map<u32, u64> m_dispatch_samples;
++  struct DispatchFrameSample
++  {
++    u64 frame;
++    u32 pc;
++  };
++  std::string m_dispatch_frame_log_path;
++  std::vector<DispatchFrameSample> m_dispatch_frame_samples;
+   u64 m_bursts = 0;          // SyncIn..SyncOut native runs (diagnostic)
+   u64 m_charged_cycles = 0;  // cycles flushed from module charges (diagnostic)
+diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
+index f649ee43e8..de81761265 100644
+--- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
++++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
+@@ -112,7 +112,12 @@ void StaticRecompCore::Run()
+           }
+-
++
+           if ((m_native_dispatches & 4095u) == 0)
++          {
+             ++m_dispatch_samples[m_guest.pc];
++            if (!m_dispatch_frame_log_path.empty())
++              m_dispatch_frame_samples.push_back(
++                  {Common::FramePhaseTiming::GetPresentFrameIndex(), m_guest.pc});
++          }
+           const u32 runtime_dispatch_address = m_guest.pc;
+           u32 linked_dispatch_address = runtime_dispatch_address;
+           if (m_module->num_rel_modules != 0)
+diff --git a/Source/Core/VideoCommon/Present.cpp b/Source/Core/VideoCommon/Present.cpp
+index df9c2305d1..1659e4579b 100644
+--- a/Source/Core/VideoCommon/Present.cpp
++++ b/Source/Core/VideoCommon/Present.cpp
+@@ -74,7 +74,9 @@ public:
+     };
+-
++
+     const double total_ms = milliseconds(frame_start - m_previous_frame_start);
+-    m_file << m_frame++ << ',' << std::fixed << std::setprecision(6) << total_ms << ','
++    const u64 frame = m_frame++;
++    Common::FramePhaseTiming::SetPresentFrameIndex(m_frame);
++    m_file << frame << ',' << std::fixed << std::setprecision(6) << total_ms << ','
+            << counter_ms(totals.cpu_wall_ns, m_previous_totals.cpu_wall_ns) << ','
+            << counter_ms(totals.cpu_thread_ns, m_previous_totals.cpu_thread_ns) << ','
+            << counter_ms(totals.cpu_idle_ns, m_previous_totals.cpu_idle_ns) << ','

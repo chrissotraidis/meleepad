@@ -132,6 +132,7 @@ gxruntime_scalar_patch="$ROOT/patches/moderngekko-dolphin/0007-gxruntime-scalar-
 cache_control_patch="$ROOT/patches/moderngekko-dolphin/0008-static-recomp-cache-control-parity.patch"
 slow_window_patch="$ROOT/patches/moderngekko-dolphin/0009-slow-window-phase-trigger.patch"
 dispatch_counts_patch="$ROOT/patches/moderngekko-dolphin/0010-module-dispatch-branch-counts.patch"
+dispatch_frame_patch="$ROOT/patches/moderngekko-dolphin/0011-dispatch-frame-attribution.patch"
 apply_patch_once "$MG" "$mg_patch"
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$dolphin_patch" \
   Source/Core/DolphinNoGUI/PlatformIOS.mm 'class PlatformIOS : public Platform'
@@ -153,6 +154,9 @@ apply_patch_once_or_marker "$MG/vendor/dolphin" "$cache_control_patch" \
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$slow_window_patch" \
   Source/Core/VideoCommon/Present.cpp SSBMPAD_FRAME_PHASE_SLOW_MARKER
 apply_patch_once "$MG/vendor/dolphin" "$dispatch_counts_patch"
+apply_patch_once_or_marker "$MG/vendor/dolphin" "$dispatch_frame_patch" \
+  Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp \
+  STATICRECOMP_DISPATCH_FRAME_LOG
 verify_patch_scope "$MG" "$mg_patch" vendor/dolphin tools/moderngekko_launcher.cpp \
   tools/moderngekko_port.cpp tests/frontend_config_test.cpp \
   tools/frontend_config.cpp tools/frontend_config.hpp tools/moderngekko_run.cpp \

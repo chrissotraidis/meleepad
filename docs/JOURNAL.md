@@ -1407,3 +1407,107 @@ Append-only execution ledger. Claims are limited to observed evidence.
   frames versus the p95 tail before changing another coherent hot loop. Do not
   retry whole-dispatch ordering, host-probe removal, timers, or isolated
   low-frequency leaves.
+
+## 2026-08-26 — Fountain frame-address and menu-transition attribution
+
+- Visual gate: P1 Pikachu, level-1 CPU Donkey Kong, literal Fountain of Dreams,
+  live scripted combat, Cubeb, and a 59.9-61.0 title were observed. The known
+  reference-parity lower-floor reflection remained visibly blurred/mirrored.
+- Combat: frames 20,687-24,496 measured 16.663833 ms p50 and 17.881404 ms p95.
+  Tail frames added about 8,008 native dispatches, distributed across many PCs;
+  no single leaf is a material target.
+- Menu/transitions: four 1.87-3.17 second rows were CPU-bound and executed
+  55-99 million dispatches. Samples resolve to Melee `lbDvd`, `DVDCancel`, and
+  interrupt-protected synchronous disc waits; Metal presentation stayed tiny.
+- Decision: **DIAGNOSTIC RETAINED; PRODUCT UNCHANGED; G5 OPEN; FINAL
+  DESTINATION NOT RUN; G6 BLOCKED.** The temporary runtime closed cleanly and
+  no Simulator is booted.
+- Next: test Dolphin's existing fast-disc setting as one isolated variable,
+  with the corrected deterministic Pikachu/CPU-DK/Fountain route. Reject on
+  behavior, determinism/netplay, visual, or measured-transition regression.
+- Evidence:
+  `docs/artifacts/2026-08-26/g5-fountain-frame-address-attribution.md`.
+
+## 2026-08-26 — fast-disc control rejected
+
+- Isolation: `FastDiscSpeed = True` existed only in a temporary app's
+  GALE01r0 layer; the user configuration, product app, module, game inputs,
+  and saves were untouched. MemoryWatcher preceded the accepted cold boot.
+- Visual gate: coherent CSS, P1 Pikachu, level-1 CPU Donkey Kong, literal
+  Fountain of Dreams, live combat, Cubeb, and a 59.9 FPS title were observed.
+- Transition result: four 1.85-3.23 second rows remained, with 54-93 million
+  dispatches and negligible Metal present time. Each aggregates roughly
+  111-193 ordinary guest frames, so it is a scene-change logger gap rather
+  than sustained animated-menu FPS.
+- Fountain result: the first 2,500 complete combat rows measured 16.671104 ms
+  p50 and 17.826824 ms p95. Tail PCs map broadly across HSD/GX rendering work.
+- Decision: **FAST-DISC REJECTED/REMOVED; G5 OPEN; FINAL DESTINATION NOT RUN;
+  G6 BLOCKED.** The temporary app was restored and re-signed; the isolated
+  user directory was moved to Trash; no runtime or Simulator remains.
+- Next: preflight coherent cross-segment dispatch reduction with exact SMC,
+  exception, host-call, cycle, and event-delivery constraints.
+- Evidence: `docs/artifacts/2026-08-26/g5-fast-disc-rejection.md`.
+
+## 2026-08-26 — live Main Menu slowdown rechecked
+
+- Goal: respond to the user's renewed report of clearly major menu slowdown
+  without hiding it behind CSS or combat averages.
+- Route: restored canonical signed runner/module, phase logger only,
+  MemoryWatcher before boot, genuine 134-second title lockout to CSS, then
+  deliberate one-second B presses back through VS Mode to Main Menu. Computer
+  Use visibly verified each scene; no candidate module or Simulator ran.
+- Steady Main Menu: frames 13,064-18,105 averaged 16.684521 ms / 59.936 FPS,
+  with 16.946444 ms p95, 17.345228 ms p99, and a 102.551834 ms worst hitch.
+  No rolling 1/2/5/10-second window fell below 59.294 FPS. The sustained
+  12.5-30 FPS state did not recur in this run, but pacing is not perfect.
+- Transitions: four 1.90-3.72 second CPU-bound gaps executed 58-92 million
+  dispatches with only 0.019-0.031 ms Metal present time. These are real
+  visible freezes, separate from steady animated-menu cadence and Fountain's
+  frequent strict tail.
+- Input note: ordinary short B taps were missed; one-second holds worked. Keep
+  input-duration reliability separate from renderer diagnosis.
+- Decision: **SUSTAINED COLLAPSE NOT REPRODUCED; TRANSITION FREEZES AND A
+  102.6 MS MENU HITCH REPRODUCED; G5 OPEN; G6 BLOCKED.** No product change.
+- Evidence:
+  `docs/artifacts/2026-08-26/g5-live-main-menu-reproduction.md`.
+- Next: retain the low-overhead slow-window trigger for a recurring sustained
+  menu state, but continue the coherent generated-dispatch/codegen experiment
+  for the required Fountain tail. Do not retry fast-disc or accept a title
+  counter as proof.
+
+## 2026-08-26 — generated chunk-size candidate rejected
+
+- Preflight: the LLVM backend is unavailable in this build, expects LLVM
+  19/20 rather than the installed 22.1.8, and rejects non-x86-64 production
+  targets. No toolchain mutation was justified.
+- Candidate: generated the C backend with 1,024 instructions/chunk instead of
+  4,096. It produced 947 hashed chunks and an approximately 72 MB module and
+  existed only in a temporary signed app.
+- Semantic screen: candidate lockstep recorded 499 checks, seven reports, six
+  fallback skips, three zero skips, and zero undercharges; no new divergence
+  class appeared in the bounded comparison.
+- Visual gate: coherent P1 Pikachu versus CPU Ness on literal Fountain, live
+  controls, 60.0 title, and known reference-parity lower-floor reflection.
+- Performance: frames 13,510-17,163 measured 16.739333 ms mean, 17.866794 ms
+  p95, 20.801313 ms p99, and 59.740 FPS. Native dispatches rose to
+  161,477.597/frame because smaller generated functions cross boundaries more
+  often. The candidate fails G5 absolutely.
+- Decision: **C1024 REJECTED/REMOVED; G5 OPEN; G6 BLOCKED.** Canonical module
+  `2dce1352...` was restored and the 617 MB candidate tree moved to Trash.
+- Evidence:
+  `docs/artifacts/2026-08-26/g5-generated-chunk-size-rejection.md`.
+- Next: reduce cross-segment return/redispatch cost coherently; preserve SMC,
+  exception, host-call, cycle, and bounded-event semantics. Do not retry LLVM
+  or smaller C chunks.
+
+## 2026-08-26 — dispatch-frame diagnostic canonicalized
+
+- Clean-chain audit: SunPad plus patches 0002-0010 now apply under `set -e`.
+  Patch 0009 required a behavior-neutral missing blank-line context repair.
+- Patch 0011 contains only the default-off present-frame/native-PC sampling
+  diagnostic. It clean-applies after the full chain, reverse-checks, and
+  reproduces all five live source files byte-for-byte.
+- The normal path adds no new unsampled dispatch branch; only the existing
+  one-in-4,096 sample point records a frame/PC pair when the environment
+  variable is enabled.
+- Decision: **DIAGNOSTIC RETAINED; PRODUCT DEFAULT UNCHANGED.**
