@@ -106,13 +106,26 @@ from 6,066.022/frame to zero while 6,064.453 direct cache-helper calls/frame
 remained exactly accounted. Retain the correction, but do not pass G5: only
 19.285% of candidate frames are <=16.7 ms.
 
-The next single experiment is a fresh exact-source PGO generate/use cycle on
-the retained cache-control path because its generated control flow no longer
-resembles the profile's former dominant dispatcher route. Record source,
-module, and profile hashes; visually verify the training corpus; then rerun
-strict Fountain. Run Final Destination only if Fountain passes. G5 and the ban
-on starting G6 remain in force. See
-`docs/artifacts/2026-08-25/g5-cache-control-parity.md`.
+That exact-source PGO cycle is complete and rejected. One visually verified
+Fountain profile was merged; the PGO-use module passed native-runtime smoke,
+but its 6,428-frame strict Fountain bracket measured 16.894 ms mean,
+17.860 ms p95, 18.080 ms p99, and 1,367.699 ms worst. Only 55.009% of frames
+were <=16.7 ms. Final Destination was therefore not run.
+
+The same acceptance run reproduced severe lower-viewport warping and Bowser
+duplication/morphing on both the profile-free and PGO paths. `VISUAL-001B` is
+reopened under its recurrence rule. Cold-boot testing also proved the current
+title-lockout predicate cannot distinguish the opening movie from the title
+and attract path reliably; invalid demo routes were excluded by visual gates.
+
+The next single experiment is a deterministic adjacent-frame profile-free
+reproduction of `VISUAL-001B`: retain the last coherent and first corrupted
+frame from one match state, then attribute the earliest divergent generated
+draw/vertex data. Correct the cold-boot state predicate alongside that evidence
+so future brackets cannot enter attract mode. Do not resume PGO/performance
+experiments, run Final Destination, or start G6 until visual coherence and the
+route gate are restored. See
+`docs/artifacts/2026-08-26/g5-cache-control-pgo-rejection.md`.
 
 ## Testing rhythm
 

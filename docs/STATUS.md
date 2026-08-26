@@ -383,11 +383,21 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   fallbacks/frame. Only 19.285% of frames are <=16.7 ms, so G5 remains open.
   The next experiment retrains exact-source PGO on this changed control flow.
   Evidence: `docs/artifacts/2026-08-25/g5-cache-control-parity.md`.
+- **PERF-022 (PGO rejected):** Exact-source cache-control PGO used exactly one
+  eligible, visually verified Fountain training profile. The signed arm64
+  PGO-use module exported no profiling hooks and ran with Cubeb, zero fallback
+  steps, and zero SMC failures. Its 6,428-frame trimmed Fountain bracket
+  measured 16.894/17.860/18.080/1,367.699 ms mean/p95/p99/worst; only 55.009%
+  of frames were <=16.7 ms. The candidate fails even without the single large
+  stall, so it was rejected before Final Destination. Invalid attract/demo
+  routes and a roster-unmatched profile-free run were explicitly excluded from
+  A/B claims. Evidence:
+  `docs/artifacts/2026-08-26/g5-cache-control-pgo-rejection.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual
   regression. EFB-to-RAM and non-deferred-copy controls were reverted.
-- **VISUAL-001B (confirmed real, fixed/closed):** Adjacent `.png` frames 176-184 showed
+- **VISUAL-001B (reopened):** Adjacent `.png` frames 176-184 showed
   Peach's hair and arms deforming into impossible spike/blade shapes over
   multiple frames before recovery at frame 186. Exact GXRuntime helpers now
   cover scalar-single arithmetic and all 1,237 `frsp` sites. The corrected
@@ -397,4 +407,9 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   closure boundary. Evidence:
   `docs/artifacts/2026-08-25/g5-fountain-visual-warping.md` and
   `docs/artifacts/2026-08-25/g5-corrected-visual-closure-and-fountain-baseline.md`.
-  Any future character morphing immediately reopens the defect.
+  The 2026-08-26 exact-source PGO acceptance run reproduced severe lower-
+  viewport warping plus Bowser duplication/morphing. The retained profile-free
+  cache-control path reproduced the same class, so this is not attributed to
+  PGO. The recurrence rule is satisfied and the defect is promotion-blocking
+  again. Evidence:
+  `docs/artifacts/2026-08-26/g5-cache-control-pgo-rejection.md`.

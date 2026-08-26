@@ -992,3 +992,34 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Next: collect a fresh exact-source PGO corpus on the retained cache path with
   source/module/profile hashes, then rerun strict Fountain. Attempt Final
   Destination only if Fountain passes; do not start G6.
+
+## 2026-08-26 — Exact-source cache-control PGO rejection and visual reopen
+
+- Goal: finish the report-adjusted next experiment by training and testing PGO
+  on the retained generated cache-control path.
+- Training: built the exact source with instrumentation, visually verified P1
+  Bowser versus level-1 CPU Zelda on Fountain, ran 30 combat-cycle repeats,
+  and cleanly shut down with `fallback=0` and `smc_failed=0`. Exactly one raw
+  profile was eligible and merged; four route-debug raws were excluded.
+- Build: the PGO-use arm64/macOS 14 dylib is signed, exports only the normal
+  module entry, and has SHA-256 `1993ed0c9619875b19e5b7fc711143ee241bf7c3084c0397b0ee281f931b26b5`.
+- Route audit: one PGO attempt and two profile-free attempts entered attract
+  matches and were rejected before timing. The current cold-boot watcher timed
+  out on its first predicate during the opening movie; sustained START can
+  also land in attract mode. Visual gates prevented contamination.
+- Accepted PGO route: P1 Bowser versus level-1 CPU Bowser, explicit Fountain
+  label, live Fountain, Cubeb, and the capture-free 20-cycle script. The
+  6,428-frame trimmed bracket measured mean/p95/p99/worst
+  16.894/17.860/18.080/1,367.699 ms; 55.009% were <=16.7 ms. The 1.367-second
+  frame carried 41,469,067 native dispatches and is not capture overhead, but
+  p95 already fails without it.
+- Visual result: severe lower-frame warping and Bowser duplication/morphing
+  reproduced. The profile-free cache-control path showed the same class.
+  `VISUAL-001B` is reopened.
+- Result: **PGO REJECTED; G5 OPEN; FINAL DESTINATION NOT RUN; G6 BLOCKED.**
+  No PGO dylib/profile or game data is retained.
+- Evidence: `docs/artifacts/2026-08-26/g5-cache-control-pgo-rejection.md`, its
+  trimmed CSV, and its visual capture.
+- Next: deterministic adjacent-frame profile-free reproduction of
+  `VISUAL-001B`, then earliest divergent generated draw/vertex attribution.
+  Replace the stale cold-boot predicate before accepting another timing run.
