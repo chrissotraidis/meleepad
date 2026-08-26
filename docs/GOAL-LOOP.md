@@ -342,6 +342,20 @@ transition freezes in G5 scope. See
 `docs/artifacts/2026-08-26/g5-direct-chunk-matched-yoshi-control.md` and
 `docs/artifacts/2026-08-26/g5-last-chunk-cache-rejection.md`.
 
+The next zoomed-out preflight splits the remaining slow paths instead of
+forcing one common cause. Visually gated Apple CPU Counters measured the
+four-player combat CPU thread at 53.6% instruction-delivery loss / 33.1%
+useful, but the slow How-to CPU thread at only 20.2% delivery loss / 74.7%
+useful. Broad generated-code outlining is therefore rejected. Two combat-hot
+chunks shrink 36-38% under standalone native `-Oz`, but the attempted full
+links reproduced the exact canonical dylib and did not create a testable
+candidate. Do not retry dispatcher, timer, chunk-size, or broad-outlining
+variants. The next single experiment is a clean native CPU sample over the
+visually gated How-to fight, joined to its frame-PC log, followed by at most
+one named routine/helper optimization with material attribution. G5 remains
+open and G6 remains blocked. See
+`docs/artifacts/2026-08-26/g5-front-end-pressure-preflight.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

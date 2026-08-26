@@ -587,6 +587,18 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   These are absolute failures, not matched regressions. The candidate is
   removed and both local runners/product hashes are canonical. Evidence:
   `docs/artifacts/2026-08-26/g5-last-chunk-cache-rejection.md`.
+- **PERF-041 (front-end hypothesis split):** Visually gated Apple CPU Counters
+  show four-player Pokemon Stadium combat is strongly instruction-delivery
+  limited on the CPU thread (53.6% delivery / 33.1% useful), while the slow
+  How-to fight is not (20.2% delivery / 74.7% useful). How-to frames
+  19,250-19,450 still averaged 21.252 ms with 20.493 ms CPU-thread work and
+  only about 41,372 dispatches/frame. Broad outlining is rejected. Native
+  `-Oz` preflight shrank two combat-hot chunks by 36-38%, but both ThinLTO and
+  mixed native link attempts reproduced the exact canonical dylib, so no
+  candidate entered semantic/runtime testing. Build cache and product are
+  canonical. Next: clean visually gated How-to native sample plus frame-PC
+  attribution, then one named routine/helper only. Evidence:
+  `docs/artifacts/2026-08-26/g5-front-end-pressure-preflight.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual

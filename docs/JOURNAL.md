@@ -1607,3 +1607,24 @@ Append-only execution ledger. Claims are limited to observed evidence.
   and both local runners were rebuilt canonical; product runner/module hashes
   remained `9bff54e4...` / `2dce1352...`; temporary app/run moved to Trash.
 - Evidence: `docs/artifacts/2026-08-26/g5-last-chunk-cache-rejection.md`.
+
+## 2026-08-26 — CPU counters split combat from How-to
+
+- Computer Use visually gated live four-player Pokemon Stadium combat at
+  50.3 FPS and the real Mario/Bowser How-to fight at 46.1 FPS in one uniquely
+  identified diagnostic runner.
+- Apple CPU Counters measured the four-player CPU thread at 53.6% instruction
+  delivery / 33.1% useful, but How-to at 20.2% delivery / 74.7% useful.
+  Therefore a broad generated-code outlining theory does not explain both
+  slow paths.
+- How-to frames 19,250-19,450 independently averaged 21.252 ms total and
+  20.493 ms CPU-thread work with about 41,372 dispatches/frame.
+- Two combat-hot chunks had 36-38% smaller standalone `-Oz` native text, but
+  both full-link routes reproduced the byte-identical canonical dylib. No
+  materially different artifact existed, so semantic/performance testing was
+  correctly skipped.
+- Decision: **BROAD OUTLINING REJECTED; G5 OPEN; G6 BLOCKED.** Exact canonical
+  objects/module/product restored. Next is a clean visually gated How-to native
+  sample combined with its frame-PC log, followed by one named routine/helper.
+- Evidence:
+  `docs/artifacts/2026-08-26/g5-front-end-pressure-preflight.md`.
