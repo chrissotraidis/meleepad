@@ -381,6 +381,18 @@ or another broad locked-cache path. G5 remains open and G6 remains blocked.
 See
 `docs/artifacts/2026-08-26/g5-locked-cache-fast-path-rejection.md`.
 
+The required host-only chassis preflight is complete. Across five fresh
+processes using Dolphin's real MMU and L1 buffer, the median one-byte path cost
+was 6.765 ns canonical, 5.446 ns after `Memcheck`, 1.356 ns for journal plus
+direct store, and 2.289 ns when stable MSR propagation was restored. Generic
+`WriteToHardware`, not `Memcheck` or MSR alone, owns most removable inner cost.
+This does not reopen either rejected global locked-cache path. The next single
+experiment is offline analysis of contiguous store runs in the exact hot THP
+chunks `0x8032D940` and `0x80331940`; require an exact bulk-operation semantic
+regression before another game build. G5 remains open and G6 remains blocked.
+See
+`docs/artifacts/2026-08-26/g5-locked-cache-write-chassis-preflight.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

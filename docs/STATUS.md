@@ -623,6 +623,19 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   a THP-scoped host preflight rather than another global memory fast path.
   Evidence:
   `docs/artifacts/2026-08-26/g5-locked-cache-fast-path-rejection.md`.
+- **PERF-044 (locked-cache write chassis attributed):** A temporary
+  Release-mode arm64 benchmark used Dolphin's real `System`, `MMU`, and L1
+  buffer for five processes of 11 x 2,000,000 writes/path. Median
+  nanoseconds/write were 6.765 canonical, 5.446 after `Memcheck`, 1.356 for
+  journal-check plus direct store, 2.289 with stable MSR propagation restored,
+  and 1.018 for the raw store. The generic hardware dispatcher, not
+  `Memcheck` alone, owns most removable inner cost; preserving MSR still
+  leaves 4.476 ns/write theoretical headroom. This is attribution only: both
+  prior global locked-cache integrations regressed gameplay. Temporary code
+  is removed and the source runner is canonical. Next: offline contiguous
+  store-run analysis in the exact two hot THP chunks before any new build.
+  Evidence:
+  `docs/artifacts/2026-08-26/g5-locked-cache-write-chassis-preflight.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual

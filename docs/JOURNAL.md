@@ -1674,3 +1674,25 @@ Append-only execution ledger. Claims are limited to observed evidence.
   memory path, per-PC shortcut, or per-write observer.
 - Evidence:
   `docs/artifacts/2026-08-26/g5-locked-cache-fast-path-rejection.md`.
+
+## 2026-08-26 — locked-cache byte-write chassis host preflight
+
+- A temporary arm64 Release target linked Dolphin's real `core`, initialized
+  its actual L1 buffer, and timed five fresh processes. Each path used the
+  median of 11 rounds x 2,000,000 permuted one-byte stores over 16 KiB.
+- Median process results were 6.765 ns/write for canonical `MMU::Write<u8>`,
+  5.446 ns after bypassing `Memcheck`, 1.356 ns for null journal check plus
+  direct store, 2.289 ns with stable MSR propagation restored, and 1.018 ns
+  for the raw store.
+- Attribution: `Memcheck` costs about 1.319 ns; the remainder of generic
+  `WriteToHardware` beyond journal/direct costs about 4.090 ns. Preserving the
+  MSR check still leaves about 4.476 ns/write of theoretical headroom.
+- Decision: **ATTRIBUTION RETAINED; NO PRODUCT CHANGE; G5 OPEN; G6 BLOCKED.**
+  The microbenchmark does not override two global locked-cache runtime
+  rejections. Temporary target/source/MMU wrapper were removed, the build
+  cache returned to tests-off, and the source runner rebuilt canonical.
+- Next: inspect the exact generated `0x8032D940`/`0x80331940` THP chunks
+  offline for contiguous store runs and define a bulk semantic regression
+  before another game build. Do not retry a per-write or per-PC shortcut.
+- Evidence:
+  `docs/artifacts/2026-08-26/g5-locked-cache-write-chassis-preflight.md`.
