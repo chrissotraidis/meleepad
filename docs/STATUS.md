@@ -186,6 +186,13 @@ CPU-thread QoS candidate cut worst from 51.412 to 18.002 ms and slightly
 improved p99, but regressed p95 from 16.975 to 17.031 ms. It is rejected and
 removed. The diagnostic counters remain; a matched repeat/control is next.
 
+The unchanged repeat reproduced p95 at 16.975 ms and a 21.604 ms host-cost
+cluster. A valid thread-CPU Fountain bracket then measured total p95/p99/worst
+16.970/17.184/19.088 ms. After subtracting known idle/throttle time, residual
+off-core time is only 0.018 ms p95 / 0.148 ms p99; tail thread CPU rises by
+0.207 ms versus only 0.067 ms residual. The tail is mainly on-core execution
+cost. Runtime fallback-class attribution is next.
+
 ## Goal ledger
 
 | Goal | State | Evidence / blocker |
@@ -195,7 +202,7 @@ removed. The diagnostic counters remain; a matched repeat/control is next.
 | G2 Module recompiles and links | Pass | `docs/artifacts/2026-08-24/g2-module-and-package.md` |
 | G3 macOS boots to title | Pass | `docs/artifacts/2026-08-24/g3-macos-title-and-input.md`; retained title and A-transition screenshots |
 | G4 macOS playable | Pass | `docs/artifacts/2026-08-24/g4-controlled-match.md`; clean CSS -> 1v1 -> results plus live Cubeb/CoreAudio mixing evidence |
-| G5 macOS 60 fps | In progress | Fountain control p95/p99/worst 16.975/17.232/51.412 ms; guest work flat, QoS candidate rejected; repeat/control and strict Fountain/FD tails remain open |
+| G5 macOS 60 fps | In progress | Thread-CPU Fountain p95/p99/worst 16.970/17.184/19.088 ms; tail mainly on-core; fallback-class attribution and strict Fountain/FD tails remain open |
 | G6 Simulator core boots | Not started | G5 first; no Simulator booted |
 | G7 Shell ported | Not started | G6 first |
 | G8 Test matrix green | Not started | G7 first |

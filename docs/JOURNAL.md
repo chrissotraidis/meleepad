@@ -922,3 +922,20 @@ Append-only execution ledger. Claims are limited to observed evidence.
   plus its two retained CSVs.
 - Next: matched repeat/control to distinguish rare host preemption from
   systematic dispatch cost. No Simulator work.
+
+## 2026-08-25 — Repeat control and thread-CPU attribution
+
+- Goal: separate rare host preemption from real on-core execution cost.
+- Repeat: unchanged Fountain reproduced p95 at 16.975 ms and a smaller
+  21.604 ms ordinary-work cluster; the prior 51.412 ms cluster is rare.
+- Diagnostic: added default-off thread CPU time. One wrong-stage run was
+  discarded. A fresh route exposed and corrected the stale CSS assumption that
+  had picked P1's token back up; valid P1 Pikachu/P2 CPU Mario and Fountain
+  were visually verified before the clean bracket.
+- Result: total p95/p99/worst 16.970/17.184/19.088 ms. Residual off-core time is
+  0.018/0.148 ms p95/p99; tail thread CPU rises 0.207 ms, so the tail is mainly
+  on-core. **G5 OPEN.**
+- Evidence: `docs/artifacts/2026-08-25/g5-repeat-and-thread-cpu-attribution.md`
+  and its two retained CSVs.
+- Next: classify runtime hook fallbacks by instruction class, then test one
+  dominant class. No Simulator work.

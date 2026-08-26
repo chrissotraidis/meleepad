@@ -32,10 +32,10 @@ index a3a89d59be..17bec8b6a6 100644
  
 diff --git a/Source/Core/Common/FramePhaseTiming.h b/Source/Core/Common/FramePhaseTiming.h
 new file mode 100644
-index 0000000000..3eb52974b1
+index 0000000000..e096ad0437
 --- /dev/null
 +++ b/Source/Core/Common/FramePhaseTiming.h
-@@ -0,0 +1,111 @@
+@@ -0,0 +1,119 @@
 +// Copyright 2026 Dolphin Emulator Project
 +// SPDX-License-Identifier: GPL-2.0-or-later
 +
@@ -49,6 +49,7 @@ index 0000000000..3eb52974b1
 +namespace Common::FramePhaseTiming
 +{
 +inline std::atomic<u64> s_cpu_wall_ns{0};
++inline std::atomic<u64> s_cpu_thread_ns{0};
 +inline std::atomic<u64> s_cpu_idle_ns{0};
 +inline std::atomic<u64> s_cpu_throttle_sleep_ns{0};
 +inline std::atomic<u64> s_cpu_throttle_requested_ns{0};
@@ -78,6 +79,11 @@ index 0000000000..3eb52974b1
 +inline void AddCpuWall(DT duration)
 +{
 +  s_cpu_wall_ns.fetch_add(ToNanoseconds(duration), std::memory_order_relaxed);
++}
++
++inline void AddCpuThreadNanoseconds(u64 nanoseconds)
++{
++  s_cpu_thread_ns.fetch_add(nanoseconds, std::memory_order_relaxed);
 +}
 +
 +inline void AddCpuIdle(DT duration)
@@ -118,6 +124,7 @@ index 0000000000..3eb52974b1
 +struct Totals
 +{
 +  u64 cpu_wall_ns;
++  u64 cpu_thread_ns;
 +  u64 cpu_idle_ns;
 +  u64 cpu_throttle_sleep_ns;
 +  u64 cpu_throttle_requested_ns;
@@ -134,6 +141,7 @@ index 0000000000..3eb52974b1
 +{
 +  return {
 +      s_cpu_wall_ns.load(std::memory_order_relaxed),
++      s_cpu_thread_ns.load(std::memory_order_relaxed),
 +      s_cpu_idle_ns.load(std::memory_order_relaxed),
 +      s_cpu_throttle_sleep_ns.load(std::memory_order_relaxed),
 +      s_cpu_throttle_requested_ns.load(std::memory_order_relaxed),
@@ -183,18 +191,33 @@ index 26e9973fcc..507b7b08cc 100644
    else
    {
 diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
-index 6011078449..500237cf93 100644
+index 6011078449..f649ee43e8 100644
 --- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
 +++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
-@@ -11,6 +11,7 @@
+@@ -11,13 +11,22 @@
  #include "Core/Config/MainSettings.h"
  #include "Core/Config/ConfigManager.h"
  #include "Core/HW/SystemTimers.h"
 +#include "Common/FramePhaseTiming.h"
  
  #include <cstdio>
++#include <ctime>
  
-@@ -50,6 +51,7 @@ void StaticRecompCore::Run()
+ namespace
+ {
+ constexpr u32 SYNC_EXCEPTION_MASK = ~static_cast<u32>(
+     EXCEPTION_EXTERNAL_INT | EXCEPTION_DECREMENTER | EXCEPTION_PERFORMANCE_MONITOR);
++
++u64 GetCurrentThreadCpuNanoseconds()
++{
++  timespec time{};
++  clock_gettime(CLOCK_THREAD_CPUTIME_ID, &time);
++  return static_cast<u64>(time.tv_sec) * 1'000'000'000 + static_cast<u64>(time.tv_nsec);
++}
+ }
+ 
+ void StaticRecompCore::UpdateProfileCapture()
+@@ -50,6 +59,7 @@ void StaticRecompCore::Run()
    auto& interpreter = m_system.GetInterpreter();
    auto& memory = m_system.GetMemory();
    const CPU::State* state_ptr = m_system.GetCPU().GetStatePtr();
@@ -202,11 +225,12 @@ index 6011078449..500237cf93 100644
  
    m_guest.ram = memory.GetRAM();
    m_guest.ram_size = memory.GetRamSizeReal();
-@@ -68,6 +70,12 @@ void StaticRecompCore::Run()
+@@ -68,6 +78,13 @@ void StaticRecompCore::Run()
  
    while (*state_ptr == CPU::State::Running)
    {
 +    const TimePoint cpu_slice_start = log_phase ? Clock::now() : TimePoint{};
++    const u64 cpu_thread_start = log_phase ? GetCurrentThreadCpuNanoseconds() : 0;
 +    const u64 phase_bursts = m_bursts;
 +    const u64 phase_cycles = m_charged_cycles;
 +    const u64 phase_native_dispatches = m_native_dispatches;
@@ -215,7 +239,7 @@ index 6011078449..500237cf93 100644
      core_timing.Advance();
      UpdateProfileCapture();
      const std::string current_game_id = SConfig::GetInstance().GetGameID();
-@@ -130,7 +138,10 @@ void StaticRecompCore::Run()
+@@ -130,7 +147,10 @@ void StaticRecompCore::Run()
            // Idle loop skipping for configured target loops (e.g. Wii Menu OSIdleThread)
            if (m_guest.pc == m_idle_pc && m_idle_pc != 0)
            {
@@ -226,13 +250,15 @@ index 6011078449..500237cf93 100644
            }
  
            // ctx->timebase is refreshed at burst start (SyncIn), and here we
-@@ -203,6 +214,14 @@ void StaticRecompCore::Run()
+@@ -203,6 +223,16 @@ void StaticRecompCore::Run()
          }
        }
      } while (ppc.downcount > 0 && *state_ptr == CPU::State::Running);
 +    if (log_phase)
 +    {
 +      Common::FramePhaseTiming::AddCpuWall(Clock::now() - cpu_slice_start);
++      Common::FramePhaseTiming::AddCpuThreadNanoseconds(GetCurrentThreadCpuNanoseconds() -
++                                                        cpu_thread_start);
 +      Common::FramePhaseTiming::AddStaticRecompWork(
 +          m_bursts - phase_bursts, m_charged_cycles - phase_cycles,
 +          m_native_dispatches - phase_native_dispatches, m_fallback_steps - phase_fallback_steps,
@@ -242,7 +268,7 @@ index 6011078449..500237cf93 100644
  }
  
 diff --git a/Source/Core/VideoCommon/Present.cpp b/Source/Core/VideoCommon/Present.cpp
-index 7c62730667..3bb2b283f8 100644
+index 7c62730667..724a05e7c6 100644
 --- a/Source/Core/VideoCommon/Present.cpp
 +++ b/Source/Core/VideoCommon/Present.cpp
 @@ -4,6 +4,7 @@
@@ -253,7 +279,7 @@ index 7c62730667..3bb2b283f8 100644
  #include "Core/Config/GraphicsSettings.h"
  #include "Core/Config/MainSettings.h"
  #include "Core/CoreTiming.h"
-@@ -24,10 +25,84 @@
+@@ -24,10 +25,85 @@
  #include "VideoCommon/VideoEvents.h"
  #include "VideoCommon/Widescreen.h"
  
@@ -280,7 +306,7 @@ index 7c62730667..3bb2b283f8 100644
 +      m_file.open(path, std::ios_base::out);
 +      if (!m_file.is_open())
 +        return;
-+      m_file << "frame,total_ms,cpu_wall_ms,cpu_idle_ms,cpu_throttle_sleep_ms,"
++      m_file << "frame,total_ms,cpu_wall_ms,cpu_thread_ms,cpu_idle_ms,cpu_throttle_sleep_ms,"
 +                "cpu_throttle_requested_ms,cpu_throttle_lateness_ms,video_build_ms,present_ms,"
 +                "audio_mix_ms,static_bursts,static_cycles,static_native_dispatches,"
 +                "static_fallback_steps,static_hook_fallbacks\n";
@@ -297,6 +323,7 @@ index 7c62730667..3bb2b283f8 100644
 +    m_file << m_frame++ << ',' << std::fixed << std::setprecision(6)
 +           << milliseconds(frame_start - m_previous_frame_start) << ','
 +           << counter_ms(totals.cpu_wall_ns, m_previous_totals.cpu_wall_ns) << ','
++           << counter_ms(totals.cpu_thread_ns, m_previous_totals.cpu_thread_ns) << ','
 +           << counter_ms(totals.cpu_idle_ns, m_previous_totals.cpu_idle_ns) << ','
 +           << counter_ms(totals.cpu_throttle_sleep_ns,
 +                         m_previous_totals.cpu_throttle_sleep_ns)
@@ -338,7 +365,7 @@ index 7c62730667..3bb2b283f8 100644
  // Stretches the native/internal analog resolution aspect ratio from ~4:3 to ~16:9
  static float SourceAspectRatioToWidescreen(float source_aspect)
  {
-@@ -901,6 +976,7 @@ void Presenter::RenderXFBToScreen(const MathUtil::Rectangle<int>& target_rc,
+@@ -901,6 +977,7 @@ void Presenter::RenderXFBToScreen(const MathUtil::Rectangle<int>& target_rc,
  
  void Presenter::Present(PresentInfo* present_info)
  {
@@ -346,7 +373,7 @@ index 7c62730667..3bb2b283f8 100644
    m_present_count++;
  
    if (g_gfx->IsHeadless() || (!m_onscreen_ui && !m_xfb_entry))
-@@ -951,6 +1027,7 @@ void Presenter::Present(PresentInfo* present_info)
+@@ -951,6 +1028,7 @@ void Presenter::Present(PresentInfo* present_info)
    }
  
    // Present to the window system.
@@ -354,7 +381,7 @@ index 7c62730667..3bb2b283f8 100644
    {
      std::lock_guard<std::mutex> guard(m_swap_mutex);
  
-@@ -967,6 +1044,8 @@ void Presenter::Present(PresentInfo* present_info)
+@@ -967,6 +1045,8 @@ void Presenter::Present(PresentInfo* present_info)
  
      g_gfx->PresentBackbuffer();
    }

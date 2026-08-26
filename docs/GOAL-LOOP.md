@@ -87,12 +87,18 @@ correlate 0.783 with total time. A user-interactive CPU-thread QoS candidate
 removed the 51.412 ms outlier but regressed p95 from 16.975 to 17.031 ms, so it
 was removed.
 
-The next falsifiable step is a matched repeat/control to separate rare host
-preemption from systematic per-dispatch cost before another behavior change.
-Retain a behavior change only if the complete strict Fountain distribution
-improves, then repeat on Final Destination. G5 and the ban on starting G6
-remain in force. See
-`docs/artifacts/2026-08-25/g5-static-work-and-qos-rejection.md`.
+The unchanged repeat reproduced p95 at 16.975 ms and a smaller 21.604 ms
+ordinary-work cluster. Thread CPU timing then showed the tail is mainly on-core
+execution cost: residual off-core time is only 0.018 ms p95 / 0.148 ms p99,
+while tail thread CPU rises by 0.207 ms.
+
+The next falsifiable step is runtime classification of instruction-hook
+fallbacks by class before optimizing one class. Static corrected source has
+325 fallback sites dominated by `mtspr`/`mfspr`, and the runtime executes about
+5,000-7,000 hook fallbacks per frame. Retain a behavior change only if the
+complete strict Fountain distribution improves, then repeat on Final
+Destination. G5 and the ban on starting G6 remain in force. See
+`docs/artifacts/2026-08-25/g5-repeat-and-thread-cpu-attribution.md`.
 
 ## Testing rhythm
 
