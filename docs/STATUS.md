@@ -463,6 +463,20 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   CPU work. Candidate source is removed and the normal signed package is
   restored. Evidence:
   `docs/artifacts/2026-08-26/g5-interrupt-leaf-coalesce-rejection.md`.
+- **PERF-028 (empty forced-fallback preflight rejected):** A corrected
+  out-of-line host benchmark measured the empty-vector guard at only 0.314 ns
+  saved/dispatch, projected as 0.021 ms across a CSS frame. No game build or
+  product change was justified. The major intermittent menu slowdown is now
+  tracked separately from the approximately 0.2 ms strict-tail miss. Evidence:
+  `docs/artifacts/2026-08-26/g5-empty-fallback-preflight.md`.
+- **PERF-029 (menu background pacing attributed; activity hints rejected):** A
+  five-minute normal background CSS soak averaged 59.940 FPS with no sustained
+  sub-55 rolling window, but measured 17.838 ms p95, three 52-85 ms hitches,
+  and 0.925 ms mean wake lateness. An explicitly raised normal control measured
+  16.927 ms p95 and 0.070 ms wake lateness with unchanged CPU work. Apple
+  user-initiated and user-interactive latency-critical activity variants did
+  not change the background result and were removed. Evidence:
+  `docs/artifacts/2026-08-26/g5-menu-background-pacing.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual

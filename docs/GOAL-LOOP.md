@@ -216,6 +216,26 @@ measure the common per-dispatch chassis path, starting with the empty forced-
 fallback-range check, before another cold game build. See
 `docs/artifacts/2026-08-26/g5-interrupt-leaf-coalesce-rejection.md`.
 
+The common-path empty-forced-fallback preflight is also complete without a
+game rebuild. A corrected out-of-line host benchmark measured only 0.314 ns
+saved per dispatch, or 0.021 ms at 67,000 CSS dispatches/frame. That cannot
+explain or repair the strict tail, so no product change was made. Stop shaving
+isolated chassis branches. The next diagnostic is a longer watcher-gated
+normal CSS soak with rolling-window detection for the user's distinct,
+intermittent major menu slowdown. See
+`docs/artifacts/2026-08-26/g5-empty-fallback-preflight.md`.
+
+The longer menu diagnostic separated sustained FPS from pacing. A five-minute
+normal background CSS soak averaged 59.940 FPS and never fell below 55 FPS in
+any rolling 1/2/5/10-second window, but p95 rose to 17.838 ms with three
+52-85 ms hitches and 0.925 ms mean timer wake lateness. A matched explicitly
+raised normal control returned to 16.927 ms p95 and 0.070 ms wake lateness with
+unchanged CPU work. Two lifecycle-balanced `NSProcessInfo` activity variants
+did not improve background pacing and are removed. The next diagnostic must
+record actual application-active transitions and run a longer raised control;
+do not retry activity flags. See
+`docs/artifacts/2026-08-26/g5-menu-background-pacing.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

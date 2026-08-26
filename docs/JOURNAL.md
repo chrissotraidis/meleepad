@@ -1241,3 +1241,37 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Next: host-only benchmark of the common 67,000-dispatch/frame chassis path,
   beginning with the empty forced-fallback-range check. Do not cold-build
   unless the benchmark shows material signal.
+
+## 2026-08-26 — empty forced-fallback preflight rejected
+
+- Goal: determine whether the common empty forced-fallback range scan could
+  materially reduce the roughly 67,000 native dispatches per CSS frame.
+- Audit: excluded the first benchmark because Clang erased the known-empty
+  guarded loop. The corrected out-of-line benchmark ran nine alternating
+  50-million-call trials per path.
+- Result: existing scan 1.661782 ns/dispatch, guarded path 1.347417 ns,
+  projected saving 0.021062 ms/frame. This is too small for another cold build.
+- Cleanup: temporary benchmark source removed; no product, dependency, module,
+  package, runtime, or Simulator changed.
+- Next: longer watched normal CSS soak with rolling-window detection for the
+  separate intermittent major menu slowdown reported by the user.
+
+## 2026-08-26 — menu foreground/background pacing attributed
+
+- Goal: distinguish the user's major animated-menu slowdown from the separate
+  approximately 0.2 ms strict-tail miss.
+- Long soak: 18,000 normal background CSS frames averaged 59.940 FPS and had no
+  rolling 1/2/5/10-second window below 55 FPS, but measured 17.838 ms p95,
+  0.925 ms mean wake lateness, and three 52-85 ms hitches.
+- Matched raised control: 3,600 normal CSS frames measured 16.927 ms p95 and
+  0.070 ms mean wake lateness while CPU work remained comparable. This isolates
+  macOS foreground/background scheduling from renderer or guest compute.
+- Rejections: lifecycle-balanced user-initiated-allowing-idle-sleep and user-
+  interactive activities, each combined with Apple's latency-critical flag,
+  remained at 17.834/17.821 ms p95 and 0.926/0.963 ms mean wake lateness. Both
+  were removed.
+- Cleanup: normal signed runner `c26625db...` and module `2dce1352...` restored;
+  no runtime or Simulator remains. G5 open; Final Destination not run; G6
+  blocked.
+- Next: record real app-active transitions in the phase diagnostic and run a
+  longer raised normal control before considering any focus-policy change.
