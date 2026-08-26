@@ -599,6 +599,18 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   canonical. Next: clean visually gated How-to native sample plus frame-PC
   attribution, then one named routine/helper only. Evidence:
   `docs/artifacts/2026-08-26/g5-front-end-pressure-preflight.md`.
+- **PERF-042 (THP inline FP gate rejected):** The How-to counter trace maps
+  68.09% of CPU samples to generated chunk `0x8032D940` and 11.54% to
+  `0x80331940`; GALE01 symbols identify THP video decompression. A focused
+  inline `MSR.FP` gate removed the sampled 4.40% helper call when FP was
+  enabled and passed generated-C plus exact disabled-exception tests. Its
+  1,401-check lockstep screen preserved the canonical 88 reports, but the
+  candidate grew `__text` by 855,404 bytes and visibly fell to 39.1 FPS in
+  coherent four-player combat. Clean frames 8,050-8,250 averaged 26.055 ms /
+  38.380 FPS with 25.037 ms CPU-thread work and 0% <=16.7 ms. It is removed;
+  product and active source module are canonical. Next: default-off THP-time
+  external-write address histogram before any MMU-validated buffer fast path.
+  Evidence: `docs/artifacts/2026-08-26/g5-thp-fp-gate-rejection.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual

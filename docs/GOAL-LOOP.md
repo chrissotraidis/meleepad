@@ -356,6 +356,18 @@ one named routine/helper optimization with material attribution. G5 remains
 open and G6 remains blocked. See
 `docs/artifacts/2026-08-26/g5-front-end-pressure-preflight.md`.
 
+How-to is now attributed specifically to Nintendo THP video decompression.
+The hot generated chunks cover `THPVideoDecode` and the 640x480/NxN MCU-row
+decompressors; paired-single helpers and generic writes dominate their native
+stacks. A semantic-clean inline `MSR.FP` gate nevertheless grew generated text
+by 855,404 bytes and reduced coherent four-player combat to 38.380 FPS over a
+clean 201-frame bracket, so it is removed. Do not retry global FP gates or
+inline PSQ expansion. The next single experiment is a default-off address
+histogram in the THP-time external-write path. Only a proven stable RAM range
+may justify a focused MMU-validated contiguous-buffer fast path. G5 remains
+open; G6 remains blocked. See
+`docs/artifacts/2026-08-26/g5-thp-fp-gate-rejection.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

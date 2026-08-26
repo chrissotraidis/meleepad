@@ -1628,3 +1628,22 @@ Append-only execution ledger. Claims are limited to observed evidence.
   sample combined with its frame-PC log, followed by one named routine/helper.
 - Evidence:
   `docs/artifacts/2026-08-26/g5-front-end-pressure-preflight.md`.
+
+## 2026-08-26 — THP attribution and inline FP gate rejected
+
+- Existing How-to CPU Counter stacks mapped 68.09% of CPU samples to generated
+  `0x8032D940` and 11.54% to `0x80331940`. GALE01 symbols identify THP video
+  decompression; the instructional fight is a movie, not normal live combat.
+- A regression-first emitter candidate skipped `ppc_fp_available` only when
+  `MSR.FP` was already set. Generated-C compile, enabled execution, and exact
+  disabled-FP exception behavior passed.
+- The candidate lockstep screen passed at 1,401 checks / canonical 88 reports /
+  seven fallback skips / three zero skips / zero undercharges.
+- Candidate text grew 855,404 bytes. Computer Use then verified coherent
+  four-player combat at 39.1 FPS; clean frames 8,050-8,250 averaged 26.055 ms /
+  38.380 FPS and 25.037 ms CPU-thread work. How-to/Fountain were not run after
+  this absolute ordinary-combat failure.
+- Decision: **INLINE FP GATE REJECTED/REMOVED; G5 OPEN; G6 BLOCKED.** Canonical
+  generator/tests/tools/module/product restored; candidate moved to Trash.
+  Next: default-off THP-time external-write address histogram.
+- Evidence: `docs/artifacts/2026-08-26/g5-thp-fp-gate-rejection.md`.
