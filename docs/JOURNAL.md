@@ -1486,7 +1486,7 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Semantic screen: candidate lockstep recorded 499 checks, seven reports, six
   fallback skips, three zero skips, and zero undercharges; no new divergence
   class appeared in the bounded comparison.
-- Visual gate: coherent P1 Pikachu versus CPU Ness on literal Fountain, live
+- Visual gate: coherent P1 Pikachu versus CPU Yoshi on literal Fountain, live
   controls, 60.0 title, and known reference-parity lower-floor reflection.
 - Performance: frames 13,510-17,163 measured 16.739333 ms mean, 17.866794 ms
   p95, 20.801313 ms p99, and 59.740 FPS. Native dispatches rose to
@@ -1537,3 +1537,30 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Next: preserve the existing generated segment boundaries in any dispatcher
   optimization, or first improve the verifier so a boundary transformation can
   be proven equivalent. Do not retry larger monolithic chunks.
+
+## 2026-08-26 — direct verified-chunk table rejected on Fountain
+
+- Mechanism: temporary ABI 4 added a generated function-pointer table parallel
+  to the unchanged 237 chunk ranges. After the chassis's ordinary SMC and
+  host-call guards, it called the already-resolved chunk directly instead of
+  repeating the module's address-to-function search. Segment boundaries,
+  cycle flushes, exceptions, host calls, and event checks were unchanged.
+- Semantic gate: candidate recorded 1,401 checks / 88 reports / seven fallback
+  skips / three zero skips / zero undercharges. The matched canonical control
+  recorded 1,398 / 88 / seven / three / zero with the same printed report
+  sequence. The candidate therefore passed the bounded lockstep screen.
+- Visual correction: the retained selector route visibly produces CPU Yoshi,
+  not Ness. Computer Use verified P1 Pikachu, CPU Yoshi, literal Fountain of
+  Dreams, coherent live combat, and the normal Yoshi winner screen.
+- Performance: clean frames 17,000-21,742 measured 16.933658 ms mean,
+  16.766791 ms p50, 18.752725 ms p95, 20.255358 ms p99, 33.403667 ms worst,
+  and 59.053986 FPS. CPU-thread mean/p95 were 16.646930/18.567576 ms;
+  native dispatches averaged 137,923.653/frame with flat 8,107,174.581 guest
+  cycles/frame. It fails G5 absolutely.
+- Decision: **DIRECT CHUNK TABLE REJECTED/REMOVED; ABI 3 AND GENERIC DISPATCH
+  RESTORED; G5 OPEN; G6 BLOCKED.** Product app/module were never changed;
+  temporary app/build/evidence moved to Trash.
+- Evidence:
+  `docs/artifacts/2026-08-26/g5-direct-chunk-table-rejection.md`.
+- Next: do not retry module lookup/layout shortcuts. Attribute the repeated
+  Fountain-only regression before another dispatch implementation change.

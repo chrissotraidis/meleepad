@@ -298,7 +298,7 @@ acceptance proof. See
 
 The 1,024-instruction generated C chunk candidate is also complete and
 rejected. Although its bounded lockstep screen introduced no new divergence
-class and visible Pikachu/CPU-Ness Fountain remained coherent, the bracket
+class and visible Pikachu/CPU-Yoshi Fountain remained coherent, the bracket
 measured 17.867 ms p95 / 59.740 FPS and native dispatches increased to about
 161,478/frame. Smaller host functions therefore lose to more cross-chunk
 returns. LLVM is not a bounded alternative because the backend rejects Apple
@@ -316,6 +316,19 @@ The generator limit is restored to 4,096. Do not retry larger monolithic
 chunks; preserve canonical segment boundaries or strengthen the equivalence
 proof before transforming them. See
 `docs/artifacts/2026-08-26/g5-c8192-semantic-rejection.md`.
+
+A preserved-boundary direct-chunk table also fails G5 and is removed. ABI 4
+temporarily exposed a generated function pointer parallel to each of the
+canonical 237 verified chunks, letting the chassis skip the module's duplicate
+address-to-function search without changing segment, SMC, host-call, exception,
+cycle, or event boundaries. Its matched lockstep result exactly preserved the
+canonical 88 reports / seven fallback skips / three zero skips / zero
+undercharges. Computer Use then verified Pikachu versus CPU Yoshi, literal
+Fountain, coherent combat, and the result screen. The clean 4,743-frame combat
+bracket nevertheless measured 16.934 ms mean / 18.753 ms p95 / 59.054 FPS.
+Restore ABI 3 and generic dispatch; do not retry module-function lookup/layout
+changes without a new mechanism explaining the repeat Fountain regression. See
+`docs/artifacts/2026-08-26/g5-direct-chunk-table-rejection.md`.
 
 ## Testing rhythm
 

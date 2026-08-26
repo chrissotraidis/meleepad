@@ -541,7 +541,7 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   DolRecomp's 19/20 check, and the backend rejects production targets other
   than x86-64 Linux/Windows. An isolated C backend candidate reduced generated
   chunks from 4,096 to 1,024 instructions and passed a bounded lockstep screen,
-  but visibly verified Pikachu/CPU-Ness Fountain measured 17.867 ms p95 and
+  but visibly verified Pikachu/CPU-Yoshi Fountain measured 17.867 ms p95 and
   only 59.740 FPS. Mean native dispatches rose to 161,478/frame because more
   chunk crossings outweighed smaller host functions. The candidate is removed;
   product module `2dce1352...` is restored. Evidence:
@@ -557,6 +557,16 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   work must preserve canonical segment boundaries or strengthen proof before
   transforming them. Evidence:
   `docs/artifacts/2026-08-26/g5-c8192-semantic-rejection.md`.
+- **PERF-038 (direct verified-chunk table rejected):** A temporary ABI 4
+  exposed 237 generated function pointers parallel to the unchanged verified
+  chunks, removing the module's duplicate address-to-function lookup while
+  preserving every canonical segment/timing/SMC boundary. The matched
+  lockstep screen exactly preserved 88 reports, seven fallback skips, three
+  zero skips, and zero undercharges. Visually verified Pikachu/CPU-Yoshi
+  Fountain then measured 16.934 ms mean, 18.753 ms p95, and only 59.054 FPS
+  over 4,743 clean combat frames. The candidate is removed, ABI 3/generic
+  dispatch are restored, and the product app was never modified. Evidence:
+  `docs/artifacts/2026-08-26/g5-direct-chunk-table-rejection.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual

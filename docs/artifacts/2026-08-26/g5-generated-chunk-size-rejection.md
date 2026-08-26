@@ -33,10 +33,10 @@ acceptance.
 
 ## Visual route
 
-Computer Use verified coherent 59.9 FPS CSS, P1 Pikachu, CPU Ness, the literal
+Computer Use verified coherent 59.9 FPS CSS, P1 Pikachu, CPU Yoshi, the literal
 Fountain of Dreams stage, live 60.0 FPS combat, coherent fighter geometry, and
 only the known reference-parity Fountain lower-floor reflection. The route is
-retained under the accurate CPU-Ness filename; it is not labeled CPU DK.
+retained under the accurate CPU-Yoshi filename; it is not labeled CPU DK.
 
 ## Fountain result
 
