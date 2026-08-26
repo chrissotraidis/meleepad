@@ -57,11 +57,15 @@ Both accounting invariants hold exactly. The executed fallback mix is:
 | `icbi` | 0 | 0 | 0% |
 | `mfspr` / other | 0 | 0 | 0% |
 
-This matters semantically: with Dolphin D-cache emulation disabled, the current
-static-recompiler hook treats `dcbf` and supervisor-mode `dcbi` as cache no-ops
-apart from their five-cycle charge and next PC. Only `icbi` calls
-`InvalidateICacheLine`, and Fountain executed no `icbi` in this bracket. An
-invalidation optimization would therefore target the wrong path.
+## Erratum after source-parity audit
+
+The original version of this report incorrectly described `dcbf` and `dcbi`
+as no-ops when D-cache emulation is disabled. Dolphin's reference interpreter
+calls `JitInterface::InvalidateICacheLine(address)` for `dcbf`, `dcbst`, and
+supervisor-mode `dcbi` in that configuration as a compatibility heuristic for
+games that omit `icbi`. The specialized static-recompiler fallback measured
+above failed to mirror that behavior. Its low fallback volume in tail frames
+is still valid attribution, but the no-op semantic conclusion is withdrawn.
 
 Total frame time was 16.683 ms mean, 16.684 ms median, 17.007 ms p95,
 17.220 ms p99, and 30.478 ms worst. Hook fallbacks correlate -0.059 with total
@@ -70,13 +74,10 @@ CPU rises by 1.019 ms. The fallback volume does not cause tail variance.
 
 ## Decision
 
-Keep the default-off classifier. Do not change invalidation, timer, renderer,
-audio, or scheduling behavior from this result. The one justified experiment
-is to avoid the generated-code -> host-hook -> dispatcher round trip for
-`dcbf`/`dcbi` only when the runtime is in the already-observed D-cache-disabled
-mode, while retaining the five-cycle charge, `dcbi` privilege behavior, and the
-existing fallback for D-cache-enabled configurations. Measure it against the
-same visually verified roster/stage/input route. Retain it only if the complete
-strict Fountain distribution improves; then repeat on Final Destination.
+Keep the default-off classifier. The corrected experiment routes generated C
+cache operations through the existing exact cache-control helper, matching the
+LLVM backend and Dolphin's interpreter semantics without terminating the
+generated block. Its matched result is retained in
+`g5-cache-control-parity.md`; the stale specialized fallback was removed.
 
 G5 remains open. G6 remains prohibited, and no Simulator was booted.

@@ -92,16 +92,27 @@ ordinary-work cluster. Thread CPU timing then showed the tail is mainly on-core
 execution cost: residual off-core time is only 0.018 ms p95 / 0.148 ms p99,
 while tail thread CPU rises by 0.207 ms.
 
-Runtime fallback classification is complete. In 3,692 visually verified
-Fountain frames, `dcbf` contributes 64.295% and `dcbi` 35.672% of all hook
-fallbacks; `icbi` is zero. Counts decrease in the slow tail, so fallback volume
-does not explain tail variance. The next single behavior experiment removes
-the generated-code/host-hook/dispatcher round trip for `dcbf`/`dcbi` only in
-the existing D-cache-disabled mode, preserving cycle charge, privilege checks,
-and the D-cache-enabled fallback. Retain it only if the complete strict
-Fountain distribution improves, then repeat on Final Destination. G5 and the
-ban on starting G6 remain in force. See
-`docs/artifacts/2026-08-25/g5-fallback-subclass-attribution.md`.
+Runtime fallback classification is complete, but its original no-op semantic
+interpretation was wrong. Dolphin invalidates the JIT cache line for `dcbf`,
+`dcbst`, and supervisor-mode `dcbi` when D-cache emulation is disabled. The
+generated C backend now matches the existing LLVM/runtime cache-control path,
+continues the native block, and preserves privilege, cycle, D-cache-enabled,
+and invalidation behavior. The stale specialized fallback was removed.
+
+The exact profile-free matched Fountain comparison improved mean frame time
+from 20.329 to 17.858 ms (-12.153%), p95 from 22.581 to 20.054 ms, p99 from
+23.825 to 21.319 ms, and worst from 33.066 to 27.860 ms. Cache fallbacks fell
+from 6,066.022/frame to zero while 6,064.453 direct cache-helper calls/frame
+remained exactly accounted. Retain the correction, but do not pass G5: only
+19.285% of candidate frames are <=16.7 ms.
+
+The next single experiment is a fresh exact-source PGO generate/use cycle on
+the retained cache-control path because its generated control flow no longer
+resembles the profile's former dominant dispatcher route. Record source,
+module, and profile hashes; visually verify the training corpus; then rerun
+strict Fountain. Run Final Destination only if Fountain passes. G5 and the ban
+on starting G6 remain in force. See
+`docs/artifacts/2026-08-25/g5-cache-control-parity.md`.
 
 ## Testing rhythm
 

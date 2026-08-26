@@ -1,5 +1,33 @@
+diff --git a/src/backend/c_cfg.c b/src/backend/c_cfg.c
+index 3bd8850..51ac4eb 100644
+--- a/src/backend/c_cfg.c
++++ b/src/backend/c_cfg.c
+@@ -7,10 +7,6 @@
+
+ static bool instruction_uses_fallback(const PPCInst* inst) {
+     switch (inst->op) {
+-    case PPC_OP_DCBST:
+-    case PPC_OP_DCBF:
+-    case PPC_OP_DCBI:
+-    case PPC_OP_ICBI:
+     case PPC_OP_UNKNOWN:
+         return true;
+     case PPC_OP_MFSPR:
+@@ -102,6 +98,12 @@ static u32 instruction_cycles(const PPCInst* inst) {
+         return 40;
+     case PPC_OP_DCBZ:
+         return 5;
++    case PPC_OP_DCBST:
++    case PPC_OP_DCBF:
++    case PPC_OP_DCBI:
++        return 5;
++    case PPC_OP_ICBI:
++        return 4;
+     case PPC_OP_DCBTST:
+     case PPC_OP_DCBT:
+         return 2;
 diff --git a/src/backend/emitter.c b/src/backend/emitter.c
-index b7a536a..e76f615 100644
+index b7a536a..012e661 100644
 --- a/src/backend/emitter.c
 +++ b/src/backend/emitter.c
 @@ -969,23 +969,27 @@ static void emit_instruction_with_range(FILE* out, const PPCInst* inst,
@@ -44,19 +72,78 @@ index b7a536a..e76f615 100644
          break;
 
      case PPC_OP_FSEL:
+@@ -1536,11 +1541,21 @@ static void emit_instruction_with_range(FILE* out, const PPCInst* inst,
+     case PPC_OP_DCBST:
+     case PPC_OP_DCBF:
+     case PPC_OP_DCBI:
+-    case PPC_OP_ICBI:
+-        fprintf(out, "    ppc_fallback_instruction(ctx, 0x%08Xu, 0x%08Xu);\n",
+-                inst->raw, inst->address);
+-        fprintf(out, "    return;\n");
++    case PPC_OP_ICBI: {
++        const char* operation = "PPC_CACHE_ICBI";
++        if (inst->op == PPC_OP_DCBST)
++            operation = "PPC_CACHE_DCBST";
++        else if (inst->op == PPC_OP_DCBF)
++            operation = "PPC_CACHE_DCBF";
++        else if (inst->op == PPC_OP_DCBI)
++            operation = "PPC_CACHE_DCBI";
++        fprintf(out, "    {\n        u32 ea = ");
++        emit_xform_ea(out, inst->rA, inst->rB, false);
++        fprintf(out, ";\n        ppc_cache_control(ctx, %s, ea, 0x%08Xu);\n",
++                operation, inst->address);
++        fprintf(out, "        if (ctx->exception) return;\n    }\n");
+         break;
++    }
+
+     case PPC_OP_DCBTST:
+     case PPC_OP_DCBT:
+diff --git a/tests/cmake/codegen_compile.cmake b/tests/cmake/codegen_compile.cmake
+index f9c0feb..e48e3e4 100644
+--- a/tests/cmake/codegen_compile.cmake
++++ b/tests/cmake/codegen_compile.cmake
+@@ -45,8 +45,11 @@ endif()
+ if(NOT generated_source MATCHES "if \\(!ppc_fp_available\\(ctx, 0x8000317Cu\\)\\) return;")
+     message(FATAL_ERROR "generated floating-point code has no MSR FP gate")
+ endif()
+-if(NOT generated_source MATCHES "ppc_fallback_instruction\\(ctx, 0x7C13A0ACu")
+-    message(FATAL_ERROR "dcbf codegen does not route through the environment fallback")
++if(NOT generated_source MATCHES "ppc_cache_control\\(ctx, PPC_CACHE_DCBF")
++    message(FATAL_ERROR "dcbf codegen does not route through exact cache control")
++endif()
++if(generated_source MATCHES "ppc_fallback_instruction\\(ctx, 0x7C13A0ACu")
++    message(FATAL_ERROR "dcbf codegen still terminates through the generic fallback")
+ endif()
+
+ get_filename_component(output_dir "${OUTPUT_C}" DIRECTORY)
 diff --git a/tests/test_c_execute.c b/tests/test_c_execute.c
-index 36d5b8d..dddf186 100644
+index 36d5b8d..486423f 100644
 --- a/tests/test_c_execute.c
 +++ b/tests/test_c_execute.c
-@@ -4,6 +4,7 @@
+@@ -4,6 +4,22 @@
 
  void func_80004020(CPUState* ctx);
  void func_80004040(CPUState* ctx);
 +void func_80004060(CPUState* ctx);
++void func_80004080(CPUState* ctx);
++
++static u32 cache_calls;
++static u8 cache_operations[2];
++static u32 cache_addresses[2];
++
++static void cache_control(CPUState* cpu, u8 operation, u32 ea, u32 cia) {
++    (void)cpu;
++    (void)cia;
++    if (cache_calls < 2) {
++        cache_operations[cache_calls] = operation;
++        cache_addresses[cache_calls] = ea;
++    }
++    cache_calls++;
++}
 
  int main(void) {
      CPUState cpu;
-@@ -47,6 +48,39 @@ int main(void) {
+@@ -47,6 +63,66 @@ int main(void) {
                  cpu.pc, cpu.gpr[3], cpu.gpr[4], cpu.gpr[5], calls);
      }
 
@@ -93,15 +180,42 @@ index 36d5b8d..dddf186 100644
 +                cpu.fpr[13], cpu.ps1[13], cpu.fpscr, cpu.cr);
 +    }
 +
++    cpu.pc = 0x80004080u;
++    cpu.lr = 0x81234564u;
++    cpu.gpr[3] = 0x80001000u;
++    cpu.gpr[4] = 0x40u;
++    cpu.gpr[5] = 0;
++    cpu.msr = 0;
++    cpu.exception = 0;
++    cpu.downcount = 0;
++    cpu.cache_control = cache_control;
++    cache_calls = 0;
++    func_80004080(&cpu);
++    int cache_control_ok = cpu.pc == cpu.lr && cpu.gpr[5] == 2 &&
++                           cache_calls == 2 &&
++                           cache_operations[0] == PPC_CACHE_DCBF &&
++                           cache_operations[1] == PPC_CACHE_DCBI &&
++                           cache_addresses[0] == 0x80001040u &&
++                           cache_addresses[1] == 0x80001040u &&
++                           cpu.downcount == -13;
++    if (!cache_control_ok) {
++        fprintf(stderr,
++                "cache control pc=%08X r5=%u calls=%u ops=(%u,%u) "
++                "ea=(%08X,%08X) downcount=%lld exception=%08X\n",
++                cpu.pc, cpu.gpr[5], cache_calls, cache_operations[0],
++                cache_operations[1], cache_addresses[0], cache_addresses[1],
++                (long long)cpu.downcount, cpu.exception);
++    }
++
      cpu_free(&cpu);
 -    return !(integer_ok && memory_ok);
-+    return !(integer_ok && memory_ok && scalar_single_ok);
++    return !(integer_ok && memory_ok && scalar_single_ok && cache_control_ok);
  }
 diff --git a/tests/test_codegen_emit.c b/tests/test_codegen_emit.c
-index a6d5380..fa8c7b4 100644
+index a6d5380..21d2aaa 100644
 --- a/tests/test_codegen_emit.c
 +++ b/tests/test_codegen_emit.c
-@@ -155,6 +155,16 @@ int main(int argc, char** argv) {
+@@ -155,6 +155,25 @@ int main(int argc, char** argv) {
      if (!emit_function(out, memory_loop, 6, BASE + 0x1040))
          return 1;
 
@@ -115,16 +229,26 @@ index a6d5380..fa8c7b4 100644
 +    if (!emit_function(out, scalar_single, 6, BASE + 0x1060))
 +        return 1;
 +
++    PPCInst cache_control[5];
++    cache_control[0] = ppc_decode(0x7C0320ACu, BASE + 0x1080); /* dcbf r3,r4 */
++    cache_control[1] = ppc_decode(0x38A50001u, BASE + 0x1084); /* addi r5,r5,1 */
++    cache_control[2] = ppc_decode(0x7C0323ACu, BASE + 0x1088); /* dcbi r3,r4 */
++    cache_control[3] = ppc_decode(0x38A50001u, BASE + 0x108C); /* addi r5,r5,1 */
++    cache_control[4] = ppc_decode(0x4E800020u, BASE + 0x1090); /* blr */
++    if (!emit_function(out, cache_control, 5, BASE + 0x1080))
++        return 1;
++
      FunctionList funcs = {0};
      if (!function_list_add(&funcs, BASE, BASE + (u32)count * 4u) ||
          !function_list_add(&funcs, BASE + 0x1000, BASE + 0x100C) ||
-@@ -162,7 +172,8 @@ int main(int argc, char** argv) {
+@@ -162,7 +181,9 @@ int main(int argc, char** argv) {
          !function_list_add(&funcs, BASE + 0x1018, BASE + 0x101C) ||
          !function_list_add(&funcs, BASE + 0x1020, BASE + 0x1030) ||
          !function_list_add(&funcs, BASE + 0x1030, BASE + 0x1040) ||
 -        !function_list_add(&funcs, BASE + 0x1040, BASE + 0x1058)) {
 +        !function_list_add(&funcs, BASE + 0x1040, BASE + 0x1058) ||
-+        !function_list_add(&funcs, BASE + 0x1060, BASE + 0x1078)) {
++        !function_list_add(&funcs, BASE + 0x1060, BASE + 0x1078) ||
++        !function_list_add(&funcs, BASE + 0x1080, BASE + 0x1094)) {
          function_list_free(&funcs);
          free(insts);
          if (out != stdout) fclose(out);

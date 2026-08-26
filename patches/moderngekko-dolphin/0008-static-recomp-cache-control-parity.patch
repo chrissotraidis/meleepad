@@ -1,0 +1,153 @@
+diff --git a/Source/Core/Common/FramePhaseTiming.h b/Source/Core/Common/FramePhaseTiming.h
+index 6c793ed42a..ac6791c318 100644
+--- a/Source/Core/Common/FramePhaseTiming.h
++++ b/Source/Core/Common/FramePhaseTiming.h
+@@ -29,6 +29,11 @@ inline std::atomic<u64> s_static_recomp_fallback_dcbf{0};
+ inline std::atomic<u64> s_static_recomp_fallback_dcbi{0};
+ inline std::atomic<u64> s_static_recomp_fallback_icbi{0};
+ inline std::atomic<u64> s_static_recomp_fallback_other{0};
++inline std::atomic<u64> s_static_recomp_cache_controls{0};
++inline std::atomic<u64> s_static_recomp_cache_control_dcbst{0};
++inline std::atomic<u64> s_static_recomp_cache_control_dcbf{0};
++inline std::atomic<u64> s_static_recomp_cache_control_dcbi{0};
++inline std::atomic<u64> s_static_recomp_cache_control_icbi{0};
+ inline std::atomic<u64> s_audio_mix_ns{0};
+
+ inline bool IsEnabled()
+@@ -118,6 +123,28 @@ inline void AddStaticRecompFallback(u32 raw)
+     s_static_recomp_fallback_other.fetch_add(1, std::memory_order_relaxed);
+ }
+
++inline void AddStaticRecompCacheControl(u8 operation)
++{
++  s_static_recomp_cache_controls.fetch_add(1, std::memory_order_relaxed);
++  switch (operation)
++  {
++  case 0:
++    s_static_recomp_cache_control_dcbst.fetch_add(1, std::memory_order_relaxed);
++    break;
++  case 1:
++    s_static_recomp_cache_control_dcbf.fetch_add(1, std::memory_order_relaxed);
++    break;
++  case 2:
++    s_static_recomp_cache_control_dcbi.fetch_add(1, std::memory_order_relaxed);
++    break;
++  case 3:
++    s_static_recomp_cache_control_icbi.fetch_add(1, std::memory_order_relaxed);
++    break;
++  default:
++    break;
++  }
++}
++
+ inline void AddAudioMix(DT duration)
+ {
+   s_audio_mix_ns.fetch_add(ToNanoseconds(duration), std::memory_order_relaxed);
+@@ -144,6 +171,11 @@ struct Totals
+   u64 static_recomp_fallback_dcbi;
+   u64 static_recomp_fallback_icbi;
+   u64 static_recomp_fallback_other;
++  u64 static_recomp_cache_controls;
++  u64 static_recomp_cache_control_dcbst;
++  u64 static_recomp_cache_control_dcbf;
++  u64 static_recomp_cache_control_dcbi;
++  u64 static_recomp_cache_control_icbi;
+   u64 audio_mix_ns;
+ };
+
+@@ -169,6 +201,11 @@ inline Totals GetTotals()
+       s_static_recomp_fallback_dcbi.load(std::memory_order_relaxed),
+       s_static_recomp_fallback_icbi.load(std::memory_order_relaxed),
+       s_static_recomp_fallback_other.load(std::memory_order_relaxed),
++      s_static_recomp_cache_controls.load(std::memory_order_relaxed),
++      s_static_recomp_cache_control_dcbst.load(std::memory_order_relaxed),
++      s_static_recomp_cache_control_dcbf.load(std::memory_order_relaxed),
++      s_static_recomp_cache_control_dcbi.load(std::memory_order_relaxed),
++      s_static_recomp_cache_control_icbi.load(std::memory_order_relaxed),
+       s_audio_mix_ns.load(std::memory_order_relaxed),
+   };
+ }
+diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Hooks.cpp b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Hooks.cpp
+index f5d3de352b..825d12490f 100644
+--- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Hooks.cpp
++++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Hooks.cpp
+@@ -340,7 +340,8 @@ void StaticRecompCore::HookSPRWrite(CPUState* cpu, u16 spr, u32 value, u32 cia)
+ void StaticRecompCore::HookCacheControl(CPUState* cpu, u8 operation, u32 ea, u32 cia)
+ {
+   auto* core = static_cast<StaticRecompCore*>(cpu->external_user_data);
+-  ea = core->TranslateRelAddress(ea);
++  if (Common::FramePhaseTiming::IsEnabled())
++    Common::FramePhaseTiming::AddStaticRecompCacheControl(operation);
+   core->PropagateGuestMSR();
+   auto& ppc = core->m_system.GetPPCState();
+   auto& mmu = core->m_system.GetMMU();
+@@ -392,33 +393,6 @@ void StaticRecompCore::HookInstructionFallback(CPUState* cpu, u32 raw, u32 cia)
+   auto& system = core->m_system;
+   auto& ppc = system.GetPPCState();
+
+-  // Fast path for dcbf/dcbst/dcbi/icbi: streaming code flushes caches in
+-  // 32-byte loops (thousands per frame), and these ops read two GPRs and
+-  // change no CPU state, so they run straight off ctx without the full
+-  // SyncOut/interpreter/SyncIn round trip. This mirrors Dolphin's
+-  // interpreter with dcache emulation off: every one funnels into
+-  // InvalidateICacheLine (keeping the SMC guard exact). dcbi's PR!=0
+-  // privilege trap and dcache-on configs take the slow path.
+-  if ((raw >> 26) == 31u && !ppc.m_enable_dcache)
+-  {
+-    const u32 xo = (raw >> 1) & 0x3FFu;
+-    if (xo == 86u || xo == 54u || xo == 982u || (xo == 470u && (cpu->msr & 0x4000u) == 0))
+-    {
+-      const u32 ra = (raw >> 16) & 31u;
+-      const u32 rb = (raw >> 11) & 31u;
+-      const u32 ea = (ra ? cpu->gpr[ra] : 0u) + cpu->gpr[rb];
+-      if (xo == 982u)
+-      {
+-        system.GetJitInterface().InvalidateICacheLine(ea);
+-      }
+-      // These bypass SingleStepInner, so charge Dolphin's PPCTables cost
+-      // here (icbi 4, dcbf/dcbst/dcbi 5); their emitted block cost is zero.
+-      ppc.downcount -= (xo == 982u) ? 4 : 5;
+-      cpu->pc = cia + 4u;
+-      return;
+-    }
+-  }
+-
+   // The recompiled segment resumes via the dispatcher at the PC this leaves
+   // behind, so this must execute exactly the instruction at cia via
+   // Dolphin's interpreter and hand the register state back.
+diff --git a/Source/Core/VideoCommon/Present.cpp b/Source/Core/VideoCommon/Present.cpp
+index 1cbe685233..aee78c0299 100644
+--- a/Source/Core/VideoCommon/Present.cpp
++++ b/Source/Core/VideoCommon/Present.cpp
+@@ -53,7 +53,8 @@ public:
+                 "audio_mix_ms,static_bursts,static_cycles,static_native_dispatches,"
+                 "static_fallback_steps,static_hook_fallbacks,fallback_mfspr,fallback_mtspr,"
+                 "fallback_cache,fallback_dcbst,fallback_dcbf,fallback_dcbi,fallback_icbi,"
+-                "fallback_other\n";
++                "fallback_other,cache_controls,cache_control_dcbst,cache_control_dcbf,"
++                "cache_control_dcbi,cache_control_icbi\n";
+       m_previous_frame_start = frame_start;
+       m_previous_totals = Common::FramePhaseTiming::GetTotals();
+     }
+@@ -114,6 +115,21 @@ public:
+            << ','
+            << totals.static_recomp_fallback_other -
+                   m_previous_totals.static_recomp_fallback_other
++           << ','
++           << totals.static_recomp_cache_controls -
++                  m_previous_totals.static_recomp_cache_controls
++           << ','
++           << totals.static_recomp_cache_control_dcbst -
++                  m_previous_totals.static_recomp_cache_control_dcbst
++           << ','
++           << totals.static_recomp_cache_control_dcbf -
++                  m_previous_totals.static_recomp_cache_control_dcbf
++           << ','
++           << totals.static_recomp_cache_control_dcbi -
++                  m_previous_totals.static_recomp_cache_control_dcbi
++           << ','
++           << totals.static_recomp_cache_control_icbi -
++                  m_previous_totals.static_recomp_cache_control_icbi
+            << '\n';
+
+     m_previous_frame_start = frame_start;

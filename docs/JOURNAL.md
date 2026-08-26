@@ -963,3 +963,32 @@ Append-only execution ledger. Claims are limited to observed evidence.
   `dcbf`/`dcbi` host-hook/dispatcher round trip only when D-cache emulation is
   disabled; retain only on strict matched Fountain improvement, then verify
   Final Destination. No Simulator work.
+
+## 2026-08-25 — Generated cache-control parity correction
+
+- Goal: execute the report-adjusted fallback experiment only after verifying
+  the claimed cache semantics against Dolphin's source.
+- Semantic correction: the prior no-op claim was wrong. Dolphin invalidates a
+  JIT cache line for `dcbf`, `dcbst`, and supervisor-mode `dcbi` when D-cache
+  emulation is disabled. The old specialized fallback did not mirror that
+  behavior and was removed.
+- Implementation: generated C now matches LLVM by emitting the live effective
+  address, calling `ppc_cache_control`, checking exceptions, and continuing the
+  native block. Exact privilege, cycle, `icbi`, D-cache-enabled, and
+  D-cache-disabled invalidation behavior remains in the runtime helper.
+- Verification: DolRecomp passes 14/14 focused tests. All 14 generated GALE01r0
+  cache sites use the helper, zero use raw fallbacks, and a populated smoke
+  recorded 8,188,076 exactly classified direct cache operations.
+- Matched route: profile-free control and candidate both used P1 Pikachu versus
+  level-1 CPU Ice Climbers, an explicitly verified Fountain highlight, coherent
+  live gameplay, and the same capture-free 20-cycle combat script.
+- Result: mean/p95/p99/worst improved from
+  20.329/22.581/23.825/33.066 ms to 17.858/20.054/21.319/27.860 ms. Cache
+  fallbacks fell from 6,066.022/frame to zero while direct helper calls averaged
+  6,064.453/frame with exact subclass accounting. **CORRECTION RETAINED; G5
+  OPEN.** Only 19.285% of frames meet 16.7 ms. No Simulator was booted.
+- Evidence: `docs/artifacts/2026-08-25/g5-cache-control-parity.md` and its two
+  retained CSVs.
+- Next: collect a fresh exact-source PGO corpus on the retained cache path with
+  source/module/profile hashes, then rerun strict Fountain. Attempt Final
+  Destination only if Fountain passes; do not start G6.
