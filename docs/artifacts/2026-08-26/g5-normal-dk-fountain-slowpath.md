@@ -67,3 +67,13 @@ sample of the slow DK scene, compared with the fast Kirby control, to identify
 the generated chunks or host helpers whose cost per dispatch changes. Menu
 slowdown remains in the regression scope. Final Destination and G6 remain
 blocked until the strict Fountain distribution passes.
+
+## Subsequent correction
+
+A fresh cold normal-runner replay of the same Pikachu/level-1-CPU-DK/Fountain
+roster visibly held 59.8-59.9 FPS through active combat and results. This
+falsifies the claim above that DK is a deterministic content trigger. The
+50.605 FPS CSV remains a valid slowdown observation, but the current evidence
+supports an intermittent host/path-state cause, not roster attribution. Its
+external sample found the known scheduler idle loop at the top of 156/886 CPU-
+thread samples. See `g5-idle-precharge-rejection.md`.

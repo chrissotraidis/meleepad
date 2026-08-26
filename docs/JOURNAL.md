@@ -1118,3 +1118,35 @@ Append-only execution ledger. Claims are limited to observed evidence.
   matched fast Kirby control, then identify the generated chunks or host
   helpers whose cost per dispatch changes. Do not return to timer tuning or
   add a new branch to every dispatch.
+
+## 2026-08-26 — Fresh DK correction and idle-precharge rejection
+
+- Goal: externally profile the claimed DK slow path without changing the
+  dispatch loop, then test the smallest mechanism implicated by the sample.
+- Normal correction: watcher-first cold boot visibly established P1 Pikachu,
+  level-1 CPU DK, explicit Fountain of Dreams, coherent combat, Cubeb, and
+  results. The normal signed runner held 59.8-59.9 FPS during combat and at
+  results. No phase logger was enabled, so this is not strict G5 timing, but it
+  falsifies deterministic DK attribution. The earlier 50.605 FPS interval is
+  retained as a real intermittent slowdown.
+- External attribution: 776/886 normal CPU-thread samples were in
+  `StaticRecompCore::Run`; 156/886 had known scheduler poll `loop_80349494` at
+  the top despite the full-speed title.
+- Candidate: a production-header regression failed before the helper and
+  passed after implementation. The signed runner precharged the generated
+  downcount only when a burst began at the configured idle PC, preserving the
+  256-cycle boundary while intending to return after one poll.
+- Result: the visually verified Pikachu/CPU-DK/Fountain candidate bracket had
+  4,090 capture-free rows and measured 16.742/17.577/19.527/152.055 ms
+  mean/p95/p99/worst, 59.731 FPS, and 55.110% <=16.7 ms. A candidate sample
+  still put `loop_80349494` atop 183/890 CPU-thread samples. Melee reaches the
+  loop after burst entry, so the mechanism misses it. **CANDIDATE REJECTED AND
+  REMOVED; G5 OPEN; FD NOT RUN; G6 BLOCKED.**
+- Cleanup: normal runner SHA `c26625db...` and corrected module `2dce1352...`
+  are restored and signed; no runtime or Simulator remains.
+- Evidence: `docs/artifacts/2026-08-26/g5-idle-precharge-rejection.md`, both
+  external samples, candidate CSV, and retained normal/candidate/results PNGs.
+- Next: locally emit a return after the first taken poll at the exact generated
+  idle branch, prove one-poll/wake semantics, then run a matched normal-versus-
+  candidate phase pair. Retain only if the sample loses the loop and the
+  complete strict distribution improves.

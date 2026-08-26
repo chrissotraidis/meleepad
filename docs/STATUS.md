@@ -212,13 +212,23 @@ restored. A clean normal-runner Pikachu-versus-level-1-CPU-Donkey-Kong Fountain
 interval still averaged 19.761 ms / 50.605 FPS, with 21.551 ms p95 and only
 2.000% of frames at or below 16.7 ms. Its CPU thread averaged 19.575 ms despite
 fewer native dispatches than the earlier 59.932 FPS Pikachu/Kirby control.
-This proves a real roster/scene-sensitive CPU slow path. Animated menus also
-visibly slow, so menu behavior remains in the regression scope; only the exact
+This proves a real slowdown interval, but a fresh cold replay of the same
+Pikachu/CPU-DK/Fountain roster then visibly held 59.8-59.9 FPS through active
+combat and results. DK is therefore not a deterministic trigger; the slowdown
+is intermittent or host/path-state dependent. Animated menus also visibly
+slow, so menu behavior remains in the regression scope; only the exact
 classifier's menu reading is numeric and therefore cannot be used as a clean
-baseline. The next experiment is a non-invasive, phase-gated native sample of
-the slow DK scene versus the fast Kirby control, not more timer tuning or hot-
-path counter instrumentation. See
-`docs/artifacts/2026-08-26/g5-normal-dk-fountain-slowpath.md`.
+baseline.
+
+The fresh normal external sample found the known scheduler idle poll
+`loop_80349494` atop 156/886 CPU-thread samples even in the full-speed replay.
+A burst-entry idle precharge candidate did not remove it (183/890 candidate
+samples), and its clean 4,090-frame phase bracket still failed at 17.577 ms p95
+/ 19.527 ms p99. The candidate and test helper were removed; the normal signed
+runner is restored. The next experiment must return from the exact generated
+idle branch after one poll and then pass a matched semantic/sample/phase test,
+not add work to every dispatch. See
+`docs/artifacts/2026-08-26/g5-idle-precharge-rejection.md`.
 
 ## Goal ledger
 
@@ -229,7 +239,7 @@ path counter instrumentation. See
 | G2 Module recompiles and links | Pass | `docs/artifacts/2026-08-24/g2-module-and-package.md` |
 | G3 macOS boots to title | Pass | `docs/artifacts/2026-08-24/g3-macos-title-and-input.md`; retained title and A-transition screenshots |
 | G4 macOS playable | Pass | `docs/artifacts/2026-08-24/g4-controlled-match.md`; clean CSS -> 1v1 -> results plus live Cubeb/CoreAudio mixing evidence |
-| G5 macOS 60 fps | In progress | Cache-control parity retained; PGO, busy-spin pacing, and observer-heavy dispatch attribution rejected. Normal Pikachu/DK Fountain proves a real slow path: 19.761 ms mean / 21.551 ms p95 / 50.605 FPS. Native slow-vs-fast sample next |
+| G5 macOS 60 fps | In progress | Cache-control parity retained; PGO, busy-spin, observer-heavy attribution, and burst-entry idle precharge rejected. One DK run fell to 50.605 FPS but a fresh identical-roster replay held 59.8-59.9, so the slowdown is intermittent. Exact generated idle-branch return next |
 | G6 Simulator core boots | Not started | G5 first; no Simulator booted |
 | G7 Shell ported | Not started | G6 first |
 | G8 Test matrix green | Not started | G7 first |

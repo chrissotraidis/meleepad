@@ -146,18 +146,24 @@ dispatch.
 Dispatch-return attribution was then screened at exact, one-in-256, and
 piggybacked one-in-4096 rates. Exact classification visibly reduced Stage
 Select to about 44.5 FPS; the sampled variants also could not rule out observer
-cost, so all attribution code was removed. A matched run with the restored
-normal signed runner then proved a real content-sensitive slow path: Pikachu
-versus CPU Donkey Kong on Fountain averaged 19.761 ms / 50.605 FPS, with a
-19.575 ms CPU-thread mean, despite fewer native dispatches and essentially the
-same guest-cycle budget as the 59.932 FPS Pikachu/Kirby control. Animated-menu
-slowdown is also in the regression scope, though it does not yet have a clean
-numeric bracket. The next single experiment is a non-invasive, phase-gated
-native CPU sample of slow DK versus fast Kirby to identify the generated chunk
-or host helper responsible for the higher cost per dispatch. Do not retry
-timer variants, hot-path instrumentation, or the rejected 1024-cycle loop
-budget; do not run Final Destination or start G6. See
-`docs/artifacts/2026-08-26/g5-normal-dk-fountain-slowpath.md`.
+cost, so all attribution code was removed. One restored normal-runner
+Pikachu/CPU-DK Fountain interval did average 19.761 ms / 50.605 FPS with a
+19.575 ms CPU-thread mean. A fresh cold replay of the same roster then visibly
+held 59.8-59.9 FPS through combat and results, falsifying deterministic roster
+attribution. The slowdown is real but intermittent or host/path-state
+dependent. Animated-menu slowdown remains in the regression scope, though it
+does not yet have a clean numeric bracket.
+
+The fresh normal external sample put the known scheduler poll
+`loop_80349494` atop 156/886 CPU-thread samples even at full speed. A burst-
+entry idle precharge candidate failed mechanistically: its sample still had
+the loop atop 183/890 samples and its 4,090-frame phase bracket failed G5 at
+17.577 ms p95 / 19.527 ms p99. It was removed. The next single experiment is a
+local generated-branch early return after one taken poll at the exact idle PC,
+followed by a focused semantic test and a matched phase-logged Fountain pair.
+Do not add a check to every dispatch, retry timer variants, or retry the
+rejected global loop budgets; do not run Final Destination or start G6. See
+`docs/artifacts/2026-08-26/g5-idle-precharge-rejection.md`.
 
 ## Testing rhythm
 
