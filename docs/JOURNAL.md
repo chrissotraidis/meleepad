@@ -1197,3 +1197,27 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Next: instrument phase-log frame/present sequence and throttle-target
   identity on the normal path. Attribute the residual 16.89-16.93 ms tail
   before any further behavior change.
+
+## 2026-08-26 — CSS tail isolated before VI output
+
+- Goal: distinguish CPU-slice/throttle alignment, SyncGPU, video queue, and
+  presentation as causes of the strict CSS tail.
+- Identity result: every retained row was a unique VI frame with two CPU
+  throttles and roughly 611 CPU slices. Intended-present and last CPU-target
+  cadence were exact at 16.683333/16.683334 ms; slice count did not rise in the
+  p95 tail.
+- Boundary result: `SyncGPU` was about 0.0001 ms and video queue/service about
+  0.03 ms. CPU VI output was already 1.092 ms late on average and 1.313 ms at
+  p95. Last-throttle-end to VI-output wall time rose from 2.452 ms/body to
+  3.176 ms/tail; CPU-thread work rose by about 0.68 ms while timer lateness did
+  not rise.
+- CSS-only PC result: the existing one-in-4096 sampler, gated to post-throttle
+  CSS only, ranked `0x80349494` at 12,895 samples, `0x80345738` at 3,121, and
+  `0x80345760` at 3,118. The latter two are the generated MSR.EE disable/restore
+  leaf helpers.
+- Cleanup: all temporary boundary/sampler code removed; normal runner
+  `c26625db...` and module `2dce1352...` restored and signed. No runtime or
+  Simulator remains. G5 open; Final Destination not run; G6 blocked.
+- Next: focused semantic test and local module-level coalescing of only
+  `0x80345738`/`0x80345760`. Retain only if both sampled leaf PCs disappear and
+  the matched CSS distribution improves; do not combine the idle shortcut.

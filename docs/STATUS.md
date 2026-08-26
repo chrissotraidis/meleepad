@@ -446,6 +446,15 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   normal control. All product changes are removed; the diagnostic harness is
   retained. Evidence:
   `docs/artifacts/2026-08-26/g5-menu-pacing-followup-rejections.md`.
+- **PERF-026 (CSS boundary attribution retained):** Three watched normal CSS
+  brackets proved intended-present and CPU target cadence are exact. Tail rows
+  do not add CPU slices/throttle calls; `SyncGPU` is about 0.0001 ms and video
+  queue/service about 0.03 ms. The variable 2.452 ms/body versus 3.176 ms/tail
+  interval is CPU work after throttle and before VI output. A CSS-only,
+  post-throttle piggyback sample ranked scheduler poll `0x80349494` first and
+  `OSDisableInterrupts`/`OSRestoreInterrupts` leaves `0x80345738`/`0x80345760`
+  second/third. Diagnostic code is removed; G5 remains open. Evidence:
+  `docs/artifacts/2026-08-26/g5-css-boundary-attribution.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual

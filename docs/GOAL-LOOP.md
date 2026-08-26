@@ -190,6 +190,21 @@ log attribution of CPU-slice, throttle-target, and present-frame boundaries;
 do not retry timer or generated-loop variants. See
 `docs/artifacts/2026-08-26/g5-menu-pacing-followup-rejections.md`.
 
+Phase-boundary attribution is complete. Across three watcher-gated normal CSS
+brackets, intended-present and CPU throttle targets advanced at exact
+16.683333/16.683334 ms cadence. Tail rows did not add CPU slices or throttle
+calls. `SyncGPU` cost about 0.0001 ms, video queue/service about 0.03 ms, and
+presentation work remained tiny. The CPU reached VI output 1.092 ms after the
+intended target on average and 1.313 ms at p95; the last-throttle-end to VI-
+output wall interval rose from 2.452 ms/body to 3.176 ms/tail. A CSS-only,
+post-throttle piggyback sample ranked scheduler poll `0x80349494` first and the
+tiny interrupt leaves `0x80345738`/`0x80345760` second/third at 3,121/3,118
+samples. Diagnostic code is removed. The next single experiment is exact
+module-level coalescing of only those two interrupt leaves, with a focused
+semantic regression first. Do not combine it with the rejected idle collapse
+or change timer/SyncGPU/queue/Metal. See
+`docs/artifacts/2026-08-26/g5-css-boundary-attribution.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).
