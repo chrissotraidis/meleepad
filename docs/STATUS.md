@@ -239,7 +239,7 @@ not add work to every dispatch. See
 | G2 Module recompiles and links | Pass | `docs/artifacts/2026-08-24/g2-module-and-package.md` |
 | G3 macOS boots to title | Pass | `docs/artifacts/2026-08-24/g3-macos-title-and-input.md`; retained title and A-transition screenshots |
 | G4 macOS playable | Pass | `docs/artifacts/2026-08-24/g4-controlled-match.md`; clean CSS -> 1v1 -> results plus live Cubeb/CoreAudio mixing evidence |
-| G5 macOS 60 fps | In progress | Cache-control parity retained; PGO, busy-spin, observer-heavy attribution, and burst-entry idle precharge rejected. One DK run fell to 50.605 FPS but a fresh identical-roster replay held 59.8-59.9, so the slowdown is intermittent. Exact generated idle-branch return next |
+| G5 macOS 60 fps | In progress | Cache-control parity retained; PGO, busy-spin, idle shortcuts, activity hints, and focus causality rejected. A CSS-gated trigger captured a one-second 54.918 FPS hitch cluster as off-core host delay, while 2/5/10-second windows held 57.316/58.866/59.399 FPS. Return to the normal required-stage strict tail; reopen the major-menu branch only for a multi-second sub-55 recurrence |
 | G6 Simulator core boots | Not started | G5 first; no Simulator booted |
 | G7 Shell ported | Not started | G6 first |
 | G8 Test matrix green | Not started | G7 first |
@@ -477,6 +477,21 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   user-initiated and user-interactive latency-critical activity variants did
   not change the background result and were removed. Evidence:
   `docs/artifacts/2026-08-26/g5-menu-background-pacing.md`.
+- **PERF-030 (focus attribution withdrawn):** A single verified normal CSS
+  process ran foreground, background, then foreground again. The final 3,600
+  complete rows of each stable segment all averaged 59.940 FPS, with
+  16.912/16.928/16.934 ms p95 and 0.077/0.072/0.074 ms mean wake lateness.
+  Focus did not reproduce the earlier cross-process pacing difference, so no
+  focus policy is justified. The normal product is unchanged; G5 remains open.
+  Evidence: `docs/artifacts/2026-08-26/g5-active-transition-pacing.md`.
+- **PERF-031 (CSS-armed hitch captured):** A default-off rolling trigger was
+  armed only after MemoryWatcher proved VS CSS. After four minutes it captured
+  a 54.918 FPS one-second window containing 70.344/37.102/33.618 ms hitches.
+  CPU-thread work stayed at 11.281-12.975 ms, guest work was flat, and
+  video/present/audio stayed tiny, attributing the loss to off-core host delay.
+  Two/five/ten-second windows remained 57.316/58.866/59.399 FPS, so a sustained
+  12-15 FPS menu collapse is not reproduced. Evidence:
+  `docs/artifacts/2026-08-26/g5-css-slow-window-capture.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual

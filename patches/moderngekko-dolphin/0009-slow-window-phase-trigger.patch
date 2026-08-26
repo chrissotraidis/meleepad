@@ -1,0 +1,88 @@
+diff --git a/Source/Core/VideoCommon/Present.cpp b/Source/Core/VideoCommon/Present.cpp
+index aee78c0299..9f6688be8f 100644
+--- a/Source/Core/VideoCommon/Present.cpp
++++ b/Source/Core/VideoCommon/Present.cpp
+@@ -25,6 +25,7 @@
+ #include "VideoCommon/VideoEvents.h"
+ #include "VideoCommon/Widescreen.h"
+
++#include <array>
+ #include <fstream>
+ #include <iomanip>
+
+@@ -56,16 +57,23 @@ public:
+                 "fallback_other,cache_controls,cache_control_dcbst,cache_control_dcbf,"
+                 "cache_control_dcbi,cache_control_icbi\n";
++      if (const char* start_frame = std::getenv("SSBMPAD_FRAME_PHASE_SLOW_START_FRAME"))
++        m_slow_start_frame = std::strtoull(start_frame, nullptr, 10);
++      if (const char* arm_path = std::getenv("SSBMPAD_FRAME_PHASE_SLOW_ARM_FILE"))
++      {
++        m_slow_arm_path = arm_path;
++        m_slow_armed = false;
++      }
+       m_previous_frame_start = frame_start;
+       m_previous_totals = Common::FramePhaseTiming::GetTotals();
+     }
+
+     const Common::FramePhaseTiming::Totals totals = Common::FramePhaseTiming::GetTotals();
+     const auto milliseconds = [](DT duration) { return DT_ms(duration).count(); };
+     const auto counter_ms = [](u64 current, u64 previous) {
+       return static_cast<double>(current - previous) / 1'000'000.0;
+     };
+-    m_file << m_frame++ << ',' << std::fixed << std::setprecision(6)
+-           << milliseconds(frame_start - m_previous_frame_start) << ','
++    const double total_ms = milliseconds(frame_start - m_previous_frame_start);
++    m_file << m_frame++ << ',' << std::fixed << std::setprecision(6) << total_ms << ','
+            << counter_ms(totals.cpu_wall_ns, m_previous_totals.cpu_wall_ns) << ','
+            << counter_ms(totals.cpu_thread_ns, m_previous_totals.cpu_thread_ns) << ','
+            << counter_ms(totals.cpu_idle_ns, m_previous_totals.cpu_idle_ns) << ','
+@@ -127,6 +135,34 @@ public:
+                   m_previous_totals.static_recomp_cache_control_icbi
+            << '\n';
+
++    if (!m_slow_armed && m_frame % m_rolling_frame_ms.size() == 0)
++    {
++      std::ifstream arm_file(m_slow_arm_path);
++      m_slow_armed = arm_file.good();
++    }
++
++    if (!m_slow_window_captured && m_slow_armed && m_frame > m_slow_start_frame)
++    {
++      m_rolling_total_ms -= m_rolling_frame_ms[m_rolling_index];
++      m_rolling_frame_ms[m_rolling_index] = total_ms;
++      m_rolling_total_ms += total_ms;
++      m_rolling_index = (m_rolling_index + 1) % m_rolling_frame_ms.size();
++      m_rolling_count = std::min(m_rolling_count + 1, m_rolling_frame_ms.size());
++
++      constexpr double slow_window_ms = 60.0 * 1000.0 / 55.0;
++      const char* marker_path = std::getenv("SSBMPAD_FRAME_PHASE_SLOW_MARKER");
++      if (marker_path && m_rolling_count == m_rolling_frame_ms.size() &&
++          m_rolling_total_ms > slow_window_ms)
++      {
++        m_file.flush();
++        std::ofstream marker(marker_path, std::ios_base::out);
++        marker << "frame=" << (m_frame - 1) << '\n'
++               << "rolling_total_ms=" << m_rolling_total_ms << '\n'
++               << "rolling_fps=" << 60000.0 / m_rolling_total_ms << '\n';
++        m_slow_window_captured = true;
++      }
++    }
++
+     m_previous_frame_start = frame_start;
+     m_previous_totals = totals;
+   }
+@@ -138,6 +174,14 @@ private:
+   TimePoint m_previous_frame_start{};
+   Common::FramePhaseTiming::Totals m_previous_totals{};
+   u64 m_frame = 0;
++  std::array<double, 60> m_rolling_frame_ms{};
++  std::size_t m_rolling_index = 0;
++  std::size_t m_rolling_count = 0;
++  double m_rolling_total_ms = 0.0;
++  bool m_slow_window_captured = false;
++  u64 m_slow_start_frame = 0;
++  const char* m_slow_arm_path = nullptr;
++  bool m_slow_armed = true;
+ };
+
+ FramePhaseLogger s_frame_phase_logger;

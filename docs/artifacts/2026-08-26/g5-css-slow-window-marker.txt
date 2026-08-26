@@ -1,0 +1,3 @@
+frame=26106
+rolling_total_ms=1092.53
+rolling_fps=54.9185

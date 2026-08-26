@@ -236,6 +236,32 @@ record actual application-active transitions and run a longer raised control;
 do not retry activity flags. See
 `docs/artifacts/2026-08-26/g5-menu-background-pacing.md`.
 
+The required same-process transition control withdrew that attribution. One
+unchanged verified CSS process ran foreground, background, then foreground;
+the final 3,600 rows of each stable segment all averaged 59.940 FPS, measured
+16.912/16.928/16.934 ms p95, and had 0.072-0.077 ms mean wake lateness. Focus
+did not cause the earlier cross-process difference, and no focus or activity
+policy is retained. The normal menu did not reproduce a sustained major
+slowdown in this run. The next diagnostic is a normal-product trigger that
+captures phase rows plus a low-overhead native sample on the first one-second
+window below 55 FPS. The separate strict G5 tail remains open; do not run Final
+Destination or begin G6. See
+`docs/artifacts/2026-08-26/g5-active-transition-pacing.md`.
+
+The menu trigger is now stage-safe and retained default-off. It can ignore a
+startup prefix and remain unarmed until MemoryWatcher proves CSS; on the first
+60-frame interval below 55 FPS it flushes phase evidence before a native
+sample begins. This excluded a cold-start 14.3 FPS title average and a 50.3 FPS
+opening-movie window. After four armed CSS minutes it captured a real 54.918
+FPS one-second hitch cluster: three 33-70 ms frames had flat guest work, only
+11-13 ms CPU-thread time, and tiny renderer/present/audio cost. The loss is
+off-core host delay. Two/five/ten-second rates still held
+57.316/58.866/59.399 FPS, so no sustained 12-15 FPS menu collapse is proven.
+Do not retry focus/activity, timer, or idle-loop changes. Return to the normal
+required-stage strict tail and reopen this branch only for a multi-second
+sub-55 recurrence. See
+`docs/artifacts/2026-08-26/g5-css-slow-window-capture.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

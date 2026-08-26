@@ -82,10 +82,19 @@ Apple references:
 - https://developer.apple.com/documentation/foundation/processinfo/activityoptions/latencycritical
 - https://developer.apple.com/documentation/foundation/processinfo/beginactivity(options:reason:)
 
-## Decision and next step
+## Superseding same-process result
 
-**FOREGROUND/BACKGROUND ATTRIBUTION RETAINED; ACTIVITY CANDIDATES REJECTED; G5
-OPEN; FINAL DESTINATION NOT RUN; G6 BLOCKED.** The normal signed runner
+A subsequent foreground -> background -> foreground transition inside one
+unchanged process measured statistically identical 59.940 FPS tails and
+0.072-0.077 ms mean wake lateness in all three states. The cross-process
+foreground/background attribution below is therefore withdrawn; it was an
+association between separate runs, not causal focus evidence. The activity
+candidates remain rejected. See `g5-active-transition-pacing.md`.
+
+## Original decision and next step
+
+**SUPERSEDED BY THE SAME-PROCESS TRANSITION RESULT.** At the time, the normal
+signed runner
 `c26625db7fd1eb504f418ad8ab52a3accc61bb222fd08b369c7804a5465d5598`
 and corrected module
 `2dce13525a8d76f3f8795f343f5967f26fe57c0d30379fbaa37d1f80ec6db829`

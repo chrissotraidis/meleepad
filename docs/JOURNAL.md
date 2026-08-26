@@ -1275,3 +1275,50 @@ Append-only execution ledger. Claims are limited to observed evidence.
   blocked.
 - Next: record real app-active transitions in the phase diagnostic and run a
   longer raised normal control before considering any focus-policy change.
+
+## 2026-08-26 — same-process focus attribution withdrawn
+
+- Goal: test the foreground/background association causally without changing
+  process, package, route, or instrumentation.
+- Method: one verified normal CSS process ran foreground, background behind
+  Activity Monitor, then foreground again. Each state was held at least two
+  minutes; the final 3,600 complete rows of each buffered snapshot were used.
+- Result: all three tails averaged 16.6833 ms / 59.940 FPS. Their p95 values
+  were 16.912/16.928/16.934 ms and mean wake lateness was
+  0.077/0.072/0.074 ms. None contained a frame over 25 ms.
+- Decision: **FOCUS ATTRIBUTION WITHDRAWN; NO PRODUCT CHANGE; G5 OPEN; FINAL
+  DESTINATION NOT RUN; G6 BLOCKED.** The earlier result was cross-process
+  variance, not evidence that app focus caused the slow tail. Do not add a
+  focus policy or retry process-activity flags.
+- Evidence:
+  `docs/artifacts/2026-08-26/g5-active-transition-pacing.md` and its combined
+  phase CSV. Normal runner and corrected module remained unchanged; runtime
+  exited cleanly and no Simulator is booted.
+- Next: keep the product normal and trigger evidence capture on the first
+  intermittent one-second menu window below 55 FPS, paired with low-overhead
+  native sampling. Do not guess a renderer, focus, or timer fix first.
+
+## 2026-08-26 — CSS-armed intermittent hitch captured
+
+- Goal: capture the user's intermittent menu slowdown without boot, movie, or
+  observer-state false positives.
+- Diagnostic: retained a default-off 60-frame sub-55 trigger with explicit
+  MemoryWatcher-gated arming. Its wrapper copies flushed phase evidence before
+  taking a post-trigger native sample. Canonical patch reverse-apply, compile,
+  no-pre-arm, and induced-stall tests passed.
+- Exclusions: a 14.3 FPS title was cold-start averaging; a frame-1350 trigger
+  was still inside the 134-second opening/title route. Neither is menu proof.
+- Result: after four minutes of verified CSS, frame 26106 triggered at 54.9185
+  rolling FPS. The window's 70.344/37.102/33.618 ms hitches had only
+  11.281/11.749/12.975 ms CPU-thread work, flat guest work, and tiny
+  video/present/audio cost. The lost time is off-core host delay.
+- Scope: two/five/ten-second worst windows still held
+  57.316/58.866/59.399 FPS. This reproduces an intermittent one-second hitch
+  cluster, not a sustained 12-15 FPS menu collapse.
+- Result: **DIAGNOSTIC RETAINED; NO PERFORMANCE WORKAROUND; G5 OPEN; FINAL
+  DESTINATION NOT RUN; G6 BLOCKED.** Runtime exited cleanly, corrected module
+  `2dce1352...` remained unchanged, and no Simulator is booted.
+- Evidence: `docs/artifacts/2026-08-26/g5-css-slow-window-capture.md` and its
+  phase, marker, and native-sample files.
+- Next: return to the required-stage strict tail with the normal product; only
+  reopen the major-menu branch for a multi-second sub-55 recurrence.
