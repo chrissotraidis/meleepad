@@ -903,3 +903,22 @@ Append-only execution ledger. Claims are limited to observed evidence.
   `docs/artifacts/2026-08-25/g5-corrected-fountain-lateness.csv`.
 - Next: add per-frame static-recompiler work deltas, repeat Fountain, and use
   them to choose one generated-code experiment. No timer or Simulator work.
+
+## 2026-08-25 — Static-work attribution and CPU-QoS rejection
+
+- Goal: distinguish additional guest work from higher host execution cost in
+  Fountain compute overruns, then test one implicated behavior.
+- Diagnostic: default-off phase CSV now carries burst, guest-cycle, native-
+  dispatch, interpreter-fallback, and hook-fallback deltas. Clean patch apply,
+  build, and live smoke passed.
+- Attribution: in 3,678 visually verified control frames, tail bursts/cycles
+  were 0.25%/0.04% lower than the body; host ns/native-dispatch correlated
+  0.783 with total time. The 51.412 ms worst frame did not carry excess guest
+  work.
+- Candidate: macOS user-interactive QoS on the CPU thread returned success and
+  cut worst to 18.002 ms, but p95 regressed from 16.975 to 17.031 ms. **QOS
+  CANDIDATE REJECTED AND REMOVED; G5 OPEN.**
+- Evidence: `docs/artifacts/2026-08-25/g5-static-work-and-qos-rejection.md`
+  plus its two retained CSVs.
+- Next: matched repeat/control to distinguish rare host preemption from
+  systematic dispatch cost. No Simulator work.

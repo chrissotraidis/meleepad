@@ -81,14 +81,18 @@ That diagnostic is also complete. Wake lateness is 0.199 ms p95 / 0.214 ms p99
 and correlates only 0.024 with total time. The five worst frames requested no
 sleep and have 19.470-24.159 ms of derived compute. Stop timer work.
 
-The next falsifiable step is diagnostic-only per-frame generated-work
-attribution: add static-recompiler burst, guest-cycle, native-call, and
-fallback-call deltas to the default-off phase CSV, then replay Fountain. This
-distinguishes more guest work from greater host cost for comparable guest work
-before one generated-code behavior experiment. Retain a behavior change only
-if the complete strict Fountain distribution improves, then repeat on Final
-Destination. G5 and the ban on starting G6 remain in force. See
-`docs/artifacts/2026-08-25/g5-corrected-fountain-deadline-attribution.md`.
+Per-frame work attribution is complete. Tail frames execute essentially the
+same bursts and charged guest cycles; host nanoseconds per native dispatch
+correlate 0.783 with total time. A user-interactive CPU-thread QoS candidate
+removed the 51.412 ms outlier but regressed p95 from 16.975 to 17.031 ms, so it
+was removed.
+
+The next falsifiable step is a matched repeat/control to separate rare host
+preemption from systematic per-dispatch cost before another behavior change.
+Retain a behavior change only if the complete strict Fountain distribution
+improves, then repeat on Final Destination. G5 and the ban on starting G6
+remain in force. See
+`docs/artifacts/2026-08-25/g5-static-work-and-qos-rejection.md`.
 
 ## Testing rhythm
 

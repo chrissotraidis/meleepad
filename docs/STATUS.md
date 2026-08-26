@@ -179,6 +179,13 @@ per-frame static-recompiler work deltas to distinguish guest workload from host
 cost. See
 `docs/artifacts/2026-08-25/g5-corrected-fountain-deadline-attribution.md`.
 
+That attribution now shows tail guest work is flat: bursts are 0.25% lower and
+charged cycles 0.04% lower than the <=16.7 ms body, while host nanoseconds per
+native dispatch correlate 0.783 with total time. A default-off user-interactive
+CPU-thread QoS candidate cut worst from 51.412 to 18.002 ms and slightly
+improved p99, but regressed p95 from 16.975 to 17.031 ms. It is rejected and
+removed. The diagnostic counters remain; a matched repeat/control is next.
+
 ## Goal ledger
 
 | Goal | State | Evidence / blocker |
@@ -188,7 +195,7 @@ cost. See
 | G2 Module recompiles and links | Pass | `docs/artifacts/2026-08-24/g2-module-and-package.md` |
 | G3 macOS boots to title | Pass | `docs/artifacts/2026-08-24/g3-macos-title-and-input.md`; retained title and A-transition screenshots |
 | G4 macOS playable | Pass | `docs/artifacts/2026-08-24/g4-controlled-match.md`; clean CSS -> 1v1 -> results plus live Cubeb/CoreAudio mixing evidence |
-| G5 macOS 60 fps | In progress | Corrected Fountain p95/p99/worst 17.011/17.233/24.185 ms; wake overshoot excluded; generated-work attribution and strict Fountain/FD tails remain open |
+| G5 macOS 60 fps | In progress | Fountain control p95/p99/worst 16.975/17.232/51.412 ms; guest work flat, QoS candidate rejected; repeat/control and strict Fountain/FD tails remain open |
 | G6 Simulator core boots | Not started | G5 first; no Simulator booted |
 | G7 Shell ported | Not started | G6 first |
 | G8 Test matrix green | Not started | G7 first |
