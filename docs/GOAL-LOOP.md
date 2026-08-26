@@ -165,6 +165,19 @@ Do not add a check to every dispatch, retry timer variants, or retry the
 rejected global loop budgets; do not run Final Destination or start G6. See
 `docs/artifacts/2026-08-26/g5-idle-precharge-rejection.md`.
 
+The exact generated idle branch has now been tested. Returning after one poll
+without preserving cycle charge visibly halved opening-movie speed and was
+rejected. A cycle-preserving collapse kept about 8.107M guest cycles/frame,
+reduced CSS CPU-thread mean from 8.463 to 5.48-5.60 ms, and reduced the idle
+loop from 1,839 to 34 samples. However, two matched CSS brackets regressed p95
+from 16.896 ms to 18.479 and 18.468 ms as mean wake lateness rose from 0.070 ms
+to 0.375-0.407 ms. Both shortcuts are removed. The next single experiment is
+a host-only preflight for chunked long Apple precision sleeps before the
+unchanged 1.02 ms final-yield window; combine it locally with the
+cycle-preserving shortcut only if the preflight improves long-sleep lateness
+without busy-spin contention. G5 remains open; do not run Final Destination or
+start G6. See `docs/artifacts/2026-08-26/g5-menu-idle-loop-rejections.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

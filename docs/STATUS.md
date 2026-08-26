@@ -428,6 +428,15 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   excluded; canonical regeneration restored exact source suffix `06852d9f...`
   and module SHA `2dce1352...`. Evidence:
   `docs/artifacts/2026-08-26/g5-macos-pacing-contention-rejection.md`.
+- **PERF-024 (menu idle shortcuts rejected):** A watcher-gated normal CSS
+  control averaged 59.939 FPS but missed strict p95 at 16.896 ms; its native
+  sample put Melee's scheduler idle poll in 1,839 samples. An immediate return
+  changed guest timing and visibly fell to 28-31 FPS. A cycle-preserving poll
+  collapse reduced CPU-thread mean from 8.463 to 5.48-5.60 ms and the loop to
+  34 samples with matched guest cycles, but repeated CSS p95 regressed to
+  18.479/18.468 ms as mean precision-timer wake lateness rose from 0.070 ms to
+  0.375-0.407 ms. Both candidates are removed; G5 remains open. Evidence:
+  `docs/artifacts/2026-08-26/g5-menu-idle-loop-rejections.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual

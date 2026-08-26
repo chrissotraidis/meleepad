@@ -1150,3 +1150,28 @@ Append-only execution ledger. Claims are limited to observed evidence.
   idle branch, prove one-poll/wake semantics, then run a matched normal-versus-
   candidate phase pair. Retain only if the sample loses the loop and the
   complete strict distribution improves.
+
+## 2026-08-26 — Menu idle-loop mechanism isolated; candidates rejected
+
+- Goal: address the user-observed menu slowdown by testing the exact generated
+  scheduler poll implicated by the normal external sample.
+- Normal CSS control: watcher-first cold routing reached coherent character
+  select at 59.939 FPS average. Its 1,197-frame bracket measured 16.683 ms mean
+  / 16.896 ms p95, with 8.463 ms CPU-thread mean and 0.070 ms mean throttle
+  lateness. The external sample put `loop_80349494` in 1,839 samples.
+- Immediate-return candidate: charged only three cycles, visibly ran the
+  opening movie at 28-31 FPS, and measured 34.955 ms mean / 42.394 ms p95 in
+  the retained intro interval. Rejected as a guest-timing change.
+- Cycle-preserving candidate: retained the exact approximately 258-cycle loop
+  charge and coherent full-speed CSS. It reduced CPU-thread mean to 5.48-5.60
+  ms and reduced the poll to 34 samples with matched guest cycles. Two
+  20-second brackets nevertheless repeated 18.479/18.468 ms p95 as longer host
+  sleeps increased mean wake lateness to 0.375-0.407 ms. Rejected on the full
+  distribution.
+- Cleanup: generated source restored; normal runner `c26625db...` and corrected
+  module `2dce1352...` restored and signed. No runner, frontend, or Simulator
+  remains. G5 open; Final Destination not run; G6 blocked.
+- Next: host-only preflight for chunking long Apple precision sleeps before the
+  unchanged 1.02 ms final-yield window. Only combine it locally with the
+  cycle-preserving shortcut if it reduces long-sleep lateness without adding
+  sustained busy-spin contention.
