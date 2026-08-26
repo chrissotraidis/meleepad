@@ -1221,3 +1221,23 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Next: focused semantic test and local module-level coalescing of only
   `0x80345738`/`0x80345760`. Retain only if both sampled leaf PCs disappear and
   the matched CSS distribution improves; do not combine the idle shortcut.
+
+## 2026-08-26 — interrupt-leaf coalescing rejected
+
+- Goal: test the next two CSS-only post-throttle PCs without combining any
+  rejected idle or timer change.
+- Semantics: a fail-before standalone regression then passed exact EE-on/off,
+  signed restore compare, GPR3/GPR4/GPR5, MSR, CR0/SO, PC/LR, and 5/7/8-cycle
+  cases. Continuation was allowed only with guest time remaining and no pending
+  exception.
+- Live result: the cold watcher route reached coherent CSS at a 59.9 FPS title.
+  The final 3,600 frames measured 16.683329 ms mean / 16.907625 ms p95 /
+  17.154916 ms p99 / 27.725250 ms worst. Native dispatches fell by only about
+  51/frame and CPU-thread mean remained 8.483023 ms.
+- Decision: candidate rejected; its helper, test, CMake define, and wrapper are
+  removed. Normal runner `c26625db...` and module `2dce1352...` are restored;
+  no runtime or Simulator remains. G5 open; Final Destination not run; G6
+  blocked.
+- Next: host-only benchmark of the common 67,000-dispatch/frame chassis path,
+  beginning with the empty forced-fallback-range check. Do not cold-build
+  unless the benchmark shows material signal.

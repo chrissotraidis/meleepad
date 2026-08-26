@@ -205,6 +205,17 @@ semantic regression first. Do not combine it with the rejected idle collapse
 or change timer/SyncGPU/queue/Metal. See
 `docs/artifacts/2026-08-26/g5-css-boundary-attribution.md`.
 
+Exact module-boundary coalescing of the two interrupt leaves is complete and
+rejected. A focused semantic regression covered both EE states, CR0/SO,
+registers, PC/LR, and exact 5/7/8-cycle charges. The native candidate removed
+about 51 of roughly 67,052 CSS dispatches/frame, but CPU-thread mean remained
+8.48 ms and the 3,600-frame p95 was 16.908 ms versus the 16.896 ms control.
+All candidate source is removed and the normal module restored. Do not retry
+another isolated low-frequency guest leaf. The next host-only preflight must
+measure the common per-dispatch chassis path, starting with the empty forced-
+fallback-range check, before another cold game build. See
+`docs/artifacts/2026-08-26/g5-interrupt-leaf-coalesce-rejection.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

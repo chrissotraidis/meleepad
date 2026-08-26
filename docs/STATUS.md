@@ -455,6 +455,14 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   `OSDisableInterrupts`/`OSRestoreInterrupts` leaves `0x80345738`/`0x80345760`
   second/third. Diagnostic code is removed; G5 remains open. Evidence:
   `docs/artifacts/2026-08-26/g5-css-boundary-attribution.md`.
+- **PERF-027 (interrupt-leaf coalescing rejected):** Exact, event-boundary-
+  guarded module execution of revision-0 `OSDisableInterrupts` and
+  `OSRestoreInterrupts` passed focused register/MSR/CR/cycle semantics and
+  removed about 51 native dispatches/frame. A watched 3,600-frame CSS bracket
+  measured 16.908 ms p95 versus the 16.896 ms normal control, with unchanged
+  CPU work. Candidate source is removed and the normal signed package is
+  restored. Evidence:
+  `docs/artifacts/2026-08-26/g5-interrupt-leaf-coalesce-rejection.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual
