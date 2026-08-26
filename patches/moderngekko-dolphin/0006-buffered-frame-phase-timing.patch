@@ -30,8 +30,100 @@ index a3a89d59be..17bec8b6a6 100644
    return num_samples;
  }
  
+diff --git a/Source/Core/Common/FramePhaseTiming.h b/Source/Core/Common/FramePhaseTiming.h
+new file mode 100644
+index 0000000000..1086135aa3
+--- /dev/null
++++ b/Source/Core/Common/FramePhaseTiming.h
+@@ -0,0 +1,86 @@
++// Copyright 2026 Dolphin Emulator Project
++// SPDX-License-Identifier: GPL-2.0-or-later
++
++#pragma once
++
++#include <atomic>
++#include <cstdlib>
++
++#include "Common/CommonTypes.h"
++
++namespace Common::FramePhaseTiming
++{
++inline std::atomic<u64> s_cpu_wall_ns{0};
++inline std::atomic<u64> s_cpu_idle_ns{0};
++inline std::atomic<u64> s_cpu_throttle_sleep_ns{0};
++inline std::atomic<u64> s_cpu_throttle_requested_ns{0};
++inline std::atomic<u64> s_cpu_throttle_lateness_ns{0};
++inline std::atomic<u64> s_audio_mix_ns{0};
++
++inline bool IsEnabled()
++{
++  static const bool enabled = [] {
++    const char* path = std::getenv("SSBMPAD_FRAME_PHASE_LOG");
++    return path != nullptr && path[0] != '\0';
++  }();
++  return enabled;
++}
++
++inline u64 ToNanoseconds(DT duration)
++{
++  return static_cast<u64>(
++      std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count());
++}
++
++inline void AddCpuWall(DT duration)
++{
++  s_cpu_wall_ns.fetch_add(ToNanoseconds(duration), std::memory_order_relaxed);
++}
++
++inline void AddCpuIdle(DT duration)
++{
++  s_cpu_idle_ns.fetch_add(ToNanoseconds(duration), std::memory_order_relaxed);
++}
++
++inline void AddCpuThrottleSleep(DT duration)
++{
++  s_cpu_throttle_sleep_ns.fetch_add(ToNanoseconds(duration), std::memory_order_relaxed);
++}
++
++inline void AddCpuThrottleRequested(DT duration)
++{
++  s_cpu_throttle_requested_ns.fetch_add(ToNanoseconds(duration), std::memory_order_relaxed);
++}
++
++inline void AddCpuThrottleLateness(DT duration)
++{
++  s_cpu_throttle_lateness_ns.fetch_add(ToNanoseconds(duration), std::memory_order_relaxed);
++}
++
++inline void AddAudioMix(DT duration)
++{
++  s_audio_mix_ns.fetch_add(ToNanoseconds(duration), std::memory_order_relaxed);
++}
++
++struct Totals
++{
++  u64 cpu_wall_ns;
++  u64 cpu_idle_ns;
++  u64 cpu_throttle_sleep_ns;
++  u64 cpu_throttle_requested_ns;
++  u64 cpu_throttle_lateness_ns;
++  u64 audio_mix_ns;
++};
++
++inline Totals GetTotals()
++{
++  return {
++      s_cpu_wall_ns.load(std::memory_order_relaxed),
++      s_cpu_idle_ns.load(std::memory_order_relaxed),
++      s_cpu_throttle_sleep_ns.load(std::memory_order_relaxed),
++      s_cpu_throttle_requested_ns.load(std::memory_order_relaxed),
++      s_cpu_throttle_lateness_ns.load(std::memory_order_relaxed),
++      s_audio_mix_ns.load(std::memory_order_relaxed),
++  };
++}
++}  // namespace Common::FramePhaseTiming
 diff --git a/Source/Core/Core/CoreTiming.cpp b/Source/Core/Core/CoreTiming.cpp
-index 26e9973fcc..0b05542604 100644
+index 26e9973fcc..507b7b08cc 100644
 --- a/Source/Core/Core/CoreTiming.cpp
 +++ b/Source/Core/Core/CoreTiming.cpp
 @@ -13,6 +13,7 @@
@@ -42,12 +134,26 @@ index 26e9973fcc..0b05542604 100644
  #include "Common/Logging/Log.h"
  #include "Common/SPSCQueue.h"
  #include "Common/ScopeGuard.h"
-@@ -423,6 +424,8 @@ void CoreTimingManager::SleepUntil(TimePoint time_point)
+@@ -414,6 +415,9 @@ void CoreTimingManager::SleepUntil(TimePoint time_point)
+   if (Core::IsCPUThread())
+   {
+     const TimePoint time = Clock::now();
++    const bool log_phase = Common::FramePhaseTiming::IsEnabled();
++    if (log_phase && time_point > time)
++      Common::FramePhaseTiming::AddCpuThrottleRequested(time_point - time);
+ 
+     if (use_precision_timer)
+       m_precision_cpu_timer.SleepUntil(time_point);
+@@ -423,6 +427,12 @@ void CoreTimingManager::SleepUntil(TimePoint time_point)
      // Count amount of time sleeping for analytics
      const TimePoint time_after_sleep = Clock::now();
      m_system.GetPerfMetrics().CountThrottleSleep(time_after_sleep - time);
-+    if (Common::FramePhaseTiming::IsEnabled())
++    if (log_phase)
++    {
 +      Common::FramePhaseTiming::AddCpuThrottleSleep(time_after_sleep - time);
++      if (time_point > time && time_after_sleep > time_point)
++        Common::FramePhaseTiming::AddCpuThrottleLateness(time_after_sleep - time_point);
++    }
    }
    else
    {
@@ -100,7 +206,7 @@ index 6011078449..062a01f080 100644
  }
  
 diff --git a/Source/Core/VideoCommon/Present.cpp b/Source/Core/VideoCommon/Present.cpp
-index 7c62730667..e76a0c6767 100644
+index 7c62730667..e175310a43 100644
 --- a/Source/Core/VideoCommon/Present.cpp
 +++ b/Source/Core/VideoCommon/Present.cpp
 @@ -4,6 +4,7 @@
@@ -111,7 +217,7 @@ index 7c62730667..e76a0c6767 100644
  #include "Core/Config/GraphicsSettings.h"
  #include "Core/Config/MainSettings.h"
  #include "Core/CoreTiming.h"
-@@ -24,10 +25,66 @@
+@@ -24,10 +25,73 @@
  #include "VideoCommon/VideoEvents.h"
  #include "VideoCommon/Widescreen.h"
  
@@ -138,8 +244,9 @@ index 7c62730667..e76a0c6767 100644
 +      m_file.open(path, std::ios_base::out);
 +      if (!m_file.is_open())
 +        return;
-+      m_file << "frame,total_ms,cpu_wall_ms,cpu_idle_ms,cpu_throttle_sleep_ms,video_build_ms,"
-+                "present_ms,audio_mix_ms\n";
++      m_file << "frame,total_ms,cpu_wall_ms,cpu_idle_ms,cpu_throttle_sleep_ms,"
++                "cpu_throttle_requested_ms,cpu_throttle_lateness_ms,video_build_ms,present_ms,"
++                "audio_mix_ms\n";
 +      m_previous_frame_start = frame_start;
 +      m_previous_totals = Common::FramePhaseTiming::GetTotals();
 +    }
@@ -156,6 +263,12 @@ index 7c62730667..e76a0c6767 100644
 +           << counter_ms(totals.cpu_idle_ns, m_previous_totals.cpu_idle_ns) << ','
 +           << counter_ms(totals.cpu_throttle_sleep_ns,
 +                         m_previous_totals.cpu_throttle_sleep_ns)
++           << ','
++           << counter_ms(totals.cpu_throttle_requested_ns,
++                         m_previous_totals.cpu_throttle_requested_ns)
++           << ','
++           << counter_ms(totals.cpu_throttle_lateness_ns,
++                         m_previous_totals.cpu_throttle_lateness_ns)
 +           << ','
 +           << milliseconds(present_start - frame_start) << ','
 +           << milliseconds(frame_end - present_start) << ','
@@ -178,7 +291,7 @@ index 7c62730667..e76a0c6767 100644
  // Stretches the native/internal analog resolution aspect ratio from ~4:3 to ~16:9
  static float SourceAspectRatioToWidescreen(float source_aspect)
  {
-@@ -901,6 +958,7 @@ void Presenter::RenderXFBToScreen(const MathUtil::Rectangle<int>& target_rc,
+@@ -901,6 +965,7 @@ void Presenter::RenderXFBToScreen(const MathUtil::Rectangle<int>& target_rc,
  
  void Presenter::Present(PresentInfo* present_info)
  {
@@ -186,7 +299,7 @@ index 7c62730667..e76a0c6767 100644
    m_present_count++;
  
    if (g_gfx->IsHeadless() || (!m_onscreen_ui && !m_xfb_entry))
-@@ -951,6 +1009,7 @@ void Presenter::Present(PresentInfo* present_info)
+@@ -951,6 +1016,7 @@ void Presenter::Present(PresentInfo* present_info)
    }
  
    // Present to the window system.
@@ -194,7 +307,7 @@ index 7c62730667..e76a0c6767 100644
    {
      std::lock_guard<std::mutex> guard(m_swap_mutex);
  
-@@ -967,6 +1026,8 @@ void Presenter::Present(PresentInfo* present_info)
+@@ -967,6 +1033,8 @@ void Presenter::Present(PresentInfo* present_info)
  
      g_gfx->PresentBackbuffer();
    }

@@ -94,3 +94,20 @@ large inline expansion is therefore not accepted as the product direction.
 - G5 remains open: retained Fountain is 17.237 ms p95 / 19.112 ms worst.
 - G6-G9 remain gated. No Simulator work begins before G5 passes.
 - No ROM, save, generated module, or PGO profile belongs in Git.
+
+## Post-ingestion execution status
+
+The report's repository copy differs from the supplied attachment only by one
+final newline. Attachment SHA-256 is
+`c582ceb7b76e56fcf82c25fe384d4ec68f94d6dd54bafd83240932ae56688691`;
+the newline-terminated repository copy is
+`1f032ead2d11b2e05a628f5a7f5c842efc21c14a71ee6f854c53f345d6790fa9`.
+
+The seven-step adjusted sub-loop above has since been executed through its
+correctness and visual boundaries: exact helpers cover scalar-single arithmetic
+and all 1,237 `frsp` sites, focused suites pass, fresh same-source PGO improved
+the matched no-input control, and a 402.7-second Peach-inclusive corpus closed
+`VISUAL-001B` subject to immediate reopening on recurrence. The report's
+original closure-boundary bullets are retained as the state at ingestion, not
+the current state. Current strict G5 evidence and its next diagnostic live in
+`g5-corrected-fountain-phase-attribution.md`.

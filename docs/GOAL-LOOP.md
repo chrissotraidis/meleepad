@@ -71,12 +71,24 @@ combat. `VISUAL-001B` is closed under its documented boundary and reopens on
 any recurrence. A clean corrected-module Fountain interval still fails G5 at
 17.000 ms render p95, 17.301 ms p99, and 79.167 ms worst.
 
-The next falsifiable step is to replay the same visually verified Fountain
-route with the already-smoke-tested phase-CSV runner and attribute the current
->16.7 ms tail before changing one subsystem. Do not reuse capture-heavy logs,
-mix runner builds, or infer subsystem cost from render/vblank alone. Retain a
-change only if the complete strict Fountain distribution improves, then repeat
-on Final Destination. G5 and the ban on starting G6 remain in force.
+That replay is now complete. In a clean 3,683-frame Fountain bracket, total
+p95/p99/worst are 17.016/17.227/18.986 ms. Video build, present, and audio are
+small; most frames retain deliberate throttle sleep, while one frame has an
+18.010 ms derived-compute overrun. The current sleep counter cannot distinguish
+requested sleep from wake-up lateness.
+
+That diagnostic is also complete. Wake lateness is 0.199 ms p95 / 0.214 ms p99
+and correlates only 0.024 with total time. The five worst frames requested no
+sleep and have 19.470-24.159 ms of derived compute. Stop timer work.
+
+The next falsifiable step is diagnostic-only per-frame generated-work
+attribution: add static-recompiler burst, guest-cycle, native-call, and
+fallback-call deltas to the default-off phase CSV, then replay Fountain. This
+distinguishes more guest work from greater host cost for comparable guest work
+before one generated-code behavior experiment. Retain a behavior change only
+if the complete strict Fountain distribution improves, then repeat on Final
+Destination. G5 and the ban on starting G6 remain in force. See
+`docs/artifacts/2026-08-25/g5-corrected-fountain-deadline-attribution.md`.
 
 ## Testing rhythm
 

@@ -163,6 +163,22 @@ survived a 402.7-second, 2,110-frame extended matched corpus with Brinstar,
 multiple four-player scenes, and dense Peach combat. `VISUAL-001B` is closed
 under that documented boundary and reopens on any recurrence.
 
+The corrected module has now been replayed on the phase-CSV runner through a
+visibly verified, capture-free Fountain bracket. Across 3,683 conservatively
+trimmed frames, total p95/p99/worst are 17.016/17.227/18.986 ms and only
+53.136% are at or below 16.7 ms. Video build, present, and audio have p99 costs
+of only 0.101/0.106/1.318 ms. Derived compute is 10.459 ms mean / 12.540 ms p99,
+with one 18.010 ms compute-only overrun; most other frames still include about
+6.2 ms deliberate throttle sleep. G5 remains open. The next diagnostic adds
+requested sleep and wake-lateness fields to distinguish pacing overshoot from
+compute before another behavior change. That follow-up excludes pacing
+overshoot: wake lateness is only 0.199 ms p95 / 0.214 ms p99 with 0.024 total-
+time correlation, while the five worst frames requested no sleep and spent
+19.470-24.159 ms in derived compute. Timer work stops. The next diagnostic adds
+per-frame static-recompiler work deltas to distinguish guest workload from host
+cost. See
+`docs/artifacts/2026-08-25/g5-corrected-fountain-deadline-attribution.md`.
+
 ## Goal ledger
 
 | Goal | State | Evidence / blocker |
@@ -172,7 +188,7 @@ under that documented boundary and reopens on any recurrence.
 | G2 Module recompiles and links | Pass | `docs/artifacts/2026-08-24/g2-module-and-package.md` |
 | G3 macOS boots to title | Pass | `docs/artifacts/2026-08-24/g3-macos-title-and-input.md`; retained title and A-transition screenshots |
 | G4 macOS playable | Pass | `docs/artifacts/2026-08-24/g4-controlled-match.md`; clean CSS -> 1v1 -> results plus live Cubeb/CoreAudio mixing evidence |
-| G5 macOS 60 fps | In progress | Corrected Fountain render p95/p99/worst 17.000/17.301/79.167 ms; `VISUAL-001B` closed; phase attribution and strict Fountain/FD tails remain open |
+| G5 macOS 60 fps | In progress | Corrected Fountain p95/p99/worst 17.011/17.233/24.185 ms; wake overshoot excluded; generated-work attribution and strict Fountain/FD tails remain open |
 | G6 Simulator core boots | Not started | G5 first; no Simulator booted |
 | G7 Shell ported | Not started | G6 first |
 | G8 Test matrix green | Not started | G7 first |

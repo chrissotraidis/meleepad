@@ -861,3 +861,45 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Next: replay verified Fountain with the phase-CSV runner, attribute the tail,
   and test exactly one implicated subsystem before repeating on Final
   Destination. No Simulator work begins.
+
+## 2026-08-25 — Corrected Fountain phase attribution
+
+- Goal: execute the report-adjusted G5 step by replaying the exact corrected
+  module on the phase-CSV runner, without mixing builds or capture overhead.
+- Route: a clean isolated run visibly passed CSS, explicitly highlighted
+  Fountain of Dreams, and entered live Pikachu-versus-CPU-Pikachu combat. The
+  66-second controller bracket contained no screenshot or UI work; 120 rows
+  were trimmed from each edge.
+- Result: **G5 STILL FAILS; RENDER/PRESENT/AUDIO EXCLUDED AS DOMINANT**. Across
+  3,683 frames, total p95/p99/worst are 17.016/17.227/18.986 ms and 53.136%
+  meet 16.7 ms. Derived compute is 10.459 ms mean / 12.540 ms p99, with one
+  18.010 ms compute-only overrun. Most frames retain about 6.2 ms throttle
+  sleep. Video, present, and audio p99 are only 0.101/0.106/1.318 ms.
+- Evidence:
+  `docs/artifacts/2026-08-25/g5-corrected-fountain-phase-attribution.md` and
+  `docs/artifacts/2026-08-25/g5-corrected-fountain-phase.csv`.
+- Next: instrument requested throttle time and positive deadline lateness in
+  the default-off phase logger, rerun the same Fountain route, and let that
+  evidence choose one pacing or compute behavior test. No Simulator work.
+
+## 2026-08-25 — Fountain wake-lateness falsification
+
+- Goal: distinguish requested throttle sleep from macOS deadline wake-up
+  lateness without changing runtime behavior.
+- Source/repro: added two default-off phase fields; repaired the canonical
+  patch to include its missing `FramePhaseTiming.h`; incremental build and a
+  111-row smoke passed; clean application to pinned Dolphin plus prerequisites
+  passed.
+- Route: the final watched-memory predicate timed out, but live UI inspection
+  proved Fountain of Dreams was highlighted at 59.9 FPS; launch visibly entered
+  live Fountain. The subsequent 65-second timing bracket was capture-free.
+- Result: **PACING OVERSHOOT EXCLUDED; G5 STILL FAILS**. Across 3,718 trimmed
+  frames, total p95/p99/worst are 17.011/17.233/24.185 ms. Wake lateness is
+  0.199 ms p95 / 0.214 ms p99 and has 0.024 correlation with total time. The
+  five worst rows requested no sleep and spent 19.470-24.159 ms in derived
+  compute.
+- Evidence:
+  `docs/artifacts/2026-08-25/g5-corrected-fountain-deadline-attribution.md` and
+  `docs/artifacts/2026-08-25/g5-corrected-fountain-lateness.csv`.
+- Next: add per-frame static-recompiler work deltas, repeat Fountain, and use
+  them to choose one generated-code experiment. No timer or Simulator work.
