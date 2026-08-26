@@ -939,3 +939,27 @@ Append-only execution ledger. Claims are limited to observed evidence.
   and its two retained CSVs.
 - Next: classify runtime hook fallbacks by instruction class, then test one
   dominant class. No Simulator work.
+
+## 2026-08-25 — Runtime fallback subclass attribution
+
+- Goal: identify the executed instruction-hook fallback class before changing
+  behavior, following the independent stale-`ps1` review's matched-evidence
+  discipline.
+- Diagnostic: added default-off `mfspr`, `mtspr`, cache, other, and
+  `dcbst`/`dcbf`/`dcbi`/`icbi` per-frame counters. The canonical patch applies
+  cleanly after the pinned prerequisites; the runner build and populated smoke
+  passed; both accounting sums match exactly.
+- Route: the all-in-one route reached Fountain but timed out on its roster
+  predicate, so it was not timed. CSS inspection proved P1 Pikachu plus one CPU
+  Peach; Fountain highlight and coherent live Fountain were visually verified
+  before a capture-free 20-cycle bracket.
+- Result: across 3,692 trimmed frames, `dcbf` contributed 14,426,100 calls
+  (64.295%) and `dcbi` 8,003,986 (35.672%); `icbi` was zero. Total p95/p99/worst
+  were 17.007/17.220/30.478 ms. Fallback count correlates -0.059 with total and
+  is lower in the slow tail, so it does not explain tail variance. **G5 OPEN.**
+- Evidence: `docs/artifacts/2026-08-25/g5-fallback-subclass-attribution.md`
+  and `docs/artifacts/2026-08-25/g5-fallback-subclass-fountain.csv`.
+- Next: test one semantics-preserving fast path that avoids the generated
+  `dcbf`/`dcbi` host-hook/dispatcher round trip only when D-cache emulation is
+  disabled; retain only on strict matched Fountain improvement, then verify
+  Final Destination. No Simulator work.

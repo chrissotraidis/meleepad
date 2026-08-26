@@ -191,7 +191,16 @@ cluster. A valid thread-CPU Fountain bracket then measured total p95/p99/worst
 16.970/17.184/19.088 ms. After subtracting known idle/throttle time, residual
 off-core time is only 0.018 ms p95 / 0.148 ms p99; tail thread CPU rises by
 0.207 ms versus only 0.067 ms residual. The tail is mainly on-core execution
-cost. Runtime fallback-class attribution is next.
+cost.
+
+Runtime fallback-class attribution is now complete. Across 3,692 visually
+verified Fountain frames, `dcbf` is 64.295% and `dcbi` 35.672% of all hook
+fallbacks; `icbi` is zero. The two accounting sums match exactly. Fallback
+volume correlates -0.059 with total time and is lower in tail frames, so it does
+not explain tail variance. The next bounded candidate avoids only the
+`dcbf`/`dcbi` host-hook/dispatcher round trip in D-cache-disabled mode while
+preserving cycles, privilege behavior, and the generic fallback. See
+`docs/artifacts/2026-08-25/g5-fallback-subclass-attribution.md`.
 
 ## Goal ledger
 
@@ -202,7 +211,7 @@ cost. Runtime fallback-class attribution is next.
 | G2 Module recompiles and links | Pass | `docs/artifacts/2026-08-24/g2-module-and-package.md` |
 | G3 macOS boots to title | Pass | `docs/artifacts/2026-08-24/g3-macos-title-and-input.md`; retained title and A-transition screenshots |
 | G4 macOS playable | Pass | `docs/artifacts/2026-08-24/g4-controlled-match.md`; clean CSS -> 1v1 -> results plus live Cubeb/CoreAudio mixing evidence |
-| G5 macOS 60 fps | In progress | Thread-CPU Fountain p95/p99/worst 16.970/17.184/19.088 ms; tail mainly on-core; fallback-class attribution and strict Fountain/FD tails remain open |
+| G5 macOS 60 fps | In progress | Fallback attribution: `dcbf`/`dcbi` are 99.967% but decrease in tail; bounded no-op round-trip experiment and strict Fountain/FD tails remain open |
 | G6 Simulator core boots | Not started | G5 first; no Simulator booted |
 | G7 Shell ported | Not started | G6 first |
 | G8 Test matrix green | Not started | G7 first |
