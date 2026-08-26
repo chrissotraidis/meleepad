@@ -1062,3 +1062,26 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Next: exact matched Fountain control with the restored runner, corrected
   module, watcher-first route, same roster/stage/audio, and same 20-cycle
   bracket. Do not test another timer variant first.
+
+## 2026-08-26 — Restored-runner control confirms contention and reorients G5
+
+- Goal: complete the required matched control after removing the rejected
+  3.02 ms busy-spin timer candidate.
+- Route: watcher-first cold boot, P1 Pikachu versus level-1 CPU Kirby, explicit
+  Fountain highlight, coherent live combat, Cubeb, and the same capture-free
+  20-cycle script. No Simulator was booted.
+- Result: 3,673 trimmed frames measured 16.686/17.656/18.984/36.424 ms
+  mean/p95/p99/worst and 59.932 FPS average; 54.315% were <=16.7 ms. There
+  were zero interpreter/cache fallbacks and 6,057.624 exactly classified
+  direct cache controls/frame. The normal timer restores average speed, so the
+  busy-spin candidate's 50.845 FPS result was real contention. G5 remains open.
+- Attribution: versus the <=16.7 ms body, the p95 tail has nearly flat bursts
+  and guest cycles but +13,634 native dispatches/frame (+10.5%) and +5.8%
+  CPU-thread nanoseconds/dispatch. CPU-thread time rises 2.576 ms while
+  throttle sleep falls 0.904 ms; wake lateness does not explain the tail.
+- Evidence: `docs/artifacts/2026-08-26/g5-macos-pacing-restored-control-fountain.csv`,
+  its retained visual, and the amended pacing rejection report.
+- Next: add default-off dispatch-return classification to identify the control-
+  flow boundaries behind the extra tail dispatches. Do not retry the rejected
+  1024-cycle budget or another timer variant; do not run Final Destination or
+  start G6.

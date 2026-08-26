@@ -214,7 +214,7 @@ per frame remained exactly accounted. This correction is retained, but only
 | G2 Module recompiles and links | Pass | `docs/artifacts/2026-08-24/g2-module-and-package.md` |
 | G3 macOS boots to title | Pass | `docs/artifacts/2026-08-24/g3-macos-title-and-input.md`; retained title and A-transition screenshots |
 | G4 macOS playable | Pass | `docs/artifacts/2026-08-24/g4-controlled-match.md`; clean CSS -> 1v1 -> results plus live Cubeb/CoreAudio mixing evidence |
-| G5 macOS 60 fps | In progress | Cache-control parity retained; PGO and 3.02 ms busy-spin pacing rejected. Latest valid candidate: Fountain 19.667 ms mean / 22.357 ms p95 / 50.845 FPS. Restored-runner matched control next |
+| G5 macOS 60 fps | In progress | Cache-control parity retained; PGO and 3.02 ms busy-spin pacing rejected. Restored normal-timer Fountain control: 16.686 ms mean / 17.656 ms p95 / 59.932 FPS. Dispatch-return attribution next |
 | G6 Simulator core boots | Not started | G5 first; no Simulator booted |
 | G7 Shell ported | Not started | G6 first |
 | G8 Test matrix green | Not started | G7 first |

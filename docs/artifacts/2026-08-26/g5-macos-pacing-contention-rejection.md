@@ -114,12 +114,43 @@ the app was repackaged with runner SHA-256
 `c26625db7fd1eb504f418ad8ab52a3accc61bb222fd08b369c7804a5465d5598`
 and the corrected `2dce1352...` module. No runtime or Simulator remains.
 
-The next single experiment is an exact matched Fountain control using that
-restored runner, corrected module, watcher-first route, same roster/stage/audio,
-and same 20-cycle bracket. It must first reproduce zero cache fallbacks and
-direct-cache accounting. That control decides whether to return to generated
-host-cost attribution or investigate post-build host pressure; do not test
-another timer variant first.
+## Restored-runner matched control
+
+The required control used the rebuilt normal timer, the same corrected module,
+watcher-first cold boot, P1 Pikachu versus level-1 CPU Kirby, an explicit
+Fountain highlight, coherent live combat, Cubeb, and the same capture-free
+20-cycle script. The 3,673-row trimmed interval recorded zero interpreter and
+cache fallbacks and 22,249,652 exactly classified direct cache controls
+(6,057.624/frame).
+
+| Metric | Rejected busy-spin | Restored normal timer |
+|---|---:|---:|
+| Frames | 3,074 | 3,673 |
+| Mean | 19.667450 ms | 16.685681 ms |
+| Median | 19.631833 ms | 16.675458 ms |
+| p95 | 22.357238 ms | 17.655625 ms |
+| p99 | 24.689581 ms | 18.984402 ms |
+| Worst | 141.483500 ms | 36.423625 ms |
+| Frames <=16.7 ms | 2.895% | 54.315% |
+| FPS from mean | 50.845 | 59.932 |
+
+The restored timer therefore recovers normal average speed and proves the
+candidate regression was real contention, not lingering build pressure. G5
+still fails on p95/p99/worst.
+
+The restored control also changes the next diagnostic. Compared with the
+<=16.7 ms body, its p95 tail has nearly flat bursts and guest cycles but 13,634
+more native dispatches/frame (+10.5%) and 5.8% more CPU-thread nanoseconds per
+dispatch. Total time rises 2.421 ms and CPU-thread time rises 2.576 ms, while
+requested throttle sleep falls 0.904 ms and wake lateness falls. Roughly 1.65
+ms of the extra tail cost is explained by dispatch count at the body cost and
+about 1.0 ms by higher cost per dispatch.
+
+**REJECTION CONFIRMED; G5 OPEN; FINAL DESTINATION NOT RUN; G6 BLOCKED.** Do
+not retry timer changes or the already rejected 1024-cycle generated-loop
+budget. The next single experiment is default-off dispatch-return attribution:
+classify which generated control-flow boundaries account for the tail's extra
+dispatches before changing dispatch behavior.
 
 ## Retained artifacts
 
@@ -127,4 +158,7 @@ another timer variant first.
   `41dfd02eea044fedc0619405c155a9a70853d24821a37b5cda46b7f09a71c661`
 - `g5-macos-pacing-contention-fountain-visual.jpeg` — SHA-256
   `0377cc8558c828191cd00c2353ac1bffe224309edd2abfbd1bcfafa5d97089aa`
-
+- `g5-macos-pacing-restored-control-fountain.csv` — SHA-256
+  `20e3d146b506c78c861b7cda29a46dfd97894f4ff4e11ddd819afed4e4fad1be`
+- `g5-macos-pacing-restored-control-fountain-visual.jpeg` — SHA-256
+  `674106a18843d91040a0eae64cbfa575c757750e0d80dd3f22c75e66c5e07cd3`

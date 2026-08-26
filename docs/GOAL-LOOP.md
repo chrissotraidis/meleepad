@@ -132,11 +132,18 @@ The same work caught and excluded a stale generated-module package, restored
 the canonical corrected `06852d9f...` source/module path, and proved the cold
 route is deterministic when MemoryWatcher starts before the runner: opening-
 movie state precedes the genuine 0x14-to-zero title lockout, then the exact
-one-second START hold reaches menu/CSS. The next single experiment is a matched
-Fountain control with the restored normal runner, corrected module, that
-watcher-first route, and the same capture-free 20-cycle bracket. It must show
-zero cache fallbacks before timing is accepted. Do not run Final Destination
-or start G6. See
+one-second START hold reaches menu/CSS.
+
+The matched restored-runner control is complete. Its 3,673-frame Fountain
+bracket restored 59.932 FPS average and measured 16.686 ms mean / 17.656 ms
+p95 / 18.984 ms p99 / 36.424 ms worst, with zero fallbacks and 6,057.624
+direct cache controls/frame. This confirms the busy-spin regression was timer
+contention, but G5 still fails its tail gate. Relative to the <=16.7 ms body,
+the p95 tail has nearly unchanged bursts and guest cycles but 13,634 more
+native dispatches/frame (+10.5%) and 5.8% more CPU-thread nanoseconds per
+dispatch. The next single experiment is default-off dispatch-return
+attribution. Do not retry timer variants or the rejected 1024-cycle loop
+budget; do not run Final Destination or start G6. See
 `docs/artifacts/2026-08-26/g5-macos-pacing-contention-rejection.md`.
 
 ## Testing rhythm
