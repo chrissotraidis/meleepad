@@ -327,8 +327,16 @@ undercharges. Computer Use then verified Pikachu versus CPU Yoshi, literal
 Fountain, coherent combat, and the result screen. The clean 4,743-frame combat
 bracket nevertheless measured 16.934 ms mean / 18.753 ms p95 / 59.054 FPS.
 Restore ABI 3 and generic dispatch; do not retry module-function lookup/layout
-changes without a new mechanism explaining the repeat Fountain regression. See
-`docs/artifacts/2026-08-26/g5-direct-chunk-table-rejection.md`.
+changes without a new mechanism explaining the repeat Fountain regression. An
+exact canonical Pikachu/CPU-Yoshi Fountain control subsequently measured
+16.763 ms mean / 17.554 ms p95 / 59.657 FPS over the same 4,743-frame count,
+confirming the candidate's +0.171 ms mean and +1.199 ms p95 regression. Its
+extra ~3,537 dispatches/frame point to duplicate chunk-index resolution in the
+candidate loop. Preflight carrying the already-verified index before another
+runtime build. Keep the independently reproduced 1.90-3.72 second menu
+transition freezes in G5 scope. See
+`docs/artifacts/2026-08-26/g5-direct-chunk-table-rejection.md` and
+`docs/artifacts/2026-08-26/g5-direct-chunk-matched-yoshi-control.md`.
 
 ## Testing rhythm
 

@@ -77,9 +77,12 @@ Frames 17,000-21,742 exclude match-load and end/result transitions:
 | Guest cycles mean / p95 | 8,107,174.581 / 8,137,988.800 |
 
 The candidate is semantically screened and visibly coherent, but it fails the
-absolute G5 tail and mean-FPS requirements. Like the earlier direct-original
-candidate, changing module lookup/layout helps some menu work but regresses
-required-stage combat.
+absolute G5 tail and mean-FPS requirements. A subsequent exact canonical
+Pikachu/CPU-Yoshi Fountain control measured 16.762538 ms mean, 17.553780 ms
+p95, and 59.656839 FPS over the same 4,743-frame sample count. The candidate
+therefore regressed mean frame time by 0.171120 ms and p95 by 1.198945 ms while
+executing about 3,537 more native dispatches/frame. See
+`g5-direct-chunk-matched-yoshi-control.md`.
 
 ## Decision
 
@@ -94,6 +97,6 @@ Simulator remained. Retained temporary hashes:
 - watched cold-route log:
   `de6ce15e977f8b47d9159c6c39c44964495b5a1e8270b5cef1a5d5e4cd2cd396`
 
-Do not retry another module-lookup or code-layout shortcut until the repeated
-Fountain-only regression is attributed with a mechanism that predicts both
-menu and combat behavior.
+Do not retry the same table shape. The matched control confirms the regression;
+the next bounded preflight must test carrying the chunk index already verified
+by the loop condition instead of resolving it again inside the iteration.

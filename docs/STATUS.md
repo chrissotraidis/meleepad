@@ -567,6 +567,16 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   over 4,743 clean combat frames. The candidate is removed, ABI 3/generic
   dispatch are restored, and the product app was never modified. Evidence:
   `docs/artifacts/2026-08-26/g5-direct-chunk-table-rejection.md`.
+- **PERF-039 (matched canonical Yoshi control):** The untouched ABI 3 product
+  visibly repeated P1 Pikachu/CPU Yoshi on literal Fountain. Exact 4,743-frame
+  combat measured 16.762538 ms mean, 17.553780 ms p95, and 59.656839 FPS.
+  Against the same roster/stage/sample count, the rejected direct table added
+  0.171120 ms mean, 1.198945 ms p95, and about 3,537 native dispatches/frame.
+  The regression is confirmed, both paths still fail strict G5, and the next
+  preflight is to carry the chunk index already verified by the loop condition
+  rather than resolve it again. This does not close the separate multi-second
+  menu-transition freezes. Evidence:
+  `docs/artifacts/2026-08-26/g5-direct-chunk-matched-yoshi-control.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual

@@ -1564,3 +1564,26 @@ Append-only execution ledger. Claims are limited to observed evidence.
   `docs/artifacts/2026-08-26/g5-direct-chunk-table-rejection.md`.
 - Next: do not retry module lookup/layout shortcuts. Attribute the repeated
   Fountain-only regression before another dispatch implementation change.
+
+## 2026-08-26 — exact canonical Yoshi control confirms direct-table regression
+
+- Route hygiene: an initial cold watcher exited before the controller FIFO
+  existed and produced no input; it was not measured. The same memory-gated
+  route was reissued only after the canonical runner was live.
+- Visual gate: Computer Use verified P1 Pikachu, level-1 CPU Yoshi, literal
+  Fountain of Dreams, active combat, and the normal Yoshi result screen. The
+  capture is performance evidence only; the distorted lower-floor reflection
+  remains outside a visual-correctness claim.
+- Canonical result: frames 21,625-26,367 measured 16.762538 ms mean,
+  17.553780 ms p95, 19.125174 ms p99, and 59.656839 FPS. Guest cycles matched
+  the candidate, while canonical native dispatches were about 3,537/frame
+  lower.
+- Attribution: versus the same 4,743-frame Pikachu/Yoshi Fountain control, the
+  rejected direct table added 0.171120 ms mean and 1.198945 ms p95. Its
+  regression is confirmed; both paths still fail strict G5.
+- Decision: **DIRECT TABLE REMAINS REJECTED; G5 OPEN; G6 BLOCKED.** The next
+  bounded preflight is whether the loop can carry its already-verified chunk
+  index and avoid duplicate resolution without changing semantic boundaries.
+  The separate 1.90-3.72 second menu-transition freezes remain open.
+- Evidence:
+  `docs/artifacts/2026-08-26/g5-direct-chunk-matched-yoshi-control.md`.
