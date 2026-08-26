@@ -577,6 +577,16 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   rather than resolve it again. This does not close the separate multi-second
   menu-transition freezes. Evidence:
   `docs/artifacts/2026-08-26/g5-direct-chunk-matched-yoshi-control.md`.
+- **PERF-040 (last-chunk cache rejected):** A temporary DOL-only reuse of the
+  existing `m_last_chunk_index` field returned a cached index only when the
+  next PC remained inside the same exact chunk; all misses and REL modules kept
+  the canonical lookup. It reached the canonical 88-report lockstep set, but
+  the live route entered the opening/demo path and timed out before CSS. A
+  visibly bounded active How-to interval then sustained only 49.134 FPS with
+  24.563 ms p95 over 1,479 frames; attract screens also read 37.5-39.2 FPS.
+  These are absolute failures, not matched regressions. The candidate is
+  removed and both local runners/product hashes are canonical. Evidence:
+  `docs/artifacts/2026-08-26/g5-last-chunk-cache-rejection.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual

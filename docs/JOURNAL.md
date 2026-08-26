@@ -1587,3 +1587,23 @@ Append-only execution ledger. Claims are limited to observed evidence.
   The separate 1.90-3.72 second menu-transition freezes remain open.
 - Evidence:
   `docs/artifacts/2026-08-26/g5-direct-chunk-matched-yoshi-control.md`.
+
+## 2026-08-26 — last-chunk cache rejected on active-scene failure
+
+- Preflight: the core contained an unused `m_last_chunk_index`. A temporary
+  DOL-only fast path returned it only when the new PC remained within that
+  exact module chunk; every miss and all REL mappings retained canonical
+  lookup behavior.
+- Semantic screen: the bounded 5,000,000-dispatch run reached the canonical
+  88-report set, with no new divergence class observed.
+- Route honesty: the memory-gated route entered an opening/demo sequence and
+  timed out before CSS. Its 41.87-second readiness result is excluded. Long B
+  returned to title; later input reached coherent attract and How-to scenes.
+- Performance: active How-to frames 19,396-20,874 measured 20.352699 ms mean,
+  24.562912 ms p95, and 49.133532 FPS. The title showed 48.6-50.7 FPS and
+  attract combat 37.5-39.2 FPS. These are absolute candidate failures, not a
+  matched regression against canonical.
+- Decision: **LAST-CHUNK CACHE REJECTED/REMOVED; G5 OPEN; G6 BLOCKED.** Source
+  and both local runners were rebuilt canonical; product runner/module hashes
+  remained `9bff54e4...` / `2dce1352...`; temporary app/run moved to Trash.
+- Evidence: `docs/artifacts/2026-08-26/g5-last-chunk-cache-rejection.md`.

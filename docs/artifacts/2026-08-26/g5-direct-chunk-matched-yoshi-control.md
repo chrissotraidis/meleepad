@@ -56,11 +56,12 @@ mean frame time, a 1.20 ms p95 penalty, and about 3,537 more native dispatches
 per frame despite equal guest-cycle work. The candidate still fails G5
 absolutely and remains removed.
 
-Do not retry the same table shape. Its loop re-resolves the chunk index after
-the preceding `FastDispatchableAt` check, so the next bounded preflight must
-first test whether carrying that already-verified index across the loop removes
-the extra lookup without changing any SMC, host-call, exception, cycle, or
-event boundary.
+Do not retry the same table shape. Disassembly confirms its loop re-resolves
+the chunk index after the preceding `FastDispatchableAt` check. The different
+native-dispatch count is not itself proof of lookup cost because it reflects a
+different guest execution path. A subsequent last-chunk cache preflight was
+also rejected on an absolute 49.13 FPS active How-to interval; see
+`g5-last-chunk-cache-rejection.md`.
 
 This result does not close the separate menu defect. Canonical steady Main
 Menu can average near 60 FPS while transitions still freeze for 1.90-3.72

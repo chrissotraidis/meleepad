@@ -330,13 +330,17 @@ Restore ABI 3 and generic dispatch; do not retry module-function lookup/layout
 changes without a new mechanism explaining the repeat Fountain regression. An
 exact canonical Pikachu/CPU-Yoshi Fountain control subsequently measured
 16.763 ms mean / 17.554 ms p95 / 59.657 FPS over the same 4,743-frame count,
-confirming the candidate's +0.171 ms mean and +1.199 ms p95 regression. Its
-extra ~3,537 dispatches/frame point to duplicate chunk-index resolution in the
-candidate loop. Preflight carrying the already-verified index before another
-runtime build. Keep the independently reproduced 1.90-3.72 second menu
+confirming the candidate's +0.171 ms mean and +1.199 ms p95 regression.
+Disassembly, rather than the guest-path-dependent dispatch-count difference,
+confirms duplicate chunk-index resolution in that candidate loop. A simpler
+DOL last-chunk cache then failed to establish the exact route and sustained
+only 49.134 FPS / 24.563 ms p95 over 1,479 active How-to frames, so it too is
+removed. Do not retry chunk-lookup micro-optimizations. Keep the independently
+reproduced 1.90-3.72 second menu
 transition freezes in G5 scope. See
 `docs/artifacts/2026-08-26/g5-direct-chunk-table-rejection.md` and
-`docs/artifacts/2026-08-26/g5-direct-chunk-matched-yoshi-control.md`.
+`docs/artifacts/2026-08-26/g5-direct-chunk-matched-yoshi-control.md` and
+`docs/artifacts/2026-08-26/g5-last-chunk-cache-rejection.md`.
 
 ## Testing rhythm
 
