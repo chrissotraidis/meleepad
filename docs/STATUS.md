@@ -611,6 +611,18 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   product and active source module are canonical. Next: default-off THP-time
   external-write address histogram before any MMU-validated buffer fast path.
   Evidence: `docs/artifacts/2026-08-26/g5-thp-fp-gate-rejection.md`.
+- **PERF-043 (locked-cache write path split and rejected):** A default-off
+  external-write histogram sampled 8,389,081 writes and found 99.588560% in
+  the 16 KiB locked-cache window, almost entirely one-byte THP output. An exact
+  in-bounds direct-store candidate passed the 1,401-check canonical lockstep
+  screen and improved the visually verified How-to movie from 21.252 to
+  16.565 ms mean, but a fresh matched Pikachu mirror on literal Fountain
+  regressed from 16.801 ms / 59.519 FPS / 18.391 ms p95 to 17.933 ms /
+  55.764 FPS / 20.200 ms p95. It is removed; source and packaged product are
+  canonical. The THP/MMU attribution remains, but the next experiment must be
+  a THP-scoped host preflight rather than another global memory fast path.
+  Evidence:
+  `docs/artifacts/2026-08-26/g5-locked-cache-fast-path-rejection.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual

@@ -1647,3 +1647,30 @@ Append-only execution ledger. Claims are limited to observed evidence.
   generator/tests/tools/module/product restored; candidate moved to Trash.
   Next: default-off THP-time external-write address histogram.
 - Evidence: `docs/artifacts/2026-08-26/g5-thp-fp-gate-rejection.md`.
+
+## 2026-08-26 — locked-cache THP gain rejected on matched combat
+
+- A temporary one-in-64 external-write histogram was excluded from timing but
+  proved the address mechanism: 99.588560% of 8,389,081 sampled writes hit
+  locked cache, 8,365,843 were one byte, and the leading PCs were THP decode.
+- A direct in-bounds locked-cache store retained the existing lockstep journal
+  and passed 1,401 checks / 88 canonical reports / seven fallback skips /
+  three zero skips / zero undercharges.
+- Computer Use verified the same Mario/Bowser How-to movie. Mean fell from
+  21.251930 to 16.564629 ms and CPU-thread work from 20.492810 to
+  13.597789 ms, confirming material per-byte MMU overhead.
+- The original candidate Fountain range was ambiguous in a mixed log and was
+  excluded. Fresh immutable files then visually and numerically matched P1
+  Pikachu versus CPU Pikachu on literal Fountain using the same 1,877-row
+  twelve-cycle sequence.
+- Canonical measured 16.801288 ms / 59.519246 FPS / 18.391276 ms p95. The
+  candidate measured 17.932665 ms / 55.764160 FPS / 20.200351 ms p95, with
+  flat guest cycles and zero static fallback steps.
+- Decision: **LOCKED-CACHE CANDIDATE REJECTED/REMOVED; THP ATTRIBUTION
+  RETAINED; G5 OPEN; G6 BLOCKED.** Canonical source runner and packaged
+  runner/module hashes are restored; no runtime or Simulator remains.
+- Next: a host-only THP-scoped preflight must separate locked-cache
+  translation/journaling cost from the byte store. Do not retry a global
+  memory path, per-PC shortcut, or per-write observer.
+- Evidence:
+  `docs/artifacts/2026-08-26/g5-locked-cache-fast-path-rejection.md`.

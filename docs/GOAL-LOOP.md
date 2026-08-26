@@ -368,6 +368,19 @@ may justify a focused MMU-validated contiguous-buffer fast path. G5 remains
 open; G6 remains blocked. See
 `docs/artifacts/2026-08-26/g5-thp-fp-gate-rejection.md`.
 
+The follow-up external-write histogram confirms that THP's hot output is
+almost entirely one-byte stores into the 16 KiB locked-cache window. A direct
+locked-cache write path passed the bounded canonical lockstep screen and
+improved the same How-to movie from 21.252 to 16.565 ms mean, but a fresh exact
+Pikachu mirror on literal Fountain regressed from 59.519 to 55.764 FPS and
+from 18.391 to 20.200 ms p95. Reject and remove the global shortcut; retain
+the THP/MMU attribution. The next single experiment is a host-only,
+THP-scoped preflight that separates byte-store, address-translation, and
+journaling cost before any new game build. Do not use guest-PC special cases
+or another broad locked-cache path. G5 remains open and G6 remains blocked.
+See
+`docs/artifacts/2026-08-26/g5-locked-cache-fast-path-rejection.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).
