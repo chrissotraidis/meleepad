@@ -436,6 +436,20 @@ G5 remains open and G6 remains blocked. See
 `docs/artifacts/2026-08-26/g5-line-symbolized-fountain-attribution.md` and
 `docs/artifacts/2026-08-26/g5-gqr0-store-fast-path-rejection.md`.
 
+The ordered 64-bit gather-write follow-up is also rejected. Although a
+real-GPFifo host preflight showed an approximately 8x isolated win and the
+one-arm candidate passed matched bounded lockstep, its first exact-length
+Fountain bracket regressed from 53.537 to 51.076 FPS and from 20.975 to
+22.605 ms p95. A no-P1-input follow-up was not causally matched because CPU AI
+diverged by roughly 34,785 native dispatches/frame; candidate p95 still
+worsened from 21.425 to 23.151 ms. The branded runner could not produce a
+shared save state through the standalone signals or native shortcuts, so no
+stronger claim is manufactured. Candidate and temporary code are removed,
+the promoted product is unchanged, G5 remains open, and G6 remains blocked.
+Next, establish a verified save/load-state or emulated-frame-gated comparison
+harness before another performance candidate. See
+`docs/artifacts/2026-08-27/g5-gpfifo64-rejection.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

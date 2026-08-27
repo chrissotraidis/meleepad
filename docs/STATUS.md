@@ -675,6 +675,21 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   split. Evidence:
   `docs/artifacts/2026-08-26/g5-line-symbolized-fountain-attribution.md` and
   `docs/artifacts/2026-08-26/g5-gqr0-store-fast-path-rejection.md`.
+- **PERF-048 (64-bit gather write rejected):** A real-GPFifo host benchmark
+  found stable 7.976-8.111x isolated speedup for one `Write64` versus eight
+  `Write8` calls, and the one-arm candidate passed a matched 1,398-check
+  lockstep screen. Live Fountain did not retain that promise. A 7,430-row
+  Pikachu/CPU-Peach bracket regressed from 18.679 ms / 53.537 FPS / 20.975 ms
+  p95 to 19.579 ms / 51.076 FPS / 22.605 ms p95. A no-P1-input 7,431-row
+  bracket moved mean by only 0.255 ms in the candidate's favor while p95
+  worsened from 21.425 to 23.151 ms and CPU AI diverged by about 34,785 native
+  dispatches/frame. A shared-state causal replay was unavailable: the
+  standalone signal handler is not installed by the branded entrypoint and
+  native shortcuts produced no state file. The candidate and temporary
+  benchmark/guard are removed; product hashes remain canonical. Next: build a
+  verified frame-deterministic comparison harness before another performance
+  candidate. Evidence:
+  `docs/artifacts/2026-08-27/g5-gpfifo64-rejection.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual

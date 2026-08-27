@@ -1772,3 +1772,29 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Evidence:
   `docs/artifacts/2026-08-26/g5-line-symbolized-fountain-attribution.md` and
   `docs/artifacts/2026-08-26/g5-gqr0-store-fast-path-rejection.md`.
+
+## 2026-08-27 — 64-bit gather-pipe width candidate rejected
+
+- A temporary real-GPFifo benchmark verified identical big-endian bytes and a
+  stable roughly 8x isolated advantage for `Write64` over eight `Write8`
+  calls. A regression-first one-arm candidate passed matched bounded
+  lockstep: 1,398 checks, 91 reports, seven fallback skips, three zero skips,
+  and no undercharge.
+- An exact rebuilt control and candidate each completed a 7,430-row
+  load-to-results Fountain interval. The candidate regressed from 18.678609
+  to 19.578675 ms mean and from 20.974708 to 22.605417 ms p95.
+- The wall-time input script could shift actions across emulated frames, so a
+  no-P1-input pair was run. It aligned at 7,431 rows, but CPU AI still diverged
+  from 148,239.920 to 183,024.690 dispatches/frame. Candidate mean was only
+  0.255 ms lower and p95 was 1.726 ms worse.
+- A shared-state replay was attempted without product edits. `SIGUSR1`
+  terminated the branded runner because only Dolphin's standalone main
+  installs that handler; native save shortcuts produced no state file. No
+  causal shared-state claim is made.
+- Decision: **candidate rejected/removed; G5 open; G6 blocked.** Canonical
+  runner rebuilt, `gcpipe` passes 16/16, focused CTest passes 4/4, promoted
+  codesign and hashes are unchanged, and no runtime or Simulator remains.
+- Next: expose a verified save/load state path or emulated-frame-gated input
+  replay before integrating another performance candidate.
+- Evidence:
+  `docs/artifacts/2026-08-27/g5-gpfifo64-rejection.md`.
