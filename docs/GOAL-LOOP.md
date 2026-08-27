@@ -410,6 +410,32 @@ dispatcher, broad FP, or guest-PC shortcuts. G5 remains open and G6 remains
 blocked. See
 `docs/artifacts/2026-08-26/g5-paired-store-transactions-retained.md`.
 
+The symmetric paired-load follow-up is rejected. Exact float/U8/U16/S8/S16
+external-read regressions passed, but the distinct candidate fell from
+59.9-60.0 FPS in menus to 52.141 FPS mean in visually verified
+Pikachu/CPU-Yoshi Fountain combat. Its 4,578-frame bracket measured
+19.178837 ms mean, 21.220959 ms p95, 18.779152 ms CPU-thread mean, flat guest
+cycles, and zero fallbacks. Candidate source and bootstrap state are removed;
+the paired-store build is active and the product was never changed. Do not
+retry a global paired-load/MMU shortcut. Next, add source line tables to a
+diagnostic-equivalent retained module and take a normal native Fountain sample
+without per-frame PC logging, reducing `0x8035D940`/`0x8033D940` to one named
+guest routine/helper. G5 remains open and G6 remains blocked. See
+`docs/artifacts/2026-08-26/g5-paired-load-transaction-rejection.md`.
+
+The line-symbolized, text-identical diagnostic reduced the live Fountain hot
+chunk to `WriteMTXPS4x3`: six GQR0 loads followed by six GX FIFO paired stores,
+with the store PCs accounting for 283/8,892 chassis samples. A guarded general
+GQR0 helper passed GXRuntime 1/1 and DolRecomp 14/14, but the distinct candidate
+fell to 20.823964 ms / 48.022 FPS / 23.354708 ms p95 over 5,486 visually
+verified Bowser/CPU-Ness Fountain frames. Candidate code is removed, retained
+key `1e1debc9fb83a31a` is active, and the product was never changed. Do not
+retry the helper split. Next, host-preflight a general ordered GX FIFO matrix
+batch with exact byte/order/callback semantics before another module build.
+G5 remains open and G6 remains blocked. See
+`docs/artifacts/2026-08-26/g5-line-symbolized-fountain-attribution.md` and
+`docs/artifacts/2026-08-26/g5-gqr0-store-fast-path-rejection.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

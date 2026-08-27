@@ -1727,3 +1727,48 @@ Append-only execution ledger. Claims are limited to observed evidence.
   shortcut.
 - Evidence:
   `docs/artifacts/2026-08-26/g5-paired-store-transactions-retained.md`.
+
+## 2026-08-26 — paired PSQ loads rejected on live Fountain combat
+
+- Goal/step: G5, test the symmetric paired-load transaction hypothesis after
+  paired stores materially improved THP.
+- Regression/build: exact external-read transaction tests failed first and
+  then passed; full GXRuntime tests passed; distinct source cache key
+  `60192f7ab4d77b40` rebuilt and repeated as an exact hit.
+- Runtime: Computer Use verified Pikachu versus level-1 CPU Yoshi on literal
+  Fountain. Menus held 59.9-60.0 FPS; combat fell to 53.7 FPS. Frames
+  57,144-61,721 measured 19.178837 ms mean, 21.220959 ms p95, 52.141 FPS,
+  and only 3.189% <=16.7 ms. CPU-thread mean was 18.779152 ms; guest cycles
+  were flat and fallbacks zero.
+- Decision: **candidate rejected and removed; paired-store build restored; G5
+  open; G6 blocked.** The signed product was never modified.
+- Evidence:
+  `docs/artifacts/2026-08-26/g5-paired-load-transaction-rejection.md` and
+  `docs/evidence/g5-paired-load-rejection/pikachu-yoshi-fountain.phase.csv`.
+- Next: build a diagnostic-equivalent retained module with source line tables,
+  take a no-frame-PC-log Fountain native sample, and map the two broad hot
+  chunks to one named routine/helper before changing product code.
+
+## 2026-08-26 — line-symbol Fountain attribution; GQR0 split rejected
+
+- A line-table-only diagnostic module retained an exact 81,633,512-byte
+  `__text` and exact retained `__text` SHA. Computer Use verified Bowser versus
+  level-1 CPU Ness on literal Fountain before a normal 20-second native sample.
+- Six source-line PCs totaling 283/8,892 chassis samples map to
+  `WriteMTXPS4x3`, which performs six GQR0 paired loads and six paired stores
+  to the GX FIFO. The known `0x80349494` scheduler loop remains excluded.
+- A guarded default-float GQR0 helper failed at link first, then passed exact
+  paired/single/quantized-fallback/HID2 tests, GXRuntime 1/1, and DolRecomp
+  14/14. Distinct cache key `714512b16f05c99a` built successfully.
+- Visually verified Bowser/CPU-Ness Fountain frames 41,579-47,064 measured
+  20.823964 ms / 48.022 FPS / 23.354708 ms p95. CPU-thread mean was
+  20.331661 ms; guest cycles stayed near 8.107M, dispatches rose to 149,651,
+  and fallbacks stayed zero. Adjacent retained screens show coherent meshes.
+- Decision: **GQR0 helper split rejected and removed; attribution retained; G5
+  open; G6 blocked.** The retained paired-store key is active, promoted product
+  was never modified, and no runtime or Simulator remains.
+- Next: host-only exact ordered GX FIFO matrix-batch preflight before another
+  module build. Do not retry this call split or global/guest-PC shortcuts.
+- Evidence:
+  `docs/artifacts/2026-08-26/g5-line-symbolized-fountain-attribution.md` and
+  `docs/artifacts/2026-08-26/g5-gqr0-store-fast-path-rejection.md`.

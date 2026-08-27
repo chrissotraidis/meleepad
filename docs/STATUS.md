@@ -652,6 +652,29 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   p95 tails exceed 16.7 ms and live four-player rendering remains slow.
   Evidence:
   `docs/artifacts/2026-08-26/g5-paired-store-transactions-retained.md`.
+- **PERF-046 (paired PSQ loads rejected):** Exact external-read transaction
+  regressions passed, but the distinct candidate failed live
+  Pikachu/CPU-Yoshi Fountain at 19.178837 ms mean / 52.141 FPS / 21.220959 ms
+  p95 over 4,578 frames. CPU-thread mean was 18.779152 ms while guest cycles
+  stayed near 8.107M and fallbacks stayed zero. Candidate code, tests,
+  bootstrap entry, and patch are removed; active key `1e1debc9fb83a31a` and
+  the unchanged signed product are restored. Next: line-symbolized native
+  sampling of the retained build, not another global load/MMU shortcut.
+  Evidence:
+  `docs/artifacts/2026-08-26/g5-paired-load-transaction-rejection.md`.
+- **PERF-047 (line-symbol attribution; GQR0 split rejected):** A
+  line-symbolized module with byte-identical `__text` mapped 283/8,892 chassis
+  samples to the six GX FIFO stores in `WriteMTXPS4x3`. A regression-first,
+  runtime-guarded GQR0 helper passed GXRuntime 1/1 and DolRecomp 14/14, then
+  failed live Bowser/CPU-Ness Fountain at 20.823964 ms / 48.022 FPS /
+  23.354708 ms p95 across 5,486 frames. CPU-thread mean was 20.331661 ms,
+  native dispatches rose to 149,650.631/frame, guest cycles stayed flat, and
+  fallbacks stayed zero. Candidate source is removed; retained key
+  `1e1debc9fb83a31a` is active and the product was never modified. Next:
+  host-only exact ordered GX FIFO matrix-batch preflight, not another helper
+  split. Evidence:
+  `docs/artifacts/2026-08-26/g5-line-symbolized-fountain-attribution.md` and
+  `docs/artifacts/2026-08-26/g5-gqr0-store-fast-path-rejection.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual
