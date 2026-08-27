@@ -463,6 +463,21 @@ late-Fountain state and require aligned work counts across canonical control
 and a distinct candidate before judging the next optimization. See
 `docs/artifacts/2026-08-27/g5-deterministic-savestate-harness.md`.
 
+The late-Fountain comparison prerequisite is now complete. A local state
+visibly restored Pikachu/CPU-Fox combat from a later divergent scene, and
+patch 0014 adds Dolphin's savestated emulated VI frame to the diagnostic phase
+CSV. Two `48123..48562` control replays matched exactly at 3,567,157,803 guest
+cycles, 59,374,686 native dispatches, and 905,158 bursts. Equal presentation
+row counts had not matched because missed deadlines change how many emulated
+fields land in each present bucket. A shared-state A/B/reverse-A rerun of the
+64-bit gather-write arm found overlapping control/candidate timing; the
+fastest reverse control beat the fastest candidate. The arm is removed again.
+Retain the emulated-frame diagnostic, require it for future causal A/Bs, and
+attribute one new compute hotspot inside this exact window. Do not retry
+gather width, global MMU/locked-cache, timers, dispatcher budgets, broad FP,
+or guest-PC shortcuts. G5 remains open and G6 remains blocked. See
+`docs/artifacts/2026-08-27/g5-emulated-frame-shared-state-verdict.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

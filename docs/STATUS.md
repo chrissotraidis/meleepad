@@ -1,10 +1,22 @@
 # ssbmpad status
 
-Last updated: 2026-08-26
+Last updated: 2026-08-27
 
 ## Current goal
 
 **G5 — macOS 60 fps: IN PROGRESS**
+
+The retained savestate harness now has a causal emulated-frame clock. A
+Pikachu/CPU-Fox Fountain state visibly restored active combat, and two equal
+440-field control windows matched exactly in guest cycles, native dispatches,
+and static bursts. Patch 0014 logs Dolphin's savestated VI/Movie frame beside
+the presentation index. A shared-state A/B/reverse-A rerun found no
+reproducible benefit from the 64-bit gather-write arm: warm candidate and
+reverse-control ranges overlapped, and the fastest reverse control was faster.
+The arm is removed; the diagnostic remains. The exact window still measured
+roughly 21.5-23.3 ms mean and 24.1-26.3 ms warm p95, so G5 clearly fails and
+G6/iPadOS remains blocked. See
+`docs/artifacts/2026-08-27/g5-emulated-frame-shared-state-verdict.md`.
 
 The native arm64 package now reproducibly completes Character Select ->
 controlled 1v1 -> results using the reference FIFO controller path. A clean
@@ -703,6 +715,18 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   pass. G5 remains open; next is one shared-state control/candidate Fountain
   comparison with aligned work counts. Evidence:
   `docs/artifacts/2026-08-27/g5-deterministic-savestate-harness.md`.
+- **PERF-050 (emulated-frame A/B harness retained; gather width rejected):**
+  A fresh Pikachu/CPU-Fox Fountain state visibly restored saved combat after a
+  divergent interval. Equal presentation-row windows did not match guest work,
+  so patch 0014 now logs Dolphin's savestated VI/Movie frame. Two equal
+  440-field controls then matched exactly at 3,567,157,803 cycles, 59,374,686
+  dispatches, and 905,158 bursts. In a shared-state A/B/reverse-A bracket,
+  warm gather candidates ranged 22.391-23.311 ms mean while reverse controls
+  ranged 21.459-22.360 ms; the ranges overlap and the fastest control won.
+  The `Write64` arm is removed, patch 0014 is retained, G5 remains open, and
+  G6 remains blocked. Future candidates require equal emulated-frame windows.
+  Evidence:
+  `docs/artifacts/2026-08-27/g5-emulated-frame-shared-state-verdict.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual

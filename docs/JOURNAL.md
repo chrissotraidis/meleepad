@@ -1824,3 +1824,33 @@ Append-only execution ledger. Claims are limited to observed evidence.
   aligned frame, guest-cycle, and dispatch counts.
 - Evidence:
   `docs/artifacts/2026-08-27/g5-deterministic-savestate-harness.md`.
+
+## 2026-08-27 — emulated-frame shared-state bracket
+
+- The first late-Fountain state attempt was reclassified as test latency: the
+  game had only about 20 seconds left and continued running before `SIGUSR1`.
+  Source inspection confirmed Dolphin pauses the static core through
+  `SyncOut` before serialization and returns through `SyncIn` after load.
+- A fresh Pikachu/level-1-CPU-Fox Fountain state saved at 1:45.69 and visibly
+  restored from a divergent 1:37.79 scene to 1:47.02 with the saved 40%/0%
+  damage state. Its SHA-256 is recorded locally but the RAM-bearing file is
+  excluded from the repository.
+- Equal presentation-row repeat runs failed to match. Patch 0014 now publishes
+  Dolphin's savestated VI/Movie frame through an atomic and logs it beside the
+  existing presentation index. Two equal 440-emulated-frame controls then
+  matched exactly at 3,567,157,803 cycles, 59,374,686 dispatches, and 905,158
+  bursts.
+- The `GPFifo::Write64` arm was rerun in an A/B/reverse-A bracket. Warm
+  candidate rows ranged 22.391-23.311 ms mean; reverse controls ranged
+  21.459-22.360 ms. The ranges overlap and the fastest reverse control won.
+  Candidate p95 also ranged 24.597-25.897 ms, with a 30.585 ms cold row.
+- Decision: **patch 0014 retained; gather arm removed; G5 open; G6 blocked.**
+  Future candidates must use shared state plus equal emulated-frame intervals.
+  Next is one newly attributed compute hotspot inside the retained window.
+- Verification: patch reverse/forward passes, Release runner rebuild passes,
+  bootstrap passes, `gcpipe` 16/16, focused CTest 4/4, repository check passes,
+  canonical package codesign passes, runner/module hashes are
+  `9d0fdf87...`/`2fe01870...`, both declare macOS 14.0 minimum, and no game
+  process or Simulator remains.
+- Evidence:
+  `docs/artifacts/2026-08-27/g5-emulated-frame-shared-state-verdict.md`.

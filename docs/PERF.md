@@ -126,6 +126,17 @@ attract screen regressed median from 16.684 to 16.778 ms, p95 from 18.077 to
 module restored. See
 `docs/artifacts/2026-08-25/g5-fountain-fd-pgo-and-input-route.md`.
 
+The shared-state comparison gap is now closed. Patch 0014 records Dolphin's
+savestated emulated VI/Movie frame beside each presentation row. Two equal
+440-field Fountain control windows matched exactly at 3,567,157,803 guest
+cycles, 59,374,686 native dispatches, and 905,158 bursts. A causal
+A/B/reverse-A replay of the 64-bit gather candidate found warm candidate means
+of 22.391-23.311 ms versus reverse-control means of 21.459-22.360 ms; the
+ranges overlap and the fastest control won. The gather arm is removed. These
+21.5-23.3 ms means and 24.1-26.3 ms warm p95 values remain a clear G5 failure.
+See
+`docs/artifacts/2026-08-27/g5-emulated-frame-shared-state-verdict.md`.
+
 Required next work:
 
 1. Use the retained PGO binary/profile as an oracle for a smaller static

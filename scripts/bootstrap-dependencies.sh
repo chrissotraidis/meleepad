@@ -136,6 +136,7 @@ dispatch_counts_patch="$ROOT/patches/moderngekko-dolphin/0010-module-dispatch-br
 dispatch_frame_patch="$ROOT/patches/moderngekko-dolphin/0011-dispatch-frame-attribution.patch"
 paired_store_patch="$ROOT/patches/moderngekko-dolphin/0012-gxruntime-paired-store-transactions.patch"
 savestate_signal_patch="$ROOT/patches/moderngekko-dolphin/0013-runtime-savestate-signal-harness.patch"
+emulated_frame_patch="$ROOT/patches/moderngekko-dolphin/0014-emulated-frame-phase-index.patch"
 apply_patch_once_or_marker "$MG" "$mg_patch" \
   include/moderngekko/runtime.hpp 'struct RuntimeDiagnosticsSnapshot'
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$dolphin_patch" \
@@ -164,6 +165,8 @@ apply_patch_once_or_marker "$MG/vendor/dolphin" "$dispatch_frame_patch" \
   STATICRECOMP_DISPATCH_FRAME_LOG
 apply_patch_once "$MG/vendor/dolphin" "$paired_store_patch"
 apply_patch_once "$MG" "$savestate_signal_patch"
+apply_patch_once_or_marker "$MG/vendor/dolphin" "$emulated_frame_patch" \
+  Source/Core/Common/FramePhaseTiming.h s_emulated_frame_index
 verify_patch_scope "$MG" "$mg_patch" vendor/dolphin tools/moderngekko_launcher.cpp \
   tools/moderngekko_port.cpp tests/frontend_config_test.cpp \
   tools/frontend_config.cpp tools/frontend_config.hpp tools/moderngekko_run.cpp \
@@ -177,6 +180,7 @@ verify_patch_scope "$MG/vendor/dolphin" "$dolphin_patch" \
   Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h \
   Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp \
   Source/Core/Common/FramePhaseTiming.h \
+  Source/Core/Core/HW/VideoInterface.cpp \
   Source/Core/Core/CoreTiming.cpp \
   Source/Core/AudioCommon/Mixer.cpp \
   Source/Core/VideoCommon/Present.cpp \
