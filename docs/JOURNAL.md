@@ -1886,3 +1886,22 @@ Append-only execution ledger. Claims are limited to observed evidence.
   `1e1debc9fb83a31a` is restored.
 - Evidence:
   `docs/artifacts/2026-08-27/g5-fp-availability-inline-rejection.md`.
+
+## 2026-08-27 — PSMTXConcat replacement preflight rejection
+
+- Exact late-Fountain lines `27446..27861` map to the complete SDK
+  `PSMTXConcat` body at guest `0x803408D4..0x8034099C`; the coarse symbol map
+  is wrong for this local routine.
+- A disposable exact-DOL replacement matched full CPU state, 48 output bytes,
+  and 64 scratch-stack bytes across 20,000 randomized finite trials. Integrated
+  cost fell from 169-202 ns to 52-61 ns per call.
+- The same dylib added 2.04-2.40 ns to each non-hit public replacement probe.
+  At roughly 130,000 dispatches/frame this costs 0.27-0.31 ms, requiring over
+  2,200 matrix hits/frame just to break even. Sampling predicts only a
+  few-hundredths-of-a-millisecond net opportunity.
+- Decision: **candidate removed before live testing; G5 open; G6 blocked.** The
+  active pointer remains canonical and the packaged app was untouched. Next:
+  identify a larger coherent exact-window kernel or a general optimization
+  with no per-dispatch tax; do not add a common-path guest-PC shortcut.
+- Evidence:
+  `docs/artifacts/2026-08-27/g5-psmtxconcat-replacement-preflight-rejection.md`.

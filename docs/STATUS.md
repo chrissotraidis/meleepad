@@ -749,6 +749,18 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   `1e1debc9fb83a31a` restored. A too-early savestate load also established a
   new harness rule: require advancing emulated frames before `SIGUSR2`.
   Evidence: `docs/artifacts/2026-08-27/g5-fp-availability-inline-rejection.md`.
+- **PERF-053 (`PSMTXConcat` replacement preflight rejected):** Exact-window
+  line evidence identified guest `0x803408D4..0x8034099C` as the SDK matrix
+  concatenation kernel. A revision-hash-gated disposable replacement matched
+  full CPU state, output, and scratch-stack memory across 20,000 randomized
+  trials and ran 3.23-3.29x faster per hit. The supported replacement probe,
+  however, added 2.04-2.40 ns to every non-hit dispatch, or about 0.27-0.31 ms
+  at Fountain's dispatch rate. More than 2,200 hits/frame would be needed to
+  break even; sampling bounds the plausible net gain to only hundredths of a
+  millisecond. The candidate was removed before a live run, the active module
+  and product are unchanged, G5 remains open, and G6 remains blocked.
+  Evidence:
+  `docs/artifacts/2026-08-27/g5-psmtxconcat-replacement-preflight-rejection.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual

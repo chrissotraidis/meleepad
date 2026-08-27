@@ -498,6 +498,19 @@ gather width, global MMU/locked-cache, timers, dispatcher budgets, broad FP,
 or guest-PC shortcuts. G5 remains open and G6 remains blocked. See
 `docs/artifacts/2026-08-27/g5-emulated-frame-shared-state-verdict.md`.
 
+The next exact-window lead, SDK `PSMTXConcat` at guest
+`0x803408D4..0x8034099C`, is rejected at preflight. A hash-gated disposable
+whole-function replacement matched full CPU and memory state across 20,000
+randomized trials and was 3.23-3.29x faster per hit, but enabling the supported
+replacement path added 2.04-2.40 ns to every non-hit dispatch. At Fountain's
+roughly 130,000 dispatches/frame, that global 0.27-0.31 ms tax consumes the
+sample-bounded local gain. Candidate source was removed before live testing;
+the active module and product remain canonical. Do not retry this replacement
+shape or a common-path guest-PC shortcut. Continue G5 by finding a larger
+coherent exact-window kernel or a general optimization with no per-dispatch
+tax. G6 remains blocked. See
+`docs/artifacts/2026-08-27/g5-psmtxconcat-replacement-preflight-rejection.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).
