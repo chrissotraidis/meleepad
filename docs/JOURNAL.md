@@ -2120,3 +2120,21 @@ Append-only execution ledger. Claims are limited to observed evidence.
   FMA mode splits.
 - Evidence:
   `docs/artifacts/2026-08-27/g5-current-source-combat-pgo-oracle.md`.
+
+## 2026-08-27 — PGO inline decisions resolved; one-site clone rejected
+
+- A byte-identical ThinLTO remark relink emitted 244 private YAML shards with
+  44,741 successful and 241,479 missed inline decisions.
+- Successful hot calls are aggregate: 41,671 FP-availability, 746 long-load,
+  585 scalar-multiply, 464 FMA, 61 PSQ-load, and 36 PSQ-store sites. Hot
+  threshold 3,000 versus cold 325/45 explains the prior blanket-inline loss.
+- Coverage mapping resolved the hottest short `lmw` to revision-0
+  `0x8036E8B4`, about 3.09M training executions. Retained preflight shows only
+  about 1 ns/call available from one fixed short-range inline, far too little
+  to explain 4.2 ms/frame. Reject before module/source change.
+- The validated candidate is installed locally as
+  `build-macos/SsbmPad-PGO.app`; canonical `SsbmPad.app` is unchanged. Strict
+  signature, package layout, architecture, minimum OS, and no-game-data scan
+  pass.
+- Decision: **no static one-site candidate; G5 open; G6 blocked.** Preserve
+  selective PGO as the oracle and avoid a large derived guest-address list.

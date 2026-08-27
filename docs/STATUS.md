@@ -17,6 +17,13 @@ local ROM-trained profile/module remain outside Git and do not replace the
 reproducible product module. G6 remains blocked. See
 `docs/artifacts/2026-08-27/g5-current-source-combat-pgo-oracle.md`.
 
+ThinLTO remarks now explain that gain as 44,741 selective inlines led by
+41,671 FP-availability sites; hot thresholds are 3,000 while cold sites remain
+325/45. The hottest isolated short long-load is only a roughly 1 ns/call
+opportunity and was rejected before a module build. The validated candidate is
+installed locally as `build-macos/SsbmPad-PGO.app`; the reproducible canonical
+app remains unchanged.
+
 PERF-062 fixes a real signed-package workload defect. The app now builds with
 an explicit bundle mode, keeps Dolphin `Sys` under `Contents/Resources`,
 retains the revision byte from validated `boot.bin`, and seeds the GALE01r0

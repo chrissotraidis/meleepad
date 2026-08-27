@@ -124,6 +124,32 @@ optimization remarks for the exact eliminated hot calls and choose one
 previously untested, semantics-complete common case. Do not convert this
 oracle into another global inline change.
 
+That diagnostic subsequently completed. A byte-identical ThinLTO relink wrote
+244 private YAML shards containing 286,220 inline records: 44,741 successful
+and 241,479 missed. Successful dynamic hotness is dominated by:
+
+- 41,671 `ppc_fp_available` sites;
+- 746 `ppc_lmw_op` sites;
+- 585 `ppc_fmuls` sites;
+- 464 `ppc_fmadd_op` sites;
+- 61 `ppc_psq_load` sites; and
+- 36 `ppc_psq_store` sites.
+
+Hot sites received an inline threshold of 3,000, while cold sites commonly
+remained at 325 or 45. This directly explains why prior blanket helper
+inlining did not reproduce PGO: the useful input is call-site hotness, not a
+global helper attribute.
+
+LLVM coverage mapping tied the hottest short long-load candidate to revision-0
+PC `0x8036E8B4`, `lmw r27,132(r1)`. It executed about 3.09 million times in
+the training profile; the other six calls in its chunk recorded 269, 726, 572,
+416, or zero executions. Retained host preflight binaries show that inlining a
+fixed short range saves only about 1 ns/call versus the current out-of-line
+range helper. One PC therefore cannot materially reproduce the aggregate
+4.2 ms/frame PGO gain. The one-site module build was rejected before source or
+generated code changed. Do not replace aggregate selective PGO with a large
+revision-specific address list.
+
 ## Live product boundary
 
 Computer Use inspected the actual candidate window after a readiness-gated
@@ -135,6 +161,12 @@ retained frame.
 **Retain the fresh local PGO module as an optimization oracle, not as the
 reproducible product module. G5 remains open; Final Destination is not run;
 G6 remains blocked.** No game process or Simulator remains.
+
+A validated local copy is installed at `build-macos/SsbmPad-PGO.app` so the
+best-known native build remains runnable on this machine. Its module is the
+signed `bd089303...` candidate above; package layout, deep strict signing,
+arm64 identity, macOS 14 minimum, and a no-game-data extension scan pass. The
+canonical reproducible `build-macos/SsbmPad.app` remains unchanged.
 
 ## Evidence
 

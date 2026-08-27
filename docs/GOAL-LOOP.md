@@ -621,6 +621,15 @@ an optimization-remark/call-site diff to select one previously untested,
 semantics-complete common case. Final Destination and G6 remain blocked. See
 `docs/artifacts/2026-08-27/g5-current-source-combat-pgo-oracle.md`.
 
+That inline diff is complete: 44,741 successful PGO inlines are dominated by
+41,671 selectively hot FP-availability sites, with hot threshold 3,000 versus
+cold 325/45. Coverage resolved the hottest isolated short long-load to
+revision-0 `0x8036E8B4`, but host preflight leaves only about 1 ns/call and
+rejects a one-site module build. Do not replace PGO with blanket inlining or a
+large derived address list. The validated faster local app is retained as
+`build-macos/SsbmPad-PGO.app`; canonical packaging remains reproducible and
+unchanged. G5 remains open and G6 blocked.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

@@ -139,6 +139,15 @@ profile and module stay local as an oracle; the reproducible product remains
 unchanged. See
 `docs/artifacts/2026-08-27/g5-current-source-combat-pgo-oracle.md`.
 
+ThinLTO's private inline records attribute that candidate to 44,741 successful
+selective inlines, led by 41,671 FP-availability sites. Hot call sites use a
+3,000 inline threshold while cold sites remain at 325 or 45. Coverage resolved
+the hottest isolated short long-load to revision-0 PC `0x8036E8B4`, but the
+retained host preflight leaves only about 1 ns/call for that one site, so no
+single-site module was built. The validated candidate is retained locally as
+`build-macos/SsbmPad-PGO.app`; it is not the reproducible product module and
+does not satisfy G5.
+
 The shared-state comparison gap is now closed. Patch 0014 records Dolphin's
 savestated emulated VI/Movie frame beside each presentation row. Two equal
 440-field Fountain control windows matched exactly at 3,567,157,803 guest
