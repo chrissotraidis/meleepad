@@ -1798,3 +1798,29 @@ Append-only execution ledger. Claims are limited to observed evidence.
   replay before integrating another performance candidate.
 - Evidence:
   `docs/artifacts/2026-08-27/g5-gpfifo64-rejection.md`.
+
+## 2026-08-27 — deterministic save/load harness retained
+
+- The 64-bit gather rejection exposed wall-time input and CPU-AI divergence,
+  so a shared state became the lowest G5 measurement prerequisite.
+- Failing before: `SIGUSR1` killed the branded runner because only Dolphin's
+  standalone main installed handlers. After adding scoped default-off
+  handlers, the process survived and logged the request but wrote no file.
+- Root cause: the custom runtime skipped `UICommon::CreateDirectories()` after
+  selecting its user directory. The retained fix adds that standard step and
+  installs save/load handlers only when
+  `MODERNGEKKO_ENABLE_SAVESTATE_SIGNALS=1` on supported desktop hosts.
+- Live proof: `SIGUSR1` wrote a 9.2 MB `GALE01.s01`; after visible attract
+  progress, `SIGUSR2` rewound the scene, the process survived, and telemetry
+  continued. The RAM-bearing state remains local and uncommitted.
+- Patch 0013 reverse/forward checks and bootstrap pass. Focused CTest passes
+  4/4, `gcpipe` passes 16/16, and repository safety passes.
+- The canonical packager promoted signed runner
+  `5121b6be59b19094f1995ec483626ff9a7206f73850ed2556aa144427c6dc546`
+  with the unchanged retained module; both declare macOS 14.0 minimum. The
+  previous app remains in the timestamped local backup.
+- Decision: **harness retained; G5 open; G6 blocked.** Next is a visually
+  verified late-Fountain shared state loaded into control and candidate with
+  aligned frame, guest-cycle, and dispatch counts.
+- Evidence:
+  `docs/artifacts/2026-08-27/g5-deterministic-savestate-harness.md`.

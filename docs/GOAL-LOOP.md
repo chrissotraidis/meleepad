@@ -450,6 +450,19 @@ Next, establish a verified save/load-state or emulated-frame-gated comparison
 harness before another performance candidate. See
 `docs/artifacts/2026-08-27/g5-gpfifo64-rejection.md`.
 
+The deterministic comparison prerequisite is now retained as patch 0013.
+Failing-before evidence showed `SIGUSR1` killed the branded runner; a first
+handler build survived but could not write because the custom runtime omitted
+Dolphin's standard user-directory creation. The retained default-off path
+creates that directory tree and maps `SIGUSR1`/`SIGUSR2` to Dolphin's existing
+platform requests only when `MODERNGEKKO_ENABLE_SAVESTATE_SIGNALS=1`. A signed
+live run wrote a real 9.2 MB state, visibly advanced, loaded it, rewound, and
+continued emulation. The RAM-bearing state remains local. This is tooling, not
+a performance pass: G5 remains open and G6 remains blocked. Next, make one
+late-Fountain state and require aligned work counts across canonical control
+and a distinct candidate before judging the next optimization. See
+`docs/artifacts/2026-08-27/g5-deterministic-savestate-harness.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

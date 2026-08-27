@@ -135,7 +135,9 @@ slow_window_patch="$ROOT/patches/moderngekko-dolphin/0009-slow-window-phase-trig
 dispatch_counts_patch="$ROOT/patches/moderngekko-dolphin/0010-module-dispatch-branch-counts.patch"
 dispatch_frame_patch="$ROOT/patches/moderngekko-dolphin/0011-dispatch-frame-attribution.patch"
 paired_store_patch="$ROOT/patches/moderngekko-dolphin/0012-gxruntime-paired-store-transactions.patch"
-apply_patch_once "$MG" "$mg_patch"
+savestate_signal_patch="$ROOT/patches/moderngekko-dolphin/0013-runtime-savestate-signal-harness.patch"
+apply_patch_once_or_marker "$MG" "$mg_patch" \
+  include/moderngekko/runtime.hpp 'struct RuntimeDiagnosticsSnapshot'
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$dolphin_patch" \
   Source/Core/DolphinNoGUI/PlatformIOS.mm 'class PlatformIOS : public Platform'
 apply_patch_once "$MG" "$launcher_patch"
@@ -161,10 +163,12 @@ apply_patch_once_or_marker "$MG/vendor/dolphin" "$dispatch_frame_patch" \
   Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp \
   STATICRECOMP_DISPATCH_FRAME_LOG
 apply_patch_once "$MG/vendor/dolphin" "$paired_store_patch"
+apply_patch_once "$MG" "$savestate_signal_patch"
 verify_patch_scope "$MG" "$mg_patch" vendor/dolphin tools/moderngekko_launcher.cpp \
   tools/moderngekko_port.cpp tests/frontend_config_test.cpp \
   tools/frontend_config.cpp tools/frontend_config.hpp tools/moderngekko_run.cpp \
-  CMakeLists.txt tests/memory_watcher_utils_test.cpp
+  CMakeLists.txt tests/memory_watcher_utils_test.cpp \
+  src/runtime/dolphin_runtime.cpp
 verify_patch_scope "$MG/vendor/dolphin" "$dolphin_patch" \
   DolRecomp \
   Source/Core/VideoCommon/PerformanceTracker.cpp \

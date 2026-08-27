@@ -690,6 +690,19 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   verified frame-deterministic comparison harness before another performance
   candidate. Evidence:
   `docs/artifacts/2026-08-27/g5-gpfifo64-rejection.md`.
+- **PERF-049 (deterministic savestate harness retained):** The branded runtime
+  did not install Dolphin no-GUI's save/load signal handlers; `SIGUSR1` killed
+  the first verified Fountain seed. A handler-only candidate survived but
+  could not write because the custom runtime also skipped
+  `UICommon::CreateDirectories()`. Patch 0013 now creates Dolphin's standard
+  user tree and, only under `MODERNGEKKO_ENABLE_SAVESTATE_SIGNALS=1`, scopes
+  `SIGUSR1`/`SIGUSR2` to existing platform save/load requests. A signed live
+  run wrote a real 9.2 MB `GALE01.s01`, visibly advanced, loaded it, rewound,
+  survived, and continued phase rows. The RAM-bearing state stays local.
+  Bootstrap, patch reverse/forward, focused CTest 4/4, and `gcpipe` 16/16
+  pass. G5 remains open; next is one shared-state control/candidate Fountain
+  comparison with aligned work counts. Evidence:
+  `docs/artifacts/2026-08-27/g5-deterministic-savestate-harness.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual

@@ -1,0 +1,90 @@
+diff --git a/src/runtime/dolphin_runtime.cpp b/src/runtime/dolphin_runtime.cpp
+--- a/src/runtime/dolphin_runtime.cpp
++++ b/src/runtime/dolphin_runtime.cpp
+@@ -40,8 +40,10 @@ extern "C" void ModernGekkoSetIOSRenderSurface(void* surface);
+ #include <array>
+ #include <atomic>
+ #include <chrono>
++#include <csignal>
+ #include <cmath>
+ #include <cstddef>
++#include <cstdlib>
+ #include <cstdio>
+ #include <fmt/format.h>
+ #include <mutex>
+@@ -63,5 +65,59 @@ std::unique_ptr<BootSessionData> s_boot_session_data;
+ u64 s_previous_net_wait_ns = 0;
+ double s_net_wait_ms_per_second = 0.0;
+ std::chrono::steady_clock::time_point s_previous_net_wait_sample;
+-
++
++#if !defined(_WIN32) && !defined(MODERNGEKKO_HAVE_IOS)
++Platform* s_savestate_signal_platform = nullptr;
++
++void SaveStateSignalHandler(int) {
++  if (s_savestate_signal_platform)
++    s_savestate_signal_platform->RequestSaveState();
++}
++
++void LoadStateSignalHandler(int) {
++  if (s_savestate_signal_platform)
++    s_savestate_signal_platform->RequestLoadState();
++}
++
++class ScopedSavestateSignalHandlers {
++public:
++  explicit ScopedSavestateSignalHandlers(Platform* platform) {
++    const char* enabled = std::getenv("MODERNGEKKO_ENABLE_SAVESTATE_SIGNALS");
++    if (!enabled || enabled[0] != '1' || enabled[1] != '\0')
++      return;
++
++    struct sigaction action {};
++    sigemptyset(&action.sa_mask);
++    action.sa_flags = SA_RESTART;
++    action.sa_handler = SaveStateSignalHandler;
++    s_savestate_signal_platform = platform;
++    if (sigaction(SIGUSR1, &action, &m_previous_save) != 0) {
++      s_savestate_signal_platform = nullptr;
++      return;
++    }
++
++    action.sa_handler = LoadStateSignalHandler;
++    if (sigaction(SIGUSR2, &action, &m_previous_load) != 0) {
++      sigaction(SIGUSR1, &m_previous_save, nullptr);
++      s_savestate_signal_platform = nullptr;
++      return;
++    }
++    m_active = true;
++  }
++
++  ~ScopedSavestateSignalHandlers() {
++    if (!m_active)
++      return;
++    sigaction(SIGUSR1, &m_previous_save, nullptr);
++    sigaction(SIGUSR2, &m_previous_load, nullptr);
++    s_savestate_signal_platform = nullptr;
++  }
++
++private:
++  struct sigaction m_previous_save {};
++  struct sigaction m_previous_load {};
++  bool m_active = false;
++};
++#endif
++
+ std::string FormatWindowTitle(const std::string &title, double fps) {
+@@ -343,5 +398,6 @@ RuntimeCreateResult Runtime::Create(RuntimeConfig config) {
+-
++
+   if (!s_external_ui_common) {
+     UICommon::SetUserDirectory(impl->config.user_directory.string());
++    UICommon::CreateDirectories();
+     UICommon::Init();
+     impl->ui_initialized = true;
+@@ -590,3 +646,6 @@ RuntimeRunResult Runtime::Run() {
+     });
+   }
++#if !defined(_WIN32) && !defined(MODERNGEKKO_HAVE_IOS)
++  ScopedSavestateSignalHandlers savestate_signal_handlers(m_impl->platform.get());
++#endif
+   m_impl->platform->MainLoop();
