@@ -122,6 +122,7 @@ launcher_patch="$ROOT/patches/moderngekko/0001-launcher-do-not-scan-documents-at
 thinlto_patch="$ROOT/patches/moderngekko/0002-macos-preserve-module-thinlto.patch"
 pipe_input_patch="$ROOT/patches/moderngekko/0003-pipe-input-background.patch"
 memory_watcher_test_patch="$ROOT/patches/moderngekko/0004-static-recomp-memory-watcher-test.patch"
+module_source_cache_patch="$ROOT/patches/moderngekko/0005-module-source-cache-identity.patch"
 render_log_patch="$ROOT/patches/moderngekko-dolphin/0002-buffer-render-time-logging.patch"
 idle_patch="$ROOT/patches/moderngekko-dolphin/0003-gale01r0-staticrecomp-idle.patch"
 memory_watcher_patch="$ROOT/patches/moderngekko-dolphin/0004-static-recomp-memory-watcher.patch"
@@ -133,6 +134,7 @@ cache_control_patch="$ROOT/patches/moderngekko-dolphin/0008-static-recomp-cache-
 slow_window_patch="$ROOT/patches/moderngekko-dolphin/0009-slow-window-phase-trigger.patch"
 dispatch_counts_patch="$ROOT/patches/moderngekko-dolphin/0010-module-dispatch-branch-counts.patch"
 dispatch_frame_patch="$ROOT/patches/moderngekko-dolphin/0011-dispatch-frame-attribution.patch"
+paired_store_patch="$ROOT/patches/moderngekko-dolphin/0012-gxruntime-paired-store-transactions.patch"
 apply_patch_once "$MG" "$mg_patch"
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$dolphin_patch" \
   Source/Core/DolphinNoGUI/PlatformIOS.mm 'class PlatformIOS : public Platform'
@@ -140,6 +142,7 @@ apply_patch_once "$MG" "$launcher_patch"
 apply_patch_once "$MG" "$thinlto_patch"
 apply_patch_once "$MG" "$pipe_input_patch"
 apply_patch_once "$MG" "$memory_watcher_test_patch"
+apply_patch_once "$MG" "$module_source_cache_patch"
 apply_patch_once "$MG/vendor/dolphin" "$render_log_patch"
 apply_patch_once "$MG/vendor/dolphin" "$idle_patch"
 apply_patch_once "$MG/vendor/dolphin" "$memory_watcher_patch"
@@ -157,6 +160,7 @@ apply_patch_once "$MG/vendor/dolphin" "$dispatch_counts_patch"
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$dispatch_frame_patch" \
   Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp \
   STATICRECOMP_DISPATCH_FRAME_LOG
+apply_patch_once "$MG/vendor/dolphin" "$paired_store_patch"
 verify_patch_scope "$MG" "$mg_patch" vendor/dolphin tools/moderngekko_launcher.cpp \
   tools/moderngekko_port.cpp tests/frontend_config_test.cpp \
   tools/frontend_config.cpp tools/frontend_config.hpp tools/moderngekko_run.cpp \
@@ -180,6 +184,7 @@ verify_patch_scope "$MG/vendor/dolphin" "$dolphin_patch" \
   module-template/CMakeLists.txt \
   module-template/module.exports \
   module-template/module_export.c \
+  GXRuntime/src/core/cpu.c \
   GXRuntime/src/core/cpu_interpreter_float.c \
   GXRuntime/tests/runtime_tests.c
 verify_patch_scope "$MG/vendor/dolphin/DolRecomp" "$dolrecomp_scalar_patch"

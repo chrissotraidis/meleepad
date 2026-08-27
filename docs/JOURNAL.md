@@ -1696,3 +1696,34 @@ Append-only execution ledger. Claims are limited to observed evidence.
   before another game build. Do not retry a per-write or per-PC shortcut.
 - Evidence:
   `docs/artifacts/2026-08-26/g5-locked-cache-write-chassis-preflight.md`.
+
+## 2026-08-26 — paired PSQ transactions retained; stale module cache fixed
+
+- Offline inspection counted 384 paired-store sites across THP's two dominant
+  generated chunks. Dolphin writes non-`W` pairs as one 16/32/64-bit memory
+  transaction; GXRuntime performed two independent lane writes.
+- Regression-first coverage now proves exact external address, combined value,
+  size, and count for float, U8, U16, S8, and S16 pairs while preserving the
+  `W=true` single-lane path. `gxruntime_tests`, 16/16 controller tests,
+  bootstrap, repository audit, and patch apply/reverse checks pass.
+- Attribution audit rejected the first runtime result: the module builder had
+  reported a cache hit and packaged the canonical module, so those metrics are
+  excluded and their temporary files moved to Trash.
+- `moderngekko-port` now fingerprints GXRuntime headers/core sources and the
+  module template. It built new key `1e1debc9fb83a31a`, wrote
+  `module_sources=7dcfd35e31be989b`, then hit that exact key on repeat.
+- The genuine distinct candidate visibly completed coherent Pikachu versus
+  level-1 CPU Mario on literal Fountain. Frames 12,864-14,740 measured
+  16.709787 ms / 59.845168 FPS / 18.216709 ms p95 with zero fallbacks.
+- The genuine Mario/Bowser How-to movie improved from canonical 21.251930 ms /
+  47.055 FPS / 20.492810 ms CPU-thread mean to 16.677963 ms / 59.959 FPS /
+  11.094652 ms. Candidate p95 remains 17.875625 ms.
+- The new cache-built module was promoted into the signed local product;
+  codesign and macOS-14 checks passed, and a visual opening-THP smoke measured
+  16.672 ms over the latest 120 frames.
+- Decision: **PAIR TRANSACTIONS RETAINED; CACHE IDENTITY RETAINED; G5 OPEN;
+  G6 BLOCKED.** Next is retained-candidate Fountain body/tail attribution and
+  one newly sampled live-rendered hotspot, not another global MMU/timer/FP
+  shortcut.
+- Evidence:
+  `docs/artifacts/2026-08-26/g5-paired-store-transactions-retained.md`.

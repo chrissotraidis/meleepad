@@ -636,6 +636,22 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   store-run analysis in the exact two hot THP chunks before any new build.
   Evidence:
   `docs/artifacts/2026-08-26/g5-locked-cache-write-chassis-preflight.md`.
+- **PERF-045 (paired PSQ transactions retained):** Dolphin's interpreter and
+  arm64 JIT perform non-`W` paired-single stores as one wide memory
+  transaction; GXRuntime issued two. The corrected float/U8/U16/S8/S16 paths
+  pass exact external address/value/size/count regressions and the full
+  GXRuntime suite. A first runtime package was correctly excluded after its
+  module hash proved it was a stale cache hit. The cache identity now includes
+  the GXRuntime and module-template sources; clean build key
+  `1e1debc9fb83a31a` records `module_sources=7dcfd35e31be989b` and repeats as a
+  hit. The genuine candidate improved the visually verified Mario/Bowser THP
+  movie from 21.252 ms / 47.055 FPS to 16.678 ms / 59.959 FPS and CPU-thread
+  mean from 20.493 to 11.095 ms. Coherent Pikachu/CPU-Mario Fountain combat
+  measured 16.710 ms / 59.845 FPS with 18.217 ms p95 and zero fallbacks. The
+  fix and reproducibility guard are retained, but G5 remains open because both
+  p95 tails exceed 16.7 ms and live four-player rendering remains slow.
+  Evidence:
+  `docs/artifacts/2026-08-26/g5-paired-store-transactions-retained.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual

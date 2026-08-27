@@ -393,6 +393,23 @@ regression before another game build. G5 remains open and G6 remains blocked.
 See
 `docs/artifacts/2026-08-26/g5-locked-cache-write-chassis-preflight.md`.
 
+The exact contiguous-store follow-up is retained. Dolphin's interpreter and
+arm64 JIT perform non-`W` paired-single stores as one wide transaction;
+GXRuntime performed two lane transactions. Exact float/U8/U16/S8/S16 and
+single-lane regressions now pass. A stale cache-hit package was detected and
+excluded before acceptance; `moderngekko-port` now fingerprints the GXRuntime
+and module-template sources, built new key `1e1debc9fb83a31a`, and repeated as
+a hit. The genuine candidate improved the visually verified Mario/Bowser THP
+movie from 21.252 to 16.678 ms mean and CPU-thread work from 20.493 to
+11.095 ms. Coherent Pikachu/CPU-Mario Fountain measured 16.710 ms / 59.845
+FPS, but its 18.217 ms p95 and How-to's 17.876 ms p95 still fail strict G5.
+Retain both semantic and cache fixes. Next, split the retained Fountain p95
+rows from the <=16.7 ms body and sample that exact live-rendered tail; change
+one newly attributed hotspot only. Do not retry global locked-cache, timer,
+dispatcher, broad FP, or guest-PC shortcuts. G5 remains open and G6 remains
+blocked. See
+`docs/artifacts/2026-08-26/g5-paired-store-transactions-retained.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

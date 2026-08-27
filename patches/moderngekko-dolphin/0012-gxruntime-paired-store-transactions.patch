@@ -1,0 +1,137 @@
+diff --git a/GXRuntime/src/core/cpu.c b/GXRuntime/src/core/cpu.c
+--- a/GXRuntime/src/core/cpu.c
++++ b/GXRuntime/src/core/cpu.c
+@@ -228,6 +228,42 @@ static void psq_store_value(CPUState* cpu, u32 ea, u8 type, s32 scale, f64 value
+     }
+ }
+
++static void psq_store_pair(CPUState* cpu, u32 ea, u8 type, s32 scale,
++                           f64 ps0, f64 ps1) {
++    switch (type) {
++    case 0: {
++        u32 value0 = convert_to_single_ftz(f64_bits(ps0));
++        u32 value1 = convert_to_single_ftz(f64_bits(ps1));
++        mem_write64(cpu, ea, ((u64)value0 << 32) | value1);
++        break;
++    }
++    case 4: {
++        u8 value0 = (u8)psq_quantize_int(ps0, 0, 255, scale);
++        u8 value1 = (u8)psq_quantize_int(ps1, 0, 255, scale);
++        mem_write16(cpu, ea, ((u16)value0 << 8) | value1);
++        break;
++    }
++    case 5: {
++        u16 value0 = (u16)psq_quantize_int(ps0, 0, 65535, scale);
++        u16 value1 = (u16)psq_quantize_int(ps1, 0, 65535, scale);
++        mem_write32(cpu, ea, ((u32)value0 << 16) | value1);
++        break;
++    }
++    case 6: {
++        u8 value0 = (u8)(s8)psq_quantize_int(ps0, -128, 127, scale);
++        u8 value1 = (u8)(s8)psq_quantize_int(ps1, -128, 127, scale);
++        mem_write16(cpu, ea, ((u16)value0 << 8) | value1);
++        break;
++    }
++    case 7: {
++        u16 value0 = (u16)(s16)psq_quantize_int(ps0, -32768, 32767, scale);
++        u16 value1 = (u16)(s16)psq_quantize_int(ps1, -32768, 32767, scale);
++        mem_write32(cpu, ea, ((u32)value0 << 16) | value1);
++        break;
++    }
++    }
++}
++
+ static bool psq_check_enabled(CPUState* cpu, bool indexed, u32 cia) {
+     if (!indexed && (cpu->hid2 & PPC_HID2_LSQE) == 0) {
+         ppc_program_exception(cpu, PPC_PROGRAM_ILLEGAL, cia);
+@@ -266,9 +302,10 @@ bool ppc_psq_store(CPUState* cpu, u8 frS, u32 ea, bool w, u8 gqr_index, bool ind
+     if (size == 0) /* invalid GQR type: nothing is stored */
+         return true;
+
+-    psq_store_value(cpu, ea, type, scale, cpu->fpr[frS]);
+-    if (!w)
+-        psq_store_value(cpu, ea + size, type, scale, cpu->ps1[frS]);
++    if (w)
++        psq_store_value(cpu, ea, type, scale, cpu->fpr[frS]);
++    else
++        psq_store_pair(cpu, ea, type, scale, cpu->fpr[frS], cpu->ps1[frS]);
+     return true;
+ }
+
+diff --git a/GXRuntime/tests/runtime_tests.c b/GXRuntime/tests/runtime_tests.c
+--- a/GXRuntime/tests/runtime_tests.c
++++ b/GXRuntime/tests/runtime_tests.c
+@@ -73,6 +73,9 @@ static DolPlatformGuestAddressResolverFn g_guest_resolver_fn;
+ static void* g_guest_resolver_user;
+ static u8 g_psq_external[16];
+ static unsigned g_psq_external_writes;
++static u32 g_psq_external_last_ea;
++static u64 g_psq_external_last_value;
++static u8 g_psq_external_last_size;
+ static unsigned g_mmio_read_hits;
+ static unsigned g_mmio_write_hits;
+ static CPUState* g_mmio_last_cpu;
+@@ -383,6 +386,9 @@ static void psq_external_write(CPUState* cpu, u32 ea, u64 value, u8 size) {
+     (void)cpu;
+     const u32 base = 0xE0000000u;
+     g_psq_external_writes++;
++    g_psq_external_last_ea = ea;
++    g_psq_external_last_value = value;
++    g_psq_external_last_size = size;
+     if (ea < base || (u64)(ea - base) + size > sizeof(g_psq_external))
+         return;
+     for (u8 i = 0; i < size; i++)
+@@ -1472,11 +1478,11 @@ static void test_psq_quantized_paths(void) {
+     assert(g_psq_external[5] == 0x10u);
+     assert(g_psq_external[6] == 0x00u);
+     assert(g_psq_external[7] == 0x00u);
+-    /* Both PS lanes store through the external_write hook (2 word writes) -
+-     * psq now uses the normal mem access path, matching how the runtime
+-     * backs 0xE0000000 on the mmio bus (the old raw-pointer fast path that
+-     * bypassed the hook is retired for Dolphin-exact lockstep). */
+-    assert(g_psq_external_writes == 2);
++    /* Dolphin WritePair<u32> performs one 64-bit memory transaction. */
++    assert(g_psq_external_writes == 1);
++    assert(g_psq_external_last_ea == 0xE0000000u);
++    assert(g_psq_external_last_size == 8);
++    assert(g_psq_external_last_value == 0x3FC00000C0100000ull);
+
+     cpu.gqr[6] = 0x3D043D04u;
+     cpu.fpr[2] = 2040.0;
+@@ -1490,7 +1496,35 @@ static void test_psq_quantized_paths(void) {
+     ppc_psq_store(&cpu, 3, 0xE0000000u, false, 6, false, 0);
+     assert(g_psq_external[0] == 2u);
+     assert(g_psq_external[1] == 3u);
+-    assert(g_psq_external_writes == 2);
++    /* Dolphin WritePair<u8> performs one 16-bit memory transaction. */
++    assert(g_psq_external_writes == 1);
++    assert(g_psq_external_last_size == 2);
++    assert(g_psq_external_last_value == 0x0203u);
++
++    cpu.gqr[6] = 5u;
++    cpu.fpr[3] = 1.0;
++    cpu.ps1[3] = 2.0;
++    ppc_psq_store(&cpu, 3, 0xE0000000u, false, 6, false, 0);
++    assert(g_psq_external_last_size == 4);
++    assert(g_psq_external_last_value == 0x00010002u);
++
++    cpu.gqr[6] = 6u;
++    cpu.fpr[3] = -1.0;
++    cpu.ps1[3] = -2.0;
++    ppc_psq_store(&cpu, 3, 0xE0000000u, false, 6, false, 0);
++    assert(g_psq_external_last_size == 2);
++    assert(g_psq_external_last_value == 0xFFFEu);
++
++    cpu.gqr[6] = 7u;
++    ppc_psq_store(&cpu, 3, 0xE0000000u, false, 6, false, 0);
++    assert(g_psq_external_last_size == 4);
++    assert(g_psq_external_last_value == 0xFFFFFFFEu);
++
++    cpu.gqr[6] = 4u;
++    cpu.fpr[3] = 3.0;
++    ppc_psq_store(&cpu, 3, 0xE0000000u, true, 6, false, 0);
++    assert(g_psq_external_last_size == 1);
++    assert(g_psq_external_last_value == 3u);
+
+     cpu_free(&cpu);
+ }

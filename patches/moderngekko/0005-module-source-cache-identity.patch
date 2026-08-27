@@ -1,0 +1,79 @@
+diff --git a/tools/moderngekko_port.cpp b/tools/moderngekko_port.cpp
+--- a/tools/moderngekko_port.cpp
++++ b/tools/moderngekko_port.cpp
+@@ -72,6 +72,45 @@ std::uint64_t Fnv1a(std::string_view value)
+   return hash;
+ }
+
++std::optional<std::string> ModuleSourceFingerprint(const fs::path& source_root)
++{
++  const std::array roots = {
++      source_root / "vendor/dolphin/GXRuntime/include",
++      source_root / "vendor/dolphin/GXRuntime/src/core",
++      source_root / "vendor/dolphin/module-template",
++  };
++  std::vector<fs::path> files;
++  std::error_code error;
++  for (const fs::path& root : roots)
++  {
++    for (fs::recursive_directory_iterator iterator(root, error), end; iterator != end;
++         iterator.increment(error))
++    {
++      if (error)
++        return std::nullopt;
++      if (iterator->is_regular_file(error))
++        files.push_back(iterator->path());
++      if (error)
++        return std::nullopt;
++    }
++    if (error)
++      return std::nullopt;
++  }
++  std::sort(files.begin(), files.end());
++
++  std::string identity;
++  for (const fs::path& file : files)
++  {
++    const auto hash = moderngekko::HashFileSha256(file);
++    if (!hash)
++      return std::nullopt;
++    identity += fs::relative(file, source_root).generic_string() + "=" + *hash + "\n";
++  }
++  std::ostringstream fingerprint;
++  fingerprint << std::hex << std::setfill('0') << std::setw(16) << Fnv1a(identity);
++  return fingerprint.str();
++}
++
+ std::string Trim(std::string value)
+ {
+   while (!value.empty() && std::isspace(static_cast<unsigned char>(value.front())))
+@@ -447,6 +486,12 @@ std::optional<fs::path> Build(const fs::path& game_root, const BuildOptions& opti
+     std::cerr << "DolRecomp compiler is unavailable: " << dolrecomp << '\n';
+     return std::nullopt;
+   }
++  const auto module_source_fingerprint = ModuleSourceFingerprint(source_root);
++  if (!module_source_fingerprint)
++  {
++    std::cerr << "module runtime sources are unavailable under " << source_root << '\n';
++    return std::nullopt;
++  }
+ #if defined(__x86_64__) || defined(_M_X64)
+   constexpr std::string_view architecture = "x86_64";
+ #elif defined(__aarch64__) || defined(_M_ARM64)
+@@ -483,6 +528,6 @@ std::optional<fs::path> Build(const fs::path& game_root, const BuildOptions& opti
+       std::string(architecture) + "|" + flags + "|backend=" + options.backend +
+       "|patches=" + patches.fingerprint + "|dolrecomp_binary=" +
+-      *dolrecomp_hash;
++      *dolrecomp_hash + "|module-sources=" + *module_source_fingerprint;
+   std::ostringstream key_tail;
+   key_tail << std::hex << std::setfill('0') << std::setw(16) << Fnv1a(identity);
+   const std::string cache_key = game.dol_sha256 + "-" + key_tail.str();
+@@ -511,6 +556,7 @@ std::optional<fs::path> Build(const fs::path& game_root, const BuildOptions& opti
+              << "flags=" << flags << '\n'
+              << "backend=" << options.backend << '\n'
+-             << "patches=" << patches.fingerprint << '\n';
++             << "patches=" << patches.fingerprint << '\n'
++             << "module_sources=" << *module_source_fingerprint << '\n';
+     fs::create_directories(options.output / game.disc_id);
+     std::ofstream active(options.output / game.disc_id / "active-module.txt");
+     active << module.string() << '\n';
