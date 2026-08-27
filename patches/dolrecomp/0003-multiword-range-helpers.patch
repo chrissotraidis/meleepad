@@ -1,0 +1,92 @@
+diff --git a/src/backend/emitter.c b/src/backend/emitter.c
+--- a/src/backend/emitter.c
++++ b/src/backend/emitter.c
+@@ -1563,7 +1563,10 @@ static void emit_instruction_with_range(FILE* out, const PPCInst* inst,
+         fprintf(out, "        u32 ea = ");
+         emit_dform_ea(out, inst->rA, inst->simm, false);
+         fprintf(out, ";\n");
+-        fprintf(out, "        for (u32 r = %u; r < 32; r++, ea += 4) ctx->gpr[r] = mem_read32(ctx, ea);\n",
+-                inst->rD);
++        if (inst->rD <= 28)
++            fprintf(out, "        ppc_lmw_op(ctx, ea, %u);\n", inst->rD);
++        else
++            fprintf(out, "        for (u32 r = %u; r < 32; r++, ea += 4) ctx->gpr[r] = mem_read32(ctx, ea);\n",
++                    inst->rD);
+         fprintf(out, "    }\n");
+         break;
+@@ -1575,7 +1578,10 @@ static void emit_instruction_with_range(FILE* out, const PPCInst* inst,
+         fprintf(out, "        u32 ea = ");
+         emit_dform_ea(out, inst->rA, inst->simm, false);
+         fprintf(out, ";\n");
+-        fprintf(out, "        for (u32 r = %u; r < 32; r++, ea += 4) mem_write32(ctx, ea, ctx->gpr[r]);\n",
+-                inst->rS);
++        if (inst->rS <= 24)
++            fprintf(out, "        ppc_stmw_op(ctx, ea, %u);\n", inst->rS);
++        else
++            fprintf(out, "        for (u32 r = %u; r < 32; r++, ea += 4) mem_write32(ctx, ea, ctx->gpr[r]);\n",
++                    inst->rS);
+         fprintf(out, "    }\n");
+         break;
+diff --git a/src/cpu/cpu.c b/src/cpu/cpu.c
+--- a/src/cpu/cpu.c
++++ b/src/cpu/cpu.c
+@@ -239,6 +239,46 @@ void mem_write32(CPUState* cpu, u32 addr, u32 value) {
+     write_be32(host, value);
+ }
+-
++
++void ppc_lmw_op(CPUState* cpu, u32 addr, u8 first) {
++    const u32 count = 32u - first;
++    u32 avail;
++    u8* host = resolve_addr(cpu, addr, &avail);
++    if (!host || avail < count * 4u) {
++        for (u32 r = first; r < 32u; ++r, addr += 4u)
++            cpu->gpr[r] = mem_read32(cpu, addr);
++        return;
++    }
++    for (u32 r = first; r < 32u; ++r, host += 4u)
++        cpu->gpr[r] = read_be32(host);
++}
++
++void ppc_stmw_op(CPUState* cpu, u32 addr, u8 first) {
++    const u32 count = 32u - first;
++    u32 avail;
++    u8* host = resolve_addr(cpu, addr, &avail);
++    if (!host || avail < count * 4u) {
++        for (u32 r = first; r < 32u; ++r, addr += 4u)
++            mem_write32(cpu, addr, cpu->gpr[r]);
++        return;
++    }
++    if (cpu->reserve_valid) {
++        const u32 reserve_line = (cpu->reserve_addr & ~0x40000000u) & ~31u;
++        const u32 first_line = (addr & ~0x40000000u) & ~31u;
++        const u32 last_line = ((addr + count * 4u - 4u) & ~0x40000000u) & ~31u;
++        if (reserve_line >= first_line && reserve_line <= last_line)
++            cpu->reserve_valid = false;
++    }
++    const bool journal_ram = g_mem_write_journal && host >= cpu->ram &&
++                             host < cpu->ram + cpu->ram_size;
++    const u32 offset = journal_ram ? (u32)(host - cpu->ram) : 0u;
++    for (u32 r = first; r < 32u; ++r, host += 4u) {
++        if (journal_ram)
++            g_mem_write_journal(offset + (r - first) * 4u, 4,
++                                g_mem_write_journal_user);
++        write_be32(host, cpu->gpr[r]);
++    }
++}
++
+ u16 mem_read16(CPUState* cpu, u32 addr) {
+     u32 avail;
+     u8* host = resolve_addr(cpu, addr, &avail);
+diff --git a/src/cpu/cpu.h b/src/cpu/cpu.h
+--- a/src/cpu/cpu.h
++++ b/src/cpu/cpu.h
+@@ -129,6 +129,8 @@ u64  mem_read64(CPUState* cpu, u32 addr);
+ void mem_write64(CPUState* cpu, u32 addr, u64 value);
+ u32  mem_read32(CPUState* cpu, u32 addr);
+ void mem_write32(CPUState* cpu, u32 addr, u32 value);
++void ppc_lmw_op(CPUState* cpu, u32 addr, u8 first);
++void ppc_stmw_op(CPUState* cpu, u32 addr, u8 first);
+ u16  mem_read16(CPUState* cpu, u32 addr);
+ void mem_write16(CPUState* cpu, u32 addr, u16 value);
+ u8   mem_read8(CPUState* cpu, u32 addr);

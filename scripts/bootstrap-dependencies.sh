@@ -130,6 +130,7 @@ profile_hooks_patch="$ROOT/patches/moderngekko-dolphin/0005-instrumentation-prof
 frame_phase_patch="$ROOT/patches/moderngekko-dolphin/0006-buffered-frame-phase-timing.patch"
 dolrecomp_scalar_patch="$ROOT/patches/dolrecomp/0001-scalar-single-semantics.patch"
 dolrecomp_fma_patch="$ROOT/patches/dolrecomp/0002-scalar-fma-semantics.patch"
+dolrecomp_multiword_patch="$ROOT/patches/dolrecomp/0003-multiword-range-helpers.patch"
 gxruntime_scalar_patch="$ROOT/patches/moderngekko-dolphin/0007-gxruntime-scalar-single-semantics.patch"
 cache_control_patch="$ROOT/patches/moderngekko-dolphin/0008-static-recomp-cache-control-parity.patch"
 slow_window_patch="$ROOT/patches/moderngekko-dolphin/0009-slow-window-phase-trigger.patch"
@@ -139,6 +140,7 @@ paired_store_patch="$ROOT/patches/moderngekko-dolphin/0012-gxruntime-paired-stor
 savestate_signal_patch="$ROOT/patches/moderngekko-dolphin/0013-runtime-savestate-signal-harness.patch"
 emulated_frame_patch="$ROOT/patches/moderngekko-dolphin/0014-emulated-frame-phase-index.patch"
 gxruntime_fma_test_patch="$ROOT/patches/moderngekko-dolphin/0015-gxruntime-scalar-fma-tests.patch"
+gxruntime_multiword_patch="$ROOT/patches/moderngekko-dolphin/0016-gxruntime-multiword-range-helpers.patch"
 apply_patch_once_or_marker "$MG" "$mg_patch" \
   include/moderngekko/runtime.hpp 'struct RuntimeDiagnosticsSnapshot'
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$dolphin_patch" \
@@ -158,6 +160,7 @@ apply_patch_once_or_marker "$MG/vendor/dolphin" "$frame_phase_patch" \
 apply_patch_once_or_marker "$MG/vendor/dolphin/DolRecomp" "$dolrecomp_scalar_patch" \
   src/backend/emitter.c 'ppc_fadds(ctx'
 apply_patch_once "$MG/vendor/dolphin/DolRecomp" "$dolrecomp_fma_patch"
+apply_patch_once "$MG/vendor/dolphin/DolRecomp" "$dolrecomp_multiword_patch"
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$gxruntime_scalar_patch" \
   GXRuntime/src/core/cpu_interpreter_float.c GXRUNTIME_ALWAYS_INLINE
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$cache_control_patch" \
@@ -172,7 +175,9 @@ apply_patch_once "$MG/vendor/dolphin" "$paired_store_patch"
 apply_patch_once "$MG" "$savestate_signal_patch"
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$emulated_frame_patch" \
   Source/Core/Common/FramePhaseTiming.h s_emulated_frame_index
-apply_patch_once "$MG/vendor/dolphin" "$gxruntime_fma_test_patch"
+apply_patch_once_or_marker "$MG/vendor/dolphin" "$gxruntime_fma_test_patch" \
+  GXRuntime/tests/runtime_tests.c test_scalar_fma_semantics
+apply_patch_once "$MG/vendor/dolphin" "$gxruntime_multiword_patch"
 verify_patch_scope "$MG" "$mg_patch" vendor/dolphin tools/moderngekko_launcher.cpp \
   tools/moderngekko_port.cpp tests/frontend_config_test.cpp \
   tools/frontend_config.cpp tools/frontend_config.hpp tools/moderngekko_run.cpp \
@@ -199,9 +204,10 @@ verify_patch_scope "$MG/vendor/dolphin" "$dolphin_patch" \
   module-template/module.exports \
   module-template/module_export.c \
   GXRuntime/src/core/cpu.c \
+  GXRuntime/include/core/cpu.h \
   GXRuntime/src/core/cpu_interpreter_float.c \
   GXRuntime/tests/runtime_tests.c
 verify_patch_scope "$MG/vendor/dolphin/DolRecomp" "$dolrecomp_scalar_patch" \
-  src/cpu/cpu.c src/cpu/cpu.h
+  src/backend/emitter.c src/cpu/cpu.c src/cpu/cpu.h
 
 echo "ssbmpad dependencies are pinned and patched."

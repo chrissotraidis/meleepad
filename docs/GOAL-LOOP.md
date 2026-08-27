@@ -549,6 +549,19 @@ large no-logger `func_8035D940`/`func_8033D940` generated costs and selecting a
 coherent guest kernel before another source change. G6 remains blocked. See
 `docs/artifacts/2026-08-27/g5-diagnostic-overhead-gate-rejection.md`.
 
+The following promoted exact-window sample selected generated `lmw`/`stmw`
+transfers as a cross-routine cost. Retained shared helpers classify one safe
+ordinary-RAM range for long transfers and fall back per word everywhere else;
+short forms stay canonical. Regression coverage preserves mirrors, EXRAM,
+journaling, reservation invalidation, and base-register overwrite semantics.
+Exact A/B/A2 reproduces a 0.21-0.24 ms CPU-thread gain, while `__text` shrinks
+331,796 bytes. The official key `b2d4b69da942f7c2`, signed package, and a
+coherent live 54.7 FPS Fountain combat frame pass. This is useful progress but
+not the strict 16.7 ms/60 FPS gate: G5 remains open and G6 remains blocked.
+Continue from a fresh no-logger sample of this promoted module. Do not retry
+the rejected inline helper form or route short stores through the helper. See
+`docs/artifacts/2026-08-27/g5-multiword-range-helpers-retained.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

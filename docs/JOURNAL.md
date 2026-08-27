@@ -1981,3 +1981,32 @@ Append-only execution ledger. Claims are limited to observed evidence.
   no-logger generated work.
 - Evidence:
   `docs/artifacts/2026-08-27/g5-diagnostic-overhead-gate-rejection.md`.
+
+## 2026-08-27 — multiword range helpers retained and promoted
+
+- A promoted no-logger line-table sample placed 251/11,849 CPU-thread samples
+  in generated `lmw`/`stmw` work. Clang already unrolled the register loops;
+  repeated RAM classification and store bookkeeping were the remaining cost.
+- A failing-before GXRuntime contract drove whole-range helpers with exact
+  per-word fallback. Permanent tests cover base-register overwrite, mirrors,
+  EXRAM, journal offsets, and reservation cache-line invalidation.
+- Host preflight excluded unprofitable short stores. An inline implementation
+  was rejected structurally (+665,028 bytes `__text`); the retained shared
+  helper instead removes 331,796 bytes from `__text`.
+- Exact `48123..48562` A/B/A2 reproduced a 0.21-0.24 ms CPU-thread gain:
+  candidate means 18.719603/18.681924 ms versus control 18.848329 ms. Work is
+  equal or within eight cycles/four dispatches. Candidate A had two host-tail
+  stalls, so no tail-latency improvement is claimed.
+- Clean patch forward/reverse/source identity, dependency bootstrap,
+  GXRuntime, DolRecomp 14/14, official 237-chunk build, and strict packaging
+  pass. Official key is `b2d4b69da942f7c2`; the tested and official unsigned
+  dylibs are byte-identical.
+- Direct UI inspection retained coherent active Pikachu/Fox Fountain combat
+  at a 54.7 FPS title reading with no visible morphing. The process was stopped
+  and no Simulator is booted.
+- Decision: **retain/promote the small improvement; G5 remains open; G6 remains
+  blocked.** Next is a fresh no-logger sample of the promoted module and a new
+  coherent dynamic cost, excluding inline/short multiword forms and prior
+  rejected common-path shortcuts.
+- Evidence:
+  `docs/artifacts/2026-08-27/g5-multiword-range-helpers-retained.md`.

@@ -801,6 +801,20 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   line-symbol attribution of the large generated `func_8035D940` and
   `func_8033D940` costs, not another runtime-observer shortcut. Evidence:
   `docs/artifacts/2026-08-27/g5-diagnostic-overhead-gate-rejection.md`.
+- **PERF-057 (multiword range helpers retained/promoted):** A fresh
+  line-symbolized Fountain sample attributed 251/11,849 CPU-thread samples to
+  generated `lmw`/`stmw` transfers. Regression-first shared helpers classify
+  a complete ordinary-RAM range once while preserving per-word fallback,
+  mirrors, EXRAM, journaling, reservation invalidation, and `lmw` base-register
+  overwrite behavior. Candidate A/A2 measured 18.719603/18.681924 ms mean and
+  18.241015/18.269532 ms CPU-thread mean versus control 18.848329/18.484106,
+  with equal or near-equal work. `__text` shrank 331,796 bytes. The official
+  key `b2d4b69da942f7c2`, full suites, clean patch reproduction, signed package,
+  and coherent live Pikachu/Fox Fountain frame at 54.7 FPS pass. This is a
+  small retained improvement, not 60 FPS: G5 remains open and G6 blocked.
+  Next: sample the newly promoted no-logger module and select a new coherent
+  dynamic cost; do not inline the helpers or include short stores. Evidence:
+  `docs/artifacts/2026-08-27/g5-multiword-range-helpers-retained.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual
