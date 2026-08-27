@@ -574,6 +574,17 @@ source lines inside `func_8035D940`; do not retry gather width or the same
 matrix-writer shortcut. See
 `docs/artifacts/2026-08-27/g5-gpfifo64-deterministic-rejection.md`.
 
+The subsequent cross-routine FMA attribution selected the dominant
+single/add/non-negative constant mode for a cheap host gate. A fixed-mode clone
+passed 160,000 complete-state semantic comparisons, but 56 paired
+five-million-operation timings averaged 19.362982 ns specialized versus
+19.347089 ns generic, with an effectively even win split. The outer flag split
+is rejected before a module/game build and product source is unchanged. Do not
+retry constant-mode routing; any further FMA work must first identify a
+specific inner classification or rounding cost with exact semantic coverage.
+G5 remains open and G6 blocked. See
+`docs/artifacts/2026-08-27/g5-fma-mode-split-preflight-rejection.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

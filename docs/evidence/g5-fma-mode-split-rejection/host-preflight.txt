@@ -1,0 +1,28 @@
+PERF-059 dominant scalar-FMA mode split host preflight
+Date: 2026-08-27
+Host: MacBookAir10,1, Apple M1, 8 cores (4 performance + 4 efficiency), 16 GB
+Compiler: Apple clang, -O3 -arch arm64 -mmacosx-version-min=14.0
+Floating-point flags: -ffp-contract=off -fno-fast-math
+
+Candidate:
+  Clone the exact ppc_fmadd_op path for the dominant constant mode:
+  single=true, subtract=false, negative=false.
+
+Semantic gate:
+  20,000 CPUState comparisons per batch across fixed edge bit patterns and
+  randomized operands.
+  Result: 8/8 batches passed; 160,000 comparisons total.
+
+Aggregate timing gate:
+  56 paired timed runs, 5,000,000 operations per arm per run.
+  generic_mean_ns=19.347089
+  specialized_mean_ns=19.362982
+  ratio_of_means=0.999179
+  mean_pair_ratio=0.999218
+  specialized_wins=29
+  specialized_losses=27
+
+Decision:
+  Reject before module/game build. The result is indistinguishable from noise
+  and trends 0.08% slower in the aggregate. Constant flag dispatch is not the
+  material cost inside ppc_fmadd_op.

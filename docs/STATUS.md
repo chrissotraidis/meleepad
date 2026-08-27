@@ -6,6 +6,14 @@ Last updated: 2026-08-27
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-059 rejected a dominant scalar-FMA mode split at host preflight. The
+fixed single/add/non-negative path passed 160,000 complete-state comparisons,
+but 56 paired five-million-operation timing runs averaged 19.362982 ns versus
+19.347089 ns for the generic helper, with a near-even 29/27 win split. Flag
+dispatch is not the material `ppc_fmadd_op` cost, so no module/game build was
+wasted and no product source changed. G5 remains open and G6 blocked. See
+`docs/artifacts/2026-08-27/g5-fma-mode-split-preflight-rejection.md`.
+
 The retained savestate harness now has a causal emulated-frame clock. A
 Pikachu/CPU-Fox Fountain state visibly restored active combat, and two equal
 440-field control windows matched exactly in guest cycles, native dispatches,

@@ -2032,3 +2032,20 @@ Append-only execution ledger. Claims are limited to observed evidence.
   different coherent dynamic cost.
 - Evidence:
   `docs/artifacts/2026-08-27/g5-gpfifo64-deterministic-rejection.md`.
+
+## 2026-08-27 — dominant scalar-FMA mode split rejected at preflight
+
+- Fresh promoted attribution left `ppc_fmadd_op` as a cross-routine cost: 356
+  CPU-thread samples and 3,677 generated calls. The single/add/non-negative
+  constant mode accounts for 2,199 calls.
+- A disposable fixed-mode clone passed eight 20,000-case complete-`CPUState`
+  semantic batches, including edge bit patterns and randomized operands.
+- Fifty-six paired five-million-operation timing runs averaged 19.362982 ns
+  for the specialization versus 19.347089 ns generic. The near-even 29/27 win
+  split and 0.999179 ratio of means provide no repeatable host speed signal.
+- Decision: **reject before module/game build**. No repository source, active
+  module, package, game process, or Simulator changed. Do not retry outer FMA
+  flag splitting; if fresh sampling still selects FMA, attribute an exact
+  inner classification/rounding operation first. G5 remains open; G6 blocked.
+- Evidence:
+  `docs/artifacts/2026-08-27/g5-fma-mode-split-preflight-rejection.md`.
