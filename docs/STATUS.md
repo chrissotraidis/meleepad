@@ -739,6 +739,16 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   blocked. Next: identify a newly measured dynamic exact-window cost rather
   than optimize static code size. Evidence:
   `docs/artifacts/2026-08-27/g5-transparent-pc-elision-rejection.md`.
+- **PERF-052 (FP-availability inline rejected):** A 0.413-0.463 ns host
+  preflight and exact sample justified inlining the enabled-FP MSR test while
+  retaining the slow exception path. Focused semantics, bootstrap, and a
+  1,367-PC/91-report lockstep screen passed. Equal-frame A/B/A did not repeat
+  the first CPU-thread gain: candidate repeat measured 19.035697 ms mean /
+  20.830500 ms p95 / 18.579110 ms CPU-thread mean versus canonical
+  19.001550 / 20.675166 / 18.595254 ms. The candidate is removed and key
+  `1e1debc9fb83a31a` restored. A too-early savestate load also established a
+  new harness rule: require advancing emulated frames before `SIGUSR2`.
+  Evidence: `docs/artifacts/2026-08-27/g5-fp-availability-inline-rejection.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual

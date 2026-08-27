@@ -236,6 +236,15 @@ global transparent-instruction PC elision; select the next candidate from a
 new dynamic exact-window cost. G5 remains open and G6 blocked. See
 `docs/artifacts/2026-08-27/g5-transparent-pc-elision-rejection.md`.
 
+The next dynamic helper screen is also complete. Inlining only the common
+enabled-FP availability test passed focused semantics and a 1,367-PC lockstep
+screen, but its equal-frame A/B/A repeat tied or lost to canonical: 19.036 ms
+mean / 20.831 ms p95 versus 19.002 / 20.675 ms. It is removed. A load attempted
+at emulated frame zero trapped while Dolphin's emulation thread was still
+starting; all future signal loads must wait for advancing emulated frames.
+G5 remains open and G6 blocked. See
+`docs/artifacts/2026-08-27/g5-fp-availability-inline-rejection.md`.
+
 The longer menu diagnostic separated sustained FPS from pacing. A five-minute
 normal background CSS soak averaged 59.940 FPS and never fell below 55 FPS in
 any rolling 1/2/5/10-second window, but p95 rose to 17.838 ms with three

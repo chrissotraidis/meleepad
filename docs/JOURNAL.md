@@ -1871,3 +1871,18 @@ Append-only execution ledger. Claims are limited to observed evidence.
   the exact shared-state window, not another static code-size shortcut.
 - Evidence:
   `docs/artifacts/2026-08-27/g5-transparent-pc-elision-rejection.md`.
+
+## 2026-08-27 — FP-availability inline rejection
+
+- A host preflight saved 0.413-0.463 ns per enabled-FP check; a compile probe,
+  focused semantics, bootstrap, and a 1,367-PC lockstep screen passed.
+- One load at emulated frame zero trapped in `DVDThread::WaitUntilIdle` while
+  the emulation thread was starting. Requiring frame >1,000 before `SIGUSR2`
+  loaded the retained state cleanly and is now a harness rule.
+- Equal-frame A/B/A was mixed then negative: repeat candidate 19.035697 ms
+  mean / 20.830500 ms p95 versus canonical 19.001550 / 20.675166 ms; its first
+  CPU-thread gain did not reproduce.
+- Decision: **candidate removed; G5 open; G6 blocked.** Canonical active key
+  `1e1debc9fb83a31a` is restored.
+- Evidence:
+  `docs/artifacts/2026-08-27/g5-fp-availability-inline-rejection.md`.
