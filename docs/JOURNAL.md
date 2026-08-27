@@ -1854,3 +1854,20 @@ Append-only execution ledger. Claims are limited to observed evidence.
   process or Simulator remains.
 - Evidence:
   `docs/artifacts/2026-08-27/g5-emulated-frame-shared-state-verdict.md`.
+
+## 2026-08-27 — transparent instruction PC-elision rejection
+
+- Exact late-Fountain Apple counters attributed 48.674% of CPU-thread time to
+  instruction delivery. A regression-first DolRecomp candidate removed PC
+  writes before non-branch instructions already classified as transparent.
+- The narrowed implementation preserved branch/timebase semantics, passed
+  DolRecomp 14/14 and the current 1,398-check live lockstep report set, removed
+  28.5% of generated `ctx->pc` stores, and shrank text by 1,475,528 bytes.
+- Equal emulated frames reversed the apparent gain: candidate 20.149624 ms
+  mean / 21.983167 ms p95 versus canonical 19.016881 / 20.575625 ms, with only
+  three guest cycles and one dispatch of work difference.
+- Decision: **candidate removed; G5 open; G6 blocked.** Active module key
+  `1e1debc9fb83a31a` is restored. Next is a newly measured dynamic hotspot in
+  the exact shared-state window, not another static code-size shortcut.
+- Evidence:
+  `docs/artifacts/2026-08-27/g5-transparent-pc-elision-rejection.md`.

@@ -225,6 +225,17 @@ normal CSS soak with rolling-window detection for the user's distinct,
 intermittent major menu slowdown. See
 `docs/artifacts/2026-08-26/g5-empty-fallback-preflight.md`.
 
+Exact late-Fountain CPU counters then measured 48.674% instruction delivery
+and motivated a regression-first C-backend PC-materialization candidate. The
+narrowed form passed 14/14 DolRecomp tests and live lockstep, removed 28.5% of
+generated `ctx->pc` stores, and shrank `__text` by 1.41 MiB. The equal
+440-emulated-frame reversal nevertheless lost: candidate 20.150 ms mean /
+21.983 ms p95 versus fresh canonical control 19.017 / 20.576 ms, with only a
+three-cycle and one-dispatch work difference. It is removed. Do not retry
+global transparent-instruction PC elision; select the next candidate from a
+new dynamic exact-window cost. G5 remains open and G6 blocked. See
+`docs/artifacts/2026-08-27/g5-transparent-pc-elision-rejection.md`.
+
 The longer menu diagnostic separated sustained FPS from pacing. A five-minute
 normal background CSS soak averaged 59.940 FPS and never fell below 55 FPS in
 any rolling 1/2/5/10-second window, but p95 rose to 17.838 ms with three

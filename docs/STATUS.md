@@ -727,6 +727,18 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   G6 remains blocked. Future candidates require equal emulated-frame windows.
   Evidence:
   `docs/artifacts/2026-08-27/g5-emulated-frame-shared-state-verdict.md`.
+- **PERF-051 (transparent PC elision rejected):** Exact late-Fountain Apple
+  counters attributed 48.674% of CPU-thread time to instruction delivery. A
+  regression-first C-backend candidate passed DolRecomp 14/14 and matched the
+  current 1,398-check lockstep report set while removing 279,793 generated
+  `ctx->pc` stores and 1.41 MiB of text. In equal emulated frames, however, it
+  ran at 20.149624 ms / 49.629 FPS / 21.983167 ms p95 versus a fresh canonical
+  control at 19.016881 ms / 52.585 FPS / 20.575625 ms p95. Work differed by
+  only three guest cycles and one native dispatch. The candidate is removed,
+  active key `1e1debc9fb83a31a` is restored, G5 remains open, and G6 remains
+  blocked. Next: identify a newly measured dynamic exact-window cost rather
+  than optimize static code size. Evidence:
+  `docs/artifacts/2026-08-27/g5-transparent-pc-elision-rejection.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual
