@@ -511,6 +511,17 @@ coherent exact-window kernel or a general optimization with no per-dispatch
 tax. G6 remains blocked. See
 `docs/artifacts/2026-08-27/g5-psmtxconcat-replacement-preflight-rejection.md`.
 
+The subsequent line-zero attribution found compiler-generated intra-chunk
+entry decoding, but a computed-label rewrite is rejected at linked preflight.
+Canonical Clang already lowers the dense switch to a constant-time 32-bit
+relative jump table. The candidate used 64-bit label pointers, grew total VM
+by 2.70 MB, doubled the hot chunk's stack frame, and produced only mixed
+standalone timing. It was removed before lockstep/live testing; the active
+module and package were untouched. Do not retry pointer-width computed labels
+or treat static text shrinkage as a performance result. Continue G5 from a
+newly measured dynamic cost; G6 remains blocked. See
+`docs/artifacts/2026-08-27/g5-computed-label-entry-decoder-rejection.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

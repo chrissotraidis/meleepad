@@ -761,6 +761,18 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   and product are unchanged, G5 remains open, and G6 remains blocked.
   Evidence:
   `docs/artifacts/2026-08-27/g5-psmtxconcat-replacement-preflight-rejection.md`.
+- **PERF-054 (computed-label entry decoder rejected):** Exact line-zero native
+  samples were attributed to generated chunk-entry decoding. A regression-first
+  computed-label candidate preserved 4,096-instruction chunks and passed
+  focused generated-code tests 3/3. Its full ThinLTO module proved canonical
+  Clang already uses a constant-time 32-bit relative jump table: the candidate
+  merely substituted 64-bit pointers. `__TEXT` shrank 5,095,424 bytes, but
+  `__DATA_CONST` grew 7,749,632 bytes, total VM size grew 2,703,360 bytes, and
+  the hot chunk's stack frame doubled. Standalone hit timings were mixed with
+  no repeatable win. The candidate was removed before lockstep/live testing;
+  active module and product are unchanged, G5 remains open, and G6 remains
+  blocked. Evidence:
+  `docs/artifacts/2026-08-27/g5-computed-label-entry-decoder-rejection.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual

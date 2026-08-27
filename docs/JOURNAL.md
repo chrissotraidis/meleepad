@@ -1905,3 +1905,25 @@ Append-only execution ledger. Claims are limited to observed evidence.
   with no per-dispatch tax; do not add a common-path guest-PC shortcut.
 - Evidence:
   `docs/artifacts/2026-08-27/g5-psmtxconcat-replacement-preflight-rejection.md`.
+
+## 2026-08-27 — computed-label entry decoder rejection
+
+- Exact line-zero samples inside generated chunks were attributed to initial
+  intra-chunk `ctx->pc` decoding rather than an unnamed guest routine.
+- A regression-first computed-label candidate retained the canonical 4,096-
+  instruction chunks, passed focused tests 3/3, and linked the complete 237-
+  chunk module under ThinLTO.
+- Linked native code proved the canonical dense switch is already a constant-
+  time 32-bit relative jump table. The candidate's 64-bit pointer tables moved
+  5.10 MB out of text but added 7.75 MB of read-only data, growing total VM by
+  2.70 MB; the hot chunk stack frame also doubled. Standalone timings were
+  mixed and did not repeat a meaningful gain.
+- Decision: **candidate removed before lockstep/live testing; G5 open; G6
+  blocked.** Canonical generated output and focused tests pass 3/3. Active
+  module and package were untouched; no game process or Simulator remains.
+- The supplied incident `9AE31C76-671C-42F8-89AF-D64EE5BA5059` was also
+  reconciled to the already-documented premature savestate-load trap while the
+  emulation thread was still starting. It adds no new canonical crash.
+- Evidence:
+  `docs/artifacts/2026-08-27/g5-computed-label-entry-decoder-rejection.md` and
+  `docs/artifacts/2026-08-27/g5-fp-availability-inline-rejection.md`.

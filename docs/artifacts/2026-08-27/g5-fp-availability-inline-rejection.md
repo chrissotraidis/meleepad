@@ -28,6 +28,15 @@ error. Retrying only after emulated frame 1,000 produced a clean load and the
 saved jump above frame 48,000. Future savestate runs must keep that readiness
 gate.
 
+The full report supplied on 2026-08-27 is incident
+`9AE31C76-671C-42F8-89AF-D64EE5BA5059`, process 24720 from the disposable
+`SsbmPad-fp-inline.app`. It trapped on the main thread 27.86 seconds after
+launch while the emulation thread was still named `Emuthread - Starting` and
+waiting for asynchronous shader compilation. The executable UUID
+`40F7BF02-D790-3451-A619-755F50B2120C` matches the retained disposable app.
+This is corroborating evidence for the harness sequencing error, not a new
+canonical engine crash or a fault in a later candidate.
+
 ## Equal-frame A/B/A result
 
 Each row covers the last occurrence of emulated frames 48123-48562.
