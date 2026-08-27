@@ -6,6 +6,34 @@ Last updated: 2026-08-27
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-065 closes the fresh current-PGO line-symbol attribution without a
+retained product change. A byte-identical `__text` rebuild maps the remaining
+generated samples across diffuse render/resource work rather than one guest
+kernel. The only coherent new host cost was JIT-only exception discovery
+below static gather writes. Replacing it with Dolphin's fast gather checks
+preserved widths/order/check cadence and repeated a small 0.022-0.107 ms
+CPU-mean gain, but exact candidate/control/candidate Fountain p95 was
+17.883/17.726/17.843 ms: both candidates regressed the control and missed the
+5% threshold. The edit and candidate-specific test are removed; the canonical
+runner is restored. Separate ordinary 17-19 ms tail attribution from the rare
+129-132 ms stall next. Final Destination and G6 remain blocked. See
+`docs/artifacts/2026-08-27/g5-static-gather-fast-check-rejection.md`.
+
+PERF-064 closes the current-PGO pacing controls without passing G5. A
+MemoryWatcher-gated, low-overhead buffered render run still measures
+17.956 ms p95 / 22.767 ms p99 / 113.255 ms worst. VSync and
+PresentDrawable-only introduce 130.294/79.016 ms stalls and change nominal
+boundary work. A host-only strict GCD timer reaches 16.691 ms p95 but misses
+p99/worst at 16.712/18.358 ms, so it is rejected before a Dolphin build. The
+next step is an actual-`presentedTime` host Metal scheduled-presentation
+harness. That harness now passes two 600/600 scheduled runs at <=16.667 ms
+with zero drops, proving the M1 display path is capable. The corresponding
+live Dolphin candidate instead blocks in Metal and fails at 18.022 ms p95 /
+132.188 ms worst; fullscreen also fails at 17.493 ms p95. The product edit is
+removed. Continue from a fresh no-phase current-PGO compute sample. Final
+Destination and G6 remain blocked. See
+`docs/artifacts/2026-08-27/g5-pgo-pacing-controls-rejection.md`.
+
 PERF-063 establishes a fresh, current-source PGO oracle. Exact
 candidate/control/candidate Fountain windows match 1,501,757,755 guest cycles
 and 51,380,895 dispatches. The candidate cuts CPU-thread mean from 15.941 ms

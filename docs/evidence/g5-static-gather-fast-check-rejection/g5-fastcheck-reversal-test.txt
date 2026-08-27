@@ -1,0 +1,23 @@
+FF
+======================================================================
+FAIL: test_eight_byte_fallback_keeps_per_byte_check_boundary (__main__.StaticRecompGatherPathTest.test_eight_byte_fallback_keeps_per_byte_check_boundary)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chrissotraidis/GitHub/ssbmpad/scripts/test_static_recomp_gather_fast_check.py", line 33, in test_eight_byte_fallback_keeps_per_byte_check_boundary
+    self.assertIn(expected, self.gather_path)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '        gpfifo.FastWrite8(static_cast<u8>(value >> i));\n        gpfifo.FastCheckGatherPipe();' not found in "// Gather-pipe fast path: stores to the write-gather pipe page at effective\n  // 0xCC008000 go straight to GPFifo, mirroring the MMU's masked-write\n  // special case without an MMU round trip. Keying on the effective page is\n  // the same shortcut Dolphin's JITs take (optimizeGatherPipe). GPFifo\n  // maintains ppc_state.gather_pipe_ptr internally.\n  if ((ea & 0xFFFFF000) == 0xCC008000u)\n  {\n    if (core->m_lockstep_verifier->m_ls_journaling)\n      core->m_lockstep_verifier->m_journal.native_mmio.push_back({ea, static_cast<u32>(value), size});\n    auto& gpfifo = core->m_system.GetGPFifo();\n    switch (size)\n    {\n    case 1:\n      gpfifo.Write8(static_cast<u8>(value));\n      return;\n    case 2:\n      gpfifo.Write16(static_cast<u16>(value));\n      return;\n    case 4:\n      gpfifo.Write32(static_cast<u32>(value));\n      return;\n    default:\n      for (u32 i = size * 8u; i > 0;)\n      {\n        i -= 8;\n        gpfifo.Write8(static_cast<u8>(value >> i));\n      }\n      return;\n    }\n  }\n\n"
+
+======================================================================
+FAIL: test_uses_non_jit_gather_checks (__main__.StaticRecompGatherPathTest.test_uses_non_jit_gather_checks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chrissotraidis/GitHub/ssbmpad/scripts/test_static_recomp_gather_fast_check.py", line 26, in test_uses_non_jit_gather_checks
+    self.assertIn(f"gpfifo.FastWrite{width}", self.gather_path)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'gpfifo.FastWrite8' not found in "// Gather-pipe fast path: stores to the write-gather pipe page at effective\n  // 0xCC008000 go straight to GPFifo, mirroring the MMU's masked-write\n  // special case without an MMU round trip. Keying on the effective page is\n  // the same shortcut Dolphin's JITs take (optimizeGatherPipe). GPFifo\n  // maintains ppc_state.gather_pipe_ptr internally.\n  if ((ea & 0xFFFFF000) == 0xCC008000u)\n  {\n    if (core->m_lockstep_verifier->m_ls_journaling)\n      core->m_lockstep_verifier->m_journal.native_mmio.push_back({ea, static_cast<u32>(value), size});\n    auto& gpfifo = core->m_system.GetGPFifo();\n    switch (size)\n    {\n    case 1:\n      gpfifo.Write8(static_cast<u8>(value));\n      return;\n    case 2:\n      gpfifo.Write16(static_cast<u16>(value));\n      return;\n    case 4:\n      gpfifo.Write32(static_cast<u32>(value));\n      return;\n    default:\n      for (u32 i = size * 8u; i > 0;)\n      {\n        i -= 8;\n        gpfifo.Write8(static_cast<u8>(value >> i));\n      }\n      return;\n    }\n  }\n\n"
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+
+FAILED (failures=2)

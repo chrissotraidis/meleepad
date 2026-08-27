@@ -148,6 +148,36 @@ single-site module was built. The validated candidate is retained locally as
 `build-macos/SsbmPad-PGO.app`; it is not the reproducible product module and
 does not satisfy G5.
 
+A subsequent current-PGO pacing screen rules out three more routes. The
+existing buffered render logger, gated by 1,001 advancing MemoryWatcher fields
+before state load, still measures 17.956 ms p95 / 22.767 ms p99 /
+113.255 ms worst without phase counters. VSync and PresentDrawable-only add
+large stalls and change nominal boundary work. A public macOS strict dispatch
+timer reaches 16.691 ms host p95 without spinning but fails p99/worst at
+16.712/18.358 ms, so no Dolphin build was made. Continue with a host-only Metal
+scheduled-presentation/actual-`presentedTime` feasibility test; do not retry
+these controls or move product pacing until the host gate passes. The
+pipelined host harness subsequently passes two 600/600 scheduled runs with
+zero drops and <=16.667 ms worst, but the live Dolphin form blocks in Metal and
+fails at 18.022 ms p95 / 132.188 ms worst. Fullscreen also remains above the
+gate at 17.493 ms p95. The product edit is removed; continue with a fresh
+no-phase current-PGO compute sample. See
+`docs/artifacts/2026-08-27/g5-pgo-pacing-controls-rejection.md`.
+
+A byte-identical line-symbol build then mapped a fresh current-PGO Fountain
+sample. The giant generated function and opcode counts are diffuse; the only
+coherent new host cost was JIT-only `CompileExceptionCheck` work beneath
+static gather writes. A regression-first candidate used Dolphin's
+`FastWrite*`/`FastCheckGatherPipe` sequence while preserving widths, ordering,
+and the generic arm's per-byte check cadence. Exact 440-field
+candidate/control/candidate windows matched 1,501,757,755 cycles and
+51,380,895 dispatches. CPU mean improved by just 0.022-0.107 ms, while p95
+regressed from the 17.726 ms control to 17.883/17.843 ms. The candidate misses
+the 5% threshold and is removed. Next separate ordinary 17-19 ms frames from
+the rare 129-132 ms stall and trigger attribution at the stall rather than
+selecting another edit from the diffuse sample. See
+`docs/artifacts/2026-08-27/g5-static-gather-fast-check-rejection.md`.
+
 The shared-state comparison gap is now closed. Patch 0014 records Dolphin's
 savestated emulated VI/Movie frame beside each presentation row. Two equal
 440-field Fountain control windows matched exactly at 3,567,157,803 guest

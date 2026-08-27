@@ -2138,3 +2138,56 @@ Append-only execution ledger. Claims are limited to observed evidence.
   pass.
 - Decision: **no static one-site candidate; G5 open; G6 blocked.** Preserve
   selective PGO as the oracle and avoid a large derived guest-address list.
+
+## 2026-08-27 — Current-PGO pacing controls rejected
+
+- Exact PGO p95 tails do less guest work and retain about 11.7 ms CPU-thread
+  mean, while throttle wake lateness rises to 0.859-0.976 ms.
+- A MemoryWatcher-gated buffered logger with no phase counters independently
+  fails at 17.956 ms p95 / 22.767 ms p99 / 113.255 ms worst.
+- VSync and PresentDrawable-only fail with 130.294/79.016 ms stalls and change
+  nominal boundary work; both are rejected and their processes stopped.
+- A new `DISPATCH_TIMER_STRICT` host mode passes 16.691 ms p95 but fails the
+  absolute p99/worst gate at 16.712/18.358 ms. ASan/UBSan caught and verified
+  the fix for an initial fifth-mode `%4` harness bug. No Dolphin build followed.
+- Decision: **PERF-064 rejects all three controls; G5 open; Final Destination
+  and G6 blocked.** Next measure actual Metal `presentedTime` in a host-only
+  scheduled-presentation harness before considering any product pacing move.
+- Evidence:
+  `docs/artifacts/2026-08-27/g5-pgo-pacing-controls-rejection.md`.
+- Follow-up: a pipelined host Metal harness passed two 600/600 scheduled
+  `presentedTime` runs at <=16.667 ms worst with zero drops, proving the M1
+  display path can hold 60 Hz. The live Dolphin scheduled-present candidate
+  shifted 4.5-6.1 ms into Metal, stalled for 132.188 ms, and changed boundary
+  work; fullscreen still failed at 17.493 ms p95. The product edit is removed.
+  Do not retry display pacing; return to a fresh current-PGO compute sample.
+
+## 2026-08-27 — Current-PGO line attribution and static gather check rejected
+
+- A disposable `-gline-tables-only` current-PGO module reproduced the retained
+  module's 81,959,380-byte `__text` exactly, enabling source-line attribution
+  without changing executable instructions.
+- The 10-second Fountain sample placed 1,531/1,599 CPU-GPU-thread samples in
+  the generated chassis. The large generated function and opcode mix were
+  diffuse; 19 samples coherently reached JIT-only exception discovery below
+  static gather writes.
+- A focused test failed first, then proved that a candidate preserved
+  8/16/32-bit write boundaries and the generic arm's per-byte check cadence
+  while using Dolphin's `FastWrite*`/`FastCheckGatherPipe` route.
+- Exact 440-field candidate/control/candidate windows matched
+  1,501,757,755 cycles, 51,380,895 dispatches, and 882 hook fallbacks. The
+  candidate repeated a 12-burst reduction and only 0.022-0.107 ms CPU-mean
+  gain; p95 regressed from 17.726 ms to 17.883/17.843 ms.
+- Decision: **PERF-065 rejected; source and canonical runner restored; G5
+  open; Final Destination and G6 blocked.** Next separate ordinary 17-19 ms
+  tail frames from rare 129-132 ms stalls and capture the latter at trigger.
+- Evidence:
+  `docs/artifacts/2026-08-27/g5-static-gather-fast-check-rejection.md`.
+- Checkpoint validation: full desktop build passed; both canonical and PGO
+  package-layout/signature checks passed; repository/bootstrap checks passed;
+  40/40 applicable CTest entries and 16/16 script unit tests passed. The raw
+  vendored CTest registry also contains three unbuilt bzip benchmark/fuzzer
+  executables and one disabled upstream test; these are explicitly excluded
+  from the applicable 40-test result. ASan/UBSan builds of both retained host
+  pacing harnesses passed, and the Metal control again delivered 100/100
+  intervals at or below 16.7 ms.

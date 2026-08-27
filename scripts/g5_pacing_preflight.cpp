@@ -12,6 +12,10 @@
 #include <thread>
 #include <vector>
 
+#if defined(__APPLE__)
+#include <dispatch/dispatch.h>
+#endif
+
 namespace
 {
 using Clock = std::chrono::steady_clock;
@@ -28,6 +32,9 @@ enum class Mode
   ChunkedSchedulerYield,
   ChunkedBusySpin,
   BusySpin,
+#if defined(__APPLE__)
+  DispatchStrictYield,
+#endif
 };
 
 struct Sample
@@ -44,6 +51,41 @@ void BusyUntil(Clock::time_point target)
   while (Clock::now() < target)
     std::atomic_signal_fence(std::memory_order_seq_cst);
 }
+
+#if defined(__APPLE__)
+class StrictDispatchTimer
+{
+public:
+  StrictDispatchTimer()
+  {
+    m_semaphore = dispatch_semaphore_create(0);
+    m_queue = dispatch_queue_create("com.ssbmpad.g5-pacing-timer", DISPATCH_QUEUE_SERIAL);
+    m_timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, DISPATCH_TIMER_STRICT, m_queue);
+    dispatch_set_context(m_timer, m_semaphore);
+    dispatch_source_set_event_handler_f(m_timer, [](void* context) {
+      dispatch_semaphore_signal(static_cast<dispatch_semaphore_t>(context));
+    });
+    dispatch_activate(m_timer);
+  }
+
+  void SleepUntil(Clock::time_point target)
+  {
+    const Ns delay = std::chrono::duration_cast<Ns>(target - Clock::now());
+    if (delay <= Ns::zero())
+      return;
+    dispatch_source_set_timer(m_timer, dispatch_time(DISPATCH_TIME_NOW, delay.count()),
+                              DISPATCH_TIME_FOREVER, 0);
+    dispatch_semaphore_wait(m_semaphore, DISPATCH_TIME_FOREVER);
+  }
+
+private:
+  dispatch_semaphore_t m_semaphore;
+  dispatch_queue_t m_queue;
+  dispatch_source_t m_timer;
+};
+
+StrictDispatchTimer g_dispatch_timer;
+#endif
 
 Sample RunFrame(Mode mode)
 {
@@ -63,6 +105,12 @@ Sample RunFrame(Mode mode)
       std::this_thread::sleep_until(std::min(requested_wake, now + g_sleep_chunk));
     }
   }
+#if defined(__APPLE__)
+  else if (mode == Mode::DispatchStrictYield)
+  {
+    g_dispatch_timer.SleepUntil(requested_wake);
+  }
+#endif
   else
   {
     std::this_thread::sleep_until(requested_wake);
@@ -102,6 +150,11 @@ double Percentile(std::vector<double> values, double fraction)
 
 void Report(std::string_view name, const std::vector<Sample>& samples)
 {
+  if (samples.empty())
+  {
+    std::fprintf(stderr, "%.*s has no samples\n", static_cast<int>(name.size()), name.data());
+    std::exit(2);
+  }
   std::vector<double> frame;
   std::vector<double> overshoot;
   std::vector<double> lateness;
@@ -171,33 +224,52 @@ int main(int argc, char** argv)
 
   // Warm both paths before measuring. Alternation gives the modes the same
   // changing host conditions instead of running one entire cohort first.
+  constexpr int mode_count =
+#if defined(__APPLE__)
+      5;
+#else
+      4;
+#endif
   for (int i = 0; i < 30; ++i)
-    RunFrame(static_cast<Mode>(i % 4));
+    RunFrame(static_cast<Mode>(i % mode_count));
 
   std::vector<Sample> scheduler_yield;
   std::vector<Sample> chunked_scheduler_yield;
   std::vector<Sample> chunked_busy_spin;
   std::vector<Sample> busy_spin;
+#if defined(__APPLE__)
+  std::vector<Sample> dispatch_strict_yield;
+#endif
   scheduler_yield.reserve(frames_per_mode);
   chunked_scheduler_yield.reserve(frames_per_mode);
   chunked_busy_spin.reserve(frames_per_mode);
   busy_spin.reserve(frames_per_mode);
-  for (int i = 0; i < frames_per_mode * 4; ++i)
+#if defined(__APPLE__)
+  dispatch_strict_yield.reserve(frames_per_mode);
+#endif
+  for (int i = 0; i < frames_per_mode * mode_count; ++i)
   {
-    const Mode mode = static_cast<Mode>(i % 4);
+    const Mode mode = static_cast<Mode>(i % mode_count);
     if (mode == Mode::SchedulerYield)
       scheduler_yield.push_back(RunFrame(mode));
     else if (mode == Mode::ChunkedSchedulerYield)
       chunked_scheduler_yield.push_back(RunFrame(mode));
     else if (mode == Mode::ChunkedBusySpin)
       chunked_busy_spin.push_back(RunFrame(mode));
-    else
+    else if (mode == Mode::BusySpin)
       busy_spin.push_back(RunFrame(mode));
+#if defined(__APPLE__)
+    else
+      dispatch_strict_yield.push_back(RunFrame(mode));
+#endif
   }
 
   Report("scheduler_yield", scheduler_yield);
   Report("chunked_scheduler_yield", chunked_scheduler_yield);
   Report("chunked_busy_spin", chunked_busy_spin);
   Report("busy_spin", busy_spin);
+#if defined(__APPLE__)
+  Report("dispatch_strict_yield", dispatch_strict_yield);
+#endif
   return 0;
 }

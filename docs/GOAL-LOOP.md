@@ -630,6 +630,38 @@ large derived address list. The validated faster local app is retained as
 `build-macos/SsbmPad-PGO.app`; canonical packaging remains reproducible and
 unchanged. G5 remains open and G6 blocked.
 
+Fresh pacing controls on that exact PGO app are also complete. A low-overhead
+buffered render log independently fails at 17.956 ms p95 / 22.767 ms p99 /
+113.255 ms worst, so full phase logging is not creating the gate failure.
+VSync moves pacing into Metal but fails at 17.922 ms p95 / 130.294 ms worst;
+PresentDrawable-only fails at 17.737 ms p95 / 79.016 ms worst; both also alter
+nominal boundary work. A new strict GCD timer passes host p95 at 16.691 ms but
+fails p99/worst at 16.712/18.358 ms and is rejected before a game build. Do not
+retry VSync, PresentDrawable-only, observer gates, dispatch timer parameters,
+or prior sleep/spin variants. A pipelined host Metal harness then passed
+600/600 actual `presentedTime` intervals twice at <=16.667 ms with zero drops,
+but the live scheduled-present candidate blocked in the drawable path and
+failed at 18.022 ms p95 / 132.188 ms worst; fullscreen also failed at
+17.493 ms p95. The product edit is removed. Do not retry Metal/display pacing
+variants. Next take a fresh no-phase current-PGO CPU sample and select one
+coherent remaining compute outlier. Final Destination and G6 remain blocked. See
+`docs/artifacts/2026-08-27/g5-pgo-pacing-controls-rejection.md`.
+
+The required fresh current-PGO sample is now line-attributed with a disposable
+module whose 81,959,380-byte `__text` is byte-identical to the retained PGO
+module. Generated samples remain diffuse; the only coherent untried host cost
+was JIT-only exception discovery below static gather writes. A
+regression-first `FastWrite*`/`FastCheckGatherPipe` candidate preserved write
+widths, order, and check cadence, but exact Fountain candidate/control/
+candidate p95 was 17.883/17.726/17.843 ms. Its repeated 0.022-0.107 ms CPU-mean
+gain is below the 5% threshold and both candidate p95 values regress control.
+The product edit and candidate-specific test are removed, and the canonical
+runner rebuild matches the reversal control. Do not retry JIT FIFO discovery,
+gather-width, or paired-store variants. Next split the ordinary 17-19 ms tail
+from the rare 129-132 ms stall and trigger attribution on the latter. Final
+Destination and G6 remain blocked. See
+`docs/artifacts/2026-08-27/g5-static-gather-fast-check-rejection.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).
