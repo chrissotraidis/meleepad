@@ -1955,3 +1955,29 @@ Append-only execution ledger. Claims are limited to observed evidence.
   promoted build, excluding known scheduler and corrected FMA work.
 - Evidence:
   `docs/artifacts/2026-08-27/g5-scalar-fma-semantics-retained.md`.
+
+## 2026-08-27 — diagnostic-overhead gate rejection
+
+- The fresh promoted sample separated real CPU work from observer cost: full
+  phase logging put 429 top samples in thread/wall clocks, while a normal
+  no-logger packaged run still showed only 53.3-55.3 FPS on the retained
+  Pikachu/CPU-Fox Fountain state. A live four-player Brinstar attract scene
+  also reached 22.9 FPS, confirming a genuine heavy-scene product slowdown.
+- A failing-before source contract drove one default-off diagnostic gate. The
+  Release candidate removed `ShouldCheck` from the normal sample and reduced
+  `StaticRecompCore::Run` self samples 309 to 274, but rolling-title gain was
+  only 0.8-1.1 FPS.
+- Exact emulated frames rejected the candidate: 18.997244 ms / 52.639 FPS /
+  20.771917 ms p95 versus promoted control 18.926719 / 52.835 / 20.781917.
+  Work matched within 14 cycles and three dispatches. All candidate source and
+  its regression were removed; package/module remained promoted and unchanged.
+- The restored Release runner rebuild passes; focused CTest passes 4/4,
+  `gcpipe` passes 16/16, repository safety passes, and no runtime or Simulator
+  remains.
+- The pasted incident `9AE31C76-...` is the already-documented temporary
+  fp-inline frame-0 load crash, not a new promoted-build failure.
+- Decision: **candidate removed; G5 open; G6 blocked.** Next is line-symbol
+  attribution inside `func_8035D940`/`func_8033D940`, the largest unexplained
+  no-logger generated work.
+- Evidence:
+  `docs/artifacts/2026-08-27/g5-diagnostic-overhead-gate-rejection.md`.

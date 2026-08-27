@@ -1,0 +1,34 @@
+2026-08-27 06:11:33.982 SsbmPadRunner[45195:6447962] NSEventModifierFlagFunction specified to -setKeyEquivalentModifierMask: for item <NSMenuItem: 0xb7921ba20 Take Screenshot, ke='Command-F9', action: saveScreenShot>, but is only supported for system-provided menu items; will not be used
+2026-08-27 06:11:33.983 SsbmPadRunner[45195:6447962] NSEventModifierFlagFunction specified to -setKeyEquivalentModifierMask: for item <NSMenuItem: 0xb7921bac0 Toggle pause, ke='Command-F10', action: togglePause>, but is only supported for system-provided menu items; will not be used
+2026-08-27 06:11:33.983 SsbmPadRunner[45195:6447962] NSEventModifierFlagFunction specified to -setKeyEquivalentModifierMask: for item <NSMenuItem: 0xb7921bb60 Load Last Saved, ke='Command-F11', action: loadLastSaved>, but is only supported for system-provided menu items; will not be used
+2026-08-27 06:11:33.983 SsbmPadRunner[45195:6447962] NSEventModifierFlagFunction specified to -setKeyEquivalentModifierMask: for item <NSMenuItem: 0xb7921bca0 Undo Save, ke='Command-F12', action: undoSaveState>, but is only supported for system-provided menu items; will not be used
+2026-08-27 06:11:33.983 SsbmPadRunner[45195:6447962] NSEventModifierFlagFunction specified to -setKeyEquivalentModifierMask: for item <NSMenuItem: 0xb7921bd40 Load State 1, ke='Command-F1', action: loadState:>, but is only supported for system-provided menu items; will not be used
+2026-08-27 06:11:33.983 SsbmPadRunner[45195:6447962] NSEventModifierFlagFunction specified to -setKeyEquivalentModifierMask: for item <NSMenuItem: 0xb7921be80 Load State 2, ke='Command-F2', action: loadState:>, but is only supported for system-provided menu items; will not be used
+2026-08-27 06:11:33.983 SsbmPadRunner[45195:6447962] NSEventModifierFlagFunction specified to -setKeyEquivalentModifierMask: for item <NSMenuItem: 0xb799d4000 Load State 3, ke='Command-F3', action: loadState:>, but is only supported for system-provided menu items; will not be used
+2026-08-27 06:11:33.984 SsbmPadRunner[45195:6447962] NSEventModifierFlagFunction specified to -setKeyEquivalentModifierMask: for item <NSMenuItem: 0xb799d4140 Load State 4, ke='Command-F4', action: loadState:>, but is only supported for system-provided menu items; will not be used
+2026-08-27 06:11:33.984 SsbmPadRunner[45195:6447962] NSEventModifierFlagFunction specified to -setKeyEquivalentModifierMask: for item <NSMenuItem: 0xb799d4280 Load State 5, ke='Command-F5', action: loadState:>, but is only supported for system-provided menu items; will not be used
+2026-08-27 06:11:33.984 SsbmPadRunner[45195:6447962] NSEventModifierFlagFunction specified to -setKeyEquivalentModifierMask: for item <NSMenuItem: 0xb799d43c0 Load State 6, ke='Command-F6', action: loadState:>, but is only supported for system-provided menu items; will not be used
+2026-08-27 06:11:33.984 SsbmPadRunner[45195:6447962] NSEventModifierFlagFunction specified to -setKeyEquivalentModifierMask: for item <NSMenuItem: 0xb799d4500 Load State 7, ke='Command-F7', action: loadState:>, but is only supported for system-provided menu items; will not be used
+2026-08-27 06:11:33.984 SsbmPadRunner[45195:6447962] NSEventModifierFlagFunction specified to -setKeyEquivalentModifierMask: for item <NSMenuItem: 0xb799d4640 Load State 8, ke='Command-F8', action: loadState:>, but is only supported for system-provided menu items; will not be used
+[staticrecomp] core init
+[staticrecomp] module loaded: /private/tmp/SsbmPad-diagnostic-gate.app/Contents/MacOS/gGALE01_recomp.dylib entry=0x8000522C
+[nogui] SIGUSR2: loading state from slot 1
+[staticrecomp] shutdown: native=285689809 fallback=0 native_exc=39679 hook_fb=119816 smc_failed=0 verifications=244 reverify_events=63 bursts=2042116 cycles=13839124378
+[staticrecomp] dispatch-site pc=80349494 samples=6396
+[staticrecomp] dispatch-site pc=80345738 samples=6092
+[staticrecomp] dispatch-site pc=80345760 samples=6063
+[staticrecomp] dispatch-site pc=80338234 samples=2395
+[staticrecomp] dispatch-site pc=8033821c samples=2384
+[staticrecomp] dispatch-site pc=8001cc04 samples=2378
+[staticrecomp] dispatch-site pc=803382ac samples=2362
+[staticrecomp] dispatch-site pc=800191c0 samples=2360
+[staticrecomp] dispatch-site pc=8001956c samples=2359
+[staticrecomp] dispatch-site pc=80338290 samples=2257
+[staticrecomp] dispatch-site pc=803382a4 samples=2240
+[staticrecomp] dispatch-site pc=8001920c samples=2224
+[staticrecomp] dispatch-site pc=80019550 samples=1280
+[staticrecomp] dispatch-site pc=80386c7c samples=1049
+[staticrecomp] dispatch-site pc=803a8bd8 samples=506
+[staticrecomp] dispatch-site pc=8001bd78 samples=505
+controller configuration: using existing controller profile
+audio backend: Cubeb

@@ -788,6 +788,19 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   Next: re-sample the exact promoted window and attribute the next distinct
   dynamic cost, excluding known scheduler and corrected FMA work. Evidence:
   `docs/artifacts/2026-08-27/g5-scalar-fma-semantics-retained.md`.
+- **PERF-056 (diagnostic-overhead gate rejected):** A promoted no-phase-log
+  control proved full frame telemetry costs roughly 1-2 FPS, but the normal
+  product still measured only 53.3-55.3 FPS on the retained Fountain state.
+  A regression-first gate removed default lockstep, freeze-trace, profile, and
+  dispatch-map work from the common loop; `ShouldCheck` disappeared and
+  `StaticRecompCore::Run` self samples fell 309 to 274. The equal emulated-frame
+  verdict nevertheless lost: candidate 18.997244 ms / 52.639 FPS / 20.771917
+  ms p95 versus promoted control 18.926719 / 52.835 / 20.781917, with work
+  within 14 cycles and three dispatches. Candidate and regression are removed;
+  the signed product was untouched. G5 remains open and G6 blocked. Next:
+  line-symbol attribution of the large generated `func_8035D940` and
+  `func_8033D940` costs, not another runtime-observer shortcut. Evidence:
+  `docs/artifacts/2026-08-27/g5-diagnostic-overhead-gate-rejection.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual

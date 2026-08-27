@@ -536,6 +536,19 @@ promoted exact window and rank the next dynamic cost after excluding the known
 scheduler and corrected FMA helper. See
 `docs/artifacts/2026-08-27/g5-scalar-fma-semantics-retained.md`.
 
+The promoted no-logger audit then proved observer overhead is real but not the
+G5 root cause. Full phase logging costs roughly 1-2 FPS, while the normal
+signed product still measured only 53.3-55.3 FPS on the retained Fountain
+state and a live four-player Brinstar attract scene reached 22.9 FPS. A
+regression-first default-off diagnostic gate removed `ShouldCheck` and reduced
+`StaticRecompCore::Run` self samples, but its equal-frame mean lost at
+18.997244 ms versus the promoted control's 18.926719 ms; p95 tied at
+20.771917/20.781917 ms. The candidate is removed. Do not retry observer gates
+or treat phase-logged FPS as product FPS. Continue G5 by line-symbolizing the
+large no-logger `func_8035D940`/`func_8033D940` generated costs and selecting a
+coherent guest kernel before another source change. G6 remains blocked. See
+`docs/artifacts/2026-08-27/g5-diagnostic-overhead-gate-rejection.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).
