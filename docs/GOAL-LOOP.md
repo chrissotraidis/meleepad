@@ -607,6 +607,20 @@ scheduler-loop, timer, stale-PGO, package-layout, FPRF-branch, or gather-width
 variants. Final Destination and G6 remain blocked. See
 `docs/artifacts/2026-08-27/g5-packaged-idle-config-retained.md`.
 
+Fresh current-source combat PGO is now causally screened. Candidate A, the
+current control, and candidate A2 execute exactly 1,501,757,755 cycles and
+51,380,895 dispatches over emulated frames `48123..48562`. PGO cuts
+CPU-thread mean by about 4.2 ms and improves total p95 from 18.123 ms to
+17.608/17.776 ms, but does not pass 16.7 ms. Disabling precision timing
+worsens p95 to 18.227 ms and is rejected. The local profile/module are an
+oracle, not a committable product input. Their disassembly proves selective
+hot call elimination and internal specialization while `__text` grows; it
+does not justify retrying blanket FP inlining, global PSQ loads, cold-symbol
+outlining, outer FMA splits, or timer variants. The next single diagnostic is
+an optimization-remark/call-site diff to select one previously untested,
+semantics-complete common case. Final Destination and G6 remain blocked. See
+`docs/artifacts/2026-08-27/g5-current-source-combat-pgo-oracle.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

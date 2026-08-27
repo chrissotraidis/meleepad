@@ -2096,3 +2096,27 @@ Append-only execution ledger. Claims are limited to observed evidence.
   package-path, or gather-width changes.
 - Evidence:
   `docs/artifacts/2026-08-27/g5-packaged-idle-config-retained.md`.
+
+## 2026-08-27 — fresh current-source combat PGO retained as oracle
+
+- A combat-gated profile from exact promoted source key `b2d4b69da942f7c2`
+  covered 6,556 functions and built without stale/mismatched-profile warnings.
+- Exact `48123..48562` candidate/control/candidate work matched at
+  1,501,757,755 cycles, 51,380,895 dispatches, 905,756 bursts, and 882 hooks.
+- Candidate CPU-thread mean repeated at 11.888651/11.606481 ms versus control
+  15.941134 ms. Total p95 improved to 17.608188/17.775729 ms from 18.123332
+  ms, but strict 16.7 ms still fails.
+- Disabling precision frame timing preserved compute but worsened wake-lateness
+  p95 to 2.124091 ms and total p95 to 18.227265 ms; ordinary sleep is rejected.
+- Whole-module disassembly shows selective PGO behavior rather than blanket
+  outlining: `ppc_fp_available` direct sites fall by 10,502 and several FP/PSQ
+  call classes shrink while `__text` grows 723,904 bytes.
+- Computer Use retained a coherent 59.9 FPS-title Pikachu/CPU-Fox Fountain
+  frame. No fighter morphing appears; the lower reflection is reference parity.
+- Decision: **PERF-063 is a local oracle, not a reproducible product module;
+  G5 open; G6 blocked.** Next diff exact PGO optimization remarks/eliminated
+  hot calls and test one untried semantics-complete common case. Do not retry
+  timer, blanket FP inlining, global PSQ load, cold-symbol outlining, or outer
+  FMA mode splits.
+- Evidence:
+  `docs/artifacts/2026-08-27/g5-current-source-combat-pgo-oracle.md`.

@@ -6,6 +6,17 @@ Last updated: 2026-08-27
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-063 establishes a fresh, current-source PGO oracle. Exact
+candidate/control/candidate Fountain windows match 1,501,757,755 guest cycles
+and 51,380,895 dispatches. The candidate cuts CPU-thread mean from 15.941 ms
+to 11.889/11.606 ms and improves p95 from 18.123 ms to 17.608/17.776 ms, but
+does not meet the strict 16.7 ms tail gate. Ordinary `sleep_until` is rejected:
+it worsens wake-lateness p95 to 2.124 ms and total p95 to 18.227 ms. A retained
+live frame shows coherent Pikachu/CPU-Fox Fountain at a 59.9 FPS title. The
+local ROM-trained profile/module remain outside Git and do not replace the
+reproducible product module. G6 remains blocked. See
+`docs/artifacts/2026-08-27/g5-current-source-combat-pgo-oracle.md`.
+
 PERF-062 fixes a real signed-package workload defect. The app now builds with
 an explicit bundle mode, keeps Dolphin `Sys` under `Contents/Resources`,
 retains the revision byte from validated `boot.bin`, and seeds the GALE01r0

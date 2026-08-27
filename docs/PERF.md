@@ -126,6 +126,19 @@ attract screen regressed median from 16.684 to 16.778 ms, p95 from 18.077 to
 module restored. See
 `docs/artifacts/2026-08-25/g5-fountain-fd-pgo-and-input-route.md`.
 
+A new combat-only profile now matches the exact promoted source rather than
+reusing a stale corpus. In an exact 440-emulated-frame
+candidate/control/candidate Fountain bracket, all three runs execute
+1,501,757,755 guest cycles and 51,380,895 dispatches. PGO reduces CPU-thread
+mean from 15.941 ms to 11.889/11.606 ms and total p95 from 18.123 ms to
+17.608/17.776 ms. The gain is real but insufficient for strict G5. Ordinary
+non-precision sleep worsens p95 to 18.227 ms and is rejected. Binary comparison
+shows a 723,904-byte larger `__text` plus selective hot helper-call elimination
+and branch specialization, not a blanket size/outline effect. The ROM-trained
+profile and module stay local as an oracle; the reproducible product remains
+unchanged. See
+`docs/artifacts/2026-08-27/g5-current-source-combat-pgo-oracle.md`.
+
 The shared-state comparison gap is now closed. Patch 0014 records Dolphin's
 savestated emulated VI/Movie frame beside each presentation row. Two equal
 440-field Fountain control windows matched exactly at 3,567,157,803 guest
