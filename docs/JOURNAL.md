@@ -2049,3 +2049,50 @@ Append-only execution ledger. Claims are limited to observed evidence.
   inner classification/rounding operation first. G5 remains open; G6 blocked.
 - Evidence:
   `docs/artifacts/2026-08-27/g5-fma-mode-split-preflight-rejection.md`.
+
+## 2026-08-27 — finite-normal FPRF preflight rejected
+
+- Exact arm64 offset attribution moved the remaining scalar-FMA question from
+  outer mode flags to force-single/classification/FPSCR writeback.
+- A disposable finite-normal fast path passed six aggregate semantic batches:
+  one million classification comparisons and 100,000 complete-state scalar-FMA
+  comparisons per batch.
+- Corrected finite-normal timing rejected it decisively: 54 paired five-million
+  operation runs averaged 9.364704 ns candidate versus 7.144759 ns control;
+  the candidate lost all 54 pairs.
+- Decision: **PERF-060 rejected before module/game build; G5 open; G6 blocked.**
+- Evidence:
+  `docs/artifacts/2026-08-27/g5-fprf-hotpath-preflight-rejection.md`.
+
+## 2026-08-27 — stale current-source PGO oracle rejected
+
+- Current generated source was linked with the excluded old exact-no-input
+  profile only as an oracle. Clang reported widespread missing data and
+  mismatched function hashes; the disposable module grew `__text` by 2.35 MB.
+- Its nominal `48123..48562` package interval executed 3,567,157,806 cycles and
+  measured 24.378538 ms mean / 53.859334 ms p95 / 18.377052 ms CPU mean.
+- Decision: **PERF-061 rejected; no private profile/module promoted.** Do not
+  retry the stale profile. G5 remains open and G6 blocked.
+- Evidence:
+  `docs/artifacts/2026-08-27/g5-stale-pgo-oracle-rejection.md`.
+
+## 2026-08-27 — packaged revision-idle configuration retained
+
+- The signed package and same-module local runner were executing different
+  work because the app's Sys layout and extracted-DOL boot path prevented
+  `GALE01r0.ini`'s `StaticRecompIdlePC` from reaching the core.
+- A failing package-layout check, compile-command audit, and temporary two-point
+  trace established the full mechanism. The traces were removed.
+- The retained fix adds explicit app-bundle mode, packages Sys in
+  `Contents/Resources`, records `boot.bin` revision, and seeds the exact idle
+  setting into the current-run layer before CPU initialization.
+- Clean signed package A/A2 selected identical 440-field work at 1,501,629,399
+  cycles and 51,369,928 dispatches. Means improved to 16.514379/16.574602 ms
+  (60.553/60.333 FPS) from the old package's 18.626525 ms.
+- Strict p95 still fails at 18.281042/18.259292 ms; only 65.682%/57.500% of
+  rows meet 16.7 ms. Average 60 is real, stable 60 is not yet proven.
+- Decision: **PERF-062 retained; G5 open; G6 blocked.** Next attribute the
+  exact idle-enabled package tail; do not retry scheduler, timer, stale-PGO,
+  package-path, or gather-width changes.
+- Evidence:
+  `docs/artifacts/2026-08-27/g5-packaged-idle-config-retained.md`.

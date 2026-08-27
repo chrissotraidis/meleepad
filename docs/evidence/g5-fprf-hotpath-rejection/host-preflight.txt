@@ -1,0 +1,36 @@
+PERF-060 finite-normal FPRF hot-path preflight
+Date: 2026-08-27
+Host: MacBookAir10,1, Apple M1, 8 cores (4 performance + 4 efficiency), 16 GB
+Compiler: Apple clang, -O3 -arch arm64 -mmacosx-version-min=14.0
+Floating-point flags: -ffp-contract=off -fno-fast-math
+
+Measured promoted offset attribution:
+  ppc_fmadd_op: 356 total samples
+    most frequently displayed offsets: +696 (50), +584 (27), +268 (26),
+    +312 (22), +24 (20), +156 (12), +220 (11), +136 (9)
+  ppc_fmuls: 176 total samples
+    most frequently displayed offsets: +296 (45), +168 (25), +4 (14),
+    +88 (12), +184 (9), +244 (7)
+
+Candidate:
+  Keep finite-normal sign classification in the caller and route zero,
+  subnormal, infinity, and NaN classification through a noinline cold helper.
+
+Semantic gate per batch:
+  1,000,000 original/candidate f32 classifications.
+  100,000 complete CPUState comparisons across all eight scalar-FMA modes.
+  Result: 6/6 aggregate timing batches passed semantics.
+
+Corrected finite-normal timing gate:
+  54 paired runs, 5,000,000 full ppc_fmadd_op operations per arm per run.
+  Order alternated between control-first and candidate-first.
+  control_mean_ns=7.144759
+  candidate_mean_ns=9.364704
+  ratio_of_means=0.762946
+  candidate_wins=0
+  candidate_losses=54
+
+Decision:
+  Reject before module/game build. The explicit hot-path branch serializes a
+  path that Clang currently implements with independent predicated work; the
+  visually shorter candidate is 31.1% slower on this M1.

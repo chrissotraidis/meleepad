@@ -1,0 +1,68 @@
+diff --git a/include/moderngekko/game.hpp b/include/moderngekko/game.hpp
+--- a/include/moderngekko/game.hpp
++++ b/include/moderngekko/game.hpp
+@@ -20,6 +20,7 @@ struct GameMetadata
+   std::filesystem::path main_rel;
+   std::string game_name;
+   std::string disc_id;
++  std::uint16_t revision = 0;
+   GamePlatform platform = GamePlatform::GameCube;
+   std::uint32_t entry_point = 0;
+   std::string dol_sha256;
+diff --git a/src/runtime/game.cpp b/src/runtime/game.cpp
+--- a/src/runtime/game.cpp
++++ b/src/runtime/game.cpp
+@@ -204,6 +204,7 @@ GameInspectResult InspectGame(const std::filesystem::path& input_root)
+     metadata.main_rel = rel_path;
+   metadata.game_name = std::move(name);
+   metadata.disc_id = std::move(id);
++  metadata.revision = (*boot)[7];
+   metadata.platform = wii_magic == 0x5d1c9ea3 ? GamePlatform::Wii : GamePlatform::GameCube;
+   metadata.entry_point = entry_point;
+   metadata.dol_sha256 = Sha256(std::move(*dol));
+diff --git a/src/runtime/dolphin_runtime.cpp b/src/runtime/dolphin_runtime.cpp
+--- a/src/runtime/dolphin_runtime.cpp
++++ b/src/runtime/dolphin_runtime.cpp
+@@ -12,6 +12,7 @@
+ #include "Core/Config/GraphicsSettings.h"
+ #include "Core/Config/MainSettings.h"
+ #include "Core/Config/SessionSettings.h"
++#include "Core/Config/StaticRecompSettings.h"
+ #include "Core/Core.h"
+ #include "Core/HW/GBACore.h"
+ #include "Core/Host.h"
+@@ -403,3 +404,14 @@ RuntimeCreateResult Runtime::Create(RuntimeConfig config) {
+   }
+-
++
++  // Executable-only boots do not give Dolphin a disc volume from which to
++  // load revision-specific GameINIs. Seed the static core's pre-boot setting
++  // from the metadata ModernGekko already validated in boot.bin.
++  const Common::IniFile default_game_ini = SConfig::LoadDefaultGameIni(
++      impl->metadata.disc_id, impl->metadata.revision);
++  u32 idle_pc = 0;
++  if (const auto* core = default_game_ini.GetSection("Core");
++      core && core->Get("StaticRecompIdlePC", &idle_pc) && idle_pc != 0) {
++    Config::SetCurrent(Config::MAIN_STATICRECOMP_IDLE_PC, idle_pc);
++  }
++
+   if (impl->config.enable_gmse01_60fps) {
+diff --git a/tests/game_inspect_test.cpp b/tests/game_inspect_test.cpp
+--- a/tests/game_inspect_test.cpp
++++ b/tests/game_inspect_test.cpp
+@@ -19,6 +19,7 @@ int main()
+   std::array<unsigned char, 0x60> boot{};
+   const char id[] = "TEST01";
+   std::copy_n(id, 6, boot.begin());
++  boot[7] = 2;
+   boot[0x18] = 0x5d; boot[0x19] = 0x1c; boot[0x1a] = 0x9e; boot[0x1b] = 0xa3;
+   const char name[] = "Synthetic Test Game";
+   std::copy_n(name, sizeof(name), boot.begin() + 0x20);
+@@ -39,6 +40,7 @@ int main()
+   fs::remove_all(root);
+   if (!result || result.metadata->disc_id != "TEST01" ||
+       result.metadata->game_name != "Synthetic Test Game" ||
++      result.metadata->revision != 2 ||
+       result.metadata->platform != moderngekko::GamePlatform::Wii ||
+       result.metadata->entry_point != 0x80003100u ||
+       result.metadata->dol_sha256 !=

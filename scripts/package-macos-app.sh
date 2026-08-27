@@ -22,6 +22,7 @@ cmake -S "$MG" -B "$BUILD" -G Ninja \
   -DMODERNGEKKO_DEFAULT_WINDOW_TITLE=SsbmPad \
   -DMODERNGEKKO_LOG_FILENAME=SsbmPad.log \
   -DMODERNGEKKO_GAMECUBE_CONTROLLERS=ON \
+  -DMODERNGEKKO_APP_BUNDLE=ON \
   -DMODERNGEKKO_REQUIRED_DISC_ID=GALE01 \
   -DUSE_SYSTEM_LIBS=OFF -DENABLE_VULKAN=OFF \
   -DENABLE_QT=OFF -DENABLE_TESTS=OFF
@@ -65,10 +66,12 @@ cp "$ROOT/apple/macos/SsbmPad" "$OUTPUT/Contents/MacOS/SsbmPad"
 cp "$BUILD/SsbmPadFrontend" "$OUTPUT/Contents/MacOS/SsbmPadFrontend"
 cp "$BUILD/SsbmPadRunner" "$OUTPUT/Contents/MacOS/SsbmPadRunner"
 cp "$active_module" "$OUTPUT/Contents/MacOS/gGALE01_recomp.dylib"
-cp -R "$BUILD/Sys" "$OUTPUT/Contents/MacOS/Sys"
+cp -R "$BUILD/Sys" "$OUTPUT/Contents/Resources/Sys"
 cp "$ROOT/apple/macos/default-config.ini" "$OUTPUT/Contents/Resources/default-config.ini"
 cp "$ROOT/apple/macos/default-GCPadNew.ini" "$OUTPUT/Contents/Resources/default-GCPadNew.ini"
 chmod +x "$OUTPUT/Contents/MacOS/SsbmPad"
+
+"$ROOT/scripts/test-macos-package-layout.sh" "$OUTPUT"
 
 source_icon="$ROOT/ref/sunpad/apple/ios/Assets.xcassets/AppIcon.appiconset/AppIcon.png"
 cp "$source_icon" "$OUTPUT/Contents/Resources/AppIcon.png"

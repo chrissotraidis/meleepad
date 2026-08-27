@@ -585,6 +585,28 @@ specific inner classification or rounding cost with exact semantic coverage.
 G5 remains open and G6 blocked. See
 `docs/artifacts/2026-08-27/g5-fma-mode-split-preflight-rejection.md`.
 
+Inner FPRF attribution is also complete. A finite-normal branch passed full
+classification and scalar-FMA state semantics but lost all 54 corrected host
+timing pairs by 31.1%, so it was rejected before a game build. A current-source
+build with the excluded stale profile was then used only as an oracle; missing
+and mismatched profile coverage plus a 24.379 ms mean / 53.859 ms p95 rejects
+that stale direction. Do not retry either experiment. See
+`docs/artifacts/2026-08-27/g5-fprf-hotpath-preflight-rejection.md` and
+`docs/artifacts/2026-08-27/g5-stale-pgo-oracle-rejection.md`.
+
+The packaged/local workload discrepancy is now closed. The app had bundled
+`GALE01r0.ini` where neither its local-dev resolver nor a valid signed bundle
+could consume it, and extracted-DOL boot did not install the disc's revision
+layer. Explicit app-bundle mode, `Contents/Resources/Sys`, boot revision
+retention, and pre-CPU current-run idle seeding are retained. Two clean signed
+package repeats now execute the deterministic 1.502B-cycle workload and
+average 16.514/16.575 ms (60.55/60.33 FPS). This materially advances G5 but
+does not pass it: p95 is still 18.281/18.259 ms. The next single experiment is
+fresh tail attribution on this exact idle-enabled package. Do not retry
+scheduler-loop, timer, stale-PGO, package-layout, FPRF-branch, or gather-width
+variants. Final Destination and G6 remain blocked. See
+`docs/artifacts/2026-08-27/g5-packaged-idle-config-retained.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

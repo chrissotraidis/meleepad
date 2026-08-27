@@ -6,6 +6,25 @@ Last updated: 2026-08-27
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-062 fixes a real signed-package workload defect. The app now builds with
+an explicit bundle mode, keeps Dolphin `Sys` under `Contents/Resources`,
+retains the revision byte from validated `boot.bin`, and seeds the GALE01r0
+idle PC into the current-run config before CPU initialization. Two identical
+440-field Fountain package runs executed 1,501,629,399 cycles and averaged
+16.514/16.575 ms (60.55/60.33 FPS), versus the contaminated package's
+3,567,157,782 cycles and 18.627 ms. Retain the roughly 2.1 ms product gain,
+but do not pass G5: p95 remains 18.281/18.259 ms and only 65.7%/57.5% of rows
+meet 16.7 ms. G6 remains blocked. See
+`docs/artifacts/2026-08-27/g5-packaged-idle-config-retained.md`.
+
+PERF-060 rejected a finite-normal FPRF branch at host preflight: complete
+semantics passed, but 54/54 paired five-million-operation runs lost and the
+candidate was 31.1% slower. PERF-061 then rejected the private stale-profile
+oracle after its nominal shared window measured 24.379 ms mean / 53.859 ms
+p95 with incomplete profile coverage. Neither changed the product. See
+`docs/artifacts/2026-08-27/g5-fprf-hotpath-preflight-rejection.md` and
+`docs/artifacts/2026-08-27/g5-stale-pgo-oracle-rejection.md`.
+
 PERF-059 rejected a dominant scalar-FMA mode split at host preflight. The
 fixed single/add/non-negative path passed 160,000 complete-state comparisons,
 but 56 paired five-million-operation timing runs averaged 19.362982 ns versus
@@ -834,6 +853,26 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   open; G6 remains blocked. Next: aggregate non-entry lines in the remaining
   `func_8035D940` cost, excluding gather width. Evidence:
   `docs/artifacts/2026-08-27/g5-gpfifo64-deterministic-rejection.md`.
+- **PERF-059 (outer scalar-FMA mode split rejected):** The dominant constant
+  mode passed complete semantics but tied/lost the generic helper at host
+  preflight. Evidence:
+  `docs/artifacts/2026-08-27/g5-fma-mode-split-preflight-rejection.md`.
+- **PERF-060 (finite-normal FPRF branch rejected):** Six semantic batches
+  passed; the corrected 54-pair preflight measured 9.364704 ns candidate versus
+  7.144759 ns control, with zero candidate wins. Evidence:
+  `docs/artifacts/2026-08-27/g5-fprf-hotpath-preflight-rejection.md`.
+- **PERF-061 (stale current-source PGO oracle rejected):** The excluded
+  private profile had widespread missing/mismatched coverage and its packaged
+  440-field interval measured 24.378538 ms mean / 53.859334 ms p95. No profile
+  or candidate module is promoted. Evidence:
+  `docs/artifacts/2026-08-27/g5-stale-pgo-oracle-rejection.md`.
+- **PERF-062 (packaged revision-idle config retained):** The signed app's Sys
+  layout and executable-only configuration path prevented GALE01r0's retained
+  scheduler idle PC from reaching the static core. Explicit app-bundle mode,
+  revision retention, and current-run GameINI seeding reduce identical package
+  work from 3.567B to 1.502B cycles. Two repeats average 60.55/60.33 FPS, but
+  p95 remains 18.281/18.259 ms, so G5 stays open and G6 blocked. Evidence:
+  `docs/artifacts/2026-08-27/g5-packaged-idle-config-retained.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual

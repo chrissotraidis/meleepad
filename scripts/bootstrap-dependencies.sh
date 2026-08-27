@@ -123,6 +123,8 @@ thinlto_patch="$ROOT/patches/moderngekko/0002-macos-preserve-module-thinlto.patc
 pipe_input_patch="$ROOT/patches/moderngekko/0003-pipe-input-background.patch"
 memory_watcher_test_patch="$ROOT/patches/moderngekko/0004-static-recomp-memory-watcher-test.patch"
 module_source_cache_patch="$ROOT/patches/moderngekko/0005-module-source-cache-identity.patch"
+extracted_idle_patch="$ROOT/patches/moderngekko/0006-extracted-game-idle-config.patch"
+app_bundle_sys_patch="$ROOT/patches/moderngekko/0007-macos-app-bundle-sys.patch"
 render_log_patch="$ROOT/patches/moderngekko-dolphin/0002-buffer-render-time-logging.patch"
 idle_patch="$ROOT/patches/moderngekko-dolphin/0003-gale01r0-staticrecomp-idle.patch"
 memory_watcher_patch="$ROOT/patches/moderngekko-dolphin/0004-static-recomp-memory-watcher.patch"
@@ -173,6 +175,11 @@ apply_patch_once_or_marker "$MG/vendor/dolphin" "$dispatch_frame_patch" \
   STATICRECOMP_DISPATCH_FRAME_LOG
 apply_patch_once "$MG/vendor/dolphin" "$paired_store_patch"
 apply_patch_once "$MG" "$savestate_signal_patch"
+apply_patch_once_or_marker "$MG" "$extracted_idle_patch" \
+  src/runtime/dolphin_runtime.cpp \
+  'Executable-only boots do not give Dolphin a disc volume'
+apply_patch_once_or_marker "$MG" "$app_bundle_sys_patch" \
+  CMakeLists.txt MODERNGEKKO_APP_BUNDLE
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$emulated_frame_patch" \
   Source/Core/Common/FramePhaseTiming.h s_emulated_frame_index
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$gxruntime_fma_test_patch" \
@@ -182,7 +189,8 @@ verify_patch_scope "$MG" "$mg_patch" vendor/dolphin tools/moderngekko_launcher.c
   tools/moderngekko_port.cpp tests/frontend_config_test.cpp \
   tools/frontend_config.cpp tools/frontend_config.hpp tools/moderngekko_run.cpp \
   CMakeLists.txt tests/memory_watcher_utils_test.cpp \
-  src/runtime/dolphin_runtime.cpp
+  src/runtime/dolphin_runtime.cpp src/runtime/game.cpp \
+  include/moderngekko/game.hpp tests/game_inspect_test.cpp
 verify_patch_scope "$MG/vendor/dolphin" "$dolphin_patch" \
   DolRecomp \
   Source/Core/VideoCommon/PerformanceTracker.cpp \
