@@ -1,0 +1,81 @@
+diff --git a/GXRuntime/tests/runtime_tests.c b/GXRuntime/tests/runtime_tests.c
+index 9c377dc5c4..4e46e08a45 100644
+--- a/GXRuntime/tests/runtime_tests.c
++++ b/GXRuntime/tests/runtime_tests.c
+@@ -247,6 +247,68 @@ static void test_scalar_single_semantics(void) {
+     cpu_free(&cpu);
+ }
+ 
++static void test_scalar_fma_semantics(void) {
++    enum {
++        FPSCR_FX = 0x80000000u,
++        FPSCR_VXSNAN = 0x01000000u,
++        FPSCR_FR = 0x00040000u,
++        FPSCR_FI = 0x00020000u,
++        FPSCR_VE = 0x00000080u,
++        FPSCR_NI = 0x00000004u,
++    };
++
++    CPUState cpu;
++    assert(cpu_init(&cpu));
++
++    cpu.fpr[1] = 1.0;
++    cpu.fpr[2] = 2.0;
++    cpu.fpr[3] = 3.0;
++    cpu.ps1[4] = -1234.0;
++    cpu.fpscr = FPSCR_FI | FPSCR_FR;
++    ppc_fmadd_op(&cpu, 4, 1, 2, 3, true, false, false);
++    assert(cpu.fpr[4] == 5.0 && cpu.ps1[4] == 5.0);
++    assert((cpu.fpscr & (FPSCR_FI | FPSCR_FR)) == 0);
++
++    ppc_fmadd_op(&cpu, 4, 1, 2, 3, true, true, false);
++    assert(cpu.fpr[4] == -1.0 && cpu.ps1[4] == -1.0);
++    ppc_fmadd_op(&cpu, 4, 1, 2, 3, true, false, true);
++    assert(cpu.fpr[4] == -5.0 && cpu.ps1[4] == -5.0);
++    ppc_fmadd_op(&cpu, 4, 1, 2, 3, true, true, true);
++    assert(cpu.fpr[4] == 1.0 && cpu.ps1[4] == 1.0);
++
++    cpu.ps1[4] = -1234.0;
++    ppc_fmadd_op(&cpu, 4, 1, 2, 3, false, false, false);
++    assert(cpu.fpr[4] == 5.0 && cpu.ps1[4] == -1234.0);
++    ppc_fmadd_op(&cpu, 4, 1, 2, 3, false, true, false);
++    assert(cpu.fpr[4] == -1.0 && cpu.ps1[4] == -1234.0);
++    ppc_fmadd_op(&cpu, 4, 1, 2, 3, false, false, true);
++    assert(cpu.fpr[4] == -5.0 && cpu.ps1[4] == -1234.0);
++    ppc_fmadd_op(&cpu, 4, 1, 2, 3, false, true, true);
++    assert(cpu.fpr[4] == 1.0 && cpu.ps1[4] == -1234.0);
++
++    cpu_reset(&cpu);
++    cpu.fpscr = FPSCR_NI;
++    cpu.fpr[1] = 0x1p-140;
++    cpu.fpr[2] = 1.0;
++    cpu.fpr[3] = 0.0;
++    ppc_fmadd_op(&cpu, 4, 1, 2, 3, true, false, false);
++    assert(cpu.fpr[4] == 0.0 && cpu.ps1[4] == 0.0);
++
++    cpu_reset(&cpu);
++    cpu.fpscr = FPSCR_VE;
++    cpu.fpr[1] = test_f64_from_bits(0x7FF0000000000001ull);
++    cpu.fpr[2] = 1.0;
++    cpu.fpr[3] = 0.0;
++    cpu.fpr[4] = 77.0;
++    cpu.ps1[4] = 88.0;
++    ppc_fmadd_op(&cpu, 4, 1, 2, 3, true, false, false);
++    assert(cpu.fpr[4] == 77.0 && cpu.ps1[4] == 88.0);
++    assert((cpu.fpscr & (FPSCR_FX | FPSCR_VXSNAN)) ==
++           (FPSCR_FX | FPSCR_VXSNAN));
++
++    cpu_free(&cpu);
++}
++
+ static void test_gx_write(u64 value, u8 size) {
+     assert(value == 0x12345678u);
+     assert(size == 4);
+@@ -2448,6 +2510,7 @@ static void test_native_system_helpers(void) {
+ 
+ int main(void) {
+     test_scalar_single_semantics();
++    test_scalar_fma_semantics();
+     test_guest_memory();
+     test_store_reservation();
+     test_native_system_helpers();

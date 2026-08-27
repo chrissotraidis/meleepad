@@ -522,6 +522,20 @@ or treat static text shrinkage as a performance result. Continue G5 from a
 newly measured dynamic cost; G6 remains blocked. See
 `docs/artifacts/2026-08-27/g5-computed-label-entry-decoder-rejection.md`.
 
+The next exact-window helper investigation retained a correctness repair.
+All 3,677 scalar FMA sites previously used a value-return helper that missed
+normal `fmadds` FI/FR and NI-mode single-subnormal flushing. DolRecomp now
+emits the existing instruction-shaped exact helper for all eight scalar FMA
+forms, with generated-C and GXRuntime regressions. Clean patch reproduction,
+fresh suites, bounded lockstep, exact shared-state work, official rebuild,
+signed packaging, and coherent live Fountain all pass. The warmed candidate
+did not improve performance: 19.127040 ms / 52.282 FPS / 21.457875 ms p95
+versus canonical 18.967010 / 52.723 / 20.397875. Retain the semantic fix, do
+not count it as a speed win, and keep G5 open/G6 blocked. Next, re-sample the
+promoted exact window and rank the next dynamic cost after excluding the known
+scheduler and corrected FMA helper. See
+`docs/artifacts/2026-08-27/g5-scalar-fma-semantics-retained.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

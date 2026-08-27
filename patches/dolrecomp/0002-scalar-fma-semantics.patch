@@ -1,0 +1,176 @@
+diff --git a/src/backend/emitter.c b/src/backend/emitter.c
+index 012e661..f6b31e3 100644
+--- a/src/backend/emitter.c
++++ b/src/backend/emitter.c
+@@ -1004,13 +1004,10 @@ static void emit_instruction_with_range(FILE* out, const PPCInst* inst,
+     case PPC_OP_FNMSUBS: {
+         const bool sub = inst->op == PPC_OP_FMSUBS || inst->op == PPC_OP_FNMSUBS;
+         const bool neg = inst->op == PPC_OP_FNMADDS || inst->op == PPC_OP_FNMSUBS;
+-        fprintf(out, "    {\n");
+-        fprintf(out, "        f64 result;\n");
+-        fprintf(out, "        if (ppc_fma(ctx, ctx->fpr[%u], ctx->fpr[%u], ctx->fpr[%u], true, %s, %s, &result))\n",
+-                inst->rA, inst->rC, inst->rB, sub ? "true" : "false", neg ? "true" : "false");
+-        fprintf(out, "            ctx->fpr[%u] = ctx->ps1[%u] = result;\n", inst->rD, inst->rD);
++        fprintf(out, "    ppc_fmadd_op(ctx, %u, %u, %u, %u, true, %s, %s);\n",
++                inst->rD, inst->rA, inst->rC, inst->rB,
++                sub ? "true" : "false", neg ? "true" : "false");
+         if (inst->rc) emit_set_cr1_from_fpscr(out);
+-        fprintf(out, "    }\n");
+         break;
+     }
+ 
+@@ -1046,13 +1043,10 @@ static void emit_instruction_with_range(FILE* out, const PPCInst* inst,
+     case PPC_OP_FNMSUB: {
+         const bool sub = inst->op == PPC_OP_FMSUB || inst->op == PPC_OP_FNMSUB;
+         const bool neg = inst->op == PPC_OP_FNMADD || inst->op == PPC_OP_FNMSUB;
+-        fprintf(out, "    {\n");
+-        fprintf(out, "        f64 result;\n");
+-        fprintf(out, "        if (ppc_fma(ctx, ctx->fpr[%u], ctx->fpr[%u], ctx->fpr[%u], false, %s, %s, &result))\n",
+-                inst->rA, inst->rC, inst->rB, sub ? "true" : "false", neg ? "true" : "false");
+-        fprintf(out, "            ctx->fpr[%u] = result;\n", inst->rD);
++        fprintf(out, "    ppc_fmadd_op(ctx, %u, %u, %u, %u, false, %s, %s);\n",
++                inst->rD, inst->rA, inst->rC, inst->rB,
++                sub ? "true" : "false", neg ? "true" : "false");
+         if (inst->rc) emit_set_cr1_from_fpscr(out);
+-        fprintf(out, "    }\n");
+         break;
+     }
+ 
+diff --git a/src/cpu/cpu.c b/src/cpu/cpu.c
+index 596f379..66262a3 100644
+--- a/src/cpu/cpu.c
++++ b/src/cpu/cpu.c
+@@ -1193,6 +1193,38 @@ bool ppc_fma(CPUState* cpu, f64 a, f64 c, f64 b, bool single,
+     return true;
+ }
+ 
++static f32 force_single_result(const CPUState* cpu, f64 value) {
++    if (cpu->fpscr & 0x4u) {
++        u64 bits = f64_bits(value);
++        if ((bits & 0x7FFFFFFFFFFFFFFFull) < 0x3810000000000000ull)
++            return f32_value((u32)((bits & 0x8000000000000000ull) >> 32));
++    }
++    return (f32)value;
++}
++
++void ppc_fmadd_op(CPUState* cpu, u8 d, u8 a, u8 c, u8 b,
++                  bool single, bool subtract, bool negative) {
++    f64 result;
++    if (!ppc_fma(cpu, cpu->fpr[a], cpu->fpr[c], cpu->fpr[b], single,
++                 subtract, negative, &result))
++        return;
++
++    if (single) {
++        f32 rounded = force_single_result(cpu, result);
++        cpu->fpr[d] = (f64)rounded;
++        cpu->ps1[d] = (f64)rounded;
++        if (!subtract && !negative) {
++            f64 raw = fma(cpu->fpr[a], force_25_bit(cpu->fpr[c]), cpu->fpr[b]);
++            cpu->fpscr = (cpu->fpscr & ~0x00060000u) |
++                         ((raw != (f64)rounded) ? 0x00020000u : 0u);
++        }
++        set_fprf(cpu, classify_f32(rounded));
++    } else {
++        cpu->fpr[d] = result;
++        set_fprf(cpu, classify_f64(result));
++    }
++}
++
+ void ppc_memory_fence(void) {
+ #if defined(_MSC_VER)
+     _ReadWriteBarrier();
+diff --git a/src/cpu/cpu.h b/src/cpu/cpu.h
+index 3f2a3d3..265bd78 100644
+--- a/src/cpu/cpu.h
++++ b/src/cpu/cpu.h
+@@ -143,6 +143,8 @@ void ppc_ps_res(CPUState* cpu, f64 a, f64 b, f64* result_a, f64* result_b);
+ void ppc_ps_rsqrte(CPUState* cpu, f64 a, f64 b, f64* result_a, f64* result_b);
+ bool ppc_fma(CPUState* cpu, f64 a, f64 c, f64 b, bool single,
+              bool subtract, bool negative, f64* output);
++void ppc_fmadd_op(CPUState* cpu, u8 d, u8 a, u8 c, u8 b,
++                  bool single, bool subtract, bool negative);
+ bool ppc_fctiw(CPUState* cpu, f64 value, bool toward_zero, u64* result);
+ void ppc_fcmp(CPUState* cpu, u8 crfd, f64 a, f64 b, bool ordered);
+ void ppc_fadds(CPUState* cpu, u8 d, u8 a, u8 b);
+diff --git a/tests/test_c_execute.c b/tests/test_c_execute.c
+index 486423f..69d00e8 100644
+--- a/tests/test_c_execute.c
++++ b/tests/test_c_execute.c
+@@ -6,6 +6,7 @@ void func_80004020(CPUState* ctx);
+ void func_80004040(CPUState* ctx);
+ void func_80004060(CPUState* ctx);
+ void func_80004080(CPUState* ctx);
++void func_800040A0(CPUState* ctx);
+ 
+ static u32 cache_calls;
+ static u8 cache_operations[2];
+@@ -123,6 +124,41 @@ int main(void) {
+                 (long long)cpu.downcount, cpu.exception);
+     }
+ 
++    cpu.pc = 0x800040A0u;
++    cpu.lr = 0x81234564u;
++    cpu.msr = 0x00002000u;
++    cpu.fpscr = 0x00060000u;
++    cpu.fpr[18] = 1.1;
++    cpu.fpr[19] = 2.2;
++    cpu.fpr[20] = 3.3;
++    cpu.ps1[17] = -1234.0;
++    func_800040A0(&cpu);
++    int scalar_fma_flags_ok = cpu.pc == cpu.lr &&
++                              cpu.fpr[17] == cpu.ps1[17] &&
++                              (cpu.fpscr & 0x00060000u) == 0x00020000u;
++    if (!scalar_fma_flags_ok) {
++        fprintf(stderr,
++                "scalar fmadds flags pc=%08X f17=(%a,%a) fpscr=%08X\n",
++                cpu.pc, cpu.fpr[17], cpu.ps1[17], cpu.fpscr);
++    }
++
++    cpu.pc = 0x800040A0u;
++    cpu.lr = 0x81234564u;
++    cpu.fpscr = 0x00000004u;
++    cpu.fpr[18] = 0x1p-140;
++    cpu.fpr[19] = 1.0;
++    cpu.fpr[20] = 0.0;
++    cpu.fpr[17] = cpu.ps1[17] = -1234.0;
++    func_800040A0(&cpu);
++    int scalar_fma_ni_ok = cpu.pc == cpu.lr &&
++                           cpu.fpr[17] == 0.0 && cpu.ps1[17] == 0.0;
++    if (!scalar_fma_ni_ok) {
++        fprintf(stderr,
++                "scalar fmadds NI pc=%08X f17=(%a,%a) fpscr=%08X\n",
++                cpu.pc, cpu.fpr[17], cpu.ps1[17], cpu.fpscr);
++    }
++
+     cpu_free(&cpu);
+-    return !(integer_ok && memory_ok && scalar_single_ok && cache_control_ok);
++    return !(integer_ok && memory_ok && scalar_single_ok && cache_control_ok &&
++             scalar_fma_flags_ok && scalar_fma_ni_ok);
+ }
+diff --git a/tests/test_codegen_emit.c b/tests/test_codegen_emit.c
+index 21d2aaa..55803cc 100644
+--- a/tests/test_codegen_emit.c
++++ b/tests/test_codegen_emit.c
+@@ -174,6 +174,12 @@ int main(int argc, char** argv) {
+     if (!emit_function(out, cache_control, 5, BASE + 0x1080))
+         return 1;
+ 
++    PPCInst scalar_fma[2];
++    scalar_fma[0] = ppc_decode(0xEE32A4FAu, BASE + 0x10A0); /* fmadds f17,f18,f19,f20 */
++    scalar_fma[1] = ppc_decode(0x4E800020u, BASE + 0x10A4); /* blr */
++    if (!emit_function(out, scalar_fma, 2, BASE + 0x10A0))
++        return 1;
++
+     FunctionList funcs = {0};
+     if (!function_list_add(&funcs, BASE, BASE + (u32)count * 4u) ||
+         !function_list_add(&funcs, BASE + 0x1000, BASE + 0x100C) ||
+@@ -183,7 +189,8 @@ int main(int argc, char** argv) {
+         !function_list_add(&funcs, BASE + 0x1030, BASE + 0x1040) ||
+         !function_list_add(&funcs, BASE + 0x1040, BASE + 0x1058) ||
+         !function_list_add(&funcs, BASE + 0x1060, BASE + 0x1078) ||
+-        !function_list_add(&funcs, BASE + 0x1080, BASE + 0x1094)) {
++        !function_list_add(&funcs, BASE + 0x1080, BASE + 0x1094) ||
++        !function_list_add(&funcs, BASE + 0x10A0, BASE + 0x10A8)) {
+         function_list_free(&funcs);
+         free(insts);
+         if (out != stdout) fclose(out);

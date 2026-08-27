@@ -1927,3 +1927,31 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Evidence:
   `docs/artifacts/2026-08-27/g5-computed-label-entry-decoder-rejection.md` and
   `docs/artifacts/2026-08-27/g5-fp-availability-inline-rejection.md`.
+
+## 2026-08-27 — scalar FMA semantics retained and promoted
+
+- Exact-window attribution selected `ppc_fma` as the largest untested runtime
+  helper, but regression-first work found a correctness defect rather than a
+  speed opportunity: 3,677 generated scalar FMA sites missed normal `fmadds`
+  FI/FR and NI-mode single-subnormal flushing.
+- DolRecomp patch 0002 routes all eight scalar FMA forms through the existing
+  exact instruction helper; Dolphin patch 0015 adds single/double,
+  add/subtract, negative, lane, FI/FR, NI, and VE-gated sNaN regressions.
+- Fresh DolRecomp 14/14 and GXRuntime 1/1 pass. Bounded lockstep matched at
+  1,367 PCs, 91 reports, zero undercharges, and byte-identical divergence
+  entries. Clean patch apply/reverse/source identity and bootstrap pass.
+- Equal emulated frames kept work within 22 cycles/four dispatches. Warmed
+  candidate was 19.127040 ms / 52.282 FPS / 21.457875 ms p95 versus canonical
+  18.967010 / 52.723 / 20.397875; the cold 40.343472 ms candidate is retained
+  as a host/cache outlier, not source causality.
+- The official exact-ISO build produced key `d852344fce9334dc`. Signed package
+  and active module have identical `__text` SHA-256 `ac3089f2...`; strict
+  codesign, `gcpipe` 16/16, focused CTest 4/4, and repository safety pass.
+- Computer Use retained a coherent packaged Pikachu/CPU-Fox Fountain frame at
+  52.5 FPS with no visible character morphing. The runtime was stopped and no
+  Simulator was booted.
+- Decision: **retain/promote exact FMA semantics; not a performance win; G5
+  open; G6 blocked.** Next is a fresh exact-window native sample of the
+  promoted build, excluding known scheduler and corrected FMA work.
+- Evidence:
+  `docs/artifacts/2026-08-27/g5-scalar-fma-semantics-retained.md`.

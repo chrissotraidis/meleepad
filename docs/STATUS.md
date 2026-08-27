@@ -773,6 +773,21 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   active module and product are unchanged, G5 remains open, and G6 remains
   blocked. Evidence:
   `docs/artifacts/2026-08-27/g5-computed-label-entry-decoder-rejection.md`.
+- **PERF-055 / CORRECTNESS-006 (scalar FMA exactness retained):** Exact-window
+  attribution found 118 top samples in `ppc_fma`, then a failing-before
+  regression showed the larger issue: all 3,677 generated scalar FMA sites
+  missed normal `fmadds` FI/FR behavior and NI-mode single-subnormal flushing.
+  DolRecomp now emits all eight scalar FMA variants through exact
+  `ppc_fmadd_op`; focused semantics, DolRecomp 14/14, GXRuntime 1/1, a
+  1,367-PC lockstep screen, clean patch reproduction, and packaged live
+  Fountain all pass. The warmed live candidate measured 19.127040 ms / 52.282
+  FPS / 21.457875 ms p95 versus canonical 18.967010 / 52.723 / 20.397875, so
+  this is retained for correctness and determinism, not speed. The packaged
+  capture shows coherent Pikachu/Fox geometry at 52.5 FPS. Active key
+  `d852344fce9334dc` is promoted; G5 remains open and G6 remains blocked.
+  Next: re-sample the exact promoted window and attribute the next distinct
+  dynamic cost, excluding known scheduler and corrected FMA work. Evidence:
+  `docs/artifacts/2026-08-27/g5-scalar-fma-semantics-retained.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual
