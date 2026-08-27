@@ -1,0 +1,91 @@
+diff --git a/tools/moderngekko_port.cpp b/tools/moderngekko_port.cpp
+--- a/tools/moderngekko_port.cpp
++++ b/tools/moderngekko_port.cpp
+@@ -41,5 +41,6 @@ struct BuildOptions
+ #endif
+   fs::path output;
++  fs::path pgo_profile;
+   std::vector<std::string> runner_arguments;
+ };
+ 
+@@ -436,6 +437,29 @@ std::optional<fs::path> Build(const char* argv0, const fs::path& root,
+     return std::nullopt;
+   }
+ 
++  std::optional<std::string> pgo_profile_hash;
++  if (!options.pgo_profile.empty())
++  {
++    if (options.backend != "c" || compiler != "clang")
++    {
++      std::cerr << "PGO profiles require the C backend and Clang\n";
++      return std::nullopt;
++    }
++    std::error_code error;
++    options.pgo_profile = fs::weakly_canonical(options.pgo_profile, error);
++    if (error || !fs::is_regular_file(options.pgo_profile))
++    {
++      std::cerr << "PGO profile is unavailable: " << options.pgo_profile << '\n';
++      return std::nullopt;
++    }
++    pgo_profile_hash = moderngekko::HashFileSha256(options.pgo_profile);
++    if (!pgo_profile_hash)
++    {
++      std::cerr << "failed to hash PGO profile: " << options.pgo_profile << '\n';
++      return std::nullopt;
++    }
++  }
++
+   const std::string compiler_identity = ReadCommand(compiler + " --version 2>&1");
+   if (compiler_identity.empty())
+   {
+@@ -473,6 +497,8 @@ std::optional<fs::path> Build(const char* argv0, const fs::path& root,
+   {
+     flags = "compile:/O2 /fp:strict";
+   }
++  if (pgo_profile_hash)
++    flags += " pgo-profile-sha256=" + *pgo_profile_hash;
+   const std::string identity = std::string(RECOMPCORE_REVISION) + "|dolrecomp=" +
+       std::string(DOLRECOMP_REVISION) + "|module-abi=" +
+       std::to_string(MODERNGEKKO_MODULE_ABI_VERSION) + "|cpu-abi=" +
+@@ -510,8 +536,10 @@ std::optional<fs::path> Build(const char* argv0, const fs::path& root,
+              << "architecture=" << architecture << '\n'
+              << "flags=" << flags << '\n'
+              << "backend=" << options.backend << '\n'
+              << "patches=" << patches.fingerprint << '\n'
+              << "module_sources=" << *module_source_fingerprint << '\n';
++    if (pgo_profile_hash)
++      manifest << "pgo_profile_sha256=" << *pgo_profile_hash << '\n';
+     fs::create_directories(options.output / game.disc_id);
+     std::ofstream active(options.output / game.disc_id / "active-module.txt");
+     active << module.string() << '\n';
+@@ -585,6 +614,12 @@ std::optional<fs::path> Build(const char* argv0, const fs::path& root,
+       " -DGXRUNTIME_DIR=" + Quote(source_root / "vendor/dolphin/GXRuntime") +
+       " -DCHASSIS_ABI_DIR=" +
+       Quote(source_root / "vendor/dolphin/Source/Core/Core/PowerPC/StaticRecomp");
++  if (pgo_profile_hash)
++  {
++    configure += " " +
++                 Quote(fs::path("-DCMAKE_C_FLAGS=-fprofile-instr-use=" +
++                                options.pgo_profile.string()));
++  }
+   if (!RunCommand(configure) ||
+       !RunCommand("cmake --build " + Quote(module_build) + " -j" +
+                   std::to_string(compile_jobs)))
+@@ -601,6 +636,6 @@ std::optional<fs::path> Build(const char* argv0, const fs::path& root,
+ void Usage()
+ {
+   std::cerr << "usage: moderngekko-port inspect <game-root>\n"
+-               "       moderngekko-port build <game-root> [--backend c|llvm] [--toolchain auto|clang|gcc|msvc] [--output path]\n"
++               "       moderngekko-port build <game-root> [--backend c|llvm] [--toolchain auto|clang|gcc|msvc] [--pgo-profile path] [--output path]\n"
+                "       moderngekko-port run <game-root> [build options] [-- runner options]\n";
+ }
+@@ -630,6 +665,9 @@ int main(int argc, char** argv)
+       options.backend = argv[++i];
+     else if (arg == "--output" && i + 1 < argc)
+       options.output = argv[++i];
++    else if ((command == "build" || command == "run") && arg == "--pgo-profile" &&
++             i + 1 < argc)
++      options.pgo_profile = argv[++i];
+     else if (command == "run")
+       options.runner_arguments.push_back(arg);
+     else

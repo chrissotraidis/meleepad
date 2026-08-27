@@ -150,6 +150,36 @@ range helper. One PC therefore cannot materially reproduce the aggregate
 generated code changed. Do not replace aggregate selective PGO with a large
 revision-specific address list.
 
+## Reproducible private PGO cache
+
+`patches/moderngekko/0008-private-pgo-cache-identity.patch` adds an explicit
+build-only `--pgo-profile` option to `moderngekko-port`. It is deliberately
+limited to the C backend with Clang. The tool canonicalizes and hashes the
+private profile, adds only its SHA-256 to the complete module cache identity,
+and records only that hash in the manifest. An unavailable profile, a non-Clang
+toolchain, and use with `inspect` are rejected before module compilation.
+
+The current combat profile rebuilt into isolated cache key
+`0f09e240...-5d9d1b7aea44e9f0`. Its manifest contains profile SHA-256
+`3f9d2aa4...f572ac12` in both `flags` and `pgo_profile_sha256`, with no private
+path. A repeat invocation was an immediate cache hit. Copying the identical
+profile to a different private path also hit the same key, and a manifest scan
+found no `/private/tmp` or user path.
+
+The rebuilt unsigned module SHA-256 is `cce4ea64...f629682f`, rather than the
+earlier oracle's whole-file hash, because the Mach-O UUID and 47 other non-code
+bytes were regenerated. Both files are 83,126,968 bytes and their 81,959,380
+byte `__text` sections have identical SHA-256
+`5df909902be0306ad723a7882178854197afc3da38ae8330555544163de96bae`.
+Only `_staticrecomp_get_module` is exported and no profiling hook remains.
+This establishes code equivalence without treating non-deterministic Mach-O
+metadata as a cache identity.
+
+The canonical patch passed reverse/apply verification with an identical source
+hash. Dependency bootstrap, repository checks, and package-layout checks for
+both local macOS apps pass. This makes the known CPU improvement reproducible;
+it does not change the strict runtime verdict below.
+
 ## Live product boundary
 
 Computer Use inspected the actual candidate window after a readiness-gated

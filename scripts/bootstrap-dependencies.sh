@@ -125,6 +125,7 @@ memory_watcher_test_patch="$ROOT/patches/moderngekko/0004-static-recomp-memory-w
 module_source_cache_patch="$ROOT/patches/moderngekko/0005-module-source-cache-identity.patch"
 extracted_idle_patch="$ROOT/patches/moderngekko/0006-extracted-game-idle-config.patch"
 app_bundle_sys_patch="$ROOT/patches/moderngekko/0007-macos-app-bundle-sys.patch"
+pgo_cache_patch="$ROOT/patches/moderngekko/0008-private-pgo-cache-identity.patch"
 render_log_patch="$ROOT/patches/moderngekko-dolphin/0002-buffer-render-time-logging.patch"
 idle_patch="$ROOT/patches/moderngekko-dolphin/0003-gale01r0-staticrecomp-idle.patch"
 memory_watcher_patch="$ROOT/patches/moderngekko-dolphin/0004-static-recomp-memory-watcher.patch"
@@ -151,7 +152,8 @@ apply_patch_once "$MG" "$launcher_patch"
 apply_patch_once "$MG" "$thinlto_patch"
 apply_patch_once "$MG" "$pipe_input_patch"
 apply_patch_once "$MG" "$memory_watcher_test_patch"
-apply_patch_once "$MG" "$module_source_cache_patch"
+apply_patch_once_or_marker "$MG" "$module_source_cache_patch" \
+  tools/moderngekko_port.cpp ModuleSourceFingerprint
 apply_patch_once "$MG/vendor/dolphin" "$render_log_patch"
 apply_patch_once "$MG/vendor/dolphin" "$idle_patch"
 apply_patch_once "$MG/vendor/dolphin" "$memory_watcher_patch"
@@ -180,6 +182,7 @@ apply_patch_once_or_marker "$MG" "$extracted_idle_patch" \
   'Executable-only boots do not give Dolphin a disc volume'
 apply_patch_once_or_marker "$MG" "$app_bundle_sys_patch" \
   CMakeLists.txt MODERNGEKKO_APP_BUNDLE
+apply_patch_once "$MG" "$pgo_cache_patch"
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$emulated_frame_patch" \
   Source/Core/Common/FramePhaseTiming.h s_emulated_frame_index
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$gxruntime_fma_test_patch" \
