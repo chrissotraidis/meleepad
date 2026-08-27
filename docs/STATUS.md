@@ -815,6 +815,17 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   Next: sample the newly promoted no-logger module and select a new coherent
   dynamic cost; do not inline the helpers or include short stores. Evidence:
   `docs/artifacts/2026-08-27/g5-multiword-range-helpers-retained.md`.
+- **PERF-058 (deterministic GPFIFO64 retry rejected):** Fresh no-logger and
+  byte-identical line-table samples reconfirmed the six hot `WriteMTXPS4x3`
+  FIFO stores. The retained shared-state harness supplied the causal gate the
+  earlier retry lacked. Candidate A/A2 and a same-build reversal executed
+  exactly 1,501,629,399 cycles and 51,369,928 dispatches. Candidate means were
+  16.680304/16.884788 ms versus reversal 16.516704 ms; its small A CPU-mean
+  gain did not repeat, and p95 remained above 16.7 ms. The arm is removed. A
+  packaged row had different work and is excluded as contaminated. G5 remains
+  open; G6 remains blocked. Next: aggregate non-entry lines in the remaining
+  `func_8035D940` cost, excluding gather width. Evidence:
+  `docs/artifacts/2026-08-27/g5-gpfifo64-deterministic-rejection.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
   Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual

@@ -562,6 +562,18 @@ Continue from a fresh no-logger sample of this promoted module. Do not retry
 the rejected inline helper form or route short stores through the helper. See
 `docs/artifacts/2026-08-27/g5-multiword-range-helpers-retained.md`.
 
+Fresh no-logger and byte-identical line-table samples after PERF-057 confirmed
+that the six `WriteMTXPS4x3` FIFO stores remain hot. The deterministic harness
+now supplies the shared-state comparison missing from the old `Write64`
+experiment. Candidate A/A2 and a same-build reversal executed identical work,
+but the candidate did not reproduce a CPU-mean gain and both candidate means
+were slower; p95 remained above 16.7 ms. The 8-byte arm is removed. A packaged
+runner row executed different work and is explicitly contaminated, not a
+control. G5 remains open and G6 blocked. Continue by aggregating non-entry
+source lines inside `func_8035D940`; do not retry gather width or the same
+matrix-writer shortcut. See
+`docs/artifacts/2026-08-27/g5-gpfifo64-deterministic-rejection.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

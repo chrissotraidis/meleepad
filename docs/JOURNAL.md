@@ -2010,3 +2010,25 @@ Append-only execution ledger. Claims are limited to observed evidence.
   rejected common-path shortcuts.
 - Evidence:
   `docs/artifacts/2026-08-27/g5-multiword-range-helpers-retained.md`.
+
+## 2026-08-27 — deterministic GPFIFO64 retry rejected
+
+- Fresh promoted no-logger sampling and a byte-identical `__text` line-table
+  twin reconfirmed the six `WriteMTXPS4x3` paired stores as a concrete hot
+  path after PERF-057.
+- The retained savestate harness resolved the missing prerequisite from the
+  old gather-width rejection. A failing-before contract drove one explicit
+  8-byte `GPFifo::Write64` arm.
+- Candidate A/A2 and a same-build local reversal selected frames
+  `48123..48562` and exactly matched 1,501,629,399 cycles, 51,369,928
+  dispatches, 905,572 bursts, and 882 hook fallbacks.
+- Candidate means 16.680304/16.884788 ms lost to reversal 16.516704 ms. A's
+  0.048 ms CPU-mean advantage did not repeat in A2, and p95 stayed above the
+  strict gate. The candidate is rejected and removed.
+- The signed packaged runner executed different work in the nominal interval;
+  that row is retained as contaminated evidence and not used as a control.
+- Decision: **G5 open, G6 blocked.** Do not retry gather width or the same
+  matrix writer. Next aggregate non-entry `func_8035D940` lines and select a
+  different coherent dynamic cost.
+- Evidence:
+  `docs/artifacts/2026-08-27/g5-gpfifo64-deterministic-rejection.md`.
