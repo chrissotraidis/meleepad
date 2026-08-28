@@ -787,6 +787,20 @@ dispatcher edge with focused semantics first; preserve every fallback and SMC
 boundary. Final Destination and G6 remain blocked. See
 `docs/artifacts/2026-08-28/g5-order-file-rejection.md`.
 
+PERF-075 attributes and screens ten frequent cross-chunk linked calls from the
+exact Fountain workload. A sampled predecessor/destination stream reconstructs
+the hot `0x8036C87C..0x8036C944` sequence. Focused tests failed before direct
+continuation, then passed normal and 256-cycle-budget exits. ThinLTO emitted
+real direct arm64 calls, reducing exact-window dispatches from 51,380,895 to
+46,668,247 (9.17%), but CPU-thread mean improved only 0.136 ms / 1.17%; total
+mean and compliance did not improve, and G5 tails still fail. The safety audit
+also proves nested cross-chunk calls bypass the runtime's forced-fallback and
+SMC target-verification check. The address-specific candidate is removed. Next
+prototype a cheap target-validity guard and require a failing invalidated-callee
+regression before screening broader statically known calls. Final Destination
+and G6 remain blocked. See
+`docs/artifacts/2026-08-28/g5-hot-direct-call-rejection.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

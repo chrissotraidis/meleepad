@@ -2482,3 +2482,43 @@ Append-only execution ledger. Claims are limited to observed evidence.
   frequent dispatcher edge with a focused semantic regression first.
 - Evidence: `docs/artifacts/2026-08-28/g5-order-file-rejection.md` and
   `docs/evidence/g5-order-file-rejection/`.
+
+## 2026-08-28 — Ten hot cross-chunk direct calls rejected
+
+- A default-off sampled predecessor/destination runner collected 12,539 edge
+  samples at 1/4,096 over exact emulated frames `48123..48562`, accurately
+  reconstructing the 51.38-million-dispatch workload and one hot linked-call
+  sequence in generated `func_80369940`.
+- A focused generated caller/callee regression failed before direct
+  continuation, then passed normal return and exact 256-cycle-budget exit with
+  the ten-edge candidate. `dispatch`, `c_cfg`, `codegen_compile`, and
+  `c_execute` passed 4/4.
+- A fresh isolated frontend-PGO package passed layout, arm64, and strict
+  signing. Disassembly proves ThinLTO lowered the constant target lookups to
+  direct `_func_...` calls rather than retaining `chassis_dispatch`.
+- One foreground Metal/Cubeb run, no Simulator, and frame-gated state load
+  produced 440 rows for emulated frames `48123..48562`. Dispatches fell from
+  51,380,895 to 46,668,247 (9.17%), while CPU-thread mean improved only from
+  11.620875 to 11.485026 ms (1.17%). Total mean was 16.666753 ms, p95
+  18.052291 ms, p99 18.633750 ms, worst 22.057000 ms, and 55.000% compliance.
+  Hook fallbacks stayed 882 and fallback steps stayed zero; the 741-cycle
+  boundary difference is 0.000049% and is not claimed as exact equivalence.
+- Live UI inspection and a retained recapture showed coherent Pikachu/CPU-Fox
+  Fountain combat at 60.0 FPS with intact character models and stage geometry.
+  Both processes exited normally.
+- The safety audit found the decisive flaw: nested generated calls bypass the
+  outer `FastDispatchableAt` check that enforces forced-fallback ranges and
+  post-invalidation target-chunk verification. The unchanged scene had no
+  failed SMC chunks, but that is not product proof.
+- Removed only the experimental generator, test, and bootstrap edits, rebuilt
+  canonical tools, and passed the four focused tests. Repository safety,
+  bootstrap, 40/40 applicable CTest entries, 16/16 `gcpipe`, canonical package
+  layout, arm64 identity, and strict signing also pass. No game or Simulator
+  remains active. The unrelated untracked netplay document remains untouched.
+- Decision: **PERF-075 rejects the address-specific direct-call candidate; G5
+  remains open; Final Destination and G6 remain blocked.** Next build a cheap
+  target-validity guard, require an invalidated-callee failure before the fix,
+  and then screen broader statically known calls under the same cycle and
+  exception rules.
+- Evidence: `docs/artifacts/2026-08-28/g5-hot-direct-call-rejection.md` and
+  `docs/evidence/g5-hot-direct-call-rejection/`.

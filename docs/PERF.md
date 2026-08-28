@@ -322,11 +322,28 @@ worst rose from 22.509416 to 133.106958 ms. PERF-074 restores all temporary
 linker/cache-identity inputs and rejects global code placement. See
 `docs/artifacts/2026-08-28/g5-order-file-rejection.md`.
 
+Profiled cross-chunk direct calls have now been measured rather than inferred.
+PERF-075 sampled 12,539 predecessor/destination edges over the exact Fountain
+interval and selected ten linked calls in one hot guest sequence. Focused
+generated execution tests prove correct normal return and the existing
+256-cycle budget exit, and the isolated PGO-use module contains direct arm64
+`bl _func_...` calls. Exact-window native dispatches fell by 4,712,648 / 9.17%,
+but CPU-thread mean fell only 0.135849 ms / 1.17%, from 11.620875 to
+11.485026 ms. Total mean was flat at 16.666753 ms, compliance slipped to
+55.000%, and worst remained 22.057 ms. The candidate also bypasses
+`FastDispatchableAt` for nested target chunks, so it does not preserve forced
+fallback or post-invalidation SMC verification. PERF-075 rejects and removes
+the address-specific transform. The next screen must add a cheap target-valid
+guard, fail first on an invalidated callee, and only then test broader static
+call chaining. See
+`docs/artifacts/2026-08-28/g5-hot-direct-call-rejection.md`.
+
 Required next work:
 
-1. Use the retained PGO profiles as an oracle for one bounded dispatch-edge
-   transformation; whole-module IR PGO and global order-file layout are
-   rejected. Blind size
+1. Add a cheap target-validity guard for cross-chunk direct calls and a focused
+   invalidated/forced-fallback callee regression before screening a broader
+   static-call transform. The unguarded ten-edge transform, whole-module IR
+   PGO, and global order-file layout are rejected. Blind size
    thresholds, single-helper inlining,
    blanket outlining, timer spinning, combined no-EXRAM, and simply diluting
    its Fountain weighting with another stage are rejected.

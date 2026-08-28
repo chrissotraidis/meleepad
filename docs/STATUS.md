@@ -6,6 +6,21 @@ Last updated: 2026-08-28
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-075 rejects an address-specific ten-edge direct-call candidate while
+confirming dispatcher cost. Sampled predecessor/destination data reconstructed
+the hot `0x8036C87C..0x8036C944` linked-call sequence. The focused regression
+failed before direct continuation and passed both normal and 256-cycle-budget
+paths after it; arm64 disassembly proves ThinLTO emitted real direct calls. In
+the exact 440-frame Fountain interval, dispatches fell 9.17% from 51,380,895
+to 46,668,247, but CPU-thread mean improved only 1.17% from 11.621 to
+11.485 ms. Total mean remained 16.667 ms, only 55.000% met 16.7 ms, and worst
+remained 22.057 ms. A safety audit also found that nested cross-chunk calls
+bypass the runtime's forced-fallback and SMC target-verification boundary. The
+candidate is removed and canonical focused tests pass. Next add a cheap target
+validity guard with an invalidated-callee regression before screening broader
+static calls. Final Destination and G6 remain blocked. See
+`docs/artifacts/2026-08-28/g5-hot-direct-call-rejection.md`.
+
 PERF-074 rejects a profile-derived Mach-O order file. The linker honored a
 tight sequence containing `chassis_dispatch`, common runtime helpers, and four
 hot generated regions without changing the 81,959,380-byte text image. The
