@@ -2799,3 +2799,30 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Evidence:
   `docs/artifacts/2026-08-28/g5-c-flag-matrix-rejection.md` and
   `docs/evidence/g5-c-flag-matrix-preflight/results.csv`.
+
+## 2026-08-28 — Profile-weighted internal layout retained
+
+- Exact line lookup across profile-free and current frontend-PGO modules puts
+  the same `0x80377B6C..0x80377CE4` source interval across 148,788 versus
+  11,780 host bytes, proving that PGO reorganizes hot basic blocks inside a
+  giant generated function rather than merely ordering whole symbols.
+- Added a data-free generated-entry transformer and screened computed-label and
+  biased-hot forms against PERF-086's exact differential harness. Both preserve
+  full relevant CPU state/RAM and the same nine writes.
+- Computed entry improves five fresh million-entry runs by 0.757-3.100%
+  (1.785% median); biased hot entry improves 2.283-3.694% (2.904% median).
+  Both are below the 5% gate and cannot explain the approximately 26% PGO CPU
+  gain. Invalid `nan` rows from a malformed harness argument are excluded.
+- The retained profile exposes 11,548 counters for `func_80375940`, but its
+  matching instrumented binary has no LLVM coverage map. The next disposable
+  training build must add coverage mapping so `llvm-cov` can associate counts
+  with exact source branches; do not guess counter indices.
+- Decision: **PERF-087 rejects entry-only layout but retains internal edge
+  weights as the next bounded static-recompilation route; G5 remains open.**
+  Next export one current-profile chunk's edge probabilities into profile-free
+  generated source and require semantic, layout, size, and >5% timing gates.
+  Metal shader compilation remains a separate tail candidate; no product app,
+  module, game process, or Simulator changed.
+- Evidence:
+  `docs/artifacts/2026-08-28/g5-profile-weighted-block-layout.md` and
+  `scripts/transform-generated-entry-switch.py`.

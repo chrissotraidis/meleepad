@@ -585,6 +585,18 @@ specific inner classification or rounding cost with exact semantic coverage.
 G5 remains open and G6 blocked. See
 `docs/artifacts/2026-08-27/g5-fma-mode-split-preflight-rejection.md`.
 
+PERF-087 now separates entry dispatch from internal profile-guided layout. In
+one exact callful interval, frontend PGO reduces the host-address spread from
+148,788 to 11,780 bytes, while computed-label and biased-hot entry rewrites
+improve an exact semantic-equivalent slice by only 1.785% and 2.904% median.
+Reject entry-only rewrites. The next static-recompiler experiment is a bounded
+single-chunk export of profile edge counts into source-level branch
+probabilities; require full state/RAM equivalence, layout convergence, <=5%
+text growth, and >5% local timing gain before a module build. Treat synchronous
+Metal shader compilation and rare off-core presentation stalls as a separate
+tail branch. G5 remains open; do not run Final Destination or start G6. See
+`docs/artifacts/2026-08-28/g5-profile-weighted-block-layout.md`.
+
 Inner FPRF attribution is also complete. A finite-normal branch passed full
 classification and scalar-FMA state semantics but lost all 54 corrected host
 timing pairs by 31.1%, so it was rejected before a game build. A current-source

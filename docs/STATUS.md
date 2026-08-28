@@ -6,6 +6,20 @@ Last updated: 2026-08-28
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-087 identifies profile-weighted basic-block layout inside giant generated
+functions as the strongest remaining static-recompilation route. For one exact
+hot callful interval, frontend PGO compresses the host-address spread from
+148,788 to 11,780 bytes (about 12.6x). Entry-only computed-label and biased-hot
+forms remain semantic-equivalent but improve the exact hot slice by only
+1.785% and 2.904% median, below the 5% gate. The next bounded experiment must
+export the current profile's internal edge weights into one generated chunk and
+test profile-free source-level branch probabilities before attempting a broad
+generator change. The retained profile has 11,548 counters for the selected
+function but its training binary lacks coverage mapping, so the next disposable
+instrumented build must add that mapping; raw counter indices must not be
+guessed. Synchronous Metal shader compilation remains a separate tail candidate.
+See `docs/artifacts/2026-08-28/g5-profile-weighted-block-layout.md`.
+
 PERF-086 rejects AppleClang flag tuning on the exact retained 1,024-instruction
 generated-C hot slice. O3, Os, disabled vectorization/unrolling, and Apple-M1/
 native CPU tuning all remain within a roughly 1.5-2% paired noise band and none
