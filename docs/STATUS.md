@@ -6,6 +6,34 @@ Last updated: 2026-08-28
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-089 repeats PERF-088's exact 440-frame Fountain window on the retained
+frontend-PGO oracle with identical guest work. CPU-thread mean/p95/worst are
+11.676/12.984/16.284 ms, and all 440 frames are at or below 16.7 ms. The
+statically recompiled on-core path therefore meets this exact budget. Total
+p95/p99/worst still fail at 18.256/19.823/25.517 ms because CPU wall exceeds
+CPU-thread time by 4.609 ms mean, 6.180 ms p95, and 12.630 ms worst. The one
+1.445 ms EFB compile changes neither p95 nor any of the 215 failing frames.
+Requested throttle sleep is zero on all 440 frames and measured throttle sleep
+is only 0.000511 ms mean, excluding the known timer path. Next classify
+CPU-thread wait states versus OS descheduling on the same PGO
+oracle; do not perform another static-recompiler flag or source-hint sweep.
+G5 remains open; G6 and Final Destination remain blocked. See
+`docs/artifacts/2026-08-28/g5-pgo-wall-tail-attribution.md`.
+
+PERF-088 closes the bounded profile-edge route. A coverage-mapped module
+decoded exact retained Fountain counts; 113 executed branches were weighted
+and 992 arbitrary-entry/full-RAM cases passed. Source weights compacted the hot
+interval 7.69x but triggered contradictory `cold hot minsize` IR and regressed
+59-63%. A 12,872-byte single-entry GPR-cached trace passed 4,096 cases but its
+long ThinLTO screen was 2.492% slower. Both routes are rejected before a module
+build. New default-dormant EFB phase counters then found one real 1.198 ms VRAM
+pipeline compile in the exact 440-frame Fountain window, but removing it changes
+neither p95 nor the 184 frames above 16.7 ms. The 73.470 ms worst frame had no
+shader miss and about 48.6 ms of off-core wall time. Next run the same counters
+on the retained frontend-PGO oracle; do not prewarm EFB pipelines or broaden
+source hints. G5 remains open; G6 and Final Destination remain blocked. See
+`docs/artifacts/2026-08-28/g5-profile-edge-and-efb-attribution.md`.
+
 PERF-087 identifies profile-weighted basic-block layout inside giant generated
 functions as the strongest remaining static-recompilation route. For one exact
 hot callful interval, frontend PGO compresses the host-address spread from

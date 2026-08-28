@@ -38,12 +38,18 @@ def transform(
     cached_fprs: list[int],
     cached_ps1: list[int],
     fp_gate_pc: int | None,
+    hot: bool = False,
 ) -> str:
     function = re.search(r"\bvoid\s+(func_[0-9A-Fa-f]+)\s*\(CPUState\* ctx\)\s*\{", text)
     if function is None:
         raise ValueError("generated chunk function not found")
     original_name = function.group(1)
     text = text[: function.start(1)] + output_name + text[function.end(1) :]
+    if hot:
+        signature = f"void {output_name}(CPUState* ctx) {{"
+        if text.count(signature) != 1:
+            raise ValueError("renamed function signature is not unique")
+        text = text.replace(signature, f"__attribute__((hot)) {signature}", 1)
 
     initial = text.find("switch (ctx->pc)", function.end())
     if initial < 0:
@@ -127,6 +133,7 @@ def main() -> int:
     parser.add_argument("--cache-fpr", type=register, action="append", default=[])
     parser.add_argument("--cache-ps1", type=register, action="append", default=[])
     parser.add_argument("--fp-gate-pc", type=guest_pc)
+    parser.add_argument("--hot", action="store_true")
     args = parser.parse_args()
 
     if not args.source.is_file():
@@ -143,6 +150,7 @@ def main() -> int:
         sorted(set(args.cache_fpr)),
         sorted(set(args.cache_ps1)),
         args.fp_gate_pc,
+        args.hot,
     )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(transformed, encoding="utf-8")

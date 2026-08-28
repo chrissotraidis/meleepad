@@ -13,7 +13,10 @@ import pathlib
 import re
 
 
-FUNCTION = re.compile(r"^void (?P<name>func_[0-9A-Fa-f]+)\(CPUState\* ctx\) \{$")
+FUNCTION = re.compile(
+    r"^(?:__attribute__\(\(hot\)\) )?void "
+    r"(?P<name>func_[0-9A-Fa-f]+)\(CPUState\* ctx\) \{$"
+)
 CASE = re.compile(
     r"^    case 0x(?P<address>[0-9A-Fa-f]{8})u: goto "
     r"(?P<label>label_[0-9A-Fa-f]{8});$"

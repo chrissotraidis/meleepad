@@ -2826,3 +2826,59 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Evidence:
   `docs/artifacts/2026-08-28/g5-profile-weighted-block-layout.md` and
   `scripts/transform-generated-entry-switch.py`.
+
+## 2026-08-28 — Exact profile edges and EFB tail attribution
+
+- Added coverage mapping to the private PGO-generation identity. A clean
+  instrumented module exposed both LLVM coverage sections, passed profile-hook
+  and package checks, and decoded the retained Fountain profile without a hash
+  mismatch.
+- Exact `0x80377B6C..0x80377D58` coverage contains 119 branch records. The
+  fail-closed source transformer weighted 113 executed records and skipped six
+  never-executed records; its four tests pass.
+- All 992 arbitrary-entry/full-RAM cases pass for canonical, weighted, and PGO
+  objects. Weights compact the selected interval 7.69x but produce contradictory
+  `cold hot minsize` IR and regress 59-63%. Hot and biased-entry forms do not
+  repair it.
+- A 12,872-byte single-entry GPR-cached trace passes 4,096 full-state/RAM cases,
+  including 512 FP-disabled cases, but the one-million-entry ThinLTO/hot run is
+  443.064 versus 454.107 ns, 2.492% slower.
+- Retained default-dormant frame counters time synchronous VRAM/RAM EFB shader
+  and pipeline misses. The native runner, focused counter test, strict package,
+  bootstrap, and repository checks pass.
+- Exact Fountain frames `48123..48562` execute 1,501,757,755 cycles and
+  51,380,895 dispatches. One 18.048 ms frame contains a 1.198 ms VRAM pipeline
+  miss, but subtracting it changes neither 18.651 ms p95 nor 184/440 frames over
+  16.7 ms. The 73.470 ms worst has no miss and about 48.6 ms off-core wall time.
+- Decision: **PERF-088 rejects source weights, the selected trace, and EFB
+  prewarming as the G5 tail solution; counters/tooling retained; G5 open; G6
+  and Final Destination blocked.** Next run the same exact counter window on
+  the retained frontend-PGO oracle. No game process or Simulator remains.
+- Evidence:
+  `docs/artifacts/2026-08-28/g5-profile-edge-and-efb-attribution.md`.
+
+## 2026-08-28 — Frontend-PGO on-core budget pass and wall-tail attribution
+
+- Repeated PERF-088's exact Fountain frames `48123..48562` with its EFB
+  counters and the retained frontend-PGO module. All 440 rows match
+  1,501,757,755 cycles, 51,380,895 dispatches, 905,756 bursts, and 882 hook
+  fallbacks.
+- Total p95/p99/worst remain 18.256/19.823/25.517 ms, so G5 remains open.
+  CPU-thread p95/worst are only 12.984/16.284 ms and every CPU-thread row is at
+  or below 16.7 ms. The statically recompiled on-core path meets the exact
+  Fountain budget.
+- CPU wall minus CPU-thread time measures 4.609 ms mean, 6.180 ms p95, and
+  12.630 ms worst. The worst row has no EFB miss and only 12.476 ms CPU-thread
+  work. Video-build time overlaps the center of this gap but correlates only
+  0.358 with it and does not explain the strict tail.
+- The requested-throttle counter is zero on every selected row. Measured
+  throttle sleep is 0.000511 ms mean / 0.004751 ms worst and has -0.056
+  correlation with the gap, excluding the already-rejected timer path.
+- One 1.445 ms EFB compile occurs at emulated frame 48436; subtracting it
+  changes neither p95 nor any of the 215 frames above 16.7 ms.
+- Decision: **PERF-089 retains frontend PGO and proves its CPU-thread compute
+  budget on this exact window; total-frame G5 remains open; G6 and Final
+  Destination remain blocked.** Next directly classify CPU-thread waits versus
+  OS descheduling. No game process or Simulator remains.
+- Evidence:
+  `docs/artifacts/2026-08-28/g5-pgo-wall-tail-attribution.md`.

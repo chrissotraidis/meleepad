@@ -53,7 +53,7 @@ diff --git a/tools/moderngekko_port.cpp b/tools/moderngekko_port.cpp
 +  if (pgo_profile_hash)
 +    flags += " pgo-profile-sha256=" + *pgo_profile_hash;
 +  else if (options.pgo_generate)
-+    flags += " pgo-generate";
++    flags += " pgo-generate coverage-mapping";
    const std::string identity = std::string(RECOMPCORE_REVISION) + "|dolrecomp=" +
        std::string(DOLRECOMP_REVISION) + "|module-abi=" +
        std::to_string(MODERNGEKKO_MODULE_ABI_VERSION) + "|cpu-abi=" +
@@ -68,7 +68,7 @@ diff --git a/tools/moderngekko_port.cpp b/tools/moderngekko_port.cpp
      fs::create_directories(options.output / game.disc_id);
      std::ofstream active(options.output / game.disc_id / "active-module.txt");
      active << module.string() << '\n';
-@@ -639,6 +678,16 @@ std::optional<fs::path> Build(const char* argv0, const fs::path& root,
+@@ -639,6 +678,18 @@ std::optional<fs::path> Build(const char* argv0, const fs::path& root,
        " -DGXRUNTIME_DIR=" + Quote(source_root / "vendor/dolphin/GXRuntime") +
        " -DCHASSIS_ABI_DIR=" +
        Quote(source_root / "vendor/dolphin/Source/Core/Core/PowerPC/StaticRecomp");
@@ -80,12 +80,14 @@ diff --git a/tools/moderngekko_port.cpp b/tools/moderngekko_port.cpp
 +  }
 +  else if (options.pgo_generate)
 +  {
-+    configure += " " + Quote(fs::path("-DCMAKE_C_FLAGS=-fprofile-instr-generate"));
++    configure += " " +
++                 Quote(fs::path("-DCMAKE_C_FLAGS=-fprofile-instr-generate "
++                                "-fcoverage-mapping"));
 +  }
    if (!RunCommand(configure) ||
        !RunCommand("cmake --build " + Quote(module_build) + " -j" +
                    std::to_string(compile_jobs)))
-@@ -655,7 +704,7 @@ std::optional<fs::path> Build(const char* argv0, const fs::path& root,
+@@ -655,7 +706,7 @@ std::optional<fs::path> Build(const char* argv0, const fs::path& root,
  void Usage()
  {
    std::cerr << "usage: moderngekko-port inspect <game-root>\n"
@@ -94,7 +96,7 @@ diff --git a/tools/moderngekko_port.cpp b/tools/moderngekko_port.cpp
                 "       moderngekko-port run <game-root> [build options] [-- runner options]\n";
  }
  }  // namespace
-@@ -684,6 +733,11 @@ int main(int argc, char** argv)
+@@ -684,6 +735,11 @@ int main(int argc, char** argv)
        options.backend = argv[++i];
      else if (arg == "--output" && i + 1 < argc)
        options.output = argv[++i];

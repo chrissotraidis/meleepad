@@ -597,6 +597,35 @@ Metal shader compilation and rare off-core presentation stalls as a separate
 tail branch. G5 remains open; do not run Final Destination or start G6. See
 `docs/artifacts/2026-08-28/g5-profile-weighted-block-layout.md`.
 
+PERF-088 executes and rejects that next experiment. A coverage-mapped module
+decoded the retained profile exactly; C-level weights compact the selected hot
+interval but cause cold/minsize treatment and a 59-63% slowdown. A narrowed,
+GPR-cached, FP-gate-reduced hot trace passes 4,096 full-state/RAM cases but is
+2.492% slower in the long ThinLTO confirmation. Do not broaden either route.
+Frame-correlated EFB counters find one real 1.198 ms synchronous VRAM pipeline
+compile in exact Fountain frames `48123..48562`, but subtracting it changes
+neither p95 nor the 184/440 frames over 16.7 ms. The 73.470 ms worst frame has
+zero shader misses and about 48.6 ms of off-core wall time. Retain the counters,
+reject prewarming as the tail solution, and repeat the same exact window on the
+best frontend-PGO oracle. G5 remains open; G6 and Final Destination remain
+blocked. See
+`docs/artifacts/2026-08-28/g5-profile-edge-and-efb-attribution.md`.
+
+PERF-089 completes that exact PGO-oracle comparison. On the same 440 Fountain
+frames and identical guest work, frontend-PGO CPU-thread mean/p95/worst are
+11.676/12.984/16.284 ms and every CPU-thread row meets 16.7 ms. Total
+p95/p99/worst remain 18.256/19.823/25.517 ms. CPU wall exceeds CPU-thread time
+by 4.609 ms mean, 6.180 ms p95, and 12.630 ms worst. The only EFB compile is
+1.445 ms and changes neither p95 nor any of 215 failing frames. This proves
+the current static-recompiled on-core path is no longer the strict Fountain
+bottleneck in this window. Requested throttle sleep is zero on every selected
+frame and actual throttle sleep is only 0.000511 ms mean, so do not retry the
+timer path. Next directly classify CPU-thread wait states or
+OS descheduling on the same PGO oracle; do not retry compiler flags, source
+weights, trace narrowing, EFB prewarming, scheduler priority, or display
+pacing. G5 remains open; do not run Final Destination or start G6. See
+`docs/artifacts/2026-08-28/g5-pgo-wall-tail-attribution.md`.
+
 Inner FPRF attribution is also complete. A finite-normal branch passed full
 classification and scalar-FMA state semantics but lost all 54 corrected host
 timing pairs by 31.1%, so it was rejected before a game build. A current-source

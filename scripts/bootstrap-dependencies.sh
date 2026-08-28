@@ -146,6 +146,7 @@ emulated_frame_patch="$ROOT/patches/moderngekko-dolphin/0014-emulated-frame-phas
 gxruntime_fma_test_patch="$ROOT/patches/moderngekko-dolphin/0015-gxruntime-scalar-fma-tests.patch"
 gxruntime_multiword_patch="$ROOT/patches/moderngekko-dolphin/0016-gxruntime-multiword-range-helpers.patch"
 metal_sync_runtime_patch="$ROOT/patches/moderngekko-dolphin/0017-macos-layer-display-sync.patch"
+efb_pipeline_timing_patch="$ROOT/patches/moderngekko-dolphin/0018-efb-pipeline-phase-timing.patch"
 apply_patch_once_or_marker "$MG" "$mg_patch" \
   include/moderngekko/runtime.hpp 'struct RuntimeDiagnosticsSnapshot'
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$dolphin_patch" \
@@ -195,6 +196,8 @@ apply_patch_once "$MG/vendor/dolphin" "$gxruntime_multiword_patch"
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$metal_sync_runtime_patch" \
   Source/Core/VideoBackends/Metal/MTLGfx.mm \
   'metal layer display sync: product policy enabled'
+apply_patch_once_or_marker "$MG/vendor/dolphin" "$efb_pipeline_timing_patch" \
+  Source/Core/Common/FramePhaseTiming.h s_efb_vram_pipeline_misses
 verify_patch_scope "$MG" "$mg_patch" vendor/dolphin tools/moderngekko_launcher.cpp \
   tools/moderngekko_port.cpp tests/frontend_config_test.cpp \
   tools/frontend_config.cpp tools/frontend_config.hpp tools/moderngekko_run.cpp \
@@ -214,6 +217,7 @@ verify_patch_scope "$MG/vendor/dolphin" "$dolphin_patch" \
   Source/Core/AudioCommon/Mixer.cpp \
   Source/Core/VideoBackends/Metal/MTLGfx.mm \
   Source/Core/VideoCommon/Present.cpp \
+  Source/Core/VideoCommon/ShaderCache.cpp \
   Source/Core/Core/Cheats/MemoryWatcher.cpp \
   Source/Core/Core/Cheats/MemoryWatcher.h \
   Source/Core/Core/Cheats/MemoryWatcherUtils.h \

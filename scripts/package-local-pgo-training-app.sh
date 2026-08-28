@@ -48,6 +48,13 @@ for symbol in staticrecomp_profile_reset staticrecomp_profile_dump; do
     exit 1
   fi
 done
+for section in __llvm_covfun __llvm_covmap; do
+  if ! otool -l "$active_module" | awk '$1 == "sectname" { print $2 }' |
+       grep -Fx "$section" >/dev/null; then
+    echo "instrumented module is missing coverage section $section" >&2
+    exit 1
+  fi
+done
 
 SSBMPAD_MACOS_OUTPUT="$OUTPUT" "$ROOT/scripts/package-macos-app.sh"
 "$ROOT/scripts/test-macos-package-layout.sh" "$OUTPUT"
