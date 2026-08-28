@@ -3088,3 +3088,37 @@ Append-only execution ledger. Claims are limited to observed evidence.
   recompilation or late GPU work.
 - Decision: do not alter guest speed or duplicate content. Continue G5 only
   from no-queue producer stalls and the results transition.
+
+## 2026-08-28 — Rush Frame Presentation rejected
+
+- Goal: test the one existing untried Dolphin mechanism that moves throttling
+  away from input-to-present work without changing guest speed.
+- Work: cloned the exact isolated user/state, enabled only
+  `RushFramePresentation`, captured 45 seconds of phase and Display data, and
+  compared exact emulated frames 48123..52195 to PERF-126.
+- Result: **REJECT**. Exact guest work matches, but actual 33.333 ms holds rise
+  from four to ten, CPU-thread failures double, and drawable stalls above 10 ms
+  rise from two to four. Audio remains normal.
+- Attribution: the existing post-render sleep is effectively zero; no-observer
+  Game Mode controls have no long acquisition wait, so a drawable rewrite is
+  not justified by the observer-specific tails.
+- Next: retain no product change and investigate the separate approximately
+  400 ms results/menu transition.
+
+## 2026-08-28 — Results transition classified
+
+- Goal: decide whether the roughly 400 ms results hold is a slow rendered
+  frame before optimizing it.
+- Work: saved an isolated pre-boundary state, captured a targeted Time Profiler
+  trace, and compared emulated frame 54872 across PERF-124, 126, 130, and 131.
+- Result: **NOT A SLOW RENDERED FIELD**. Three natural runs execute the exact
+  same 211,892,535 guest cycles and 14,356,543 dispatches while Melee advances
+  from output frame 54845 to 54872 without submitting an XFB. CPU work stays
+  below budget per each of the 27 internal fields; video/Metal work is tiny.
+- Profile: generated guest code owns the CPU samples. Cache-control plumbing is
+  visible but below one percent and cannot recover the needed scheduler slack.
+- Decision: do not duplicate stale frames or alter guest timing. Keep G5 open
+  for the separate pre-results no-queue producer stalls and continue from a
+  repeated host/producer cause.
+- Evidence:
+  `docs/artifacts/2026-08-28/g5-results-transition-classification.md`.

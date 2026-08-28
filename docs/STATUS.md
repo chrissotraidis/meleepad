@@ -27,6 +27,31 @@ predicted 59.94-to-60 behavior, without Dolphin or guest code. Do not spend the
 G5 loop on those fixed-panel holds. Continue only from the separate no-queue
 producer stalls and results transition.
 
+PERF-130/131 close the approximately 400 ms match/results hold as a
+deterministic guest transition, not a slow rendered field. Three natural runs
+reach emulated frame 54872 with exactly 211,892,535 guest cycles and 14,356,543
+native dispatches in one output row: the preceding output is frame 54845, so
+Melee intentionally advances 27 VI fields without a new XFB. CPU-thread work
+is about 10.5-11.7 ms per internal field and the remainder is throttle sleep;
+video, drawable acquisition, and presentation are negligible. A targeted Time
+Profiler trace confirms generated guest execution rather than Metal, while the
+cache-control chain remains below one percent of sampled CPU time. Do not
+synthesize stale frames or optimize this transition. G5 remains open for the
+separate pre-results no-queue producer stalls, especially host descheduling.
+See
+`docs/artifacts/2026-08-28/g5-results-transition-classification.md`.
+
+PERF-129 rejects Dolphin's existing Rush Frame Presentation path on exact
+emulated work. In the comparable 45-second window, actual 33.333 ms holds rise
+from four to ten, CPU-thread rows above 16.7 ms double from 13 to 26, and
+`nextDrawable` stalls above 10 ms rise from two to four. The existing
+post-render presentation sleep is only about 0.000043 ms/frame, so moving it
+cannot recover the measured wait. Earlier no-Instruments Game Mode controls
+have no acquisition stall above 10 ms, proving the Display observer adds some
+tail cost; do not redesign drawable lifecycle from it. Product remains
+unchanged. PERF-130/131 supersede its proposed transition follow-up. See
+`docs/artifacts/2026-08-28/g5-rush-frame-presentation-rejection.md`.
+
 PERF-117 through PERF-124 close the actual-display observer ambiguity and the
 supplied PERF-106 crash. A minimal Display-only Instruments template records
 the WindowServer surface cadence without the rejected in-process drawable

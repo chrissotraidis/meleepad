@@ -1067,6 +1067,29 @@ produces exactly six 33.333 ms holds over 6,600 intervals when paced at
 these holds. Continue G5 only from no-queue producer stalls and the results
 transition.
 
+PERF-130/131 classify the approximately 400 ms match/results hold as 27
+intentional guest VI fields without a new XFB. Three natural runs converge on
+emulated frame 54872 with exactly 211,892,535 cycles, 14,356,543 dispatches,
+and 17,393 bursts in one output row; the preceding output is frame 54845.
+CPU-thread cost stays below the per-field budget and the remainder is throttle
+sleep, while video/Metal work is negligible. A targeted Time Profiler trace
+confirms generated guest execution. Do not synthesize stale output or optimize
+the renderer/cache-control path for this guest transition. Continue G5 only
+from the separate pre-results no-queue producer stalls. See
+`docs/artifacts/2026-08-28/g5-results-transition-classification.md`.
+
+PERF-129 rejects Rush Frame Presentation. Candidate/control frames
+48123..52195 execute identical guest work, but the 45-second actual Display
+window worsens from four to ten 33.333 ms holds, doubles CPU-thread rows above
+16.7 ms from 13 to 26, and increases `nextDrawable` stalls above 10 ms from two
+to four. The existing post-render sleep averages only about 0.000043 ms, so
+moving it has no budget to recover. No-Instruments Game Mode controls contain
+no acquisition stall above 10 ms, establishing that the Display observer adds
+tail cost. Remove/reject the private candidate; do not retry Rush or redesign
+drawable lifecycle from observer-specific waits. PERF-130/131 supersede the
+proposed transition follow-up. See
+`docs/artifacts/2026-08-28/g5-rush-frame-presentation-rejection.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).
