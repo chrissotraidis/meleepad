@@ -1,0 +1,4 @@
+start_monotonic_s=538985.493617458
+end_monotonic_s=539098.881954416
+duration_s=113.388336958
+final_game_state=0x02020100

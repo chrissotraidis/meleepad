@@ -6,6 +6,25 @@ Last updated: 2026-08-27
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-069 identifies a real Metal presentation improvement without passing G5.
+Two ordinary no-phase actual-`presentedTime` controls put only 53.3-53.6% of
+intervals at <=16.7 ms. Changing only `CAMetalLayer.displaySyncEnabled` made
+two 780-interval brackets 100% compliant with 16.666709 ms worst, and an exact
+440-frame run preserved 1,501,629,399 cycles and 51,369,928 dispatches while
+holding 16.666667 ms worst. This disproves an M1 throughput ceiling. Full
+matches still miss rare refreshes: the five-timestamp repeat measured
+16.666667/16.666709/99.999791 ms p95/p99/worst and 99.925% compliance.
+Both long gaps began 103-131 ms before Metal while `nextDrawable` took only
+0.05 ms. Combined-thread QoS, dual-core mode, foreground activation, and an
+unbound MemoryWatcher receiver all failed to remove the stalls. The stripped,
+product-scoped policy now passes a canonical A/B/reverse-A: no-sync p95 was
+18.147/18.561 ms, while synchronized p95/worst were
+16.666667/16.666750 ms with 779/779 intervals compliant. The signed canonical
+full match reached results with 16.666625/16.666667 ms p95/p99 but ten misses
+and 66.666334 ms worst. Retain the improvement; join actual gaps to canonical
+phase counters next. G5, Final Destination, and G6 remain blocked. See
+`docs/artifacts/2026-08-27/g5-metal-presentation-attribution.md`.
+
 PERF-068 rejects CFG-local FP-gate elision. The candidate kept exact-CIA
 checks for every direct entry, restarted body checks at leaders and after
 `mtmsr`, and moved 72.517% of gates out of sequential bodies. Focused tests,

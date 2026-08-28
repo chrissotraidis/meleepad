@@ -1,0 +1,39 @@
+diff --git a/Source/Core/VideoBackends/Metal/MTLGfx.mm b/Source/Core/VideoBackends/Metal/MTLGfx.mm
+--- a/Source/Core/VideoBackends/Metal/MTLGfx.mm
++++ b/Source/Core/VideoBackends/Metal/MTLGfx.mm
+@@ -16,12 +16,18 @@
+ #include "VideoCommon/Present.h"
+ #include "VideoCommon/VideoBackendBase.h"
+-
++
++#include <cstdio>
+ #include <fstream>
+-
++
+ Metal::Gfx::Gfx(MRCOwned<CAMetalLayer*> layer) : m_layer(std::move(layer))
+ {
+   UpdateActiveConfig();
++#if defined(MODERNGEKKO_MACOS_METAL_DISPLAY_SYNC) && TARGET_OS_OSX
++  [m_layer setDisplaySyncEnabled:YES];
++  std::fprintf(stderr, "metal layer display sync: product policy enabled\n");
++#else
+   [m_layer setDisplaySyncEnabled:g_ActiveConfig.bVSyncActive];
++#endif
+-
++
+   SetupSurface();
+   g_state_tracker->FlushEncoders();
+@@ -289,7 +295,11 @@ void Metal::Gfx::OnConfigChanged(u32 bits)
+   AbstractGfx::OnConfigChanged(bits);
+-
++
+   if (bits & CONFIG_CHANGE_BIT_VSYNC)
++#if defined(MODERNGEKKO_MACOS_METAL_DISPLAY_SYNC) && TARGET_OS_OSX
++    [m_layer setDisplaySyncEnabled:YES];
++#else
+     [m_layer setDisplaySyncEnabled:g_ActiveConfig.bVSyncActive];
++#endif
+-
++
+   if (bits & CONFIG_CHANGE_BIT_ANISOTROPY)
+   {

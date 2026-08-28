@@ -1,0 +1,3 @@
+start_monotonic_s=541899.092963333
+end_monotonic_s=541914.096503750
+duration_s=15.003540417

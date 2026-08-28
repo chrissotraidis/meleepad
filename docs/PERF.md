@@ -230,6 +230,34 @@ ranges overlap and the fastest control won. The gather arm is removed. These
 See
 `docs/artifacts/2026-08-27/g5-emulated-frame-shared-state-verdict.md`.
 
+Actual Metal presentation attribution now supersedes CPU-side pacing as the
+immediate G5 edge. With ordinary layer display sync, two no-phase controls put
+only 53.3-53.6% of actual `MTLDrawable.presentedTime` intervals at or below
+16.7 ms. Enabling only `CAMetalLayer.displaySyncEnabled` produced two
+780-interval 100% brackets with 16.666709 ms worst. An exact 440-frame run
+preserved 1,501,629,399 cycles, 51,369,928 dispatches, 905,572 bursts, and zero
+fallbacks while measuring 16.666667 ms worst. The M1/Metal path therefore has
+the required throughput.
+
+Full-match worst still fails. A five-timestamp 6,674-interval run measured
+16.666667/16.666709/99.999791 ms p95/p99/worst and 99.925% at <=16.7 ms. Both
+misses began 103-131 ms before Metal; `nextDrawable` took 0.048/0.052 ms and
+backbuffer preparation stayed below 0.106 ms. Combined CPU-GPU QoS still
+missed at 100 ms, dual-core mode worsened worst to 133.332 ms, foreground
+activation missed at 83.333 ms, and unbinding the per-frame MemoryWatcher
+socket still missed at 83.332 ms. Reject those variants. Strip diagnostics and
+screen only layer display sync on the reproducible canonical module next;
+retain it only after canonical A/B/reverse-A plus visual/audio checks. That
+screen now passes: display-sync-off canonical controls measured
+18.147/18.561 ms p95 and only 55.141%/57.564% compliance, while the synchronized
+candidate measured 16.666667 ms p95 / 16.666750 ms worst with 779/779
+intervals compliant. The stripped product policy is retained and the signed
+canonical product smoke passes. Its full match naturally reached results with
+16.666625/16.666667 ms p95/p99, but ten missed refreshes left 66.666334 ms
+worst. Join those actual gaps to canonical phase counters next; G5 stays open.
+See
+`docs/artifacts/2026-08-27/g5-metal-presentation-attribution.md`.
+
 Required next work:
 
 1. Use the retained PGO binary/profile as an oracle for a smaller static

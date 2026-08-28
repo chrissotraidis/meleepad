@@ -1,0 +1,24 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -49,6 +49,8 @@ option(MODERNGEKKO_GAMECUBE_CONTROLLERS
+        "Generate GameCube controller profiles instead of Wii Remote profiles" OFF)
+ option(MODERNGEKKO_APP_BUNDLE
+        "Resolve Apple system data from Contents/Resources" OFF)
++option(MODERNGEKKO_MACOS_METAL_DISPLAY_SYNC
++       "Keep branded macOS Metal presentation synchronized to the display" OFF)
+ set(MODERNGEKKO_LOG_FILENAME "ModernGekko.log" CACHE STRING
+     "Runner log filename")
+ set(MODERNGEKKO_DISC_PREPARER_OUTPUT_NAME "" CACHE STRING
+@@ -132,6 +134,11 @@ if(MODERNGEKKO_ENABLE_DOLPHIN_RUNTIME)
+     endif()
+     set(DISTRIBUTOR "ModernGekko" CACHE STRING "" FORCE)
+     add_subdirectory(vendor/dolphin EXCLUDE_FROM_ALL)
++    if(APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS" AND
++       MODERNGEKKO_MACOS_METAL_DISPLAY_SYNC)
++        target_compile_definitions(videometal PRIVATE
++            MODERNGEKKO_MACOS_METAL_DISPLAY_SYNC=1)
++    endif()
+     target_sources(core PRIVATE
+         vendor/dolphin/GXRuntime/src/core/cpu_exception.c)
+     target_include_directories(core PRIVATE

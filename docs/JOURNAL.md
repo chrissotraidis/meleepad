@@ -2269,3 +2269,61 @@ Append-only execution ledger. Claims are limited to observed evidence.
   Metal queue before any new rendering/pacing edit.
 - Evidence:
   `docs/artifacts/2026-08-27/g5-fp-cfg-gate-rejection.md`.
+
+## 2026-08-27 — Actual Metal presentation and acquisition attribution
+
+- A default-off `MTLDrawable.presentedTime` logger proved the CPU-side phase
+  logger is not the acceptance signal. Two ordinary no-phase controls put only
+  53.3-53.6% of actual intervals at <=16.7 ms.
+- Changing only `CAMetalLayer.displaySyncEnabled` produced two 780/780 short
+  brackets at <=16.7 ms and an exact 440/440 bracket with 16.666667 ms worst.
+  Exact guest work remained 1,501,629,399 cycles, 51,369,928 dispatches,
+  905,572 bursts, zero fallbacks, and 882 hooks. The M1 is not the throughput
+  ceiling.
+- A natural full-match repeat measured 16.666667/16.666709/99.999791 ms
+  p95/p99/worst and 99.925% compliance. Pre/post-`nextDrawable` timestamps put
+  both long stalls 103-131 ms before Metal; acquisition took only 0.05 ms.
+- Combined-thread user-interactive QoS, `CPUThread=True`, Computer Use
+  foreground raising, and a 106-second unbound-MemoryWatcher window all
+  retained missed refreshes. All behavior candidates except the not-yet-
+  promoted display-sync edge are rejected.
+- Rolling System Trace attempts were bounded to five seconds due low disk. A
+  valid trace captured only profiler startup; a genuine 33.333 ms trigger
+  aborted during Instruments save and is excluded. Exactly three raw ktrace
+  files created by these attempts, three failed trace bundles, three
+  superseded diagnostic apps, and two isolated temp user copies were removed.
+  ROM, canonical apps, source inputs, saves, and repo evidence were untouched.
+- Decision: **PERF-069 materially advances actual presentation but G5 remains
+  open; Final Destination and G6 stay blocked.** Strip the diagnostics and
+  test only layer display sync on the reproducible canonical app next.
+- Evidence:
+  `docs/artifacts/2026-08-27/g5-metal-presentation-attribution.md` and
+  `docs/evidence/g5-metal-presentation-attribution/`.
+
+## 2026-08-27 — Canonical macOS layer display sync retained
+
+- Removed the actual-time/acquisition logger and diagnostic environment
+  override from product source. Patches 0009/0017 add one opt-in macOS-only
+  ModernGekko policy; SsbmPad's package enables it and the package regression
+  requires the compiled policy identity.
+- The package regression failed against the old runner, then the reproducible
+  build passed bootstrap, layout, arm64, and strict ad-hoc signing. Runner and
+  canonical non-PGO module SHA-256 values are `93ebc462...6563cd5` and
+  `44366f2e...505b90`.
+- The signed product smoke loaded exact Fountain state and logged the product
+  policy with Metal, Cubeb, and the existing controller profile, without any
+  diagnostic display-sync environment variable.
+- Canonical actual-presentation A/B/reverse-A closed at 778/779/780 intervals.
+  No-sync controls measured 18.147/18.561 ms p95 with 55.141%/57.564% at
+  <=16.7 ms. The synchronized candidate measured 16.666667 ms p95,
+  16.666750 ms worst, and 779/779 compliance.
+- A full canonical match naturally reached results after 113.369 seconds.
+  p95/p99 were 16.666625/16.666667 ms and 99.850% complied, but ten misses
+  left 66.666334 ms worst.
+- Decision: **retain the canonical layer-display-sync product improvement;
+  G5 remains open; Final Destination and G6 stay blocked.** Next join actual
+  missed refreshes to canonical emulated-frame/CPU-thread phase rows.
+- Checkpoint validation passes dependency bootstrap and patch reversal,
+  40/40 applicable CTest entries, 16/16 `gcpipe` tests, profile-hook
+  separation, repository safety, package layout, arm64 identity, strict
+  signing, shell syntax, and diff whitespace.

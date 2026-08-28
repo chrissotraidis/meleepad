@@ -700,6 +700,25 @@ do not build another presentation setting or timer variant until that edge is
 specific and falsifiable. See
 `docs/artifacts/2026-08-27/g5-fp-cfg-gate-rejection.md`.
 
+PERF-069 replaces the assumed CPU-side presentation proxy with actual
+`MTLDrawable.presentedTime`. On the same M1, PGO module, Metal renderer, Cubeb
+audio path, and exact guest work, changing only
+`CAMetalLayer.displaySyncEnabled` moved two short brackets from about 53% to
+100% at <=16.7 ms and held an exact 440-frame run to 16.666667 ms worst. Raw
+M1 throughput is excluded. Full-match worst still fails at 99.999791 ms even
+though p95/p99 are 16.666667/16.666709 ms and 99.925% of intervals comply.
+Five-timestamp attribution places the rare stalls before Metal; drawable
+acquisition itself is about 0.05 ms on the missed frames. Combined-thread QoS,
+dual-core mode, foreground activation, and MemoryWatcher backpressure are
+rejected. The stripped product policy passes canonical A/B/reverse-A: no-sync
+p95 is 18.147/18.561 ms, while synchronized p95/worst are
+16.666667/16.666750 ms with 779/779 intervals compliant. Retain it. The
+canonical full match still has ten misses and 66.666334 ms worst, so next join
+actual gaps to canonical phase counters. Do not retry the rejected scheduling
+variants, run Final Destination, or start G6 until Fountain's strict worst
+passes. See
+`docs/artifacts/2026-08-27/g5-metal-presentation-attribution.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).
