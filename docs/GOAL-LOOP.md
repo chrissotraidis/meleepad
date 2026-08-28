@@ -19,6 +19,13 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-134 rejects runner/runtime PGO before a build. The retained current-PGO
+sample has 9,279 `StaticRecompCore::Run` samples and 9,030 in its already-PGO'd
+module child `chassis_dispatch`; even deleting all runner-only work projects
+only 2.683479%, below the 5% screen. Do not instrument or rebuild all of
+Dolphin for this route. See
+`docs/artifacts/2026-08-28/g5-runner-pgo-coverage-bound.md`.
+
 PERF-133 rejects absolute Metal scheduled presentation before a Dolphin build:
 the matched host control passes 600/600, while `presentDrawable:atTime:` drops
 601/601 drawables with layer sync on or off and with or without an injected

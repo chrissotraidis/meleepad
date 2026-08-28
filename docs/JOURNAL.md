@@ -3174,3 +3174,18 @@ Append-only execution ledger. Claims are limited to observed evidence.
   no-queue producer/descheduling tail.
 - Evidence:
   `docs/artifacts/2026-08-28/g5-absolute-scheduled-presentation-rejection.md`.
+
+## 2026-08-28 — PERF-134 runner/runtime PGO bounded out
+
+- Goal: determine whether profiling the runner, rather than only the generated
+  game module, can create material producer slack.
+- Work: separated the retained current-PGO sample's runner parent from its
+  module child and computed an impossible-best-case coverage bound.
+- Result: `StaticRecompCore::Run` has 9,279 samples and module-local
+  `chassis_dispatch` has 9,030. All runner-only work is just 249 samples /
+  2.683479% of that hot loop.
+- Decision: **REJECT before build**. Even deleting every runner-only sample
+  misses the 5% preflight gate; runner PGO also cannot remove the natural
+  runnable-thread descheduling. No instrumented Dolphin build is justified.
+- Evidence:
+  `docs/artifacts/2026-08-28/g5-runner-pgo-coverage-bound.md`.

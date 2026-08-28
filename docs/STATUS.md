@@ -6,6 +6,14 @@ Last updated: 2026-08-28
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-134 rejects a separate runner/runtime PGO build by existing-sample
+coverage. `StaticRecompCore::Run` owns 9,279 samples and its already-profiled
+module child `chassis_dispatch` owns 9,030; deleting every runner-only sample
+would save at most 2.683479%, below the 5% preflight gate. Runner PGO cannot
+optimize the module-local generated functions/helpers or remove runnable host
+descheduling. Do not instrument/rebuild all of Dolphin for this route. See
+`docs/artifacts/2026-08-28/g5-runner-pgo-coverage-bound.md`.
+
 PERF-133 rejects the last simple early-commit Metal API variant before a
 Dolphin build. The matched host control delivers 600/600 intervals at
 16.666667 ms p95 and zero drops, but `presentDrawable:atTime:` drops all
