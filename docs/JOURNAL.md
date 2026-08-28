@@ -2779,3 +2779,23 @@ Append-only execution ledger. Claims are limited to observed evidence.
   aggregates several high-cost callful families.
 - Evidence: `docs/artifacts/2026-08-28/g5-matrix-copy-family-preflight.md` and
   `scripts/g5_psmtxcopy_preflight.c`.
+
+## 2026-08-28 — AppleClang generated-C flag matrix rejected
+
+- Recompiled PERF-082's exact private 1,024-instruction hot slice with strict
+  O2/O3/Os/Oz, vectorizer, unroll, Apple-M1, and native variants. Every paired
+  implementation ends at `0x80324940` and matches all relevant CPU-state/RAM
+  bytes.
+- O3/Os and disabled vectorization/unrolling remain within noise. Fresh-process
+  Apple-M1/native medians improve only 1.287%/1.059%, while the identical O2
+  control itself moves 1.483%. Oz cuts text 37.8% but runs 26.040% slower.
+- Research against QEMU TCG and Dolphin's JIT confirms that the material route
+  is larger-region register retention, stable-state specialization, and dirty
+  synchronization at observable exits—not another compiler flag.
+- Decision: **PERF-086 rejected before module link; G5 remains open.** Next
+  select a profile-qualified callful region and build a full-state/RAM local-
+  state differential preflight. No generator, module, app, process, or
+  Simulator changed.
+- Evidence:
+  `docs/artifacts/2026-08-28/g5-c-flag-matrix-rejection.md` and
+  `docs/evidence/g5-c-flag-matrix-preflight/results.csv`.

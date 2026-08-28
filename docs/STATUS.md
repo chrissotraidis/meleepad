@@ -6,6 +6,16 @@ Last updated: 2026-08-28
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-086 rejects AppleClang flag tuning on the exact retained 1,024-instruction
+generated-C hot slice. O3, Os, disabled vectorization/unrolling, and Apple-M1/
+native CPU tuning all remain within a roughly 1.5-2% paired noise band and none
+reaches the 5% preflight gate. Oz cuts text from 64,756 to 40,280 bytes but
+slows the exact entry 26.040%. Every candidate matches full relevant CPU state
+and RAM. The next experiment is not another compiler flag or isolated leaf: it
+must promote live guest state across a profile-qualified callful region and
+synchronize only at helpers/observable exits. See
+`docs/artifacts/2026-08-28/g5-c-flag-matrix-rejection.md`.
+
 PERF-085 proves an exact `0x803408A0..0x803408D0` paired-single matrix-copy
 fast path but rejects the two-address chunk-local matrix family. All 20,000
 full CPU/24-MiB-RAM differential cases pass; nine alternating million-call
