@@ -6,6 +6,18 @@ Last updated: 2026-08-28
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-074 rejects a profile-derived Mach-O order file. The linker honored a
+tight sequence containing `chassis_dispatch`, common runtime helpers, and four
+hot generated regions without changing the 81,959,380-byte text image. The
+exact 440-frame Fountain workload matched PERF-072 at 1,501,757,755 cycles and
+51,380,895 dispatches. CPU-thread mean improved only 0.083 ms, while total
+mean regressed to 16.852 ms, only 55.682% of frames met 16.7 ms, and worst was
+133.107 ms. The candidate is not promoted and all product inputs are restored.
+Next measure and eliminate one specific high-frequency dispatch edge with a
+focused semantic regression before another live build. Final Destination and
+G6 remain blocked. See
+`docs/artifacts/2026-08-28/g5-order-file-rejection.md`.
+
 PERF-073 rejects whole-module IR-level PGO after a clean end-to-end screen. A
 fresh arm64 ThinLTO training module produced a genuine IR profile with 866
 post-optimization functions and 3,947,902 blocks, and a fresh profile-use app

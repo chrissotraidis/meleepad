@@ -774,6 +774,19 @@ one bounded hot-region or dispatch-edge transformation. Final Destination and
 G6 remain blocked. See
 `docs/artifacts/2026-08-28/g5-ir-pgo-rejection.md`.
 
+PERF-074 screens and rejects a profile-derived Mach-O order file on the same
+exact workload. Apple `ld` placed `chassis_dispatch`, the common runtime
+helpers, and four hot generated regions contiguously without changing the
+81,959,380-byte `__text`. Emulated frames `48123..48562` again matched
+1,501,757,755 cycles, 51,380,895 dispatches, 905,756 bursts, and 882 hook
+fallbacks. CPU-thread mean improved only 0.083 ms / 0.714%, while total mean
+regressed to 16.852 ms, compliance remained 55.682%, and worst rose to
+133.107 ms. The temporary linker/cache-identity inputs are restored. Do not
+retry global layout. Next measure and eliminate one specific frequent
+dispatcher edge with focused semantics first; preserve every fallback and SMC
+boundary. Final Destination and G6 remain blocked. See
+`docs/artifacts/2026-08-28/g5-order-file-rejection.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

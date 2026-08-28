@@ -311,10 +311,22 @@ the frontend-PGO guest work while worsening CPU-thread mean from 11.620875 to
 frontend training mode and rejects whole-module IR PGO. See
 `docs/artifacts/2026-08-28/g5-ir-pgo-rejection.md`.
 
+A profile-derived Mach-O order file is also technically functional but
+rejected. Apple `ld` placed the requested dispatcher, helper, and generated
+symbols contiguously while retaining the frontend-PGO module's 81,959,380-byte
+`__text`. Exact emulated frames `48123..48562` matched PERF-072 at
+1,501,757,755 cycles, 51,380,895 dispatches, 905,756 bursts, and 882 hook
+fallbacks. Ordered CPU-thread mean improved from 11.620875 to 11.537926 ms,
+only 0.714%, while total mean regressed from 16.663618 to 16.852325 ms and
+worst rose from 22.509416 to 133.106958 ms. PERF-074 restores all temporary
+linker/cache-identity inputs and rejects global code placement. See
+`docs/artifacts/2026-08-28/g5-order-file-rejection.md`.
+
 Required next work:
 
-1. Use the retained PGO profiles as an oracle for one bounded hot-region or
-   dispatch-edge transformation; whole-module IR PGO is rejected. Blind size
+1. Use the retained PGO profiles as an oracle for one bounded dispatch-edge
+   transformation; whole-module IR PGO and global order-file layout are
+   rejected. Blind size
    thresholds, single-helper inlining,
    blanket outlining, timer spinning, combined no-EXRAM, and simply diluting
    its Fountain weighting with another stage are rejected.

@@ -2457,3 +2457,28 @@ Append-only execution ledger. Claims are limited to observed evidence.
   whole-module compiler mode.
 - Evidence: `docs/artifacts/2026-08-28/g5-ir-pgo-rejection.md` and
   `docs/evidence/g5-ir-pgo-rejection/`.
+
+## 2026-08-28 — Profile-derived Mach-O order file rejected
+
+- Temporarily linked the locally trained frontend-PGO module with a tight
+  order file containing `chassis_dispatch`, common runtime helpers, and four
+  hottest generated regions under an experiment-only cache identity.
+- `nm` proves Apple `ld` honored the full requested order. The signed arm64
+  candidate retains the 81,959,380-byte text size; package layout and strict
+  signing pass.
+- One foreground Metal/Cubeb run, isolated user directory, no Simulator, and
+  frame-gated state load produced coherent Pikachu/CPU-Fox Fountain combat and
+  exited normally. The exact 440-frame interval matched PERF-072 at
+  1,501,757,755 cycles, 51,380,895 dispatches, 905,756 bursts, 882 hook
+  fallbacks, and zero fallback steps.
+- Ordered CPU-thread mean improved only 0.083 ms / 0.714%. Total mean regressed
+  to 16.852325 ms, compliance remained 55.682%, and worst rose to
+  133.106958 ms. The candidate is rejected.
+- Restored the linker/cache-identity inputs and canonical profile-free module
+  pointer. No product source remains changed; the unrelated untracked netplay
+  document was not touched.
+- Decision: **PERF-074 rejects global code placement; G5 remains open; Final
+  Destination and G6 remain blocked.** Next measure and eliminate one specific
+  frequent dispatcher edge with a focused semantic regression first.
+- Evidence: `docs/artifacts/2026-08-28/g5-order-file-rejection.md` and
+  `docs/evidence/g5-order-file-rejection/`.
