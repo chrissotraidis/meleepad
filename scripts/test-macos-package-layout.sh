@@ -9,6 +9,7 @@ test -x "$APP/Contents/MacOS/SsbmPad"
 test -x "$APP/Contents/MacOS/SsbmPadFrontend"
 test -x "$APP/Contents/MacOS/SsbmPadRunner"
 test -f "$APP/Contents/MacOS/gGALE01_recomp.dylib"
+grep -Fqx 'fullscreen=true' "$APP/Contents/Resources/default-config.ini"
 test "$(plutil -extract LSApplicationCategoryType raw "$APP/Contents/Info.plist")" = \
   "public.app-category.games"
 test "$(plutil -extract LSSupportsGameMode raw "$APP/Contents/Info.plist")" = true

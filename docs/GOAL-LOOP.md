@@ -1009,6 +1009,22 @@ lifecycle, or isolated generated-leaf variants. Do not run Final Destination
 or start G6 until Fountain's strict p95 and worst pass. See
 `docs/artifacts/2026-08-28/g5-runnable-descheduling-and-efb-prewarm.md`.
 
+PERF-114 through PERF-116 complete the prewarmed Game Mode on/off/on reversal.
+All three 6,723-frame Fountain spans have exactly matched guest work and zero
+EFB misses. Confirmed Game Mode measures 17.288/17.462 ms p95 and
+24.337/24.381 ms worst with zero >33 ms frames; the off reversal measures
+17.725 ms p95 / 179.211 ms worst with six >33 ms frames. The real signed
+wrapper-parent/runner-child product topology also activates Game Mode when the
+runner enters fullscreen. Retain fullscreen as the fresh-install default and
+the user opt-out toggle. This is a severe-tail mitigation, not a G5 pass.
+
+The next single experiment must measure synchronized actual display cadence
+under Game Mode without adding `MTLDrawable.addPresentedHandler`, which is a
+known queue-changing observer. Do not retry QoS, time constraints, timers,
+dual-core, drawable lifecycle, or static compiler flags. Final Destination and
+G6 remain blocked until Fountain worst actual interval is at most 16.7 ms. See
+`docs/artifacts/2026-08-28/g5-prewarmed-gamemode-reversal.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

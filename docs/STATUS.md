@@ -6,6 +6,21 @@ Last updated: 2026-08-28
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-114 through PERF-116 now retain a clean prewarmed Game Mode A/B/A
+reversal. All three full Fountain spans execute exactly matched guest work with
+zero EFB or interpreter misses. Confirmed Game Mode on/off/on measures total
+p95 at 17.288/17.725/17.462 ms and worst at 24.337/179.211/24.381 ms; both on
+runs have zero >33 ms frames while the off reversal has six. Game Policy logs
+prove fullscreen Game Mode was on before combat in both candidates. A signed
+wrapper-parent/runner-child topology harness proves the real product launch
+path also activates Game Mode, so fresh installs now default to fullscreen and
+retain the existing opt-out toggle. This materially mitigates runnable-
+descheduling tails but does not pass G5: p95 and worst remain above 16.7 ms.
+Next measure actual synchronized display cadence under Game Mode using a
+non-perturbing observer; do not equate CPU-side drawable backpressure with a
+missed refresh. Final Destination and G6 remain blocked. See
+`docs/artifacts/2026-08-28/g5-prewarmed-gamemode-reversal.md`.
+
 PERF-104 through PERF-113 separate the remaining natural tail from a newly
 closed deterministic hitch. A 74.579 ms natural frame accumulated only 21.186
 ms CPU-thread time while the kernel reported the emulation thread runnable;

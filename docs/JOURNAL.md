@@ -2957,6 +2957,29 @@ Append-only execution ledger. Claims are limited to observed evidence.
   `docs/artifacts/2026-08-28/g5-runnable-descheduling-and-efb-prewarm.md` and
   `docs/evidence/g5-scheduler-and-efb-prewarm/summary.md`.
 
+## 2026-08-28 — Prewarmed Game Mode reversal retained
+
+- PERF-114/115/116 ran full true-native frontend-PGO Fountain combat through
+  LaunchServices with exact common work and zero EFB/interpreter misses.
+  Game Policy explicitly logged fullscreen Game Mode on for A and A2; B was
+  ineligible.
+- On/off/on total p95 is 17.288/17.725/17.462 ms; worst is
+  24.337/179.211/24.381 ms. Both Game Mode runs have zero >33 ms frames; the
+  off reversal has six. Retain Game Mode as a severe-tail mitigation, not a G5
+  pass.
+- A signed topology harness retained the product's LaunchServices wrapper
+  parent and direct runner child. Gameplay advanced and Game Policy logged
+  fullscreen session active, Game Mode enabled, and status on. No launcher
+  redesign is required.
+- Fresh installs now default to fullscreen; existing saved preferences and the
+  menu toggle remain intact. A signed package passed default-config, Game Mode,
+  prewarm, layout, and signature checks.
+- Decision: **fullscreen default retained; G5 open; Final Destination/G6
+  blocked.** Next obtain non-perturbing actual synchronized display cadence
+  under Game Mode; do not use the rejected presented-handler observer.
+- Evidence: `docs/artifacts/2026-08-28/g5-prewarmed-gamemode-reversal.md` and
+  `docs/evidence/g5-prewarmed-gamemode-reversal/summary.md`.
+
 ## 2026-08-28 — True-native correction and full-match off-core stall
 
 - Audited the runner's real configuration path after `GFX.ini` reverted to
