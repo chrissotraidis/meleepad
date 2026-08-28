@@ -6,7 +6,7 @@ Last updated: 2026-08-28
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
-PERF-104 through PERF-111 separate the remaining natural tail from a newly
+PERF-104 through PERF-113 separate the remaining natural tail from a newly
 closed deterministic hitch. A 74.579 ms natural frame accumulated only 21.186
 ms CPU-thread time while the kernel reported the emulation thread runnable;
 the 52.940 ms gap is host descheduling, not a Dolphin wait or statically
@@ -14,12 +14,17 @@ recompiled on-core work. A marker-aligned System Trace reproduced fragmented
 higher-priority host contention, but its per-process attribution is observer-
 caveated. Separately, fresh bundle identities exposed R4, RGBA8, and XFB cold
 EFB-to-VRAM Metal compiles of 108-134 ms. Prewarming those exact existing
-pipelines removed the observed combat misses and reduced frame 48436 from
-133.447 to 17.234 ms. Retain the bounded prewarm. A Game Mode A/B/A screen was
-inconclusive; retain correct app eligibility metadata without a performance
-claim. Next run a full true-native frontend-PGO Fountain match through the
-packaged prewarm path with only the lightweight external sampler. G5 remains
-open; G6 and Final Destination remain blocked. See
+pipelines removed the observed severe combat compiles and reduced frame 48436
+from 133.447 to 17.234 ms. PERF-112's full 6,723-frame run found one additional
+half-scale XFB variant (1.036 ms), so PERF-113 extends the bounded set to four
+and proves zero combat EFB misses through frame 51604. The full prewarmed match
+still fails G5 at 17.584 ms p95 / 18.540 ms p99 / 48.962 ms worst. Its first
+captured 41.385 ms stall has a 25.619 ms wall/thread gap, 14.809 ms inside
+`PresentBackbuffer`, and a runnable thread; the tail remains host scheduling/
+GPU-queue timing, not static-recompiler execution. A Game Mode A/B/A screen was
+inconclusive. Next run a prewarmed Game Mode on/off reversal through
+LaunchServices, now without cold-compile confounding. G5 remains open; G6 and
+Final Destination remain blocked. See
 `docs/artifacts/2026-08-28/g5-runnable-descheduling-and-efb-prewarm.md`.
 
 PERF-096 through PERF-098 correct the authoritative resolution input and

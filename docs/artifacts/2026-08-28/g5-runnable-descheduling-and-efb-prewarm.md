@@ -16,14 +16,17 @@ bounded product correction:
    RGBA8 cold variants. Precompiling these three exact existing UIDs removes
    both observed combat compiles; frame 48436 becomes 17.234 ms.
 
-G5 remains open. The prewarm closes a reproducible 110-ms hitch, but the
-full-match Fountain p95/worst gate still requires a fresh prewarmed run and the
-natural runnable-descheduling tail remains outside the recompiled on-core path.
+G5 remains open. PERF-112's fresh prewarmed full match measures 16.682 ms mean,
+17.584 ms p95, 18.540 ms p99, and 48.962 ms worst across 6,723 combat frames.
+Four frames exceed 33 ms. The first captured 41.385 ms frame has a 25.619 ms
+wall/thread gap and 14.809 ms inside the final `PresentBackbuffer` region while
+the sampler continues to report the thread runnable. The natural scheduling/
+queue tail remains outside the recompiled on-core path.
 
 ## Implementation
 
 - `patches/moderngekko-dolphin/0020-efb-vram-prewarm.patch` adds default-
-  dormant UID logging and opt-in prewarm of R4, RGBA8, and XFB.
+  dormant UID logging and opt-in prewarm of R4, RGBA8, XFB, and half-scale XFB.
 - `apple/macos/SsbmPad` enables the bounded prewarm in the packaged product.
 - `apple/macos/Info.plist` declares the app's games category and current
   `LSSupportsGameMode` eligibility key. A three-bundle screen did not prove a
@@ -39,13 +42,13 @@ code-sign verification.
 
 ## Decision
 
-Retain the bounded EFB prewarm and diagnostic sampler. Do not claim G5, a
-Game Mode performance win, or an M1-specific defect. Do not return to compiler
-flags, QoS, time constraints, timer variants, or drawable mutation. The next
-single experiment is a full true-native frontend-PGO Fountain combat run from
-the packaged prewarm path, observed only by the lightweight external sampler.
-If its exact compile hitches stay absent, use the remaining natural marker to
-quantify scheduler pressure without Instruments in the measurement window.
+PERF-112 found the fourth half-scale XFB UID compiling once for 1.036 ms at
+frame 51484; it did not cause a severe frame. PERF-113 extends the set to four
+and records exactly those four UIDs at startup, zero combat EFB misses through
+frame 51604, and 17.480 ms at frame 51484. Retain the bounded prewarm and
+diagnostic sampler. Do not claim G5, a Game Mode win, or an M1-specific defect.
+The next experiment is a prewarmed Game Mode on/off reversal through
+LaunchServices, without the former cold-compile confound.
 
 Decisive retained numbers and source-file hashes are in
 `docs/evidence/g5-scheduler-and-efb-prewarm/summary.md`.

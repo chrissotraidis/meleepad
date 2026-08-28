@@ -12,7 +12,7 @@ diff --git a/Source/Core/VideoCommon/ShaderCache.cpp b/Source/Core/VideoCommon/S
 +  }
 +
    const TimePoint shader_start = Clock::now();
-@@ -1413 +1420,14 @@ bool ShaderCache::CompileSharedPipelines()
+@@ -1413 +1420,20 @@ bool ShaderCache::CompileSharedPipelines()
 +  if (std::getenv("SSBMPAD_PREWARM_EFB_VRAM"))
 +  {
 +    constexpr std::array formats = {EFBCopyFormat::R4, EFBCopyFormat::RGBA8,
@@ -24,6 +24,12 @@ diff --git a/Source/Core/VideoCommon/ShaderCache.cpp b/Source/Core/VideoCommon/S
 +      if (!GetEFBCopyToVRAMPipeline(uid))
 +        return false;
 +    }
++
++    TextureConversionShaderGen::TCShaderUid half_scale_xfb_uid;
++    half_scale_xfb_uid.GetUidData()->dst_format = EFBCopyFormat::XFB;
++    half_scale_xfb_uid.GetUidData()->scale_by_half = true;
++    if (!GetEFBCopyToVRAMPipeline(half_scale_xfb_uid))
++      return false;
 +  }
 +
    return true;

@@ -2937,6 +2937,26 @@ Append-only execution ledger. Claims are limited to observed evidence.
   `docs/artifacts/2026-08-28/g5-runnable-descheduling-and-efb-prewarm.md` and
   `docs/evidence/g5-scheduler-and-efb-prewarm/summary.md`.
 
+## 2026-08-28 — Full prewarmed Fountain validation and fourth UID
+
+- PERF-112 completed all 6,723 true-native frontend-PGO Fountain combat frames
+  with the lightweight sampler. Total mean/p95/p99/worst are
+  16.682/17.584/18.540/48.962 ms; four frames exceed 33 ms, so G5 still fails.
+- The first 41.385 ms marker has 25.619 ms off-core gap, 14.809 ms in the final
+  presentation region, 0.053 ms `nextDrawable`, no EFB miss, and runnable
+  thread-state samples. Remaining severe tails are host scheduling/GPU-queue
+  timing rather than statically recompiled on-core execution.
+- PERF-112 discovered half-scale XFB as a fourth UID; its 1.036 ms cold compile
+  produced only a 17.523 ms frame. PERF-113 added that exact pipeline to startup
+  and proved zero combat EFB misses through frame 51604; frame 51484 is 17.480
+  ms with no compile.
+- Decision: **four-pipeline prewarm retained; G5 open; G6/Final Destination
+  blocked.** Next run a prewarmed LaunchServices Game Mode on/off reversal,
+  now without cold compilation confounding the severe tail.
+- Evidence:
+  `docs/artifacts/2026-08-28/g5-runnable-descheduling-and-efb-prewarm.md` and
+  `docs/evidence/g5-scheduler-and-efb-prewarm/summary.md`.
+
 ## 2026-08-28 — True-native correction and full-match off-core stall
 
 - Audited the runner's real configuration path after `GFX.ini` reverted to

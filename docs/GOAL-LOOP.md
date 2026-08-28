@@ -992,21 +992,21 @@ descheduling event: CPU-thread work is 21.186 ms and the wall/thread gap is
 priority host contention, but profiler-specific attribution remains caveated.
 Stop treating the remaining severe natural tail as static-recompiler work.
 
-PERF-106 through PERF-110 identify a separate deterministic cold-bundle hitch.
-The exact missing EFB-to-VRAM pipeline UIDs are R4, RGBA8, and XFB; compilation
-costs about 108-118 ms and XFB lands during combat at emulated frame 48436.
-PERF-111 prewarms those three existing pipelines before gameplay and removes
-both observed combat compiles; frame 48436 falls to 17.234 ms. Retain patch
-0020 and the packaged opt-in. The Game Mode screen is inconclusive, so retain
-only correct eligibility metadata, not a performance claim.
+PERF-106 through PERF-113 identify and close a separate deterministic cold-
+bundle hitch. The exact EFB-to-VRAM UIDs are R4, RGBA8, XFB, and half-scale
+XFB. The first three cost about 108-118 ms cold; the fourth costs 1.036 ms.
+Patch 0020 prewarms all four existing pipelines. PERF-113 proves zero combat
+EFB misses through frame 51604. Retain the patch and packaged opt-in.
 
-The next single experiment is a complete true-native frontend-PGO Fountain
-combat run from the packaged prewarm path, using the lightweight external
-sampler and no Instruments during the measurement window. The prewarm must
-keep the exact combat compile misses at zero; then classify the remaining
-natural marker. Do not retry compiler flags, QoS, time-constraint, timer,
-drawable-lifecycle, or isolated generated-leaf variants. Do not run Final
-Destination or start G6 until Fountain's strict p95 and worst pass. See
+PERF-112's complete prewarmed match still measures 17.584 ms p95, 18.540 ms
+p99, and 48.962 ms worst. The first captured 41.385 ms stall loses 25.619 ms
+off-core while remaining runnable and spends 14.809 ms around
+`PresentBackbuffer`; it is not static-recompiler work. The next single
+experiment is a prewarmed Game Mode on/off reversal launched through
+LaunchServices, now that cold pipeline compilation cannot confound the worst
+frames. Do not retry compiler flags, QoS, time-constraint, timer, drawable-
+lifecycle, or isolated generated-leaf variants. Do not run Final Destination
+or start G6 until Fountain's strict p95 and worst pass. See
 `docs/artifacts/2026-08-28/g5-runnable-descheduling-and-efb-prewarm.md`.
 
 ## Testing rhythm

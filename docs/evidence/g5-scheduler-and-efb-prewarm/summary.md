@@ -69,7 +69,23 @@ win from this screen.
 
 ## Retained implementation and cleanup
 
-Patch 0020 makes UID logging default-dormant and the three-UID prewarm opt-in;
+PERF-112 completes the prewarmed full combat span: 6,723 rows, 16.682020 ms
+mean, 17.583917 ms p95, 18.540375 ms p99, 48.962250 ms worst, and four rows
+above 33 ms. It finds one additional half-scale XFB UID compiling for 1.036209
+ms at frame 51484. The first triggered stall is frame 51323 at 41.384792 ms:
+CPU wall/thread are 40.954744/15.336115 ms, `PresentBackbuffer` region is
+14.809292 ms, and `nextDrawable` is 0.053000 ms. The 12,001-row sampler has
+zero errors and retains runnable state across long sampling gaps. SHA-256:
+phase `db80e3dc4531e85bb829f43a9fd700d217322e6bd41deeb88e40a0d1f8ddb108`,
+ring `22388e3b66b0642da3364b73dde06213280f046ecedb8467a9d1d930708ea1b4`.
+
+PERF-113 adds the fourth exact UID. Its startup log contains only R4, RGBA8,
+XFB, and half-scale XFB; combat through frame 51604 has zero EFB misses. Frame
+51484 is 17.479708 ms with no compile. SHA-256: phase
+`19d1272b3287e415e19094c9c15bf5557e6729fdb276d09f7d97987eb75e6246`,
+UID log `012853c5a0aee10852b8dc59a8ccbab8b57db74ca67c5c398b707900b8f4bf0e`.
+
+Patch 0020 makes UID logging default-dormant and the four-UID prewarm opt-in;
 the packaged wrapper opts in. The signed disposable bundle passed layout,
 plist, embedded-marker, dependency, and code-sign checks; runner SHA-256 is
 `5480f3bd2a4c96ccfa588cc79a81d499dad217e0a79864274f22a232a46e14f0`.
