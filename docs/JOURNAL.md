@@ -2522,3 +2522,49 @@ Append-only execution ledger. Claims are limited to observed evidence.
   exception rules.
 - Evidence: `docs/artifacts/2026-08-28/g5-hot-direct-call-rejection.md` and
   `docs/evidence/g5-hot-direct-call-rejection/`.
+
+## 2026-08-28 — Guarded broad direct-call callback rejected
+
+- Added a disposable target-validity callback plus a post-callee continuation
+  recheck. Focused generated tests cover denied/accepted targets, exact
+  256-cycle exit, continuation invalidation, and terminal return; 4/4 pass.
+- The full GALE01r0 module emitted 67,012 guarded sites across 237 chunks.
+  Arm64 disassembly proves real direct `_func_...` calls, and the former
+  `0x8008593C` boundary returns instead of jumping outside its generated
+  function.
+- The first launch was safely rejected with `CPU state size mismatch`: the
+  experiment extended GXRuntime but not ModernGekko's public CPU-state mirror.
+  Mirroring the disposable tail field and rebuilding the runner preserved the
+  load-time guard and produced a valid isolated package.
+- The old-PGO positive screen cut dispatches to 15,897,417 but worsened
+  CPU-thread mean to 11.899125 ms; widespread profile mismatch required a
+  profile-free pair before deciding.
+- A clean no-profile candidate reproduced 1,501,629,909 cycles, 15,897,417
+  dispatches, 892,043 bursts, 882 hooks, and zero fallbacks. The closest
+  canonical control differs by 510 cycles and has 51,369,928 dispatches.
+  Candidate CPU-thread mean improves only 1.66% from 15.699995 to 15.439466 ms,
+  CPU p95 only 0.64%, while compliance falls to 60.000%, p95 remains 18.677083
+  ms, worst reaches 128.024166 ms, and text grows 12.79%.
+- Live Computer Use inspection retained coherent Pikachu/CPU-Fox Fountain
+  combat at a 60.0-FPS title with intact characters, HUD, and stage geometry.
+  Both measured apps exited normally with zero failed SMC chunks.
+- Removed every candidate generator, test, public/GXRuntime ABI, runtime
+  callback, and bootstrap edit; restored the canonical profile-free pointer.
+  Retained the independent `prepare-game.sh` fix that explicitly refreshes the
+  top-level `dolrecomp` executable and prevents stale-generator module builds.
+- Decision: **PERF-076 rejects per-edge callback validity; G5 remains open;
+  Final Destination and G6 remain blocked.** Next preflight an inline data-only
+  validity representation and require a projected >5% gain; otherwise move to
+  profile-derived superblocks with boundary-only guards.
+- Evidence: `docs/artifacts/2026-08-28/g5-guarded-direct-call-rejection.md` and
+  `docs/evidence/g5-guarded-direct-call-rejection/`.
+- Restored-product validation then passed 40/40 applicable CTest entries,
+  repository checks, package layout, arm64 identity, strict signing, shell
+  syntax, `git diff --check`, and 16/16 `gcpipe` tests. No game or Simulator
+  remained active.
+- Researched the remaining static-recompiler options from QEMU, LLVM, and Apple
+  primary sources. Rank an inline runtime-owned eligibility table first; if its
+  focused preflight cannot project more than 5%, skip the broad module and use
+  one profile-derived superblock with boundary guards. BOLT is ELF-only, and
+  the renderer/display tail remains a separate measured problem. See
+  `docs/artifacts/2026-08-28/g5-static-recomp-optimization-research.md`.

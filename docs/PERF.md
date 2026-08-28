@@ -338,12 +338,39 @@ guard, fail first on an invalidated callee, and only then test broader static
 call chaining. See
 `docs/artifacts/2026-08-28/g5-hot-direct-call-rejection.md`.
 
+PERF-076 adds the missing safety contract and rejects its first broad
+implementation. A target callback delegates to `FastDispatchableAt`; a second
+callback rechecks a local continuation after the callee, preserving forced
+fallback and post-invalidation SMC behavior. Five focused paths and 67,012
+full-game sites compile and pass; arm64 contains real direct calls. The module
+loader correctly caught a missing public `CPUState` mirror before boot. With
+both disposable mirrors aligned, a PGO positive screen cut dispatches 69.1%
+but worsened CPU mean; because its old profile mismatched, a second clean
+profile-free module established the verdict. Against the closest exact-work
+canonical no-profile control, CPU-thread mean improves only 0.260529 ms /
+1.66% and CPU p95 0.64%, while `__text` grows 12.79%, compliance falls, and
+worst reaches 128.024 ms. Two out-of-line validity callbacks per linked call
+consume most of the dispatcher saving. The callback candidate is removed. See
+`docs/artifacts/2026-08-28/g5-guarded-direct-call-rejection.md`.
+
+A primary-source optimization survey now ranks the remaining static-recompiler
+options. The next useful representation is an inline runtime-owned eligibility
+table matching mature direct-block-chaining designs, followed—only if per-edge
+guards remain too costly—by one profile-derived superblock with guards at trace
+boundaries. Keeping guest state live inside that region and optimizing specific
+helpers require Instruments evidence first. BOLT is excluded because it
+accepts ELF rather than this Mach-O product; generic PGO/LTO repetition is also
+excluded by the existing measurements. See
+`docs/artifacts/2026-08-28/g5-static-recomp-optimization-research.md`.
+
 Required next work:
 
-1. Add a cheap target-validity guard for cross-chunk direct calls and a focused
-   invalidated/forced-fallback callee regression before screening a broader
-   static-call transform. The unguarded ten-edge transform, whole-module IR
-   PGO, and global order-file layout are rejected. Blind size
+1. Preflight a data-only inline validity representation for cross-chunk calls,
+   with dynamic forced-fallback and SMC invalidation but no out-of-line callback
+   at each target/continuation. Build only if the focused projected saving can
+   exceed 5%; otherwise form profile-derived superblocks with guards only at
+   trace boundaries. The callback-guarded and unguarded transforms,
+   whole-module IR PGO, and global order-file layout are rejected. Blind size
    thresholds, single-helper inlining,
    blanket outlining, timer spinning, combined no-EXRAM, and simply diluting
    its Fountain weighting with another stage are rejected.

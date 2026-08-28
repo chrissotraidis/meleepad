@@ -6,6 +6,29 @@ Last updated: 2026-08-28
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-076 rejects an out-of-line validity callback on every statically linked
+cross-chunk call. Focused tests cover denied/accepted targets, exact cycle
+budget, post-callee continuation invalidation, and terminal return; the full
+module emitted 67,012 guarded sites and real arm64 direct calls. A load-time
+CPU-state size check caught and prevented a missing public ABI mirror before
+boot. After correcting both disposable mirrors, exact Fountain dispatches fell
+69.05% from 51,369,928 to 15,897,417. The clean profile-free pair improved
+CPU-thread mean only 1.66% from 15.700 to 15.439 ms, CPU p95 only 0.64%, grew
+text 12.79%, reduced compliance to 60.000%, and left p95 at 18.677 ms with a
+128.024 ms worst. The callback design and all ABI edits are removed; the
+canonical module pointer is restored. A separate stale-generator fix remains:
+`prepare-game.sh` now refreshes the top-level `dolrecomp` executable before
+generation. Next preflight an inline data-only validity representation; if it
+cannot project a >5% gain, move to profile-derived superblocks with boundary
+guards. Final Destination and G6 remain blocked. See
+`docs/artifacts/2026-08-28/g5-guarded-direct-call-rejection.md`.
+
+The follow-up static-recompiler survey ranks an inline eligibility table first,
+then a bounded profile-derived superblock if per-edge guards cannot project a
+material gain. It also separates CPU translation work from the remaining
+Metal/display/off-core frame tail and excludes BOLT's ELF-only path. See
+`docs/artifacts/2026-08-28/g5-static-recomp-optimization-research.md`.
+
 PERF-075 rejects an address-specific ten-edge direct-call candidate while
 confirming dispatcher cost. Sampled predecessor/destination data reconstructed
 the hot `0x8036C87C..0x8036C944` linked-call sequence. The focused regression

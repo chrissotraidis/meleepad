@@ -801,6 +801,24 @@ regression before screening broader statically known calls. Final Destination
 and G6 remain blocked. See
 `docs/artifacts/2026-08-28/g5-hot-direct-call-rejection.md`.
 
+PERF-076 safely generalizes the cross-chunk experiment and rejects an
+out-of-line callback guard on every linked edge. Focused tests cover denied
+target, accepted target, exact 256-cycle exit, post-callee continuation
+invalidation, and terminal return. The full module emitted 67,012 guarded call
+sites across all 237 chunks; arm64 contains real direct calls. A load-time CPU
+state size check caught a missing public ABI mirror before boot, and the
+corrected isolated app preserved that check. In exact Fountain combat,
+dispatches fell 69.05% from 51,369,928 to 15,897,417. A clean profile-free
+pair nevertheless improved CPU-thread mean only 0.260529 ms / 1.66%, grew
+`__text` 12.79%, reduced compliance, and retained an 18.677 ms p95 / 128.024
+ms worst. The callback design is removed; the canonical pointer is restored.
+Next preflight a data-only inline validity representation with no per-edge
+callback, and build it only if the focused projected gain can exceed 5%. If
+that fails, form profile-derived superblocks with guards only at trace
+boundaries. Do not retrain or retry the callback design. Final Destination and
+G6 remain blocked. See
+`docs/artifacts/2026-08-28/g5-guarded-direct-call-rejection.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

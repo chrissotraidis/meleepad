@@ -63,6 +63,11 @@ cmake -S "$MG" -B "$BUILD" -G Ninja \
   -DENABLE_ANALYTICS=OFF -DUSE_UPNP=OFF
 cmake --build "$BUILD" --target moderngekko-port moderngekko-run \
   -j"${SSBMPAD_JOBS:-8}"
+# moderngekko-port's POST_BUILD copy does not rerun when only its dolrecomp
+# dependency changes. Refresh the executable beside moderngekko-port explicitly
+# so source edits cannot generate a module with a stale code generator.
+cmake -E copy_if_different \
+  "$BUILD/vendor/dolphin/DolRecomp/dolrecomp" "$BUILD/dolrecomp"
 
 if [[ -e "$GAME" ]]; then
   if [[ -f "$MARKER" && "$(<"$MARKER")" != "$EXPECTED_SHA256" ]]; then
