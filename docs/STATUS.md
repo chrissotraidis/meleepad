@@ -6,13 +6,30 @@ Last updated: 2026-08-28
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-096 through PERF-098 correct the authoritative resolution input and
+extend the tail attribution to a natural full match. `moderngekko-run` reads
+top-level `config.ini`, not only `Config/GFX.ini`; PERF-091 through PERF-093
+were therefore still 3x and their native label/reversal are invalid. A fresh
+true-native clone retained `resolution=640x528` and `InternalResolution = 1`.
+Against a 3x/native/3x identical-work reversal, native improves total mean to
+16.571 from 16.683/16.677 ms and pass count to 250 from 243/241, but total p95
+remains 17.055 ms. Keep native as the gate baseline, not as a tail fix. The
+phase-only full Fountain combat span has 6,723 rows, total p95/p99/worst
+17.001/17.336/54.523 ms, and one >33 ms stall. Its worst row has ordinary
+guest work, 17.223 ms CPU-thread time, 36.874 ms off-core wall time, only
+0.031 ms `nextDrawable`, and no EFB miss. The remaining severe stall is
+pre-Metal/off-core. Next identify its concrete kernel wait or scheduling edge
+without retrying rejected scheduler or presentation variants. G5 remains open;
+G6 and Final Destination remain blocked. See
+`docs/artifacts/2026-08-28/g5-true-native-and-full-stall-attribution.md`.
+
 PERF-090 through PERF-093 directly close the unexplained PGO wall/thread gap.
 Precision-timer work is only 0.000372 ms/frame mean and is excluded. The gate
-baseline is corrected from a drifted 3x internal resolution to native 640x528,
-but an exact 1x/3x reversal rejects resolution as the tail fix. Presenter
+baseline in those runs remained at 3x because the initial correction edited
+the non-authoritative GFX file; PERF-097 supersedes that resolution claim. Presenter
 subphases then put 99.7% of ordinary video-build time in `BindBackbuffer`; the
 direct Metal split puts 4.784 ms/frame mean and 5.737 ms p95 in
-`CAMetalLayer.nextDrawable`, 99.600% of bind time. On the exact native
+`CAMetalLayer.nextDrawable`, 99.600% of bind time. On that exact 3x
 440-frame Fountain window, CPU-thread mean/p95/worst are
 11.544/12.654/15.782 ms and all rows meet 16.7 ms, while total p95 is
 17.756 ms and only 243/440 rows meet 16.7 ms. The current static-recompiled

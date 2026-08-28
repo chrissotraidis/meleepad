@@ -2906,6 +2906,32 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Evidence:
   `docs/artifacts/2026-08-28/g5-frame-wait-and-metal-bind-attribution.md`.
 
+## 2026-08-28 — True-native correction and full-match off-core stall
+
+- Audited the runner's real configuration path after `GFX.ini` reverted to
+  scale 3. `moderngekko-run` maps the top-level frontend
+  `resolution=1920x1080` to scale 3 and overwrites the GFX file; PERF-091's
+  nominal native run was still 3x. Corrected both settings in a fresh private
+  clone and retained the byte-identical slot-1 save.
+- A 3x/native/3x exact-window reversal has effectively identical guest work.
+  Native improves total mean to 16.571 from 16.683/16.677 ms and strict pass
+  count to 250 from 243/241, but p95 remains 17.055 ms. Retain native as the
+  required baseline; reject it as the tail solution.
+- The logger-free PGO full match naturally reached the post-match memory-card
+  prompt at a 59.9-FPS title reading. The combat span contains 6,723 phase rows
+  with 17.001/17.336/54.523 ms total p95/p99/worst. The 451.066 ms results/save
+  transition and subsequent prompt rows are excluded.
+- The one >33 ms combat row has ordinary work, 17.223 ms CPU-thread time,
+  36.874 ms off-core wall time, 0.031 ms `nextDrawable`, 1.458 ms audio, and no
+  EFB miss. The severe stall is pre-Metal and mostly off-core.
+- Decision: **PERF-096/097/098 retain true native and pre-Metal attribution;
+  G5 remains open; G6 and Final Destination remain blocked.** Next identify a
+  concrete kernel wait/scheduling edge without repeating rejected QoS,
+  time-constraint, dual-core, timer, or presentation variants. No game process
+  or Simulator remains.
+- Evidence:
+  `docs/artifacts/2026-08-28/g5-true-native-and-full-stall-attribution.md`.
+
 ## 2026-08-28 — Joined-presentation observer rejected
 
 - Re-audited the Metal lifecycle against retained PERF-064/069/070 evidence.

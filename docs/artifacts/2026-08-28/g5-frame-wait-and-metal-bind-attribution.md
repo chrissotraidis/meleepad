@@ -67,14 +67,18 @@ One cold EFB compile at emulated frame 48436 costs 113.828 ms and explains the
 0.564 with the wall/thread gap and gap minus video averages -0.083 ms. This
 redirected the next measurement into the presenter.
 
-## PERF-091: native-resolution correction, not a speed fix
+## PERF-091: nominal resolution screen invalidated
 
-The authoritative isolated user tree had drifted to
-`InternalResolution = 3`. The G5 contract is native 640x528, represented by
-`InternalResolution = 1`. A private clone changed only that setting; the slot-1
+The isolated user tree's `Config/GFX.ini` had drifted to
+`InternalResolution = 3`. A private clone changed only that setting; the slot-1
 save SHA-256 remained
 `e481363325c55a200066e6f30d48b6c53d8fcc6ebf6286f88e6e88d72a0ab5de`.
 The source tree, ROM, retained 3x user tree, and save were not modified.
+However, subsequent audit proved that `moderngekko-run` takes its scale from
+the top-level frontend `config.ini`, which still contained
+`resolution=1920x1080`, and rewrites `GFX.ini` to 3. Both sides of this table
+therefore ran at 3x. The comparison is invalid and is retained only as the
+historical evidence that exposed the configuration mistake.
 
 | Metric | Native 1x | Warm reversal 3x |
 |---|---:|---:|
@@ -85,9 +89,9 @@ The source tree, ROM, retained 3x user tree, and save were not modified.
 | video-build p95 | 5.562 ms | 6.005 ms |
 | rows <=16.7 ms | 236/440 | 250/440 |
 
-Native resolution is the required gate baseline, but the reversal does not
-support resolution as the performance fix. Continue G5 at 1x and do not claim
-the 3x-to-1x correction closes the tail.
+Do not use this table for a resolution decision. PERF-097/098 corrected the
+authoritative frontend setting and are documented in
+`g5-true-native-and-full-stall-attribution.md`.
 
 Native CSV SHA-256:
 `8a227d3e02a9777a42ea247ff05fd441997cea28332e37195e0e945d70ce28b0`.
@@ -111,7 +115,7 @@ video-build mean. Flush/rectangle, XFB, and UI average only 0.001, 0.004, and
 
 ## PERF-093: direct Metal result
 
-The final split times surface checks, `[CAMetalLayer nextDrawable]`, backbuffer
+The final 3x split times surface checks, `[CAMetalLayer nextDrawable]`, backbuffer
 texture update, and framebuffer setup directly inside Metal
 `BindBackbuffer`.
 

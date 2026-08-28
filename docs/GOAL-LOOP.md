@@ -628,11 +628,12 @@ pacing. G5 remains open; do not run Final Destination or start G6. See
 
 PERF-090 through PERF-093 directly resolve that wall-tail branch. Observer-
 heavy stack sampling is excluded; direct counters show precision-timer work at
-only 0.000372 ms/frame mean. The gate baseline is now the required native
-640x528 rather than a drifted 3x internal resolution, but a matched 1x/3x
-reversal rejects resolution as the performance fix. Presenter and Metal
+only 0.000372 ms/frame mean. Their attempted resolution correction edited only
+`Config/GFX.ini`, but the runner's authoritative top-level `config.ini` still
+selected 1920x1080/3x. PERF-091's nominal 1x/3x reversal is invalid. Presenter
+and Metal
 subphases then prove that `CAMetalLayer.nextDrawable` averages 4.784 ms and
-owns 99.600% of `BindBackbuffer`. On exact native Fountain frames
+owns 99.600% of `BindBackbuffer`. On those exact 3x Fountain frames
 `48123..48562`, all CPU-thread rows meet 16.7 ms (11.544/12.654/15.782 ms
 mean/p95/worst), while total p95 is 17.756 ms and only 243/440 rows pass. Next
 recognize this as the CPU-side Core Animation backpressure point, not proof of
@@ -645,6 +646,21 @@ do not mutate drawable lifecycle, return to compiler flags, source weights,
 timer variants, EFB prewarming, or resolution changes. G5 remains open; Final
 Destination and G6 remain blocked. See
 `docs/artifacts/2026-08-28/g5-frame-wait-and-metal-bind-attribution.md`.
+
+PERF-096 through PERF-098 correct that configuration boundary and extend the
+measurement to a natural full match. A fresh private clone retains both
+`resolution=640x528` and `InternalResolution = 1`; its save and PGO module are
+unchanged. In an effectively identical-work 3x/native/3x reversal, true native
+improves total mean to 16.571 from 16.683/16.677 ms and pass count to 250 from
+243/241, but p95 remains 17.055 ms. Native is required and retained, not a G5
+fix. The phase-only full combat interval contains 6,723 rows and one 54.523 ms
+stall. That row has 17.223 ms CPU-thread work, 36.874 ms off-core wall time,
+0.031 ms drawable acquisition, ordinary guest work, and no EFB miss. The
+severe remaining stall is pre-Metal/off-core. Next identify the exact kernel
+wait or scheduling edge without retrying QoS, time-constraint, dual-core,
+timer, VSync, or presentation variants. G5 remains open; Final Destination and
+G6 remain blocked. See
+`docs/artifacts/2026-08-28/g5-true-native-and-full-stall-attribution.md`.
 
 Inner FPRF attribution is also complete. A finite-normal branch passed full
 classification and scalar-FMA state semantics but lost all 54 corrected host
