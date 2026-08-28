@@ -3208,3 +3208,23 @@ Append-only execution ledger. Claims are limited to observed evidence.
   descheduling evidence.
 - Evidence:
   `docs/artifacts/2026-08-28/g5-current-final-destination-baseline.md`.
+
+## 2026-08-28 — PERF-136/137 Final Destination off-core reversal
+
+- Goal: attribute the retained current Final Destination producer tail and
+  test whether the observed transient filesystem/browser load caused it.
+- Harness: excluded a dual-launch trace and a pre-handler signal exit; the
+  accepted runs each used exactly one process and loaded the verified private
+  FD state only after phase initialization.
+- PERF-136: 2,001 exact combat rows measured 17.149958 ms p95 and 27.640792 ms
+  worst; CPU-thread p95/worst were only 6.729403/9.792909 ms. The worst row
+  lost 19.608531 ms off-core with 0.117750 ms video build.
+- PERF-137 reversal: after `fseventsd` and Brave load cleared, p95 remained
+  17.148000 ms and worst was 30.737000 ms. That row did 2.589508 ms CPU work,
+  lost 24.645359 ms off-core, and spent 0.140500 ms in video build.
+- Decision: **COMMON HOST TAIL; TRANSIENT LOAD REJECTED**. Final Destination
+  and Fountain are not compute-bound on the current M1 build. Do not reopen
+  static compiler, GPU, audio, timer, QoS, dual-core, or presentation routes.
+  G5 stays open; G6 stays blocked.
+- Evidence:
+  `docs/artifacts/2026-08-28/g5-final-destination-off-core-reversal.md`.

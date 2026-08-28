@@ -1127,6 +1127,20 @@ compiler, QoS, timer, dual-core, drawable, or presentation variants, and do
 not start G6. See
 `docs/artifacts/2026-08-28/g5-current-final-destination-baseline.md`.
 
+PERF-136/137 then phase-attribute that current Final Destination class. Two
+exact 2,001-frame combat windows retain essentially identical 17.150/17.148 ms
+p95. CPU-thread p95 is only 6.729/6.749 ms and audio p95 is 1.311/1.313 ms.
+Their 27.641/30.737 ms worst frames execute just 4.148/2.590 ms on-core and
+lose 19.609/24.645 ms off-core, with negligible video build. Repeating after
+the transient `fseventsd`/Brave load cleared leaves the mechanism and
+distribution intact, so that activity is rejected as the cause. Final
+Destination and Fountain share a runnable/descheduling tail, not an M1
+compute, static-recompiler, GPU, audio, or timer ceiling. Do not repeat those
+routes. Continue only with a genuinely new host-scheduling mechanism, an
+authorized reversible background-load isolation, or actual-display evidence.
+G5 remains open and G6 remains blocked. See
+`docs/artifacts/2026-08-28/g5-final-destination-off-core-reversal.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

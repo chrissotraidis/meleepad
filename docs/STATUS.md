@@ -6,6 +6,18 @@ Last updated: 2026-08-28
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-136/137 phase-attribute current Final Destination and reject transient
+backup/browser load. Two exact 2,001-frame combat windows have essentially
+identical 17.150/17.148 ms total p95. CPU-thread p95 is only 6.729/6.749 ms;
+audio p95 is 1.311/1.313 ms. Their worst frames are 27.641/30.737 ms but do
+only 4.148/2.590 ms CPU work and lose 19.609/24.645 ms off-core, with just
+0.118/0.141 ms video build. The reversal occurred after `fseventsd` and Brave
+fell out of the high-load set, so those transient processes are not causal.
+Final Destination and Fountain share a host runnable/descheduling tail, not an
+M1 compute, static-recompiler, GPU, audio, or timer limit. Do not repeat those
+routes. See
+`docs/artifacts/2026-08-28/g5-final-destination-off-core-reversal.md`.
+
 PERF-135 refreshes the other required D2 stage on the current build. After
 excluding a truncated-log harness run, a windowed control, and a visually
 wrong-stage attempt, the verified fullscreen Final Destination match retained
