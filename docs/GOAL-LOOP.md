@@ -843,6 +843,39 @@ host-cost evidence from keeping guest state live. Final Destination and G6
 remain blocked. See
 `docs/artifacts/2026-08-28/g5-dispatch-trace-coverage-rejection.md`.
 
+PERF-079 proves that a genuinely single-entry generated region lets AppleClang
+retain guest state, but rejects the selected small slice. The exact
+`0x8036C91C..0x8036C934` model passes 4,096 randomized full-state/RAM cases,
+removes 31 arm64 instructions and 13 branches, and repeats a 21.29-21.79% local
+speedup. Its absolute saving is only 1.216-1.264 ns: about 0.001 ms/frame at the
+sampled site and less than 0.148 ms/frame even if every native dispatch received
+the same saving. Do not build or broadly clone tiny regions from relative
+microbenchmark percentages. Next map inclusive current-PGO host samples back to
+guest PCs and form one larger, genuinely expensive single-entry region with
+exact exception, cycle-budget, SMC, and fallback exits. Final Destination and
+G6 remain blocked. See
+`docs/artifacts/2026-08-28/g5-merged-state-preflight-rejection.md`.
+
+PERF-080 maps the retained byte-identical line sample to guest PCs and closes
+the single-hot-region hypothesis: after two independently rediscovered but
+already-closed clusters, the largest new region owns only 3.40% of chassis
+samples. PERF-081 narrows and executes that complete function. Entry narrowing
+alone is neutral; explicit live GPR/FPR/PS1 state plus one exact FP gate passes
+4,096 randomized FP-disabled/cycle-boundary cases and repeats a 9.70-10.92%
+local gain, but projects only 0.33-0.37% overall. Do not build one-function
+address lists. See `docs/artifacts/2026-08-28/g5-guest-cost-attribution.md` and
+`docs/artifacts/2026-08-28/g5-single-entry-register-cache-preflight.md`.
+
+PERF-082 rejects the existing broad LLVM backend after enabling LLVM 22/Apple
+ARM64 and passing focused semantics. The exact `0x80323940` hot slice measures
+396,548 LLVM text bytes versus 64,756 for C and repeats 4.84-4.93 times slower
+with identical CPU/RAM results. Common-exit and stock-O2/Oz screens are worse.
+The private full run stopped at 130/947 objects before module link; the C
+product remains canonical. A future LLVM design must first compact duplicated
+runtime-boundary materialization and beat this retained slice before another
+game build. See
+`docs/artifacts/2026-08-28/g5-llvm22-arm64-preflight.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

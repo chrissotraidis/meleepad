@@ -2623,3 +2623,91 @@ Append-only execution ledger. Claims are limited to observed evidence.
   `docs/artifacts/2026-08-28/g5-dispatch-trace-coverage-rejection.md`,
   `scripts/analyze-dispatch-edge-traces.py`, and
   `scripts/g5_trace_semantics_preflight.c`.
+
+## 2026-08-28 — Small merged-state region rejected
+
+- Compiled the actual current hot generated chunk separately and confirmed the
+  switch/label shape materializes PC, cycle state, and guest GPR values around
+  `0x8036C91C`; values are stored and immediately reloaded because every label
+  must remain an arbitrary entry.
+- Added a data-free canonical-versus-single-entry model for the exact
+  `0x8036C91C..0x8036C934` slice. It passes 4,096 randomized comparisons of all
+  CPU-state bytes except the intentionally different RAM pointer plus all 4 KiB
+  of RAM.
+- Arm64 drops from 159 to 128 instructions, 32 to 27 loads, and 36 to 23
+  branches. Repeated five-million-iteration runs improve 21.37-21.79%, saving
+  1.231-1.264 ns per region; a fresh repeat saved 1.216 ns / 21.29%.
+- Absolute coverage rejects the candidate: the sampled site projects about
+  819 executions/frame and only 0.001036 ms/frame. Even granting the saving to
+  every one of 116,775 dispatches/frame yields less than 0.148 ms/frame.
+- Decision: **PERF-079 rejects the small merged region before a game build; G5
+  remains open.** Retain the semantic/timing harness. Next select by inclusive
+  host cost mapped to guest PCs, then preflight one larger expensive region.
+- Evidence:
+  `docs/artifacts/2026-08-28/g5-merged-state-preflight-rejection.md` and
+  `scripts/g5_merged_state_preflight.c`.
+
+## 2026-08-28 — Guest-cost selection and complete-function preflight
+
+- Added a deterministic macOS `sample` to generated guest-PC mapper. It maps
+  1,127 direct samples and independently rediscovers the two already-closed
+  matrix-FIFO and PSMTXConcat hotspots.
+- The largest unclosed region is only 52/1,531 chassis samples / 3.40%; no new
+  single region can clear 5% even if deleted.
+- Mechanically narrowed the complete `0x803248DC` guest function. Entry
+  narrowing alone was neutral despite reducing its isolated object from
+  323,112 to 8,452 text bytes.
+- Explicitly caching six live GPRs and eight FPR/PS1 pairs plus retaining the
+  exact first FP gate reduced the object to 8,088 text bytes and repeated a
+  9.70-10.92% local gain. All 4,096 state/stack cases pass, including 512
+  FP-disabled entries and every initial 0..-255 cycle budget.
+- Decision: **PERF-080/081 reject one-function specialization; G5 remains
+  open.** The measured projection is only 0.33-0.37% overall. Test the existing
+  SSA-based LLVM backend on Apple ARM64 instead of building address lists.
+
+## 2026-08-28 — LLVM 22 Apple ARM64 backend feasibility retained
+
+- A disposable DolRecomp copy relaxed only its LLVM version/target gates,
+  migrated six LLVM 22 API calls, and made object-format tests accept Mach-O.
+- LLVM 22.1.8 emitted genuine Mach-O arm64 objects and linked a native arm64
+  semantic test executable.
+- `llvm_backend`, `llvm_execute`, and `llvm_pipeline` pass 3/3. The execution
+  test covers state, RAM, float/paired work, exceptions, fallbacks, cache
+  control, and other runtime boundaries.
+- Decision: **PERF-082 retains Apple ARM64 LLVM as the next bounded candidate;
+  G5 remains open.** Full private GALE01 generation is running. No canonical
+  patch, module, app, game process, or Simulator changed.
+- Evidence: `docs/artifacts/2026-08-28/g5-llvm22-arm64-preflight.md`.
+
+## 2026-08-28 — LLVM hot-slice footprint boundary measured
+
+- Early full-game objects projected an approximately 678 MB text image, so a
+  private mini-DOL isolated the exact 1,024-instruction
+  `0x80323940..0x8032493F` slice around the leading unclosed Fountain region.
+- LLVM emitted 396,548 text bytes / 99,136 host instructions; strict product-
+  flag C emitted 64,756 / 16,183. LLVM also contains 41,455 loads and 37,786
+  stores versus C's 3,693 and 1,586.
+- Source inspection attributes the expansion to broad dirty-state
+  materialize/reload sequences duplicated at arbitrary exits and rare
+  memory/MMIO boundaries.
+- A shared side-exit passed the focused semantics but grew the slice to
+  411,760 bytes / 102,939 instructions due PHI/move pressure. LLVM's stock O2
+  and size-oriented Oz pipelines both grew it to 421,876 / 105,468. All
+  disposable variants are removed.
+- Decision: **PERF-082 remains a performance-feasibility baseline, not a
+  product candidate; G5 remains open.** Resume the original full compile. Even
+  a positive live result must be followed by targeted cold-boundary
+  compaction before promotion.
+
+## 2026-08-28 — LLVM exact hot-slice runtime rejected
+
+- Renamed only the LLVM object export and linked both exact-slice objects into
+  one arm64 harness. C and LLVM both end at `0x80324940`, match every relevant
+  CPU-state/RAM byte, and change the same nine RAM bytes.
+- A concurrent screen measured 173.554 ns for C versus 844.008 ns for LLVM.
+  Two uncontended 100,000-iteration repeats measured 100.103/97.536 ns for C
+  versus 487.871/480.811 ns for LLVM. The retained harness repeated 95.992
+  versus 464.884 ns: an overall repeatable 4.84-4.93x regression.
+- Decision: **PERF-082 rejected before module link; G5 remains open.** Stop the
+  full private compile at 130/947 objects and retain its partial output. No
+  product source, module pointer, package, game process, or Simulator changed.

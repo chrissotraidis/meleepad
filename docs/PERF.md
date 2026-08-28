@@ -2,6 +2,38 @@
 
 G5 is active. G4 passed with a clean controlled 1v1 on 2026-08-24.
 
+PERF-080 adds deterministic line-sample to guest-PC cost attribution. The
+largest two clusters reproduce already-closed `WriteMTXPS4x3` and
+`PSMTXConcat`; the largest unclosed region is only 52/1,531 chassis samples /
+3.40%. PERF-081 then compiles that complete function in canonical and
+single-entry forms. Entry narrowing alone is neutral, while explicit live
+GPR/FPR/PS1 caching with one exact FP gate passes 4,096 cases and improves the
+function 9.70-10.92%. Its measured coverage projects only 0.33-0.37% overall,
+so no game build follows. See
+`docs/artifacts/2026-08-28/g5-guest-cost-attribution.md` and
+`docs/artifacts/2026-08-28/g5-single-entry-register-cache-preflight.md`.
+
+PERF-082 rejects DolRecomp's broad LLVM backend after a small LLVM 22/Apple
+ARM64 port proved semantics but failed the exact hot-slice performance gate.
+The 1,024-instruction slice is 6.12 times larger than C and, with identical
+resulting CPU/RAM state, repeats 4.84-4.93 times slower. Common-exit and stock
+O2/Oz variants are worse. The full private generation was stopped at 130/947
+objects before module link. Do not retry this architecture without first
+beating the retained C slice on both size and time. No product input changed.
+See
+`docs/artifacts/2026-08-28/g5-llvm22-arm64-preflight.md`.
+
+PERF-079 tests the generator-level state-retention mechanism requested by
+PERF-078. A faithful data-free model of guest `0x8036C91C..0x8036C934` passes
+4,096 randomized full-state/RAM comparisons. The single-entry form reduces
+arm64 instructions from 159 to 128, loads from 32 to 27, and branches from 36
+to 23, repeating a 21.29-21.79% local speedup. It saves only 1.216-1.264 ns per
+execution, however: about 0.001 ms/frame at the exact sampled site and under
+0.148 ms/frame even if unrealistically applied to every dispatch. The slice is
+rejected before a game build. Next select a larger merged region from inclusive
+host cost mapped to guest PCs, not edge frequency. See
+`docs/artifacts/2026-08-28/g5-merged-state-preflight-rejection.md`.
+
 The runner's window-title counter was observed across boot, title, and
 attract-mode scenes. It ranged from single digits during a cold transition to
 roughly 58-60 FPS in lighter title/intro frames, with complex four-character

@@ -6,6 +6,43 @@ Last updated: 2026-08-28
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-082 rejects DolRecomp's LLVM backend on exact Apple ARM64 hot-slice
+evidence. Focused backend/semantic tests pass 3/3, but the exact 1,024-
+instruction slice emits 396,548 text bytes / 99,136 host instructions versus
+C's 64,756 / 16,183. More importantly, byte-identical-state execution repeats
+at 464.884-487.871 ns for LLVM versus 95.992-100.103 ns for C: LLVM is
+4.84-4.93 times slower. Common-exit and stock O2/Oz variants are also worse.
+The private full compile was stopped at 130/947 objects; no module, app, or
+product input changed. See
+`docs/artifacts/2026-08-28/g5-llvm22-arm64-preflight.md`.
+
+PERF-081 proves a complete generated guest function can benefit from explicit
+state caching but rejects a one-function game build. A narrowed entry alone is
+neutral; caching six live GPRs and eight FPR/PS1 pairs plus retaining the exact
+first FP gate passes 4,096 randomized cases, including FP-disabled and every
+0..-255 initial cycle budget, and repeats a 9.70-10.92% local gain. Its actual
+sample share projects only 0.33-0.37% overall. See
+`docs/artifacts/2026-08-28/g5-single-entry-register-cache-preflight.md`.
+
+PERF-080 maps retained line-table host samples to guest PCs. The top two
+clusters independently reproduce already-closed matrix FIFO and PSMTXConcat
+work; the largest unclosed region owns only 3.40% of chassis samples. No single
+new region can pass 5%, so retain the mapper and require a broad state-retention
+mechanism without a common-dispatch tax. See
+`docs/artifacts/2026-08-28/g5-guest-cost-attribution.md`.
+
+PERF-079 proves generator-level guest-state retention but rejects the selected
+small region before a game build. A data-free model of the actual
+`0x8036C91C..0x8036C934` generated slice passes 4,096 randomized full-state/RAM
+comparisons. Its single-entry form removes 31 arm64 instructions, five loads,
+and 13 branches and repeats a 21.29-21.79% local speedup. The absolute saving is
+only 1.216-1.264 ns/execution: about 0.001 ms/frame at the sampled site and less
+than 0.148 ms/frame even under the impossible assumption that every native
+dispatch receives the saving. No module, ABI, app, game, or Simulator changed.
+Next attribute inclusive host samples to guest PCs and merge one genuinely
+expensive region rather than another frequent tiny edge. See
+`docs/artifacts/2026-08-28/g5-merged-state-preflight-rejection.md`.
+
 PERF-076 rejects an out-of-line validity callback on every statically linked
 cross-chunk call. Focused tests cover denied/accepted targets, exact cycle
 budget, post-callee continuation invalidation, and terminal return; the full
