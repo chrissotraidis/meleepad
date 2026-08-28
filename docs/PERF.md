@@ -376,12 +376,26 @@ module. Next preflight one profile-derived superblock with one boundary guard.
 See
 `docs/artifacts/2026-08-28/g5-inline-validity-preflight-rejection.md`.
 
+PERF-078 validates boundary-trace semantics but rejects dispatcher-only trace
+chaining on coverage. A deterministic analyzer identifies the dominant
+Fountain chains, while a focused signed-budget regression passes invalidated
+entry, canonical fallback, completion, successor miss, exception, and exact
+`-256` exit paths. The seven-node candidate covers only 5.16% of dispatches
+and projects about 0.076 ms/frame. Even all 278 dominant edges reach only a
+zero-overhead 5.37% CPU projection; 204 edges are needed merely to cross 5%,
+before guards, misses, footprint, and low-sample selection error. Do not build
+a dispatcher-only trace forest. Next preflight a genuinely merged generated
+region and require evidence that keeping guest state live removes material
+arm64 loads/stores beyond dispatch savings. See
+`docs/artifacts/2026-08-28/g5-dispatch-trace-coverage-rejection.md`.
+
 Required next work:
 
-1. Form one profile-derived superblock with a single entry/boundary guard,
-   starting from the dominant `8036C8D8..8036C91C` Fountain chain. First
-   statically exclude cache-control, host-call, exception, indirect-control,
-   and 256-cycle-budget violations, then add a focused generated regression.
+1. Preflight one genuinely merged generated region from the dominant
+   `8036C8D8..8036C91C` Fountain sequence. Compare arm64 CPUState loads/stores
+   and host cost against separate chunk calls; continue only if keeping guest
+   state live supplies material gain beyond dispatch removal. The focused
+   boundary semantics pass, but dispatcher-only trace chaining is rejected.
    The broad callback, inline-table, and unguarded transforms,
    whole-module IR PGO, and global order-file layout are rejected. Blind size
    thresholds, single-helper inlining,

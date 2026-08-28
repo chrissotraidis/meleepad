@@ -2595,3 +2595,31 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Evidence:
   `docs/artifacts/2026-08-28/g5-inline-validity-preflight-rejection.md` and
   `scripts/g5_direct_guard_preflight.cpp`.
+
+## 2026-08-28 — Dispatch-only trace coverage rejected
+
+- Added a deterministic exact-frame analyzer for dominant non-self dispatch
+  chains. It stops at successor ambiguity rather than rounding the
+  `8033FB64 -> 8036C8E4` 79.53% connector into the 80% set.
+- Conservatively scanned the selected generated ranges: 394 guest instructions
+  across chunks `8033D940`, `80369940`, and `80375940` contain no cache-control
+  or indirect-system hazard. Exact successor, exception, and cycle checks are
+  still required.
+- Added a data-free trace semantics regression. Its first run caught an
+  unsigned-enum `-256` harness bug; an explicit `INT64_C(256)` then passed all
+  six invalidated-entry, fallback, completion, divergence, exception, and
+  exact-budget paths with AppleClang warnings-as-errors.
+- The seven-node trace represents 647 samples / about 2.65M dispatches / 5.16%
+  of the exact window, projecting only 0.076 ms/frame from PERF-075's measured
+  12.684 ns/dispatch slope.
+- All 278 edges passing 80% dominance and five samples reach only a theoretical
+  0.843 ms / 5.37% before any guard, miss, footprint, or sample-selection cost;
+  204 edges are required just to cross 5% in that zero-overhead model.
+- Decision: **PERF-078 rejects dispatcher-only trace chaining; G5 remains
+  open.** Retain the analysis and semantics tools. Next preflight one truly
+  merged generated region and require material CPUState spill elimination
+  beyond dispatch savings before changing the product.
+- Evidence:
+  `docs/artifacts/2026-08-28/g5-dispatch-trace-coverage-rejection.md`,
+  `scripts/analyze-dispatch-edge-traces.py`, and
+  `scripts/g5_trace_semantics_preflight.c`.

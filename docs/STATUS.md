@@ -39,6 +39,16 @@ No product ABI or generated module changed. Next preflight one bounded
 See
 `docs/artifacts/2026-08-28/g5-inline-validity-preflight-rejection.md`.
 
+PERF-078 passes a six-path boundary-trace semantics regression but rejects a
+dispatcher-only trace forest. The seven-node Fountain candidate covers only
+5.16% of dispatches and projects about 0.076 ms/frame. All 278 dominant sampled
+edges reach only a zero-overhead 5.37% projection, with 204 required merely to
+cross 5% before guards, misses, footprint, and sample error. No game build or
+ABI change is justified. Next compare a genuinely merged generated region
+against separate chunk calls and prove material CPUState spill elimination.
+See
+`docs/artifacts/2026-08-28/g5-dispatch-trace-coverage-rejection.md`.
+
 PERF-075 rejects an address-specific ten-edge direct-call candidate while
 confirming dispatcher cost. Sampled predecessor/destination data reconstructed
 the hot `0x8036C87C..0x8036C944` linked-call sequence. The focused regression

@@ -831,6 +831,18 @@ generated regression before a live build. Final Destination and G6 remain
 blocked. See
 `docs/artifacts/2026-08-28/g5-inline-validity-preflight-rejection.md`.
 
+PERF-078 proves the boundary-trace control contract but rejects dispatch-only
+trace chaining. The focused regression passes invalidated entry, fallback,
+completion, successor miss, exception, and exact cycle-budget paths; the
+selected generated ranges contain no cache-control or indirect-system hazard.
+The seven-node trace nevertheless covers only 5.16% of dispatches and projects
+about 0.076 ms/frame. A 278-edge forest reaches only a zero-overhead 5.37%,
+with 204 edges needed merely to cross 5%. Do not build it. Next preflight one
+genuinely merged generated region and require material arm64 load/store and
+host-cost evidence from keeping guest state live. Final Destination and G6
+remain blocked. See
+`docs/artifacts/2026-08-28/g5-dispatch-trace-coverage-rejection.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).
