@@ -2,6 +2,16 @@
 
 G5 is active. G4 passed with a clean controlled 1v1 on 2026-08-24.
 
+PERF-083 refreshes the canonical signed product and the structural
+static-recompilation decision. The exact 440-emulated-frame Fountain interval
+measures 16.814891 ms total mean / 18.761260 ms p95 and 15.735743 ms CPU-thread
+mean while executing 51,369,928 native dispatches. Research and the retained
+PERF-079/081 mechanisms select profile-guided generated-C extended basic
+blocks with live guest state as the next bounded route. Helper-effect
+classification belongs inside that experiment; RAM specialization and
+chunk-scoped replacements remain secondary and require new exact attribution.
+See `docs/artifacts/2026-08-28/g5-static-recomp-structural-followup.md`.
+
 PERF-080 adds deterministic line-sample to guest-PC cost attribution. The
 largest two clusters reproduce already-closed `WriteMTXPS4x3` and
 `PSMTXConcat`; the largest unclosed region is only 52/1,531 chassis samples /

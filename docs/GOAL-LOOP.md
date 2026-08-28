@@ -876,6 +876,17 @@ runtime-boundary materialization and beat this retained slice before another
 game build. See
 `docs/artifacts/2026-08-28/g5-llvm22-arm64-preflight.md`.
 
+PERF-083 refreshes the signed canonical Fountain state and confirms the strict
+tail still fails despite a coherent 60.0-FPS title reading: the exact 440-field
+interval is 16.814891 ms mean / 18.761260 ms p95 with only 56.3636% at or below
+16.7 ms. The researched next route is a bounded generated-C extended basic
+block with explicit live guest-state locals and exact synchronization at
+helper, exception, SMC, forced-fallback, host-call, and normal exits. First run
+a data-free full-state/RAM preflight and require a greater-than-5% projected
+CPU-thread gain; do not build a game module from a relative microbenchmark
+alone. See
+`docs/artifacts/2026-08-28/g5-static-recomp-structural-followup.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

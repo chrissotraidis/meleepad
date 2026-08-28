@@ -2711,3 +2711,27 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Decision: **PERF-082 rejected before module link; G5 remains open.** Stop the
   full private compile at 130/947 objects and retain its partial output. No
   product source, module pointer, package, game process, or Simulator changed.
+
+## 2026-08-28 — Canonical refresh and structural static-recomp research
+
+- Launched exactly one current signed canonical arm64 product, loaded the
+  retained Fountain state, captured a coherent Pikachu/Fox frame, sampled the
+  CPU thread, and shut the runner down cleanly. No Simulator was booted.
+- The exact 440-emulated-frame interval executed 1,501,629,399 guest cycles and
+  51,369,928 native dispatches. It measured 16.814891 ms total mean,
+  18.761260 ms p95, 21.389482 ms p99, and 29.560250 ms worst; only 56.3636%
+  met 16.7 ms. CPU-thread mean/p95 were 15.735743/17.683831 ms.
+- The visible frame read 60.0 FPS and retained coherent character/stage
+  geometry. The known reference-parity Fountain floor-reflection distortion
+  remains; the strict retained phase trace still fails G5.
+- QEMU's CPU-state optimization, extended-basic-block, helper-effect, and
+  direct-chaining designs plus Dolphin's ARM64 register cache were compared
+  with PERF-079/081/082. The next applicable method is a profile-guided C
+  translation region that keeps live guest state in locals and synchronizes
+  only at exact exits.
+- Decision: **PERF-083 retains research and the fresh baseline; G5 remains
+  open.** First build a data-free region-state semantic/timing preflight. No
+  game build follows unless defensible coverage times measured gain projects
+  above 5% CPU-thread improvement.
+- Evidence:
+  `docs/artifacts/2026-08-28/g5-static-recomp-structural-followup.md`.

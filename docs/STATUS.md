@@ -6,6 +6,17 @@ Last updated: 2026-08-28
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-083 refreshes the current signed product and narrows the researched static-
+translation route. A coherent Fountain frame reads 60.0 FPS, but the exact
+440-emulated-frame trace measures 16.814891 ms mean / 18.761260 ms p95 /
+21.389482 ms p99 / 29.560250 ms worst, with only 56.3636% at or below 16.7 ms.
+CPU-thread mean/p95 are 15.735743/17.683831 ms; rendering, present, and audio
+remain secondary. The next bounded experiment is a profile-guided generated-C
+extended basic block that keeps live guest state in locals and synchronizes at
+real exits. No module build follows unless a full-state/RAM semantic preflight
+projects above 5% CPU-thread improvement. See
+`docs/artifacts/2026-08-28/g5-static-recomp-structural-followup.md`.
+
 PERF-082 rejects DolRecomp's LLVM backend on exact Apple ARM64 hot-slice
 evidence. Focused backend/semantic tests pass 3/3, but the exact 1,024-
 instruction slice emits 396,548 text bytes / 99,136 host instructions versus
