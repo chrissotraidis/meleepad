@@ -6,6 +6,19 @@ Last updated: 2026-08-28
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-135 refreshes the other required D2 stage on the current build. After
+excluding a truncated-log harness run, a windowed control, and a visually
+wrong-stage attempt, the verified fullscreen Final Destination match retained
+a conservative 2,801-frame interior combat window at 16.683246 ms mean
+(59.940 FPS), 17.209583 ms p95, 17.399125 ms p99, and 24.292208 ms worst, with
+zero frames above 33 ms. Actual Final Destination, coherent combat, 59.9-60.0
+FPS title readings, and match completion were visually verified; Cubeb audio
+remained active. This materially improves the old baseline but still fails
+strict G5. A private hashed FD state now makes the next phase-attribution run
+cheap. Attribute its 24 ms producer class against Fountain's known off-core
+tail; do not reopen rejected compiler/pacing routes. See
+`docs/artifacts/2026-08-28/g5-current-final-destination-baseline.md`.
+
 PERF-134 rejects a separate runner/runtime PGO build by existing-sample
 coverage. `StaticRecompCore::Run` owns 9,279 samples and its already-profiled
 module child `chassis_dispatch` owns 9,030; deleting every runner-only sample

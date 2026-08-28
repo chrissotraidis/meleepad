@@ -1114,6 +1114,19 @@ drawable lifecycle from observer-specific waits. PERF-130/131 supersede the
 proposed transition follow-up. See
 `docs/artifacts/2026-08-28/g5-rush-frame-presentation-rejection.md`.
 
+PERF-135 removes the stale sequencing block on the second required stage. A
+visually verified, fullscreen current-PGO Final Destination match completes
+coherently with Cubeb audio. Its conservative 2,801-frame interior combat
+window measures 16.683246 ms mean / 17.209583 ms p95 / 17.399125 ms p99 /
+24.292208 ms worst, with no frame above 33 ms. This is materially better than
+the old portable-PGO baseline but still fails strict G5; Fountain is not the
+only remaining producer-tail scene. A private hashed Final Destination state
+is retained. Next phase-attribute the 24 ms class from that state and compare
+it to Fountain's proven runnable/off-core tail. Do not repeat rejected
+compiler, QoS, timer, dual-core, drawable, or presentation variants, and do
+not start G6. See
+`docs/artifacts/2026-08-28/g5-current-final-destination-baseline.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

@@ -3189,3 +3189,22 @@ Append-only execution ledger. Claims are limited to observed evidence.
   runnable-thread descheduling. No instrumented Dolphin build is justified.
 - Evidence:
   `docs/artifacts/2026-08-28/g5-runner-pgo-coverage-bound.md`.
+
+## 2026-08-28 — PERF-135 current Final Destination baseline
+
+- Goal: refresh Final Destination on the retained current-PGO/native/prewarmed
+  build and determine whether G5's remaining producer tail is Fountain-only.
+- Harness audit: excluded a truncated-log relaunch, a windowed control, and a
+  visually wrong-stage fullscreen attempt. Verified the final run's real
+  fullscreen state, `Final Destination` stage label, actual stage, coherent
+  combat, 59.9-60.0 FPS title readings, Cubeb audio, and natural completion.
+- Result: the conservative 2,801-frame combat interior measured 16.683246 ms
+  mean / 17.209583 ms p95 / 17.399125 ms p99 / 24.292208 ms worst; 57.194%
+  met 16.7 ms and none exceeded 33 ms.
+- Decision: **IMPROVED, G5 FAILS**. Final Destination shares the remaining
+  producer-tail class; do not promote G6. Retain no product edit.
+- Next: use the new private hashed FD slot-1 state for one default-dormant
+  phase attribution of the 24 ms class and compare it to Fountain's off-core
+  descheduling evidence.
+- Evidence:
+  `docs/artifacts/2026-08-28/g5-current-final-destination-baseline.md`.
