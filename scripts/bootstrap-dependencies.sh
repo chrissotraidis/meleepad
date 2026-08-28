@@ -227,6 +227,7 @@ verify_patch_scope "$MG/vendor/dolphin" "$dolphin_patch" \
   Source/Core/VideoBackends/Metal/MTLGfx.mm \
   Source/Core/VideoCommon/Present.cpp \
   Source/Core/VideoCommon/ShaderCache.cpp \
+  Source/Core/DolphinNoGUI/Platform.cpp \
   Source/Core/Core/Cheats/MemoryWatcher.cpp \
   Source/Core/Core/Cheats/MemoryWatcher.h \
   Source/Core/Core/Cheats/MemoryWatcherUtils.h \

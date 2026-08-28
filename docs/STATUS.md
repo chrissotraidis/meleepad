@@ -6,6 +6,23 @@ Last updated: 2026-08-28
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-117 through PERF-124 close the actual-display observer ambiguity and the
+supplied PERF-106 crash. A minimal Display-only Instruments template records
+the WindowServer surface cadence without the rejected in-process drawable
+callback. The full Game Mode Fountain trace retains 6,862 consecutive
+process-attributed intervals: p95/p99 are both 16.666417 ms, but 15 intervals
+are 33.333 ms and one match/results transition is 366.660 ms. Sixteen intervals
+exceed 16.7 ms, including misses well before results, so G5 still fails even
+though ordinary gameplay is genuinely on a 60 Hz cadence. Exact combat frames
+48123..54845 have zero EFB misses. Separately, PERF-122 reproduced the supplied
+SIGTRAP when the opt-in state-load signal was consumed during Core Starting;
+patch 0013 now defers state requests until Running/Paused, and PERF-123 passes
+the same signal-at-frame-zero regression. Next separate 59.94-to-60 phase slips
+from genuinely late frames with a shared observer timestamp; do not change
+guest speed, duplicate stale content, or retry rejected timer/scheduler/
+drawable/compiler routes. Final Destination and G6 remain blocked. See
+`docs/artifacts/2026-08-28/g5-external-display-cadence-and-savestate-startup.md`.
+
 PERF-114 through PERF-116 now retain a clean prewarmed Game Mode A/B/A
 reversal. All three full Fountain spans execute exactly matched guest work with
 zero EFB or interpreter misses. Confirmed Game Mode on/off/on measures total

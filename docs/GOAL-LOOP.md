@@ -1025,6 +1025,24 @@ dual-core, drawable lifecycle, or static compiler flags. Final Destination and
 G6 remain blocked until Fountain worst actual interval is at most 16.7 ms. See
 `docs/artifacts/2026-08-28/g5-prewarmed-gamemode-reversal.md`.
 
+PERF-117 through PERF-124 complete that actual-display measurement and ingest
+the supplied PERF-106 crash report. A custom Display-only Instruments template
+observes the WindowServer surface stream without the rejected in-process
+drawable callback. PERF-124 retains 6,862 consecutive SsbmPad display
+intervals over 114.964458 seconds: p95/p99 are both 16.666417 ms, but 15
+intervals are 33.333 ms and one match/results transition is 366.660 ms. Sixteen
+intervals exceed 16.7 ms, including misses during combat, so ordinary output is
+genuinely near 60 Hz but strict G5 still fails. Exact combat frames
+48123..54845 have zero EFB misses. PERF-122 separately reproduced the report's
+SIGTRAP by consuming an opt-in state-load request while Core was Starting.
+Patch 0013 now leaves state requests pending until Running or Paused, and
+PERF-123 passes the same signal-at-emulated-frame-zero regression. Retain the
+guard. Next separate the guest's approximately 59.94 Hz phase slips from true
+late work with a shared observer timestamp. Do not alter guest speed, present
+duplicate stale content as new frames, or retry timer, scheduler, drawable, or
+broad compiler variants. Final Destination and G6 remain blocked. See
+`docs/artifacts/2026-08-28/g5-external-display-cadence-and-savestate-startup.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

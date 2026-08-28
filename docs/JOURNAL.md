@@ -3029,3 +3029,25 @@ Append-only execution ledger. Claims are limited to observed evidence.
   Simulator remains.
 - Evidence:
   `docs/artifacts/2026-08-28/g5-frame-wait-and-metal-bind-attribution.md`.
+
+## 2026-08-28 — External display cadence and startup state-load guard
+
+- Goal: measure actual Game Mode Fountain display cadence without the rejected
+  drawable callback, and diagnose the supplied PERF-106 crash report.
+- Work: built a Display-only Instruments template; reproduced the state-load
+  crash at exact `emulated_frame=0`; deferred state requests until Core is
+  Running/Paused; rebuilt; repeated the early signal successfully; captured a
+  full 115-second process-attributed Display trace.
+- Result: **PARTIAL**. The crash regression passes. Fountain's 6,862 display
+  intervals have 16.666417 ms p95/p99, but 15 two-refresh misses plus one
+  366.660 ms transition gap fail the strict 16.7 ms worst-case gate. G5 stays
+  open, Final Destination and G6 stay blocked.
+- Evidence:
+  `docs/artifacts/2026-08-28/g5-external-display-cadence-and-savestate-startup.md`.
+- Next: align guest present boundaries to Display events in a shared timebase
+  and distinguish 59.94-to-60 phase slips from genuine late work before making
+  another pacing change.
+- Checkpoint validation: canonical patch 0013 reverse-checks cleanly; the
+  desktop runner rebuild passes; 40/40 applicable CTest entries and 16/16
+  controller-pipe tests pass; repository, shell-syntax, and whitespace checks
+  pass; and the rebuilt signed macOS package passes its strict layout check.
