@@ -149,6 +149,7 @@ metal_sync_runtime_patch="$ROOT/patches/moderngekko-dolphin/0017-macos-layer-dis
 efb_pipeline_timing_patch="$ROOT/patches/moderngekko-dolphin/0018-efb-pipeline-phase-timing.patch"
 frame_wait_attribution_patch="$ROOT/patches/moderngekko-dolphin/0019-frame-wait-attribution.patch"
 efb_vram_prewarm_patch="$ROOT/patches/moderngekko-dolphin/0020-efb-vram-prewarm.patch"
+frame_phase_host_timestamp_patch="$ROOT/patches/moderngekko-dolphin/0021-frame-phase-host-timestamp.patch"
 apply_patch_once_or_marker "$MG" "$mg_patch" \
   include/moderngekko/runtime.hpp 'struct RuntimeDiagnosticsSnapshot'
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$dolphin_patch" \
@@ -204,6 +205,8 @@ apply_patch_once_or_marker "$MG/vendor/dolphin" "$frame_wait_attribution_patch" 
   Source/Core/Common/FramePhaseTiming.h s_cpu_precision_throttle_calls
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$efb_vram_prewarm_patch" \
   Source/Core/VideoCommon/ShaderCache.cpp SSBMPAD_PREWARM_EFB_VRAM
+apply_patch_once_or_marker "$MG/vendor/dolphin" "$frame_phase_host_timestamp_patch" \
+  Source/Core/VideoCommon/Present.cpp host_frame_end_unix_ns
 verify_patch_scope "$MG" "$mg_patch" vendor/dolphin tools/moderngekko_launcher.cpp \
   tools/moderngekko_port.cpp tests/frontend_config_test.cpp \
   tools/frontend_config.cpp tools/frontend_config.hpp tools/moderngekko_run.cpp \

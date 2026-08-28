@@ -1043,6 +1043,22 @@ duplicate stale content as new frames, or retry timer, scheduler, drawable, or
 broad compiler variants. Final Destination and G6 remain blocked. See
 `docs/artifacts/2026-08-28/g5-external-display-cadence-and-savestate-startup.md`.
 
+PERF-126/127 finish the shared-clock and logger-free controls. Default-dormant
+patch 0021 timestamps phase frame ends in the same absolute host clock as the
+Display trace. Seven pre-results queued surfaces were not displayed over about
+110 seconds, closely matching the 6.6 conversion holds predicted by 59.94 Hz
+guest output on this Mac's fixed 60.0 Hz, non-VRR panel; representative GPU
+work completed before the next VSync. Separate no-queue gaps are genuine
+producer stalls and include a 144.530 ms phase with only 19.900 ms CPU-thread
+work. PERF-127 removes phase logging entirely and reproduces 16 ordinary
+33.333 ms holds plus one 399.993 ms results transition, while p95/p99 remain
+16.666417/16.666458 ms. Strict G5 remains open. Do not speed the guest,
+duplicate stale content, or retry rejected pacing/drawable/timer/scheduler/
+compiler variants. Next isolate repeated missing present-command-buffer
+assignments from downstream queue drops and change only a proven producer-side
+cause. Final Destination and G6 remain blocked. See
+`docs/artifacts/2026-08-28/g5-host-time-join-and-logger-free-cadence.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

@@ -1,0 +1,32 @@
+diff --git a/Source/Core/VideoCommon/Present.cpp b/Source/Core/VideoCommon/Present.cpp
+--- a/Source/Core/VideoCommon/Present.cpp
++++ b/Source/Core/VideoCommon/Present.cpp
+@@ -26,3 +26,4 @@
+ #include <array>
++#include <chrono>
+ #include <fstream>
+ #include <iomanip>
+@@ -50,7 +51,7 @@ public:
+       m_file.open(path, std::ios_base::out);
+       if (!m_file.is_open())
+         return;
+-      m_file << "frame,emulated_frame,total_ms,cpu_wall_ms,cpu_thread_ms,cpu_idle_ms,cpu_throttle_sleep_ms,"
++      m_file << "frame,emulated_frame,host_frame_end_unix_ns,total_ms,cpu_wall_ms,cpu_thread_ms,cpu_idle_ms,cpu_throttle_sleep_ms,"
+                 "cpu_throttle_requested_ms,cpu_throttle_lateness_ms,"
+                 "precision_throttle_calls,precision_throttle_coarse_ms,precision_throttle_spin_ms,"
+                 "precision_present_calls,precision_present_coarse_ms,precision_present_spin_ms,"
+@@ -84,8 +85,13 @@ public:
+     const double total_ms = milliseconds(frame_start - m_previous_frame_start);
+     const u64 frame = m_frame++;
+     const u64 emulated_frame = Common::FramePhaseTiming::GetEmulatedFrameIndex();
++    const TimePoint steady_now = Clock::now();
++    const auto system_now = std::chrono::system_clock::now();
++    const auto frame_end_unix_ns =
++        std::chrono::duration_cast<std::chrono::nanoseconds>(system_now.time_since_epoch()).count() -
++        std::chrono::duration_cast<std::chrono::nanoseconds>(steady_now - frame_end).count();
+     Common::FramePhaseTiming::SetPresentFrameIndex(m_frame);
+-    m_file << frame << ',' << emulated_frame << ','
++    m_file << frame << ',' << emulated_frame << ',' << frame_end_unix_ns << ','
+            << std::fixed << std::setprecision(6) << total_ms << ','
+            << counter_ms(totals.cpu_wall_ns, m_previous_totals.cpu_wall_ns) << ','
+            << counter_ms(totals.cpu_thread_ns, m_previous_totals.cpu_thread_ns) << ','

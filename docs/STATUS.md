@@ -6,6 +6,20 @@ Last updated: 2026-08-28
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-126/127 now separate fixed-panel conversion from genuine late work.
+Patch 0021 gives the opt-in phase CSV an absolute host timestamp; the exact
+join finds seven pre-results surfaces queued but not displayed in about 110
+seconds, closely matching the 6.6 holds predicted when a 59.94 Hz guest feeds
+this M1 Air's only 60.0 Hz, non-VRR mode. Their GPU work completed before the
+next VSync. Separate no-queue gaps expose real producer stalls, including a
+144.530 ms phase with only 19.900 ms CPU-thread work. The logger-free PERF-127
+control reproduces 16 ordinary 33.333 ms holds plus one 399.993 ms result
+transition; p95/p99 remain excellent at 16.666417/16.666458 ms, but strict
+worst-case G5 still fails. Do not change guest speed or duplicate stale frames.
+Next isolate only repeated missing-present-command-buffer assignments from
+downstream queue drops; Final Destination and G6 remain blocked. See
+`docs/artifacts/2026-08-28/g5-host-time-join-and-logger-free-cadence.md`.
+
 PERF-117 through PERF-124 close the actual-display observer ambiguity and the
 supplied PERF-106 crash. A minimal Display-only Instruments template records
 the WindowServer surface cadence without the rejected in-process drawable

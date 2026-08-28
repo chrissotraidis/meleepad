@@ -3051,3 +3051,25 @@ Append-only execution ledger. Claims are limited to observed evidence.
   desktop runner rebuild passes; 40/40 applicable CTest entries and 16/16
   controller-pipe tests pass; repository, shell-syntax, and whitespace checks
   pass; and the rebuilt signed macOS package passes its strict layout check.
+
+## 2026-08-28 — Shared-clock join and logger-free cadence control
+
+- Goal: distinguish guest/display rate conversion, real producer stalls, and
+  phase-logger overhead in the external Fountain cadence trace.
+- Work: added default-dormant host frame-end timestamps as patch 0021; joined
+  PERF-126 phase, Display, queue, swap, and Metal-completion tables; queried
+  the M1 panel modes; repeated the full trace as PERF-127 with no phase logger.
+- Result: **PARTIAL**. Ordinary p95/p99 are 16.666417/16.666458 ms. Eight queued
+  surfaces are not displayed, consistent with 59.94-to-60 fixed-rate
+  conversion, but separate no-queue gaps and the 399.993 ms result transition
+  keep strict G5 open. The logger-free run reproduces the miss count, so phase
+  logging is excluded as its cause.
+- Evidence:
+  `docs/artifacts/2026-08-28/g5-host-time-join-and-logger-free-cadence.md`.
+- Next: isolate repeated missing present-command-buffer assignments from
+  downstream queue drops; change only a repeated producer-side cause.
+- Validation: patch 0021 reverse-checks cleanly; the runner rebuild,
+  dependency bootstrap, repository safety, 40/40 applicable CTest entries,
+  16/16 controller-pipe tests, shell syntax, signed package layout, and strict
+  signature all pass. The optional standalone `clang-format` executable is
+  not installed; AppleClang compiled the touched source successfully.
