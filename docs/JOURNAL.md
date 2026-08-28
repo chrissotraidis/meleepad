@@ -3228,3 +3228,28 @@ Append-only execution ledger. Claims are limited to observed evidence.
   G5 stays open; G6 stays blocked.
 - Evidence:
   `docs/artifacts/2026-08-28/g5-final-destination-off-core-reversal.md`.
+
+## 2026-08-28 — PERF-138/139/140 task-event attribution
+
+- Goal: distinguish hidden in-process blocking/system activity from genuine
+  whole-app execution loss in the remaining Final Destination tail.
+- API audit: macOS exposes no supported per-thread voluntary/involuntary
+  switch counter. Audio-only interval workgroups, generic workgroups, and
+  display-link callbacks do not protect the emulator CPU thread.
+- Correction: the first task-event snapshot placement ran per CPU slice and
+  generated hundreds to thousands of Mach queries per frame; PERF-138/139
+  timing is excluded. Patch 0022 now queries supported `TASK_EVENTS_INFO` once
+  per presented frame. A 100,000-call preflight repeats at about 0.66
+  microseconds mean / 0.71 microseconds p95.
+- PERF-140: fresh endpoints visually prove continuous Final Destination combat
+  from 1:32 to 0:46. Exact emulated frames 31834..33834 measure 18.717375 ms
+  p95 / 21.867375 ms worst; misses average 11.203778 ms wall-minus-thread
+  versus 9.541436 ms for compliant rows.
+- Result: misses have fewer task context switches and fewer Mach/Unix syscalls,
+  not more. **HIDDEN WHOLE-PROCESS BLOCKING ACTIVITY REJECTED; HOST EXECUTION
+  LOSS RETAINED.** G5 remains open and G6 remains blocked.
+- Next: with explicit authority, pause only the persistently busy Logitech
+  updater for a matched retained-state control and immediately resume it.
+  Until then, do not blame it or WindowServer.
+- Evidence:
+  `docs/artifacts/2026-08-28/g5-task-event-attribution.md`.

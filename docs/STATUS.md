@@ -1436,3 +1436,14 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   The profile-free Bowser/Ice Climbers screen agrees. This does not satisfy the
   real-mesh recurrence rule. Evidence:
   `docs/artifacts/2026-08-26/g5-cache-control-pgo-rejection.md`.
+- **PERF-138/139/140 (task-event attribution):** The first per-CPU-slice
+  task-event observer generated hundreds to thousands of Mach queries per
+  frame and is excluded. Default-dormant patch 0022 now samples supported
+  task event counts once per presented frame; standalone p95 query cost is
+  about 0.71 microseconds. Fresh start/end images bound a continuous Final
+  Destination combat interval, and its exact 2,001 rows measure 18.717375 ms
+  p95 / 21.867375 ms worst. Misses average more wall-minus-thread time but
+  fewer task context switches and fewer Mach/Unix syscalls, rejecting hidden
+  whole-process blocking activity and strengthening host execution loss.
+  This is diagnostic, not a G5 pass; G6 remains blocked. Evidence:
+  `docs/artifacts/2026-08-28/g5-task-event-attribution.md`.

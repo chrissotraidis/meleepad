@@ -1,0 +1,64 @@
+diff --git a/Source/Core/VideoCommon/Present.cpp b/Source/Core/VideoCommon/Present.cpp
+--- a/Source/Core/VideoCommon/Present.cpp
++++ b/Source/Core/VideoCommon/Present.cpp
+@@ -30,4 +30,7 @@
+ #include <fstream>
+ #include <iomanip>
++#if defined(__APPLE__)
++#include <mach/mach.h>
++#endif
+-
++
+ std::unique_ptr<VideoCommon::Presenter> g_presenter;
+@@ -38,2 +41,24 @@ namespace
+ {
++struct TaskEventCounts
++{
++  u64 context_switches;
++  u64 mach_syscalls;
++  u64 unix_syscalls;
++};
++
++TaskEventCounts GetTaskEventCounts()
++{
++#if defined(__APPLE__)
++  task_events_info_data_t events{};
++  mach_msg_type_number_t count = TASK_EVENTS_INFO_COUNT;
++  if (task_info(mach_task_self(), TASK_EVENTS_INFO, reinterpret_cast<task_info_t>(&events),
++                &count) != KERN_SUCCESS)
++    return {};
++  return {static_cast<u64>(events.csw), static_cast<u64>(events.syscalls_mach),
++          static_cast<u64>(events.syscalls_unix)};
++#else
++  return {};
++#endif
++}
++
+ class FramePhaseLogger
+@@ -53,3 +78,3 @@ public:
+         return;
+-      m_file << "frame,emulated_frame,host_frame_end_unix_ns,total_ms,cpu_wall_ms,cpu_thread_ms,cpu_idle_ms,cpu_throttle_sleep_ms,"
++      m_file << "frame,emulated_frame,host_frame_end_unix_ns,total_ms,cpu_wall_ms,cpu_thread_ms,task_context_switches,task_mach_syscalls,task_unix_syscalls,cpu_idle_ms,cpu_throttle_sleep_ms,"
+                 "cpu_throttle_requested_ms,cpu_throttle_lateness_ms,"
+@@ -76,2 +101,3 @@ public:
+       m_previous_totals = Common::FramePhaseTiming::GetTotals();
++      m_previous_task_events = GetTaskEventCounts();
+     }
+@@ -79,2 +105,3 @@ public:
+     const Common::FramePhaseTiming::Totals totals = Common::FramePhaseTiming::GetTotals();
++    const TaskEventCounts task_events = GetTaskEventCounts();
+     const auto milliseconds = [](DT duration) { return DT_ms(duration).count(); };
+@@ -97,2 +124,5 @@ public:
+            << counter_ms(totals.cpu_thread_ns, m_previous_totals.cpu_thread_ns) << ','
++           << task_events.context_switches - m_previous_task_events.context_switches << ','
++           << task_events.mach_syscalls - m_previous_task_events.mach_syscalls << ','
++           << task_events.unix_syscalls - m_previous_task_events.unix_syscalls << ','
+            << counter_ms(totals.cpu_idle_ns, m_previous_totals.cpu_idle_ns) << ','
+@@ -244,2 +274,3 @@ public:
+     m_previous_totals = totals;
++    m_previous_task_events = task_events;
+   }
+@@ -250,2 +281,3 @@ private:
+   Common::FramePhaseTiming::Totals m_previous_totals{};
++  TaskEventCounts m_previous_task_events{};
+   u64 m_frame = 0;

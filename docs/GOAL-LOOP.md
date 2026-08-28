@@ -1141,6 +1141,22 @@ authorized reversible background-load isolation, or actual-display evidence.
 G5 remains open and G6 remains blocked. See
 `docs/artifacts/2026-08-28/g5-final-destination-off-core-reversal.md`.
 
+PERF-138 through PERF-140 test whether hidden blocking/system activity inside
+SsbmPad explains that wall-minus-thread loss. macOS has no supported
+per-thread context-switch counter, so default-dormant patch 0022 records one
+supported task-event snapshot per presented frame. The first per-CPU-slice
+placement generated hundreds to thousands of Mach queries per frame and is
+explicitly excluded. The corrected one-per-frame query costs about 0.66
+microseconds mean / 0.71 microseconds p95 in 100,000-call preflights. In a
+visually bounded Final Destination combat interval, the exact 2,001 rows
+measure 18.717 ms p95 / 21.867 ms worst. Misses have more off-core time but
+fewer task context switches and fewer Mach/Unix syscalls; whole-process
+blocking activity is rejected, while host execution loss is strengthened.
+Do not retry compiler, timer, priority, workgroup, display-link, or renderer
+routes. The next causal test is an explicitly authorized, reversible Logitech
+updater isolation. G5 remains open and G6 remains blocked. See
+`docs/artifacts/2026-08-28/g5-task-event-attribution.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).
