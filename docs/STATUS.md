@@ -20,6 +20,13 @@ Next isolate only repeated missing-present-command-buffer assignments from
 downstream queue drops; Final Destination and G6 remain blocked. See
 `docs/artifacts/2026-08-28/g5-host-time-join-and-logger-free-cadence.md`.
 
+PERF-128 independently closes the conversion classification. A host-only
+three-drawable Metal control passes 120/120 when unpaced at 60 Hz, then produces
+exactly six 33.333 ms holds over 6,600 intervals when fed at 16.683 ms: the
+predicted 59.94-to-60 behavior, without Dolphin or guest code. Do not spend the
+G5 loop on those fixed-panel holds. Continue only from the separate no-queue
+producer stalls and results transition.
+
 PERF-117 through PERF-124 close the actual-display observer ambiguity and the
 supplied PERF-106 crash. A minimal Display-only Instruments template records
 the WindowServer surface cadence without the rejected in-process drawable

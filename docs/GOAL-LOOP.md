@@ -1059,6 +1059,14 @@ assignments from downstream queue drops and change only a proven producer-side
 cause. Final Destination and G6 remain blocked. See
 `docs/artifacts/2026-08-28/g5-host-time-join-and-logger-free-cadence.md`.
 
+PERF-128 closes the fixed-rate classification independently. The host-only
+three-drawable Metal harness passes 120/120 unpaced 60 Hz intervals, then
+produces exactly six 33.333 ms holds over 6,600 intervals when paced at
+16.683 ms, with 16.666667 ms p99 and no callback loss. This is the predicted
+59.94-to-60 conversion without Dolphin or guest code. Do not optimize or hide
+these holds. Continue G5 only from no-queue producer stalls and the results
+transition.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

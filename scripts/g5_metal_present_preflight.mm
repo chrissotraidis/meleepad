@@ -6,10 +6,12 @@
 #import <QuartzCore/CAMetalLayer.h>
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <numeric>
+#include <thread>
 #include <vector>
 
 namespace
@@ -29,11 +31,13 @@ int main(int argc, char** argv)
 {
   const int samples = argc >= 2 ? std::atoi(argv[1]) : 600;
   const int minimum_duration_us = argc >= 3 ? std::atoi(argv[2]) : 16'667;
-  if (samples < 100 || minimum_duration_us < 0 || minimum_duration_us > 100'000)
+  const int producer_interval_us = argc >= 4 ? std::atoi(argv[3]) : 0;
+  if (samples < 100 || minimum_duration_us < 0 || minimum_duration_us > 100'000 ||
+      producer_interval_us < 0 || producer_interval_us > 100'000)
   {
     std::fprintf(stderr,
                  "usage: g5_metal_present_preflight [samples>=100] "
-                 "[minimum-duration-us 0..100000]\n");
+                 "[minimum-duration-us 0..100000] [producer-interval-us 0..100000]\n");
     return 2;
   }
 
@@ -80,9 +84,16 @@ int main(int argc, char** argv)
     dispatch_group_t presented_group = dispatch_group_create();
     const CFTimeInterval minimum_duration =
         static_cast<CFTimeInterval>(minimum_duration_us) / 1'000'000.0;
+    const auto producer_start = std::chrono::steady_clock::now();
 
     for (int index = 0; index < total_frames; ++index)
     {
+      if (producer_interval_us != 0)
+      {
+        std::this_thread::sleep_until(producer_start +
+                                      std::chrono::microseconds{
+                                          static_cast<std::int64_t>(producer_interval_us) * index});
+      }
       @autoreleasepool
       {
         id<CAMetalDrawable> drawable = [layer nextDrawable];
@@ -148,13 +159,15 @@ int main(int argc, char** argv)
         std::count_if(intervals_ms.begin(), intervals_ms.end(), [](double value) {
           return value <= 16.7;
         });
+    const std::size_t above = intervals_ms.size() - at_or_below;
     std::printf(
-        "samples=%zu minimum_duration_us=%d mean=%.6f median=%.6f p95=%.6f p99=%.6f "
-        "worst=%.6f le16.7=%.3f%% dropped=%d\n",
-        intervals_ms.size(), minimum_duration_us, mean, Percentile(intervals_ms, 0.50),
+        "samples=%zu minimum_duration_us=%d producer_interval_us=%d mean=%.6f median=%.6f p95=%.6f p99=%.6f "
+        "worst=%.6f le16.7=%.3f%% gt16.7=%zu dropped=%d\n",
+        intervals_ms.size(), minimum_duration_us, producer_interval_us, mean,
+        Percentile(intervals_ms, 0.50),
         Percentile(intervals_ms, 0.95), Percentile(intervals_ms, 0.99),
         *std::max_element(intervals_ms.begin(), intervals_ms.end()),
-        100.0 * static_cast<double>(at_or_below) / intervals_ms.size(), dropped);
+        100.0 * static_cast<double>(at_or_below) / intervals_ms.size(), above, dropped);
   }
   return 0;
 }

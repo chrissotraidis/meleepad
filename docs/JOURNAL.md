@@ -3073,3 +3073,18 @@ Append-only execution ledger. Claims are limited to observed evidence.
   16/16 controller-pipe tests, shell syntax, signed package layout, and strict
   signature all pass. The optional standalone `clang-format` executable is
   not installed; AppleClang compiled the touched source successfully.
+
+## 2026-08-28 — Host-only 59.94-to-60 conversion control
+
+- Goal: prove or falsify fixed-panel cadence conversion without changing
+  guest speed or running Dolphin.
+- Work: extended the retained Metal harness with an optional producer cadence;
+  compiled it under AppleClang; ran an unpaced baseline and a 6,600-interval
+  16.683 ms producer control.
+- Result: **PASS for attribution**. The baseline is 120/120 compliant with
+  16.666625 ms worst. The 59.94 Hz control has exactly six 33.333 ms holds,
+  16.666667 ms p99, 33.333208 ms worst, and no callback loss. The game's seven
+  pre-results queued-surface holds are fixed-rate conversion, not slow static
+  recompilation or late GPU work.
+- Decision: do not alter guest speed or duplicate content. Continue G5 only
+  from no-queue producer stalls and the results transition.

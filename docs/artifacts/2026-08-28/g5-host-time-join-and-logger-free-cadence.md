@@ -52,6 +52,15 @@ refresh rate zero. Changing the guest to 60.0 Hz would alter gameplay, audio,
 and deterministic/netplay timing. Submitting duplicate stale frames would
 hide the hold without producing a new game frame. Both are rejected.
 
+PERF-128 then tested the conversion independently with the retained host-only
+three-drawable Metal harness. The unpaced 60 Hz control delivered 120/120
+intervals at or below 16.7 ms with 16.666625 ms worst. The same workload paced
+at 16.683 ms for 6,600 intervals produced exactly six 33.333 ms holds:
+16.681712 ms mean, 16.666625 ms p95, 16.666667 ms p99, 33.333208 ms worst, and
+99.909% at or below 16.7 ms. No callback was dropped. This is the predicted
+59.94-to-60 conversion behavior without Dolphin or guest code and closes that
+attribution.
+
 ### Genuine late work
 
 Other gaps had no queued replacement. The largest combat cluster covered
