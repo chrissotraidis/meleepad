@@ -2191,3 +2191,57 @@ Append-only execution ledger. Claims are limited to observed evidence.
   from the applicable 40-test result. ASan/UBSan builds of both retained host
   pacing harnesses passed, and the Metal control again delivered 100/100
   intervals at or below 16.7 ms.
+
+## 2026-08-27 — Tail trigger corrected; audio removal rejected
+
+- Three prior 129-132 ms rows were reconciled to the same emulated frame
+  `48436`, identical guest work, 13.8-14.0 ms CPU-thread work, and the only
+  7.0-8.4 ms Cubeb mix burst in each window.
+- The first rolling System Trace attempt auto-ended after six seconds; its
+  marker appeared only during later profiler teardown and is excluded. With
+  an explicit 120-second trace lifetime and game-before-profiler timeout
+  cleanup, 90 armed seconds produced no marker or thermal warning.
+- An invalid `Null` backend spelling correctly fell back to Cubeb and was
+  relabeled as Cubeb A. The exact backend identifier is `No Audio Output`.
+- Fresh Cubeb/no-output/Cubeb brackets matched 1,501,629,399 cycles,
+  51,369,928 dispatches, 905,572 bursts, and 882 hook fallbacks. No-output
+  worsened p95 to 17.668 ms versus 17.599/17.631 ms, p99 to 19.277 ms versus
+  18.158/18.395 ms, and worst to 27.013 ms versus about 20.34 ms.
+- Current official Dolphin master has no newer relevant Metal/Cubeb/timer
+  scheduling mechanism. An exact-work `SmoothEarlyPresentation=True` run
+  measured 17.700 ms p95 / 18.362 ms p99 / 31.300 ms worst, losing p95 and
+  worst against both Cubeb controls.
+- Decision: **PERF-066 rejects audio removal and hidden presentation-setting
+  changes; G5 open; Final Destination and G6 blocked.** Keep Cubeb and return
+  to the exact generated-code evidence.
+- Evidence:
+  `docs/artifacts/2026-08-27/g5-tail-trigger-and-audio-rejection.md`.
+
+## 2026-08-27 — Per-chunk FP-availability cache rejected
+
+- A test-first emitter candidate retained a CIA-specific FP gate at every
+  possible generated entry, cached only a successful check inside one native
+  invocation, and invalidated the cache after the only continuing MSR write,
+  `mtmsr`. Direct-entry and mid-function MSR-disable regressions passed.
+- Six focused DolRecomp groups passed without warnings. A disposable signed
+  module matched the canonical lockstep screen at 1,401 checked PCs, 91
+  reports, seven fallback skips, three zero skips, and zero undercharge.
+- The retained Fountain profile recorded 4,234,689,456 FP-availability calls
+  versus 803,473,272 entries into all FP-containing chunks, justifying a full
+  build with a conservative minimum 81.026% call-removal bound.
+- Linked `__text` instead grew from 81,235,476 to 94,598,884 bytes (+16.45%).
+  Exact emulated frames `48123..48507` matched 1,330,434,029 cycles,
+  45,572,090 dispatches, 801,319 bursts, and 772 hook fallbacks in all three
+  runs. Candidate/control/candidate CPU-thread means were
+  23.750/16.114/23.650 ms; p95 was 26.925/18.113/26.622 ms.
+- Decision: **PERF-067 rejected; G5 open; Final Destination and G6 blocked.**
+  All candidate source and candidate-specific tests are removed. Do not retry
+  per-chunk flags or a branch at every FP instruction; a next FP experiment
+  must reduce shared call-site cost without multiplying generated control flow.
+- Checkpoint validation passed the repository and dependency-bootstrap checks,
+  incremental native desktop build, both package-layout/signature checks, all
+  40 applicable CTest entries, all 16 `gcpipe` Python tests, and the explicit
+  instrumented-versus-release profile-hook test. Candidate marker searches are
+  empty; the canonical app/module remain unchanged.
+- Evidence:
+  `docs/artifacts/2026-08-27/g5-fp-availability-cache-rejection.md`.

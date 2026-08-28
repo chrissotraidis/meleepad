@@ -662,6 +662,32 @@ from the rare 129-132 ms stall and trigger attribution on the latter. Final
 Destination and G6 remain blocked. See
 `docs/artifacts/2026-08-27/g5-static-gather-fast-check-rejection.md`.
 
+The rare-stall split is complete without a product edit. All three prior
+129-132 ms rows align to emulated frame `48436`, identical guest work, and a
+unique 7.0-8.4 ms Cubeb mix burst. A corrected 90-second rolling System Trace
+did not reproduce it; the first trace marker occurred only during profiler
+teardown and is excluded. A fresh exact Cubeb/no-output/Cubeb reversal matched
+1,501,629,399 cycles and 51,369,928 dispatches. No-output removed mixer work
+but worsened p95 from 17.599/17.631 ms to 17.668 ms, p99 to 19.277 ms, and
+worst to 27.013 ms. Reject audio removal: G5 requires audio and Cubeb is not
+the ordinary tail cause. Current official Dolphin adds no relevant scheduling
+fix, and an exact-work `SmoothEarlyPresentation=True` run worsened p95 to
+17.700 ms and worst to 31.300 ms. Reject presentation-setting changes and
+return to generated-code evidence. Final Destination and G6 remain blocked. See
+`docs/artifacts/2026-08-27/g5-tail-trigger-and-audio-rejection.md`.
+
+The block-level FP screen is also complete and rejected. A per-generated-
+chunk successful-check cache retained a CIA-specific gate at every possible
+entry and cleared after `mtmsr`; focused semantics and the canonical 1,401-PC
+lockstep screen passed. The actual Fountain profile predicted at least 81.0%
+fewer helper calls, but linked `__text` grew 16.45%. Exact 385-frame
+candidate/control/candidate work matched, while candidate CPU-thread mean
+regressed from 16.114 ms to 23.750/23.650 ms and p95 from 18.113 ms to
+26.925/26.622 ms. All candidate source is removed. Do not retry per-chunk FP
+flags or another branch at every FP instruction. Final Destination and G6
+remain blocked. See
+`docs/artifacts/2026-08-27/g5-fp-availability-cache-rejection.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

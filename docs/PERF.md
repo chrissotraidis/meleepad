@@ -178,6 +178,32 @@ the rare 129-132 ms stall and trigger attribution at the stall rather than
 selecting another edit from the diffuse sample. See
 `docs/artifacts/2026-08-27/g5-static-gather-fast-check-rejection.md`.
 
+The 129-132 ms rows from that rejection are all emulated frame `48436` with
+identical guest work and the only 7.0-8.4 ms Cubeb mix burst. A corrected
+90-second rolling System Trace trigger did not reproduce the event; an
+earlier marker occurred only during profiler teardown and is rejected. Exact
+Cubeb/no-output/Cubeb reversal brackets then matched 1,501,629,399 cycles and
+51,369,928 dispatches. Removing audio worsened p95 from 17.599/17.631 ms to
+17.668 ms, p99 from 18.158/18.395 ms to 19.277 ms, and worst from about
+20.34 ms to 27.01 ms. Reject no-output: audio is required and is not the
+ordinary p95 cause. Current official Dolphin has no newer relevant
+Metal/Cubeb/timer scheduling mechanism, while the exact-work hidden
+`SmoothEarlyPresentation=True` control worsens p95 to 17.700 ms and worst to
+31.300 ms. Reject that setting as well and return to generated-code evidence.
+See
+`docs/artifacts/2026-08-27/g5-tail-trigger-and-audio-rejection.md`.
+
+A semantics-preserving per-generated-chunk FP-availability cache then passed
+focused direct-entry/`mtmsr` tests and the canonical 1,401-PC lockstep screen.
+The retained Fountain profile bounded helper-call removal at at least 81.0%,
+but linked `__text` grew 16.45%. Exact 385-frame candidate/control/candidate
+windows matched 1,330,434,029 cycles and 45,572,090 dispatches; candidate
+CPU-thread mean regressed from 16.114 ms to 23.750/23.650 ms, while total p95
+regressed from 18.113 ms to 26.925/26.622 ms. PERF-067 is rejected and all
+candidate source is removed. Do not retry per-chunk flags or another branch
+at every FP instruction. See
+`docs/artifacts/2026-08-27/g5-fp-availability-cache-rejection.md`.
+
 The shared-state comparison gap is now closed. Patch 0014 records Dolphin's
 savestated emulated VI/Movie frame beside each presentation row. Two equal
 440-field Fountain control windows matched exactly at 3,567,157,803 guest

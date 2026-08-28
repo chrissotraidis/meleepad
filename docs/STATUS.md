@@ -6,6 +6,31 @@ Last updated: 2026-08-27
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-067 rejects a semantics-preserving per-generated-chunk FP-availability
+cache. Focused direct-entry/`mtmsr` tests and the canonical 1,401-PC lockstep
+screen passed, and the retained Fountain profile bounded successful helper
+calls down by at least 81.0%. But linked `__text` grew 16.45%, and exact
+385-frame candidate/control/candidate windows matched all guest work while
+candidate CPU-thread mean regressed from 16.114 ms to 23.750/23.650 ms. Total
+p95 regressed from 18.113 ms to 26.925/26.622 ms and zero candidate frames met
+16.7 ms. All candidate source is removed; do not retry per-chunk flags or a
+branch at every FP instruction. Final Destination and G6 remain blocked. See
+`docs/artifacts/2026-08-27/g5-fp-availability-cache-rejection.md`.
+
+PERF-066 rejects audio removal and a misleading profiler-teardown trigger.
+The prior 129-132 ms rows all align to emulated frame 48436, identical guest
+work, and a unique 7.0-8.4 ms Cubeb mix burst, but the event did not recur in
+two fresh Cubeb reversals or a corrected 90-second trigger. Exact
+Cubeb/no-output/Cubeb work matched at 1,501,629,399 cycles; disabling audio
+worsened p95 from 17.599/17.631 ms to 17.668 ms and p99 from
+18.158/18.395 ms to 19.277 ms. Audio remains enabled and required. G5 remains
+open on the ordinary tail. Current official Dolphin adds no relevant
+Metal/Cubeb/timer scheduling mechanism, and an exact-work
+`SmoothEarlyPresentation=True` run worsened p95 to 17.700 ms and worst to
+31.300 ms. Reject audio and presentation-setting changes; return to the
+generated-code evidence. Final Destination and G6 remain blocked. See
+`docs/artifacts/2026-08-27/g5-tail-trigger-and-audio-rejection.md`.
+
 PERF-065 closes the fresh current-PGO line-symbol attribution without a
 retained product change. A byte-identical `__text` rebuild maps the remaining
 generated samples across diffuse render/resource work rather than one guest
