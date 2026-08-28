@@ -3122,3 +3122,21 @@ Append-only execution ledger. Claims are limited to observed evidence.
   repeated host/producer cause.
 - Evidence:
   `docs/artifacts/2026-08-28/g5-results-transition-classification.md`.
+
+## 2026-08-28 — Profile-edge coverage recovered
+
+- Goal: turn PERF-087's PGO block-layout observation into one bounded source
+  candidate without rebuilding the full module on a 99%-full disk.
+- Work: remapped the rotated generated-source path, compiled only the exact
+  `func_80375940` chunk with coverage mapping, and consumed the retained
+  Fountain profile.
+- Result: **COUNTERS RECOVERED**. The hot matrix interval executes about 6.94
+  million times. It contains two straight-line traces with 26/34 and 51/51 FP
+  guards; neither trace branches, calls, writes MSR, performs cache control, or
+  invokes a host boundary. Every guard after the first records zero exits.
+- Decision: next build a data-only differential trace preflight that preserves
+  the first exact FP exception and all arbitrary entries while removing only
+  redundant checks. Require full semantics and >5% local speed before a game
+  build. G5 remains open; G6 remains blocked.
+- Evidence:
+  `docs/artifacts/2026-08-28/g5-profile-edge-coverage-recovery.md`.

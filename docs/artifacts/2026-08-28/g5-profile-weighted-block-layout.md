@@ -95,13 +95,16 @@ If that screen fails, use the same edge data to form one guarded single-entry
 trace with local guest-state promotion. Do not attempt a whole-generator rewrite
 before the bounded screen passes.
 
-The retained frontend profile exposes `func_80375940` as 11,548 raw counters,
-but the matching instrumentation binary reports `no coverage data found` to
-`llvm-cov`. Counter position must not be guessed. The next disposable training
-build must add Clang coverage mapping to the existing frontend instrumentation,
-then use the matching binary plus private `.profdata` to export source-associated
-branch counts. The coverage map and profile remain private and are not product
-inputs.
+The retained frontend profile exposes `func_80375940` as 11,548 raw counters.
+PERF-132 corrects the earlier `no coverage data found` interpretation: the
+coverage object contained valid counters but referenced a rotated generated-
+source path. A byte-identical cached source plus a single-object coverage-map
+rebuild recovers source-associated branch counts. The hot interval executes
+about 6.94 million times and contains two hazard-free straight-line traces
+with 26 and 51 FP guards. The next bounded candidate coalesces only redundant
+FP checks inside those single-entry traces while preserving ordinary arbitrary
+entry paths. See
+`docs/artifacts/2026-08-28/g5-profile-edge-coverage-recovery.md`.
 
 ## Primary references
 
