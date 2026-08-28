@@ -2379,3 +2379,43 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Decision: **PERF-071 local package bridge retained; local training recipe and
   G5 remain open; Final Destination and G6 blocked.**
 - Evidence: `docs/artifacts/2026-08-27/g5-local-pgo-package-workflow.md`.
+
+## 2026-08-28 — Local PGO training workflow retained
+
+- Added a distinct C/Clang `--pgo-generate` mode plus local training-app,
+  training-run, and profile-merge scripts. The canonical active-module pointer
+  is restored on success and failure; all private/game-bearing inputs and
+  products remain outside Git.
+- A real instrumented Fountain match reset and dumped counters only under the
+  revision-0 combat predicate. The merged profile has 6,556 functions,
+  2,727,666 blocks, and 135,462,879,791 counts, only 873 counts below the prior
+  oracle but not byte-identical.
+- A fresh 247-step profile-use build passed package layout, arm64, macOS-14,
+  and strict-signature checks. Its `__text` size matches the prior PGO oracle,
+  while 127,816 bytes differ inside `func_80345940`; the local binary is not
+  promoted over the canonical oracle.
+- Validation caught the reusable PGO oracle app's older runner. PERF-071
+  repackaged it from the cached known profile: its current product runner is
+  `93ebc462...6563cd5`, its known module remains `bd089303...af26f5a`, layout
+  and strict signing pass, and the canonical module pointer was restored.
+- A cooled foreground clean smoke loaded the retained state only after frame
+  1,000 and rendered coherent Pikachu/CPU-Fox Fountain. Its exact 440-frame
+  window matched 1,501,757,755 cycles and 51,380,895 dispatches at 16.664 ms
+  mean / 60.011 FPS and 11.621 ms CPU-thread mean, but failed G5 at 18.065 ms
+  p95 and 22.509 ms worst. It exited normally with zero runtime fallbacks; no
+  Simulator was booted.
+- The supplied incident `7B988C01-591F-412F-89BB-A16A913E5680` is from the
+  older disposable FPCFG app during emulation startup, not this workflow. The
+  report does not supersede the retained frame-gated load rule.
+- Decision: **PERF-072 workflow retained; G5 open; Final Destination and G6
+  blocked.** Next screen IR-level PGO on the exact deterministic workload;
+  CS-PGO+LTO and BOLT are excluded by host/platform preflight.
+- Checkpoint validation passes bootstrap/reversal, the desktop-tools rebuild,
+  CLI/script rejection cases, repository/shell/diff checks, 40/40 applicable
+  CTest entries, 16/16 `gcpipe`, profile-hook separation, package layout,
+  arm64 identity, strict signing, and pointer restoration. Disposable proof
+  apps/users/compiler preflights and completed-cache intermediates were
+  removed; final modules/manifests/profile and evidence remain.
+- Evidence:
+  `docs/artifacts/2026-08-28/g5-local-pgo-training-workflow.md` and
+  `docs/evidence/g5-local-pgo-training-workflow/`.

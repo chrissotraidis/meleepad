@@ -1,25 +1,33 @@
 diff --git a/tools/moderngekko_port.cpp b/tools/moderngekko_port.cpp
 --- a/tools/moderngekko_port.cpp
 +++ b/tools/moderngekko_port.cpp
-@@ -41,5 +41,6 @@ struct BuildOptions
+@@ -41,6 +41,8 @@ struct BuildOptions
+   std::string backend = "c";
  #endif
    fs::path output;
 +  fs::path pgo_profile;
++  bool pgo_generate = false;
    std::vector<std::string> runner_arguments;
  };
  
-@@ -436,6 +437,29 @@ std::optional<fs::path> Build(const char* argv0, const fs::path& root,
+@@ -475,6 +477,35 @@ std::optional<fs::path> Build(const char* argv0, const fs::path& root,
      return std::nullopt;
    }
  
 +  std::optional<std::string> pgo_profile_hash;
++  if (options.pgo_generate && !options.pgo_profile.empty())
++  {
++    std::cerr << "--pgo-generate and --pgo-profile are mutually exclusive\n";
++    return std::nullopt;
++  }
++  if ((options.pgo_generate || !options.pgo_profile.empty()) &&
++      (options.backend != "c" || compiler != "clang"))
++  {
++    std::cerr << "PGO requires the C backend and Clang\n";
++    return std::nullopt;
++  }
 +  if (!options.pgo_profile.empty())
 +  {
-+    if (options.backend != "c" || compiler != "clang")
-+    {
-+      std::cerr << "PGO profiles require the C backend and Clang\n";
-+      return std::nullopt;
-+    }
 +    std::error_code error;
 +    options.pgo_profile = fs::weakly_canonical(options.pgo_profile, error);
 +    if (error || !fs::is_regular_file(options.pgo_profile))
@@ -38,27 +46,29 @@ diff --git a/tools/moderngekko_port.cpp b/tools/moderngekko_port.cpp
    const std::string compiler_identity = ReadCommand(compiler + " --version 2>&1");
    if (compiler_identity.empty())
    {
-@@ -473,6 +497,8 @@ std::optional<fs::path> Build(const char* argv0, const fs::path& root,
+@@ -521,6 +552,10 @@ std::optional<fs::path> Build(const char* argv0, const fs::path& root,
    {
      flags = "compile:/O2 /fp:strict";
    }
 +  if (pgo_profile_hash)
 +    flags += " pgo-profile-sha256=" + *pgo_profile_hash;
++  else if (options.pgo_generate)
++    flags += " pgo-generate";
    const std::string identity = std::string(RECOMPCORE_REVISION) + "|dolrecomp=" +
        std::string(DOLRECOMP_REVISION) + "|module-abi=" +
        std::to_string(MODERNGEKKO_MODULE_ABI_VERSION) + "|cpu-abi=" +
-@@ -510,8 +536,10 @@ std::optional<fs::path> Build(const char* argv0, const fs::path& root,
-              << "architecture=" << architecture << '\n'
-              << "flags=" << flags << '\n'
+@@ -560,6 +595,10 @@ std::optional<fs::path> Build(const char* argv0, const fs::path& root,
               << "backend=" << options.backend << '\n'
               << "patches=" << patches.fingerprint << '\n'
               << "module_sources=" << *module_source_fingerprint << '\n';
 +    if (pgo_profile_hash)
 +      manifest << "pgo_profile_sha256=" << *pgo_profile_hash << '\n';
++    else if (options.pgo_generate)
++      manifest << "pgo_generate=1\n";
      fs::create_directories(options.output / game.disc_id);
      std::ofstream active(options.output / game.disc_id / "active-module.txt");
      active << module.string() << '\n';
-@@ -585,6 +614,12 @@ std::optional<fs::path> Build(const char* argv0, const fs::path& root,
+@@ -639,6 +678,16 @@ std::optional<fs::path> Build(const char* argv0, const fs::path& root,
        " -DGXRUNTIME_DIR=" + Quote(source_root / "vendor/dolphin/GXRuntime") +
        " -DCHASSIS_ABI_DIR=" +
        Quote(source_root / "vendor/dolphin/Source/Core/Core/PowerPC/StaticRecomp");
@@ -68,24 +78,31 @@ diff --git a/tools/moderngekko_port.cpp b/tools/moderngekko_port.cpp
 +                 Quote(fs::path("-DCMAKE_C_FLAGS=-fprofile-instr-use=" +
 +                                options.pgo_profile.string()));
 +  }
++  else if (options.pgo_generate)
++  {
++    configure += " " + Quote(fs::path("-DCMAKE_C_FLAGS=-fprofile-instr-generate"));
++  }
    if (!RunCommand(configure) ||
        !RunCommand("cmake --build " + Quote(module_build) + " -j" +
                    std::to_string(compile_jobs)))
-@@ -601,6 +636,6 @@ std::optional<fs::path> Build(const char* argv0, const fs::path& root,
+@@ -655,7 +704,7 @@ std::optional<fs::path> Build(const char* argv0, const fs::path& root,
  void Usage()
  {
    std::cerr << "usage: moderngekko-port inspect <game-root>\n"
 -               "       moderngekko-port build <game-root> [--backend c|llvm] [--toolchain auto|clang|gcc|msvc] [--output path]\n"
-+               "       moderngekko-port build <game-root> [--backend c|llvm] [--toolchain auto|clang|gcc|msvc] [--pgo-profile path] [--output path]\n"
++               "       moderngekko-port build <game-root> [--backend c|llvm] [--toolchain auto|clang|gcc|msvc] [--pgo-generate | --pgo-profile path] [--output path]\n"
                 "       moderngekko-port run <game-root> [build options] [-- runner options]\n";
  }
-@@ -630,6 +665,9 @@ int main(int argc, char** argv)
+ }  // namespace
+@@ -684,6 +733,11 @@ int main(int argc, char** argv)
        options.backend = argv[++i];
      else if (arg == "--output" && i + 1 < argc)
        options.output = argv[++i];
 +    else if ((command == "build" || command == "run") && arg == "--pgo-profile" &&
 +             i + 1 < argc)
 +      options.pgo_profile = argv[++i];
++    else if ((command == "build" || command == "run") && arg == "--pgo-generate")
++      options.pgo_generate = true;
      else if (command == "run")
        options.runner_arguments.push_back(arg);
      else

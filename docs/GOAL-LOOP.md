@@ -746,6 +746,21 @@ data-free local training/merge recipe driven by user-owned inputs, or select
 another causal generated-code change. Final Destination and G6 remain blocked.
 See `docs/artifacts/2026-08-27/g5-local-pgo-package-workflow.md`.
 
+PERF-072 closes the clean local training/merge gap. A distinct
+`--pgo-generate` cache identity and three repository-native scripts build a
+signed training app, gate counter reset/dump to revision-0 combat, merge the
+private raw output, and feed it through PERF-071 without committing the disc,
+extracted game, profile, module, app, state, or private path. The first genuine
+local profile matches the prior 6,556-function/2,727,666-block shape. Its
+873-count boundary difference changes 127,816 bytes within one generated
+function, so the resulting binary remains diagnostic rather than canonical.
+A clean equal-work Fountain run reproduces the expected PGO compute class at
+16.664 ms mean / 11.621 ms CPU-thread mean, but fails G5 at 18.065 ms p95 and
+22.509 ms worst. Next screen IR-level PGO on this exact workload. Do not use
+CS-PGO with the installed LTO path (host preflight emits no profile sections),
+do not attempt BOLT on Mach-O, run Final Destination, or start G6. See
+`docs/artifacts/2026-08-28/g5-local-pgo-training-workflow.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

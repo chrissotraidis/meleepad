@@ -5,18 +5,23 @@ set -euo pipefail
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 ISO=${1:-}
-PGO_PROFILE=${2:-${SSBMPAD_PGO_PROFILE:-}}
+PGO_INPUT=${2:-${SSBMPAD_PGO_PROFILE:-}}
+PGO_PROFILE=
+PGO_GENERATE=0
 EXPECTED_SIZE=1459978240
 EXPECTED_SHA256=2393aadd346c23e3e44291e7bb7e16dbc4970bc703028261659a87cde9d90484
 EXPECTED_FILES=1209
 
 if [[ -z "$ISO" || ! -f "$ISO" ]]; then
-  echo "usage: $0 /path/to/GALE01-revision-0.iso [private-profile.profdata]" >&2
+  echo "usage: $0 /path/to/GALE01-revision-0.iso [private-profile.profdata | --pgo-generate]" >&2
   exit 2
 fi
 ISO="$(cd "$(dirname "$ISO")" && pwd)/$(basename "$ISO")"
 
-if [[ -n "$PGO_PROFILE" ]]; then
+if [[ "$PGO_INPUT" == --pgo-generate ]]; then
+  PGO_GENERATE=1
+elif [[ -n "$PGO_INPUT" ]]; then
+  PGO_PROFILE=$PGO_INPUT
   if [[ ! -f "$PGO_PROFILE" ]]; then
     echo "PGO profile is unavailable" >&2
     exit 2
@@ -85,6 +90,8 @@ export MACOSX_DEPLOYMENT_TARGET=14.0
 build_args=(build "$GAME" --backend c --toolchain clang --output "$MODULES")
 if [[ -n "$PGO_PROFILE" ]]; then
   build_args+=(--pgo-profile "$PGO_PROFILE")
+elif [[ "$PGO_GENERATE" == 1 ]]; then
+  build_args+=(--pgo-generate)
 fi
 "$BUILD/moderngekko-port" "${build_args[@]}"
 echo "Prepared GALE01 revision 0 at $GAME"

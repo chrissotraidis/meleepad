@@ -285,6 +285,21 @@ private path. PERF-071 closes profile consumption only: local profile training
 and G5 remain open. See
 `docs/artifacts/2026-08-27/g5-local-pgo-package-workflow.md`.
 
+The private profile can now also be reproduced end to end from user-owned
+inputs. PERF-072 adds a distinct C/Clang `--pgo-generate` cache identity plus
+scripts to package an instrumented app, run a combat-gated isolated training
+session, merge its raw profiles, and feed the result through PERF-071 while
+restoring the canonical pointer on every exit. A real Fountain-only profile
+has the same 6,556-function/2,727,666-block shape as the earlier oracle and
+differs by only 873 aggregate counts. That difference nevertheless changes
+127,816 `__text` bytes inside `func_80345940`, so the local product is not
+promoted as byte-equivalent. Its clean 440-frame Fountain window exactly
+matches 1,501,757,755 cycles and 51,380,895 dispatches and measures 16.664 ms
+mean / 11.621 ms CPU-thread mean, reproducing the expected PGO compute class.
+It still fails G5 at 18.065 ms p95 / 19.130 ms p99 / 22.509 ms worst. Retain
+the workflow, not the binary as canonical. See
+`docs/artifacts/2026-08-28/g5-local-pgo-training-workflow.md`.
+
 Required next work:
 
 1. Use the retained PGO binary/profile as an oracle for a smaller static
