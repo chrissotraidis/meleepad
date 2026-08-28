@@ -300,10 +300,22 @@ It still fails G5 at 18.065 ms p95 / 19.130 ms p99 / 22.509 ms worst. Retain
 the workflow, not the binary as canonical. See
 `docs/artifacts/2026-08-28/g5-local-pgo-training-workflow.md`.
 
+IR-level PGO is technically functional but rejected for the product. A fresh
+`-fprofile-generate` ThinLTO training module produced a real IR profile with
+866 post-optimization functions, 3,947,902 blocks, and 52,990,495,633 counts.
+The profile-use build emitted no mismatch warnings, but grew `__text` from
+81,959,380 to 84,388,556 bytes. Its exact 440-frame Fountain interval matched
+the frontend-PGO guest work while worsening CPU-thread mean from 11.620875 to
+12.084786 ms. Total p95 was effectively flat at 18.047575 ms and worst rose to
+69.163166 ms at steady emulated frame 48,394. PERF-073 restores the published
+frontend training mode and rejects whole-module IR PGO. See
+`docs/artifacts/2026-08-28/g5-ir-pgo-rejection.md`.
+
 Required next work:
 
-1. Use the retained PGO binary/profile as an oracle for a smaller static
-   compute-path decision; blind size thresholds, single-helper inlining,
+1. Use the retained PGO profiles as an oracle for one bounded hot-region or
+   dispatch-edge transformation; whole-module IR PGO is rejected. Blind size
+   thresholds, single-helper inlining,
    blanket outlining, timer spinning, combined no-EXRAM, and simply diluting
    its Fountain weighting with another stage are rejected.
 2. Continue reducing the real p95/p99/worst tail to at most 16.7 ms.

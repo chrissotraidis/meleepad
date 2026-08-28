@@ -2419,3 +2419,41 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Evidence:
   `docs/artifacts/2026-08-28/g5-local-pgo-training-workflow.md` and
   `docs/evidence/g5-local-pgo-training-workflow/`.
+
+## 2026-08-28 — IR-level PGO rejected on exact Fountain work
+
+- Temporarily screened LLVM IR-level instrumentation with
+  `-fprofile-generate` under a distinct local cache identity. The fresh signed
+  training module contains the IR profile sections and completed one
+  predicate-gated Pikachu/CPU-Fox Fountain match with a normal exit.
+- The merged private profile is explicitly `Instrumentation level: IR`, with
+  866 post-optimization functions, 3,947,902 blocks, and 52,990,495,633
+  counts. A fresh 247-step profile-use build completed with no profile mismatch
+  warnings; package layout, arm64 identity, and strict signing pass.
+- The IR-PGO module grew `__text` from 81,959,380 to 84,388,556 bytes. Its
+  exact emulated frames `48123..48562` matched the frontend-PGO control at
+  1,501,757,755 cycles, 51,380,895 dispatches, 905,756 bursts, and 882 hook
+  fallbacks.
+- Runtime performance regressed: 16.737756 ms mean / 59.745 FPS,
+  18.047575 ms p95, 18.978414 ms p99, 69.163166 ms worst, and 12.084786 ms
+  CPU-thread mean. The worst occurred at steady emulated frame 48,394, not the
+  state-load boundary. Only 55.682% of frames met 16.7 ms.
+- Direct UI inspection and a retained visual-only recapture show coherent
+  Fountain gameplay at a 60.0-FPS title with no character morphing in the
+  captured frame. Both runtime processes exited normally with zero fallback
+  steps; no Simulator was booted.
+- Restored the two temporary compiler/cache-identity substitutions, rebuilt
+  `moderngekko-port`, passed dependency bootstrap and patch reverse-check, and
+  verified the canonical active pointer remains profile-free. The unrelated
+  untracked netplay document was not touched.
+- Repository safety, package layout, 40/40 applicable CTest entries, and 16/16
+  `gcpipe` pass. The frontend-specific profile-hook script reaches successful
+  IR reset/dump but returns 1 because its final parser expects frontend-only
+  `Function count:` records; the live raw profile and merge prove the IR hooks
+  without changing the retained product test.
+- Decision: **PERF-073 rejects whole-module IR PGO; G5 remains open; Final
+  Destination and G6 remain blocked.** Next use the retained profiles to choose
+  one bounded hot-region or dispatch-edge transformation rather than another
+  whole-module compiler mode.
+- Evidence: `docs/artifacts/2026-08-28/g5-ir-pgo-rejection.md` and
+  `docs/evidence/g5-ir-pgo-rejection/`.

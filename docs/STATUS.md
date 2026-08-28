@@ -6,6 +6,18 @@ Last updated: 2026-08-28
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-073 rejects whole-module IR-level PGO after a clean end-to-end screen. A
+fresh arm64 ThinLTO training module produced a genuine IR profile with 866
+post-optimization functions and 3,947,902 blocks, and a fresh profile-use app
+built without mismatch warnings. Its exact 440-frame Fountain interval matched
+1,501,757,755 cycles and 51,380,895 dispatches, but CPU-thread mean regressed
+from 11.621 to 12.085 ms, total p95 remained above budget at 18.048 ms, and a
+steady-combat frame reached 69.163 ms. The temporary compiler/cache-identity
+edit is restored; the canonical pointer remains profile-free. Next use the
+retained profiles to select one bounded hot-region or dispatch-edge change.
+Final Destination and G6 remain blocked. See
+`docs/artifacts/2026-08-28/g5-ir-pgo-rejection.md`.
+
 PERF-072 retains a data-free local PGO generation/training/merge/package
 workflow. `--pgo-generate` has a distinct hash-only cache identity; the new
 scripts preserve the canonical module pointer and keep the disc, extracted
@@ -16,10 +28,9 @@ smoke matched 1,501,757,755 cycles and 51,380,895 dispatches at 16.664 ms mean
 / 60.011 FPS and 11.621 ms CPU-thread mean, but failed G5 at 18.065 ms p95 and
 22.509 ms worst. The locally trained binary is not code-identical to the prior
 oracle and does not replace it. The reusable PGO oracle app has been refreshed
-to the current product runner while retaining its known module. Next screen
-IR-level PGO on the same workload;
-CS-PGO+LTO and BOLT are excluded by host preflights/platform support. Final
-Destination and G6 remain blocked. See
+to the current product runner while retaining its known module. IR-level PGO
+was subsequently rejected by PERF-073; CS-PGO+LTO and BOLT remain excluded by
+host preflights/platform support. See
 `docs/artifacts/2026-08-28/g5-local-pgo-training-workflow.md`.
 
 PERF-071 retains a ROM-safe private-profile packaging bridge. The supported

@@ -761,6 +761,19 @@ CS-PGO with the installed LTO path (host preflight emits no profile sections),
 do not attempt BOLT on Mach-O, run Final Destination, or start G6. See
 `docs/artifacts/2026-08-28/g5-local-pgo-training-workflow.md`.
 
+PERF-073 screens and rejects IR-level PGO on the exact PERF-072 workload. A
+fresh `-fprofile-generate` ThinLTO module produced a genuine IR profile with
+866 post-optimization functions and 3,947,902 blocks; its indexed data drove a
+clean profile-use build without mismatch warnings. Exact emulated frames
+`48123..48562` matched 1,501,757,755 cycles, 51,380,895 dispatches, 905,756
+bursts, and 882 hook fallbacks. IR PGO nevertheless worsened CPU-thread mean
+from 11.621 to 12.085 ms, grew `__text` by 2.43 MB, and recorded 18.048 ms p95
+and 69.163 ms worst. The temporary compiler/cache-identity edit is restored.
+Do not retry whole-module IR PGO. Next use retained profile evidence to select
+one bounded hot-region or dispatch-edge transformation. Final Destination and
+G6 remain blocked. See
+`docs/artifacts/2026-08-28/g5-ir-pgo-rejection.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).
