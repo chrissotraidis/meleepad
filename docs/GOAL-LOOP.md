@@ -897,6 +897,16 @@ boundary: start with parent `0x80377B6C..0x80377CE4` and its mutually exclusive
 calls to `0x803408A0`. Do not modify DolRecomp or build a leaf-only module. See
 `docs/artifacts/2026-08-28/g5-function-family-coverage.md`.
 
+PERF-085 follows the exact parent/callee boundary and proves
+`0x803408A0..0x803408D0` is an optimizable paired-single matrix copy. A 20,000-
+case full-state/24-MiB-RAM differential passes and local time improves 67.70%,
+but copy owns only 0.059158%/0% of two retained Fountain profiles. Combining it
+with the adjacent proven concat kernel at zero wrapper cost projects only
+2.55%/3.53%. Reject the two-address chunk wrapper before a module build. The
+next state-retention representation must aggregate several high-cost callful
+families; do not retry another isolated SDK leaf. See
+`docs/artifacts/2026-08-28/g5-matrix-copy-family-preflight.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

@@ -2,6 +2,15 @@
 
 G5 is active. G4 passed with a clean controlled 1v1 on 2026-08-24.
 
+PERF-085 implements the exact `0x803408A0..0x803408D0` matrix-copy preflight
+selected by PERF-084. It passes 20,000 full-state/24-MiB-RAM cases and improves
+77.795167 to 23.738208 ns/call, but exact copy coverage is only 0.059158%/0%
+in two Fountain profiles. Combining it with the adjacent proven concat kernel
+at zero wrapper cost projects only about 2.55%/3.53%. Retain
+`scripts/g5_psmtxcopy_preflight.c`; reject the two-address chunk wrapper before
+a module build. See
+`docs/artifacts/2026-08-28/g5-matrix-copy-family-preflight.md`.
+
 PERF-084 extends the guest-cost mapper with complete function-span and guest-
 call classification, then rejects leaf-only state caching. Two independent
 line-symbol Fountain profiles bound unclosed no-call work at 14.293349% and

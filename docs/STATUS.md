@@ -6,6 +6,16 @@ Last updated: 2026-08-28
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-085 proves an exact `0x803408A0..0x803408D0` paired-single matrix-copy
+fast path but rejects the two-address chunk-local matrix family. All 20,000
+full CPU/24-MiB-RAM differential cases pass; nine alternating million-call
+repeats improve 77.795167 to 23.738208 ns/call (69.486268%). Exact Fountain
+coverage is only 0.059158%/0% for copy and 3.632276%/5.110603% for the adjacent
+concatenation kernel. Their zero-wrapper-cost combined projection is only
+about 2.55%/3.53%, below 5%. Retain the harness; do not build a module or add
+another isolated SDK leaf. See
+`docs/artifacts/2026-08-28/g5-matrix-copy-family-preflight.md`.
+
 PERF-084 rejects the simpler leaf-only implementation of PERF-083's state-
 retention route. Complete function/call attribution over two retained
 line-symbol Fountain profiles puts unclosed no-call work at only 14.293349%

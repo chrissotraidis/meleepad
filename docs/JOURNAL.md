@@ -2758,3 +2758,24 @@ Append-only execution ledger. Claims are limited to observed evidence.
   changed.
 - Evidence: `docs/artifacts/2026-08-28/g5-function-family-coverage.md` and
   `scripts/analyze-macos-sample-guest-cost.py`.
+
+## 2026-08-28 — Exact matrix-copy family preflight rejected by coverage
+
+- Exact generated source identifies parent calls `0x80377C04/0x80377C18` as
+  mutually exclusive calls to paired-single matrix copy
+  `0x803408A0..0x803408D0`, not the adjacent concat body.
+- Added a data-free fast-path harness with canonical fallback for FP, LSQE,
+  GQR, journal, external, and address gates. Identical, overlapping, and
+  disjoint copies, matching/nonmatching reservations, and out-of-range fallback
+  pass 20,000 full CPU-state and 24-MiB-RAM comparisons.
+- Nine alternating million-call repeats improve 77.795167 to 23.738208
+  ns/call: 54.056958 ns saved / 69.486268% local.
+- Exact line-profile coverage is 5/8,452 (0.059158%) and 0/1,311 for copy. The
+  adjacent concat body is 307/8,452 (3.632276%) and 67/1,311 (5.110603%). Even
+  at zero wrapper cost their measured gains project only about 2.55%/3.53%.
+- Decision: **PERF-085 rejects the two-address matrix chunk wrapper; G5
+  remains open.** Retain the semantic/timing harness, but do not modify
+  generated dispatch or build a module. Next require a representation that
+  aggregates several high-cost callful families.
+- Evidence: `docs/artifacts/2026-08-28/g5-matrix-copy-family-preflight.md` and
+  `scripts/g5_psmtxcopy_preflight.c`.
