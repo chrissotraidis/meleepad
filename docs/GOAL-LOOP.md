@@ -719,6 +719,33 @@ variants, run Final Destination, or start G6 until Fountain's strict worst
 passes. See
 `docs/artifacts/2026-08-27/g5-metal-presentation-attribution.md`.
 
+PERF-070 completes that join. After the established two-second warm-up, 6,670
+actual canonical intervals align most strongly to phase row `frame - 1`
+(correlation 0.674781). The 113 misses average 19.623 ms CPU-thread work versus
+16.080 ms for compliant rows and execute about 5% more cycles/dispatches, so
+ordinary misses are compute overruns. The 133.333 ms worst is different:
+131.944 ms CPU wall versus 31.829 ms CPU-thread exposes about 100 ms off-core.
+A default-off `THREAD_TIME_CONSTRAINT_POLICY` screen on the faster PGO oracle
+returned success but introduced a 116.665 ms stall into its otherwise-perfect
+short bracket; it is rejected and removed without a full match. Do not retry
+QoS, priority, dual-core, real-time/time-constraint, timer, or presentation
+variants. Next use the PGO oracle for a reproducible data-free compute path or
+another causal generated-code change. Final Destination and G6 remain
+blocked. See
+`docs/artifacts/2026-08-27/g5-phase-join-and-time-constraint-rejection.md`.
+
+PERF-071 closes the private-profile consumption bridge without weakening the
+data boundary. `prepare-game.sh` accepts validated private LLVM profile data,
+and `package-local-pgo-app.sh` preserves/restores the canonical module pointer,
+requires a hash-only manifest, packages, layout-tests, and signs a local app.
+A full 247-step current-source build reproduced the retained signed PGO module
+hash; a 24-second repeat logged a cache hit; and a deliberate post-selection
+packaging failure still restored the canonical pointer. This does not make the
+private profile a clean-clone input or pass G5. Next add a repository-native,
+data-free local training/merge recipe driven by user-owned inputs, or select
+another causal generated-code change. Final Destination and G6 remain blocked.
+See `docs/artifacts/2026-08-27/g5-local-pgo-package-workflow.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

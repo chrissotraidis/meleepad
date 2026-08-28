@@ -6,6 +6,33 @@ Last updated: 2026-08-27
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-071 retains a ROM-safe private-profile packaging bridge. The supported
+prepare script now accepts validated private LLVM profile data, and
+`scripts/package-local-pgo-app.sh` preserves/restores the canonical module
+pointer while building, manifest-checking, packaging, and signing the local
+PGO app. A full current-source rebuild reproduced the known signed module
+`bd089303...af26f5a`; a repeat logged a cache hit in 24 seconds; and a forced
+post-selection packaging failure still restored the canonical pointer. The
+manifest contains only profile SHA-256 `3f9d2aa4...f572ac12`, not its private
+path. This closes the profile-consuming bridge, not clean-clone profile
+training or G5. Next build a repository-native local training/merge recipe or
+another causal compute change. See
+`docs/artifacts/2026-08-27/g5-local-pgo-package-workflow.md`.
+
+PERF-070 joins actual canonical presentation gaps to phase counters. After the
+established two-second warm-up, 6,670 intervals measured 16.666667 ms p95,
+33.332875 ms p99, 133.332917 ms worst, and 98.306% compliance. The best phase
+alignment is `frame - 1` at 0.674781 correlation. Misses average 19.623 ms
+CPU-thread time versus 16.080 ms for compliant rows and execute about 5% more
+cycles/dispatches; the 133 ms worst is distinct, with 131.944 ms CPU wall but
+only 31.829 ms CPU-thread time. A soft real-time time-constraint screen on the
+otherwise-perfect PGO short path returned success but introduced a
+116.664750 ms stall, so it is rejected and removed. The runner is rebuilt with
+only the retained display-sync policy. Next select a reproducible PGO-informed
+compute path; do not retry scheduler/priority/time-constraint variants. G5,
+Final Destination, and G6 remain blocked. See
+`docs/artifacts/2026-08-27/g5-phase-join-and-time-constraint-rejection.md`.
+
 PERF-069 identifies a real Metal presentation improvement without passing G5.
 Two ordinary no-phase actual-`presentedTime` controls put only 53.3-53.6% of
 intervals at <=16.7 ms. Changing only `CAMetalLayer.displaySyncEnabled` made

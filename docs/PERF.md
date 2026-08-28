@@ -258,6 +258,33 @@ worst. Join those actual gaps to canonical phase counters next; G5 stays open.
 See
 `docs/artifacts/2026-08-27/g5-metal-presentation-attribution.md`.
 
+That canonical join is complete. After the standard two-second warm-up, 6,670
+actual intervals measured 16.666667/33.332875/133.332917 ms p95/p99/worst and
+98.306% compliance. Presentation interval to phase-total correlation peaks at
+0.674781 for phase row `frame - 1`. Misses average 19.623207 ms CPU-thread
+time versus 16.079824 ms in compliant rows and carry roughly 5% more guest
+cycles and native dispatches. The worst row instead measures 131.944005 ms CPU
+wall and 31.829401 ms CPU thread, exposing about 100 ms off-core. A default-off
+Mach time-constraint policy was screened only on the faster PGO oracle. The
+call succeeded, but a 773-interval bracket regressed from the prior 100%
+control to 99.871% and introduced a 116.664750 ms stall. Reject and remove the
+scheduler candidate; no full match is justified. Source and the incremental
+runner are restored to the product display-sync policy with diagnostic markers
+absent. See
+`docs/artifacts/2026-08-27/g5-phase-join-and-time-constraint-rejection.md`.
+
+The measured PGO compute path now has a supported private-profile package
+bridge. `prepare-game.sh` accepts validated private LLVM profile data, while
+`package-local-pgo-app.sh` preserves the canonical module pointer, requires a
+hash-only cache manifest, builds/packages/signs the local app, and restores the
+pointer on success or failure. A full current-source build reproduced the
+known signed PGO module `bd089303...af26f5a`; a repeat logged a cache hit in
+24 seconds; and a forced packaging failure still restored the canonical
+pointer. The manifest contains profile SHA-256 `3f9d2aa4...f572ac12` and no
+private path. PERF-071 closes profile consumption only: local profile training
+and G5 remain open. See
+`docs/artifacts/2026-08-27/g5-local-pgo-package-workflow.md`.
+
 Required next work:
 
 1. Use the retained PGO binary/profile as an oracle for a smaller static

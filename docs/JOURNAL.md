@@ -2327,3 +2327,55 @@ Append-only execution ledger. Claims are limited to observed evidence.
   40/40 applicable CTest entries, 16/16 `gcpipe` tests, profile-hook
   separation, repository safety, package layout, arm64 identity, strict
   signing, shell syntax, and diff whitespace.
+
+## 2026-08-27 — Canonical phase join and real-time candidate rejected
+
+- Joined the canonical actual-presentation CSV to phase rows by stable frame
+  identifiers. With the established two-second warm-up, 6,670 intervals align
+  best to `frame - 1` at 0.674781 correlation.
+- The 113 misses average 19.623 ms CPU-thread work versus 16.080 ms for
+  compliant rows and execute about 5% more guest cycles/dispatches. The
+  133.333 ms worst is different: 131.944 ms CPU wall but 31.829 ms CPU thread,
+  exposing about 100 ms off-core.
+- A default-off Mach `THREAD_TIME_CONSTRAINT_POLICY` screen was limited to the
+  faster PGO oracle. The API returned success, but a 773-interval short bracket
+  introduced a 116.665 ms stall and fell from the prior 100% control to
+  99.871% compliance. The candidate is rejected; no full match was run.
+- Removed the scheduling candidate and temporary presentation logger, rebuilt
+  the arm64 desktop runner, and verified the product display-sync marker is
+  present while both diagnostic markers are absent.
+- Retained the raw timing/log evidence, then removed two disposable diagnostic
+  apps and eight isolated temporary user trees, recovering about 1.4 GB. ROM,
+  canonical apps, source inputs, saves, and repository evidence were untouched.
+- Decision: **PERF-070 attribution retained; scheduling candidate rejected;
+  G5 open; Final Destination and G6 blocked.** Next select a reproducible,
+  PGO-informed compute path; do not retry scheduler or priority variants.
+- Evidence:
+  `docs/artifacts/2026-08-27/g5-phase-join-and-time-constraint-rejection.md`
+  and `docs/evidence/g5-phase-join-time-constraint-rejection/`.
+
+## 2026-08-27 — Local PGO package workflow retained
+
+- Extended `prepare-game.sh` with an optional validated private-profile input
+  while preserving its canonical one-argument behavior.
+- Added `package-local-pgo-app.sh`: it preserves the canonical active-module
+  pointer, builds/selects the profile-hashed module, rejects a manifest path
+  leak or hash mismatch, packages and signs the local app, then restores the
+  pointer on all exits.
+- A genuine 247-step current-source profile-use build completed without profile
+  mismatch warnings and reproduced the retained signed PGO module SHA-256
+  `bd089303...af26f5a`. The manifest contains only profile SHA-256
+  `3f9d2aa4...f572ac12`.
+- A repeat logged `cache hit` and completed in 24 seconds. A deliberate
+  packaging failure after that cache hit returned status 1 and still restored
+  the canonical pointer.
+- Both disposable proof apps were removed. The ignored reusable module cache
+  remains; tracked files contain no ROM, profile, generated module, app, or
+  private path.
+- Checkpoint validation passes dependency bootstrap/reversal, repository
+  safety, shell syntax, diff whitespace, 40/40 applicable CTest entries,
+  16/16 `gcpipe` tests, profile-hook separation, both package-layout checks,
+  arm64 identity, and strict deep ad-hoc signing.
+- Decision: **PERF-071 local package bridge retained; local training recipe and
+  G5 remain open; Final Destination and G6 blocked.**
+- Evidence: `docs/artifacts/2026-08-27/g5-local-pgo-package-workflow.md`.
