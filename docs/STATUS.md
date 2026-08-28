@@ -6,6 +6,21 @@ Last updated: 2026-08-27
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-068 rejects CFG-local FP-gate elision. The candidate kept exact-CIA
+checks for every direct entry, restarted body checks at leaders and after
+`mtmsr`, and moved 72.517% of gates out of sequential bodies. Focused tests,
+the known lockstep screen, candidate-specific Fountain PGO, arm64/signature,
+and package checks passed; linked `__text` grew only 1.506%. Exact 440-frame
+candidate/control/candidate windows matched 1,501,629,399 cycles and
+51,369,928 dispatches. CPU-thread mean improved by 0.236-0.490 ms, but total
+p95 worsened from 17.677 ms to 17.775/17.980 ms and the <=16.7 ms share stayed
+52.5%. All candidate source is removed. Next perform read-only attribution of
+the serialization difference between the passing three-drawable host Metal
+queue and the live Dolphin path; do not retry FP gates, presentation settings,
+or timer variants without one new falsifiable edge. Final Destination and G6
+remain blocked. See
+`docs/artifacts/2026-08-27/g5-fp-cfg-gate-rejection.md`.
+
 PERF-067 rejects a semantics-preserving per-generated-chunk FP-availability
 cache. Focused direct-entry/`mtmsr` tests and the canonical 1,401-PC lockstep
 screen passed, and the retained Fountain profile bounded successful helper

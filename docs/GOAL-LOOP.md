@@ -688,6 +688,18 @@ flags or another branch at every FP instruction. Final Destination and G6
 remain blocked. See
 `docs/artifacts/2026-08-27/g5-fp-availability-cache-rejection.md`.
 
+PERF-068 is complete and rejected. A CFG-local FP candidate retained exact-CIA
+direct-entry gates while moving 72.517% of checks out of sequential bodies.
+Its own clean Fountain PGO profile and exact-work candidate/control/candidate
+run repeated a 0.236-0.490 ms CPU-mean gain, but total p95 regressed from
+17.677 ms to 17.775/17.980 ms and the strict pass share stayed 52.5%. All
+candidate source/tests are removed. Do not retry FP gate elision. The next
+single step is read-only attribution of the serialization edge that exists in
+live Dolphin but not in the already-passing three-drawable host Metal harness;
+do not build another presentation setting or timer variant until that edge is
+specific and falsifiable. See
+`docs/artifacts/2026-08-27/g5-fp-cfg-gate-rejection.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

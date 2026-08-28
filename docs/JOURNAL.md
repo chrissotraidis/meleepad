@@ -2245,3 +2245,27 @@ Append-only execution ledger. Claims are limited to observed evidence.
   empty; the canonical app/module remain unchanged.
 - Evidence:
   `docs/artifacts/2026-08-27/g5-fp-availability-cache-rejection.md`.
+
+## 2026-08-27 — CFG-local FP-gate elision rejected
+
+- A regression-first candidate retained exact-CIA gates at every possible
+  direct entry, restarted checks at CFG leaders and after `mtmsr`, and moved
+  94,146/129,826 gates (72.517%) out of sequential bodies.
+- Six focused DolRecomp groups passed. An instrumented arm64 module preserved
+  the known lockstep report set with zero undercharge; its candidate-specific
+  Fountain profile had the exact expected 6,556 functions and 2,727,666
+  blocks and compiled without profile warnings.
+- PGO `__text` grew 1.506%. Exact 440-frame candidate/control/candidate runs
+  matched 1,501,629,399 cycles, 51,369,928 dispatches, 905,572 bursts, zero
+  fallbacks, and 882 hook fallbacks.
+- Candidate CPU-thread mean improved by 0.236-0.490 ms, but total p95 worsened
+  from 17.677 ms to 17.775/17.980 ms and the <=16.7 ms share remained 52.5%.
+- Decision: **PERF-068 rejected; G5 open; Final Destination and G6 blocked.**
+  Candidate source/tests are removed; focused reversal tests, dependency
+  bootstrap, repository safety, the incremental desktop-tools build, 40/40
+  applicable CTest entries, 16/16 `gcpipe` tests, both package/signature
+  checks, and profile-hook separation pass. Next identify the specific live
+  Dolphin serialization edge absent from the passing three-drawable host
+  Metal queue before any new rendering/pacing edit.
+- Evidence:
+  `docs/artifacts/2026-08-27/g5-fp-cfg-gate-rejection.md`.

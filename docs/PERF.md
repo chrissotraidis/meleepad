@@ -204,6 +204,21 @@ candidate source is removed. Do not retry per-chunk flags or another branch
 at every FP instruction. See
 `docs/artifacts/2026-08-27/g5-fp-availability-cache-rejection.md`.
 
+A distinct CFG-local FP-gate candidate then moved 94,146 of 129,826 exact FP
+checks out of sequential bodies while keeping exact-CIA direct-entry gates and
+restarting checks at every control-flow leader and after `mtmsr`. Its own
+Fountain profile matched the expected 6,556-function/2,727,666-block source
+shape, Apple Clang accepted it cleanly, and linked PGO `__text` grew only
+1.506%. Exact 440-frame candidate/control/candidate runs matched
+1,501,629,399 cycles, 51,369,928 dispatches, 905,572 bursts, and 882 hook
+fallbacks. CPU-thread mean improved by 0.236-0.490 ms, but candidate p95
+worsened to 17.775/17.980 ms from the 17.677 ms control and the <=16.7 ms
+share stayed 52.5%. PERF-068 is rejected and removed. The next diagnostic is
+read-only attribution of the serialization edge present in live Dolphin but
+absent from the already-passing three-drawable host Metal queue, not another
+FP, timer, or presentation-setting edit. See
+`docs/artifacts/2026-08-27/g5-fp-cfg-gate-rejection.md`.
+
 The shared-state comparison gap is now closed. Patch 0014 records Dolphin's
 savestated emulated VI/Movie frame beside each presentation row. Two equal
 440-field Fountain control windows matched exactly at 3,567,157,803 guest
