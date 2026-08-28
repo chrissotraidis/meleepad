@@ -6,17 +6,15 @@ Last updated: 2026-08-28
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
-PERF-132 recovers source-associated frontend-PGO counters without a full
-module rebuild. The earlier `llvm-cov` failure was a missing rotated source
-path, not missing coverage. Exact `func_80375940` data identifies two
-call/branch/MSR/cache-free traces: `0x80377B6C..0x80377BF0` has 26 FP guards
-in 34 instructions and `0x80377C20..0x80377CE8` has 51 in 51. After the first
-guard, the training corpus records about 6.94 million normal continuations and
-zero FP-unavailable exits at every later check. Next build a focused
-single-entry differential preflight that preserves the first exact exception
-check and every arbitrary-entry path while removing only redundant checks in
-these traces. Do not build a game module unless it exceeds 5% locally with
-full state/RAM/exception/cycle equivalence. See
+PERF-132 corrects a rotated-path diagnosis but does **not** reopen an
+optimization. The standalone `llvm-cov` failure was a missing generated-source
+path, not missing counters. Checkout reconciliation then found PERF-088 had
+already consumed matching coverage and rejected both resulting candidates:
+source-weight forms were 59.011-62.751% slower and the semantically correct
+single-entry trace was 1.343-3.025% slower. Do not repeat branch probabilities
+or FP-trace coalescing. G5 remains on the separate pre-results no-queue
+producer/descheduling tail. See
+`docs/artifacts/2026-08-28/g5-profile-edge-and-efb-attribution.md` and
 `docs/artifacts/2026-08-28/g5-profile-edge-coverage-recovery.md`.
 
 PERF-126/127 now separate fixed-panel conversion from genuine late work.

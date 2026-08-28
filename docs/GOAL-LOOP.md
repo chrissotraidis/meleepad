@@ -19,16 +19,13 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
-PERF-132 corrects the prior coverage dead end. The exact private Fountain
-profile maps to `func_80375940` once `llvm-cov` is pointed at the byte-identical
-cached generated source. Two hot straight-line traces contain 26 and 51 FP
-guards with no branch/call/MSR/cache boundary; after the first guard, every
-later guard records about 6.94 million normal continuations and zero exits.
-The next candidate is a differential single-entry trace preflight that keeps
-the first exact FP exception check and preserves all arbitrary-entry paths.
-Require full semantics and greater than 5% local improvement before any game
-module. See
-`docs/artifacts/2026-08-28/g5-profile-edge-coverage-recovery.md`.
+PERF-132 corrects only a rotated generated-source path diagnosis. PERF-088 had
+already decoded matching coverage and rejected the resulting source-weight
+and single-entry FP-trace candidates: the former were about 59-63% slower and
+the latter 1.3-3.0% slower after a full semantic pass. Do not repeat either
+route. Continue G5 from the separate pre-results no-queue producer/descheduling
+tail. See `docs/artifacts/2026-08-28/g5-profile-edge-and-efb-attribution.md`
+and `docs/artifacts/2026-08-28/g5-profile-edge-coverage-recovery.md`.
 
 ## The loop
 

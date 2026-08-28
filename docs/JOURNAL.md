@@ -3140,3 +3140,17 @@ Append-only execution ledger. Claims are limited to observed evidence.
   build. G5 remains open; G6 remains blocked.
 - Evidence:
   `docs/artifacts/2026-08-28/g5-profile-edge-coverage-recovery.md`.
+
+## 2026-08-28 — PERF-132 duplicate corrected
+
+- Reconciliation: PERF-088 had already recovered matching coverage and tested
+  the source-weight and single-entry FP-trace candidates. The later standalone
+  failure was only a rotated source-path error.
+- Existing result: source weights were 59.011-62.751% slower; the trace passed
+  4,096 state/RAM cases but was 1.343-3.025% slower, including a 2.492% loss in
+  the million-entry confirmation.
+- Decision: withdraw PERF-132's proposed trace follow-up, do not repeat it, and
+  return G5 to the separate pre-results no-queue producer/descheduling tail.
+- Evidence:
+  `docs/artifacts/2026-08-28/g5-profile-edge-and-efb-attribution.md` and
+  `docs/artifacts/2026-08-28/g5-profile-edge-coverage-recovery.md`.

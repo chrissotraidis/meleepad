@@ -2,7 +2,7 @@
 
 Date: 2026-08-28
 
-Status: **source-associated counters recovered; bounded trace candidate selected**
+Status: **rotated-path diagnosis corrected; candidate already rejected by PERF-088**
 
 ## Question
 
@@ -61,23 +61,34 @@ has proven MSR[FP], no instruction inside that trace can revoke it. The normal
 generated form nevertheless performs the same availability test before every
 FP instruction.
 
+## Existing closure
+
+Checkout reconciliation found that PERF-088 had already completed both
+experiments this recovery appeared to enable. Its matching coverage build
+decoded the same profile and region, then tested:
+
+- 113 deterministic source probabilities: 59.011-62.751% slower across the
+  eligible weighted/hot/entry forms; and
+- the guarded single-entry/state-promoted `0x80377B6C` trace: 4,096 randomized
+  full-state/full-RAM comparisons passed, including 512 FP-disabled cases, but
+  ordinary, ThinLTO, and hot ThinLTO timings were 1.343-3.025% slower. The
+  one-million-entry confirmation was 443.064 ns canonical versus 454.107 ns
+  trace, 2.492% slower.
+
+That retained evidence is authoritative:
+`docs/artifacts/2026-08-28/g5-profile-edge-and-efb-attribution.md`.
+
 ## Decision
 
-Do not add generic branch hints or remove FP checks globally. The next bounded
-preflight is a single-entry representation of these two exact traces:
+Do not rerun source probabilities or either FP trace. The useful new result is
+only the precise diagnosis of why the later standalone `llvm-cov` invocation
+failed: its generated-source path had rotated. It does not reopen PERF-088 or
+justify a game-module build.
 
-- keep the first FP check with its exact exception CIA;
-- omit only later redundant checks along the specialized straight-line path;
-- preserve every ordinary label and arbitrary-entry path unchanged;
-- compare full CPU state, RAM, exception state/CIA, cycle charge, and every
-  legal entry against canonical generated code; and
-- require greater than 5% equal-work local improvement with no more than 5%
-  text growth before building a game module.
-
-This follows PERF-087's profile-derived trace fallback and is distinct from
-the rejected blanket FP-helper inlining, global direct chaining, smaller
-chunks, compiler flags, and whole-symbol layout experiments. G5 remains open;
-Final Destination and G6 remain blocked.
+G5 returns to the separate pre-results no-queue producer/descheduling tail.
+The branch-hint, FP-trace, blanket FP-helper, global direct-chaining, smaller-
+chunk, compiler-flag, and whole-symbol-layout branches remain rejected. Final
+Destination and G6 remain blocked.
 
 No disc image, extracted game data, profile, generated source, object, module,
 app, or savestate is committed.

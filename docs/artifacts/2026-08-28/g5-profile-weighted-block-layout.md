@@ -96,14 +96,13 @@ trace with local guest-state promotion. Do not attempt a whole-generator rewrite
 before the bounded screen passes.
 
 The retained frontend profile exposes `func_80375940` as 11,548 raw counters.
-PERF-132 corrects the earlier `no coverage data found` interpretation: the
-coverage object contained valid counters but referenced a rotated generated-
-source path. A byte-identical cached source plus a single-object coverage-map
-rebuild recovers source-associated branch counts. The hot interval executes
-about 6.94 million times and contains two hazard-free straight-line traces
-with 26 and 51 FP guards. The next bounded candidate coalesces only redundant
-FP checks inside those single-entry traces while preserving ordinary arbitrary
-entry paths. See
+PERF-132 corrects only the later standalone `no coverage data found`
+interpretation: that object referenced a rotated source path. PERF-088 had
+already built matching coverage, applied the exact source probabilities, and
+tested the guarded trace. Source-weight forms were 59.011-62.751% slower and
+the trace was 1.343-3.025% slower despite its semantic pass. Do not repeat or
+reopen either candidate. See
+`docs/artifacts/2026-08-28/g5-profile-edge-and-efb-attribution.md` and
 `docs/artifacts/2026-08-28/g5-profile-edge-coverage-recovery.md`.
 
 ## Primary references
