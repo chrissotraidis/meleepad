@@ -2882,3 +2882,50 @@ Append-only execution ledger. Claims are limited to observed evidence.
   OS descheduling. No game process or Simulator remains.
 - Evidence:
   `docs/artifacts/2026-08-28/g5-pgo-wall-tail-attribution.md`.
+
+## 2026-08-28 — Precision wait, native-resolution, presenter, and Metal attribution
+
+- PERF-090 added origin-specific precision-timer counters. The exact Fountain
+  replay measures only 0.000372 ms/frame mean and excludes the timer as the
+  approximately 4.87 ms wall/thread gap.
+- Corrected the private measurement baseline from a drifted 3x internal
+  resolution to native 640x528. A matched native/3x reversal places both total
+  p95 values at about 17.85 ms and rejects resolution as the tail fix.
+- PERF-092 splits ordinary presenter construction. `BindBackbuffer` owns 99.7%
+  of its video-build time; flush/rectangle, XFB, and UI work are negligible.
+- PERF-093 directly splits Metal bind work. On exact native emulated frames
+  `48123..48562`, `[CAMetalLayer nextDrawable]` averages 4.784 ms, measures
+  5.737 ms p95, and accounts for 99.600% of bind time. CPU-thread
+  mean/p95/worst are 11.544/12.654/15.782 ms with all 440 rows under budget,
+  while total p95 is 17.756 ms and only 243/440 total rows meet 16.7 ms.
+- Decision: **drawable availability is the ordinary-frame bottleneck on this
+  exact PGO/native Fountain window; G5 remains open; G6 and Final Destination
+  remain blocked.** Retain dormant counters as patch 0019. Next inspect the
+  drawable lifecycle and run one display-sync-preserving equal-work A/B/A
+  candidate. No game process or Simulator remains.
+- Evidence:
+  `docs/artifacts/2026-08-28/g5-frame-wait-and-metal-bind-attribution.md`.
+
+## 2026-08-28 — Joined-presentation observer rejected
+
+- Re-audited the Metal lifecycle against retained PERF-064/069/070 evidence.
+  `nextDrawable` is the synchronous CPU-side backpressure point, but prior
+  synchronized `presentedTime` windows prove that such wait can coexist with
+  correct onscreen cadence.
+- A first joined run was excluded because the savestate signal opt-in was
+  omitted and `SIGUSR2` terminated the runner before combat. The next two
+  placements registered `addPresentedHandler` before scheduling and inside
+  Dolphin's existing scheduled handler. A regular zero-file versus live FIFO
+  controller reversal excluded controller endpoint state.
+- All three completed joined runs deterministically changed exact Fountain
+  work from 1,501,629,399 to 3,567,157,795-3,567,157,803 cycles and from
+  51,369,928 to 59,374,684-59,374,688 dispatches. They also collapsed
+  `nextDrawable` from 4.784 to 0.018-0.023 ms mean. The callback changes queue
+  behavior and is not an observer.
+- Decision: **PERF-094/095 rejected; logger removed; G5 remains open.** Keep
+  PERF-093 as CPU-side attribution and PERF-069's stripped actual-presentation
+  comparisons as onscreen evidence. Next target the rare pre-acquisition
+  full-match stalls or obtain a non-perturbing observer. No game process or
+  Simulator remains.
+- Evidence:
+  `docs/artifacts/2026-08-28/g5-frame-wait-and-metal-bind-attribution.md`.

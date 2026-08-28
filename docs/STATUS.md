@@ -6,6 +6,27 @@ Last updated: 2026-08-28
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-090 through PERF-093 directly close the unexplained PGO wall/thread gap.
+Precision-timer work is only 0.000372 ms/frame mean and is excluded. The gate
+baseline is corrected from a drifted 3x internal resolution to native 640x528,
+but an exact 1x/3x reversal rejects resolution as the tail fix. Presenter
+subphases then put 99.7% of ordinary video-build time in `BindBackbuffer`; the
+direct Metal split puts 4.784 ms/frame mean and 5.737 ms p95 in
+`CAMetalLayer.nextDrawable`, 99.600% of bind time. On the exact native
+440-frame Fountain window, CPU-thread mean/p95/worst are
+11.544/12.654/15.782 ms and all rows meet 16.7 ms, while total p95 is
+17.756 ms and only 243/440 rows meet 16.7 ms. The current static-recompiled
+on-core path is not the source of this CPU-side gap; synchronous drawable-pool
+backpressure is. This is not automatically an onscreen miss: prior synchronized
+actual-presentation windows passed. PERF-094/095 then rejected
+`addPresentedHandler` as an observer because three joined runs changed exact
+work from 1.502 to 3.567 billion cycles and collapsed acquisition wait to
+0.018-0.023 ms. The logger is removed. Next retain stripped actual-presentation
+evidence and target rare pre-acquisition full-match stalls; do not mutate the
+drawable lifecycle from these CPU-side counters alone. G5 remains open; G6
+and Final Destination remain blocked. See
+`docs/artifacts/2026-08-28/g5-frame-wait-and-metal-bind-attribution.md`.
+
 PERF-089 repeats PERF-088's exact 440-frame Fountain window on the retained
 frontend-PGO oracle with identical guest work. CPU-thread mean/p95/worst are
 11.676/12.984/16.284 ms, and all 440 frames are at or below 16.7 ms. The

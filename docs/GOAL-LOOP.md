@@ -626,6 +626,26 @@ weights, trace narrowing, EFB prewarming, scheduler priority, or display
 pacing. G5 remains open; do not run Final Destination or start G6. See
 `docs/artifacts/2026-08-28/g5-pgo-wall-tail-attribution.md`.
 
+PERF-090 through PERF-093 directly resolve that wall-tail branch. Observer-
+heavy stack sampling is excluded; direct counters show precision-timer work at
+only 0.000372 ms/frame mean. The gate baseline is now the required native
+640x528 rather than a drifted 3x internal resolution, but a matched 1x/3x
+reversal rejects resolution as the performance fix. Presenter and Metal
+subphases then prove that `CAMetalLayer.nextDrawable` averages 4.784 ms and
+owns 99.600% of `BindBackbuffer`. On exact native Fountain frames
+`48123..48562`, all CPU-thread rows meet 16.7 ms (11.544/12.654/15.782 ms
+mean/p95/worst), while total p95 is 17.756 ms and only 243/440 rows pass. Next
+recognize this as the CPU-side Core Animation backpressure point, not proof of
+an onscreen missed refresh: earlier synchronized actual-presentation windows
+passed. PERF-094/095 reject `addPresentedHandler` as a joined observer because
+it changes selected work from 1.502 to 3.567 billion cycles and collapses
+acquisition wait to 0.018-0.023 ms. The logger is removed. Retain stripped
+actual-presentation evidence and target rare pre-acquisition full-match stalls;
+do not mutate drawable lifecycle, return to compiler flags, source weights,
+timer variants, EFB prewarming, or resolution changes. G5 remains open; Final
+Destination and G6 remain blocked. See
+`docs/artifacts/2026-08-28/g5-frame-wait-and-metal-bind-attribution.md`.
+
 Inner FPRF attribution is also complete. A finite-normal branch passed full
 classification and scalar-FMA state semantics but lost all 54 corrected host
 timing pairs by 31.1%, so it was rejected before a game build. A current-source
