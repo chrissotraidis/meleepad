@@ -2906,6 +2906,37 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Evidence:
   `docs/artifacts/2026-08-28/g5-frame-wait-and-metal-bind-attribution.md`.
 
+## 2026-08-28 — Runnable descheduling separated; cold EFB prewarm retained
+
+- PERF-104 triggered on a natural 74.578625 ms Fountain frame with 21.186160
+  ms CPU-thread work and a 52.940044 ms wall/thread gap. Its 250-us rolling
+  sampler reported the emulation thread runnable around the event. PERF-105's
+  marker-aligned System Trace reproduced 12.008 ms fragmented non-running time
+  among higher-priority host work; process attribution is observer-caveated.
+- A LaunchServices Game Mode off/on/off screen was not decisive. The on run
+  beat its reverse by only 0.069 ms p95, and logs did not prove continuous
+  active mode. Retained the current eligibility plist keys without claiming a
+  performance win.
+- All three fresh bundles stalled at emulated frame 48436 on 108-134 ms of
+  EFB-to-VRAM shader compilation. PERF-110 directly logged the only three cold
+  UIDs as R4, RGBA8, and XFB. PERF-111 precompiled exactly those existing
+  pipelines; frames 48064 and 48436 recorded zero EFB miss, and frame 48436
+  improved from 133.447167 to 17.234125 ms.
+- Added canonical patch 0020, packaged opt-in, strict package assertions, and
+  the default-dormant triggered sampler. The patch cleanly applied/reversed;
+  the native runner rebuilt; a disposable signed app passed layout and strict
+  signature checks.
+- Removed seven obsolete exact Instruments scratch traces and PERF-109's raw
+  scratch after retaining their valid trace bundles, recovering about 11 GiB.
+- Decision: **bounded prewarm retained; G5 remains open; G6 and Final
+  Destination remain blocked.** Next run one full true-native frontend-PGO
+  Fountain combat interval through the packaged prewarm path with only the
+  lightweight sampler. Do not resume static flags or rejected scheduler/
+  presentation variants.
+- Evidence:
+  `docs/artifacts/2026-08-28/g5-runnable-descheduling-and-efb-prewarm.md` and
+  `docs/evidence/g5-scheduler-and-efb-prewarm/summary.md`.
+
 ## 2026-08-28 — True-native correction and full-match off-core stall
 
 - Audited the runner's real configuration path after `GFX.ini` reverted to

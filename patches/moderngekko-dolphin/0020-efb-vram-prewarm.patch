@@ -1,0 +1,29 @@
+diff --git a/Source/Core/VideoCommon/ShaderCache.cpp b/Source/Core/VideoCommon/ShaderCache.cpp
+--- a/Source/Core/VideoCommon/ShaderCache.cpp
++++ b/Source/Core/VideoCommon/ShaderCache.cpp
+@@ -6 +6,2 @@
++#include <fstream>
+ #include <utility>
+@@ -1271 +1272,7 @@ ShaderCache::GetEFBCopyToVRAMPipeline(const TextureConversionShaderGen::TCShader
++  if (const char* uid_log_path = std::getenv("SSBMPAD_EFB_VRAM_UID_LOG"))
++  {
++    std::ofstream uid_log(uid_log_path, std::ios_base::app);
++    uid_log << fmt::format("{}\n", *uid.GetUidData());
++  }
++
+   const TimePoint shader_start = Clock::now();
+@@ -1413 +1420,14 @@ bool ShaderCache::CompileSharedPipelines()
++  if (std::getenv("SSBMPAD_PREWARM_EFB_VRAM"))
++  {
++    constexpr std::array formats = {EFBCopyFormat::R4, EFBCopyFormat::RGBA8,
++                                    EFBCopyFormat::XFB};
++    for (const EFBCopyFormat format : formats)
++    {
++      TextureConversionShaderGen::TCShaderUid uid;
++      uid.GetUidData()->dst_format = format;
++      if (!GetEFBCopyToVRAMPipeline(uid))
++        return false;
++    }
++  }
++
+   return true;

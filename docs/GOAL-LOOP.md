@@ -984,6 +984,31 @@ next state-retention representation must aggregate several high-cost callful
 families; do not retry another isolated SDK leaf. See
 `docs/artifacts/2026-08-28/g5-matrix-copy-family-preflight.md`.
 
+## Active G5 runnable-descheduling/prewarm sub-loop (2026-08-28)
+
+PERF-104 proves a natural 74.579 ms Fountain frame is a runnable-thread
+descheduling event: CPU-thread work is 21.186 ms and the wall/thread gap is
+52.940 ms. PERF-105's marker-aligned System Trace finds fragmented higher-
+priority host contention, but profiler-specific attribution remains caveated.
+Stop treating the remaining severe natural tail as static-recompiler work.
+
+PERF-106 through PERF-110 identify a separate deterministic cold-bundle hitch.
+The exact missing EFB-to-VRAM pipeline UIDs are R4, RGBA8, and XFB; compilation
+costs about 108-118 ms and XFB lands during combat at emulated frame 48436.
+PERF-111 prewarms those three existing pipelines before gameplay and removes
+both observed combat compiles; frame 48436 falls to 17.234 ms. Retain patch
+0020 and the packaged opt-in. The Game Mode screen is inconclusive, so retain
+only correct eligibility metadata, not a performance claim.
+
+The next single experiment is a complete true-native frontend-PGO Fountain
+combat run from the packaged prewarm path, using the lightweight external
+sampler and no Instruments during the measurement window. The prewarm must
+keep the exact combat compile misses at zero; then classify the remaining
+natural marker. Do not retry compiler flags, QoS, time-constraint, timer,
+drawable-lifecycle, or isolated generated-leaf variants. Do not run Final
+Destination or start G6 until Fountain's strict p95 and worst pass. See
+`docs/artifacts/2026-08-28/g5-runnable-descheduling-and-efb-prewarm.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

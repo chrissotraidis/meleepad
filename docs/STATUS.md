@@ -6,6 +6,22 @@ Last updated: 2026-08-28
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-104 through PERF-111 separate the remaining natural tail from a newly
+closed deterministic hitch. A 74.579 ms natural frame accumulated only 21.186
+ms CPU-thread time while the kernel reported the emulation thread runnable;
+the 52.940 ms gap is host descheduling, not a Dolphin wait or statically
+recompiled on-core work. A marker-aligned System Trace reproduced fragmented
+higher-priority host contention, but its per-process attribution is observer-
+caveated. Separately, fresh bundle identities exposed R4, RGBA8, and XFB cold
+EFB-to-VRAM Metal compiles of 108-134 ms. Prewarming those exact existing
+pipelines removed the observed combat misses and reduced frame 48436 from
+133.447 to 17.234 ms. Retain the bounded prewarm. A Game Mode A/B/A screen was
+inconclusive; retain correct app eligibility metadata without a performance
+claim. Next run a full true-native frontend-PGO Fountain match through the
+packaged prewarm path with only the lightweight external sampler. G5 remains
+open; G6 and Final Destination remain blocked. See
+`docs/artifacts/2026-08-28/g5-runnable-descheduling-and-efb-prewarm.md`.
+
 PERF-096 through PERF-098 correct the authoritative resolution input and
 extend the tail attribution to a natural full match. `moderngekko-run` reads
 top-level `config.ini`, not only `Config/GFX.ini`; PERF-091 through PERF-093

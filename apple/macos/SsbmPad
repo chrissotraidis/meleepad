@@ -3,6 +3,7 @@ set -euo pipefail
 
 CONTENTS="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 export XDG_DATA_HOME="$HOME/Library/Application Support"
+export SSBMPAD_PREWARM_EFB_VRAM=1
 USER_DIR="$XDG_DATA_HOME/SsbmPad"
 
 mkdir -p "$USER_DIR/Config"

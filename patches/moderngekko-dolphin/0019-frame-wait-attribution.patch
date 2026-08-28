@@ -351,3 +351,48 @@ diff --git a/Source/Core/VideoBackends/Metal/MTLGfx.mm b/Source/Core/VideoBacken
      return m_drawable != nullptr;
    }
  }
+diff --git a/Source/Core/VideoCommon/Present.cpp b/Source/Core/VideoCommon/Present.cpp
+--- a/Source/Core/VideoCommon/Present.cpp
++++ b/Source/Core/VideoCommon/Present.cpp
+@@ -83,8 +83,9 @@ public:
+
+     const double total_ms = milliseconds(frame_start - m_previous_frame_start);
+     const u64 frame = m_frame++;
++    const u64 emulated_frame = Common::FramePhaseTiming::GetEmulatedFrameIndex();
+     Common::FramePhaseTiming::SetPresentFrameIndex(m_frame);
+-    m_file << frame << ',' << Common::FramePhaseTiming::GetEmulatedFrameIndex() << ','
++    m_file << frame << ',' << emulated_frame << ','
+            << std::fixed << std::setprecision(6) << total_ms << ','
+            << counter_ms(totals.cpu_wall_ns, m_previous_totals.cpu_wall_ns) << ','
+            << counter_ms(totals.cpu_thread_ns, m_previous_totals.cpu_thread_ns) << ','
+@@ -188,6 +189,22 @@ public:
+            << ',' << counter_ms(totals.efb_ram_shader_ns, m_previous_totals.efb_ram_shader_ns)
+            << ',' << counter_ms(totals.efb_ram_pipeline_ns, m_previous_totals.efb_ram_pipeline_ns)
+            << '\n';
++
++    if (!m_spike_captured)
++    {
++      const char* marker_path = std::getenv("SSBMPAD_FRAME_PHASE_SPIKE_MARKER");
++      const char* threshold_text = std::getenv("SSBMPAD_FRAME_PHASE_SPIKE_MS");
++      const char* min_frame_text = std::getenv("SSBMPAD_FRAME_PHASE_SPIKE_MIN_EMULATED_FRAME");
++      const double threshold_ms = threshold_text ? std::strtod(threshold_text, nullptr) : 33.0;
++      const u64 min_emulated_frame = min_frame_text ? std::strtoull(min_frame_text, nullptr, 10) : 0;
++      if (marker_path && emulated_frame >= min_emulated_frame && total_ms > threshold_ms)
++      {
++        m_file.flush();
++        std::ofstream marker(marker_path, std::ios_base::out);
++        marker << frame << ',' << emulated_frame << ',' << total_ms << ",spike\n";
++        m_spike_captured = true;
++      }
++    }
+
+     if (!m_slow_armed && m_frame % m_rolling_frame_ms.size() == 0)
+     {
+@@ -231,6 +248,7 @@ private:
+   std::size_t m_rolling_count = 0;
+   double m_rolling_total_ms = 0.0;
+   bool m_slow_window_captured = false;
++  bool m_spike_captured = false;
+   u64 m_slow_start_frame = 0;
+   const char* m_slow_arm_path = nullptr;
+   bool m_slow_armed = true;
