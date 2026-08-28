@@ -2,6 +2,17 @@
 
 G5 is active. G4 passed with a clean controlled 1v1 on 2026-08-24.
 
+PERF-084 extends the guest-cost mapper with complete function-span and guest-
+call classification, then rejects leaf-only state caching. Two independent
+line-symbol Fountain profiles bound unclosed no-call work at 14.293349% and
+17.302565% of mapped generated samples. Clearing 5% would require a
+34.981%/28.897% local gain before synchronization overhead, versus the
+9.70-10.92% real complete-function gain in PERF-081. State retention therefore
+must cross selected guest calls; next preflight the exact
+`0x80377B6C..0x80377CE4` parent and its mutually exclusive `0x803408A0`
+callee boundary. See
+`docs/artifacts/2026-08-28/g5-function-family-coverage.md`.
+
 PERF-083 refreshes the canonical signed product and the structural
 static-recompilation decision. The exact 440-emulated-frame Fountain interval
 measures 16.814891 ms total mean / 18.761260 ms p95 and 15.735743 ms CPU-thread

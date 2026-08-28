@@ -2735,3 +2735,26 @@ Append-only execution ledger. Claims are limited to observed evidence.
   above 5% CPU-thread improvement.
 - Evidence:
   `docs/artifacts/2026-08-28/g5-static-recomp-structural-followup.md`.
+
+## 2026-08-28 — Function-family coverage rejects leaf-only state caching
+
+- Extended the guest-cost mapper to resolve exact sampled PCs through the
+  GALE01 function map and classify every generated `bl`/`blrl` in each span.
+  Replaced an initial quadratic scan with sorted PCs and prefix call counts;
+  the complete 756-span run now finishes in about five seconds.
+- The symbol names are grouping aids only. Exact generated control flow proves
+  at least one coarse boundary (`HSD_PadRenewGameStatus` map start
+  `0x80377B54` versus generated prologue `0x80377B6C`), so no optimization is
+  selected from a name alone.
+- The 7,458-sample promoted profile-free line run puts all no-call work at
+  23.531751%; removing the two already-closed matrix/GX spans leaves
+  14.293349%, requiring a 34.981% local gain to project 5%.
+- The independent 1,127-sample current-PGO line run puts all no-call work at
+  32.830515%; the same exclusion leaves 17.302565%, requiring 28.897% local.
+- Decision: **PERF-084 rejects leaf-only state caching; G5 remains open.** The
+  real PERF-081 complete-function gain is only 9.70-10.92%. Next build a data-
+  free guarded parent/callee preflight for `0x80377B6C..0x80377CE4` and its
+  `0x803408A0` call boundary. No generator, module, app, process, or Simulator
+  changed.
+- Evidence: `docs/artifacts/2026-08-28/g5-function-family-coverage.md` and
+  `scripts/analyze-macos-sample-guest-cost.py`.

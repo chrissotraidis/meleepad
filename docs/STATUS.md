@@ -6,6 +6,17 @@ Last updated: 2026-08-28
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-084 rejects the simpler leaf-only implementation of PERF-083's state-
+retention route. Complete function/call attribution over two retained
+line-symbol Fountain profiles puts unclosed no-call work at only 14.293349%
+and 17.302565% of mapped generated samples. It would require a 34.981% or
+28.897% local gain before entry/exit overhead; PERF-081's real complete
+function delivered 9.70-10.92%. The analyzer now resolves exact guest PCs to
+diagnostic function spans and classifies all `bl`/`blrl` boundaries in about
+five seconds. Next preflight one actual guarded parent/callee region; do not
+modify DolRecomp or build a module for leaf-only caching. See
+`docs/artifacts/2026-08-28/g5-function-family-coverage.md`.
+
 PERF-083 refreshes the current signed product and narrows the researched static-
 translation route. A coherent Fountain frame reads 60.0 FPS, but the exact
 440-emulated-frame trace measures 16.814891 ms mean / 18.761260 ms p95 /

@@ -887,6 +887,16 @@ CPU-thread gain; do not build a game module from a relative microbenchmark
 alone. See
 `docs/artifacts/2026-08-28/g5-static-recomp-structural-followup.md`.
 
+PERF-084 rejects leaf-only state caching before a generator or game build.
+Complete call classification over two retained Fountain line profiles leaves
+only 14.293349-17.302565% of mapped generated cost in unclosed no-call spans.
+That requires a 28.897-34.981% local gain before synchronization overhead,
+well above PERF-081's 9.70-10.92% real-function result. Keep the broader state-
+retention objective, but the next preflight must cross a real guest-call
+boundary: start with parent `0x80377B6C..0x80377CE4` and its mutually exclusive
+calls to `0x803408A0`. Do not modify DolRecomp or build a leaf-only module. See
+`docs/artifacts/2026-08-28/g5-function-family-coverage.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).
