@@ -6,6 +6,18 @@ Last updated: 2026-08-28
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-133 rejects the last simple early-commit Metal API variant before a
+Dolphin build. The matched host control delivers 600/600 intervals at
+16.666667 ms p95 and zero drops, but `presentDrawable:atTime:` drops all
+601 requested drawables with layer display sync both enabled and disabled,
+with and without a 25 ms injected producer stall. `CACurrentMediaTime` matches
+Mach absolute seconds within 26 microseconds, so this is not a clock-domain
+mistake. The disposable harness extension was removed. Do not retry absolute
+scheduled presentation, minimum-duration presentation, Rush, fixed wake lead,
+or layer-sync variants. G5 remains on the natural no-queue producer/
+descheduling tail. See
+`docs/artifacts/2026-08-28/g5-absolute-scheduled-presentation-rejection.md`.
+
 PERF-132 corrects a rotated-path diagnosis but does **not** reopen an
 optimization. The standalone `llvm-cov` failure was a missing generated-source
 path, not missing counters. Checkout reconciliation then found PERF-088 had

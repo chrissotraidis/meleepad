@@ -19,6 +19,15 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-133 rejects absolute Metal scheduled presentation before a Dolphin build:
+the matched host control passes 600/600, while `presentDrawable:atTime:` drops
+601/601 drawables with layer sync on or off and with or without an injected
+25 ms producer stall. The host clock matches Mach absolute seconds, and the
+disposable harness change is removed. Do not retry scheduled presentation,
+Rush, fixed wake lead, or layer-sync variants. Continue from the natural
+no-queue producer/descheduling tail. See
+`docs/artifacts/2026-08-28/g5-absolute-scheduled-presentation-rejection.md`.
+
 PERF-132 corrects only a rotated generated-source path diagnosis. PERF-088 had
 already decoded matching coverage and rejected the resulting source-weight
 and single-entry FP-trace candidates: the former were about 59-63% slower and

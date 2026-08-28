@@ -3154,3 +3154,23 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Evidence:
   `docs/artifacts/2026-08-28/g5-profile-edge-and-efb-attribution.md` and
   `docs/artifacts/2026-08-28/g5-profile-edge-coverage-recovery.md`.
+
+## 2026-08-28 — PERF-133 absolute scheduled presentation rejected
+
+- Goal: test the only remaining simple Metal early-commit path without
+  changing guest timing or presenting duplicate content.
+- Work: extended the host-only three-drawable harness with
+  `presentDrawable:atTime:` and an optional 25 ms producer stall; compiled it
+  with ASan/UBSan; compared layer display sync on and off; verified the API
+  clock against Mach absolute seconds.
+- Control: minimum-duration presentation delivered 600/600 intervals with
+  16.666667 ms p95, 16.666708 ms p99, 16.666875 ms worst, and zero drops.
+- Result: **REJECT**. Absolute scheduling dropped all 601 requested drawables
+  with sync on or off, with and without the injected stall. The host clock
+  domains agreed within 26 microseconds, so this is not a timing conversion
+  error.
+- Decision: remove the disposable harness extension and do not build a
+  Dolphin candidate. The product is unchanged; G5 remains open for the natural
+  no-queue producer/descheduling tail.
+- Evidence:
+  `docs/artifacts/2026-08-28/g5-absolute-scheduled-presentation-rejection.md`.
