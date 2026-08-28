@@ -2568,3 +2568,30 @@ Append-only execution ledger. Claims are limited to observed evidence.
   one profile-derived superblock with boundary guards. BOLT is ELF-only, and
   the renderer/display tail remains a separate measured problem. See
   `docs/artifacts/2026-08-28/g5-static-recomp-optimization-research.md`.
+
+## 2026-08-28 — Broad inline validity rejected in host preflight
+
+- Preserved PERF-076 binaries supplied the exact arm64 callback and
+  `FastDispatchableAt` disassembly. Added a data-free host benchmark modeling
+  its target guard, direct callee, continuation-PC check, second guard,
+  host-call query, cold REL branch, address lookup, and verified-state load.
+- The model self-check rejects invalidated, disabled, and forced-fallback
+  targets. AppleClang `-O3 -Wall -Wextra -Werror` builds it cleanly, and
+  disassembly matches the old accepted callback control shape.
+- Two rotated 15-repetition runs, each using 32 million edges per
+  representation per repetition, measured callback-to-inline savings of
+  5.874625 and 5.966854 ns/edge. PERF-076 bounds direct edges at
+  40,309.672–80,619.343/frame, so the added projection is only
+  0.236804–0.481044 ms/frame.
+- Even the most optimistic projection plus PERF-076's measured 0.260529 ms
+  gain reaches only 0.741573 ms / 4.72%, below the 0.785000 ms / 5% threshold.
+  No product ABI, runtime, generated source, module, app, game, or Simulator
+  changed.
+- Decision: **PERF-077 rejects broad per-edge inline validity before a game
+  build; G5 remains open.** Next statically screen the dominant
+  `8036C8D8..8036C91C` sample chain and build one boundary-guarded superblock
+  regression only if it excludes cache-control, host-call, exception,
+  indirect-control, and cycle-budget hazards.
+- Evidence:
+  `docs/artifacts/2026-08-28/g5-inline-validity-preflight-rejection.md` and
+  `scripts/g5_direct_guard_preflight.cpp`.

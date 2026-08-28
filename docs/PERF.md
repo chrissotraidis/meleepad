@@ -363,13 +363,26 @@ accepts ELF rather than this Mach-O product; generic PGO/LTO repetition is also
 excluded by the existing measurements. See
 `docs/artifacts/2026-08-28/g5-static-recomp-optimization-research.md`.
 
+PERF-077 rejects the broad inline-table representation before a game build. A
+retained arm64 host preflight reproduces the preserved callback's target guard,
+direct callee, continuation-PC check, second guard, host-call query, cold REL
+branch, and address-to-chunk lookup. Two 15-repetition runs, each using 32
+million edges per representation per repetition, measure only 5.875–5.967 ns
+saved per complete edge. PERF-076 bounds dynamic direct
+edges at 40,310–80,619/frame, projecting only 0.237–0.481 ms additional gain.
+Even adding the largest projection to PERF-076 reaches only 4.72%, below the
+5% build threshold. Do not change the product ABI or regenerate the broad
+module. Next preflight one profile-derived superblock with one boundary guard.
+See
+`docs/artifacts/2026-08-28/g5-inline-validity-preflight-rejection.md`.
+
 Required next work:
 
-1. Preflight a data-only inline validity representation for cross-chunk calls,
-   with dynamic forced-fallback and SMC invalidation but no out-of-line callback
-   at each target/continuation. Build only if the focused projected saving can
-   exceed 5%; otherwise form profile-derived superblocks with guards only at
-   trace boundaries. The callback-guarded and unguarded transforms,
+1. Form one profile-derived superblock with a single entry/boundary guard,
+   starting from the dominant `8036C8D8..8036C91C` Fountain chain. First
+   statically exclude cache-control, host-call, exception, indirect-control,
+   and 256-cycle-budget violations, then add a focused generated regression.
+   The broad callback, inline-table, and unguarded transforms,
    whole-module IR PGO, and global order-file layout are rejected. Blind size
    thresholds, single-helper inlining,
    blanket outlining, timer spinning, combined no-EXRAM, and simply diluting

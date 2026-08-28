@@ -29,6 +29,16 @@ material gain. It also separates CPU translation work from the remaining
 Metal/display/off-core frame tail and excludes BOLT's ELF-only path. See
 `docs/artifacts/2026-08-28/g5-static-recomp-optimization-research.md`.
 
+PERF-077 now rejects that broad inline-table path before a game build. An
+arm64 host preflight matching the preserved callback and full target/callee/
+continuation sequence saves only 5.875–5.967 ns per edge. The measured dynamic
+edge bounds project 0.237–0.481 ms/frame additional improvement; even the
+largest projection plus PERF-076 reaches only 4.72%, below the 5% threshold.
+No product ABI or generated module changed. Next preflight one bounded
+`8036C8D8..8036C91C` profile-derived superblock with a single boundary guard.
+See
+`docs/artifacts/2026-08-28/g5-inline-validity-preflight-rejection.md`.
+
 PERF-075 rejects an address-specific ten-edge direct-call candidate while
 confirming dispatcher cost. Sampled predecessor/destination data reconstructed
 the hot `0x8036C87C..0x8036C944` linked-call sequence. The focused regression

@@ -819,6 +819,18 @@ boundaries. Do not retrain or retry the callback design. Final Destination and
 G6 remain blocked. See
 `docs/artifacts/2026-08-28/g5-guarded-direct-call-rejection.md`.
 
+PERF-077 also rejects the broad inline-table alternative without spending a
+game build. A retained host model matches the callback's arm64 control shape
+and the full target/callee/continuation sequence. Repeated runs with 32 million
+edges per representation project at most 0.481 ms additional saving; combined
+with PERF-076, that is
+only 4.72% versus the required 5%. Do not retry per-edge guards or change the
+product ABI. Next form one profile-derived `8036C8D8..8036C91C` superblock,
+guard only its boundary, and require static safety exclusions plus a focused
+generated regression before a live build. Final Destination and G6 remain
+blocked. See
+`docs/artifacts/2026-08-28/g5-inline-validity-preflight-rejection.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).
