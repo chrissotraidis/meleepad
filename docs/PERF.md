@@ -509,6 +509,26 @@ the two >20 ms events are delayed/catch-up pairs. Retain quiet input as a
 measurement rule, not a product optimization. See
 `docs/artifacts/2026-08-29/g5-quiet-input-harness-reversal.md`.
 
+PERF-179 rejects reducing the native Metal layer pool from three drawables to
+two. The candidate collapses Fountain's final 2,001 render rows to 38.967624
+FPS, 33.393333 ms p95, and 33.554417 ms worst, with 1,080 rows above 30 ms.
+The source and canonical runner were restored. See
+`docs/artifacts/2026-08-29/g5-two-drawable-layer-rejection.md`.
+
+PERF-180 refreshes Main Menu timing on the exact current PGO/Game Mode package.
+A genuine cold MemoryWatcher-gated menu bracket averages 59.937749 FPS with no
+row above 20 ms and a 59.743392 FPS worst rolling 60-frame rate. Its p95 is
+still 18.793042 ms, with delayed/early compensation, so this rejects the old
+sustained 12.5-30 FPS diagnosis without claiming perfect smoothness. See
+`docs/artifacts/2026-08-29/g5-current-main-menu-window.md`.
+
+PERF-181 rejects a larger Cubeb buffer. CoreAudio's minimum is 128 frames, so
+the 512-to-1,024 request change is effective, but the candidate falls from the
+matched control's 59.969577 to 59.910028 FPS, keeps 16.789792 ms p95, and
+increases >20 ms render rows from two to three. Vblank retains the same hold
+class. The candidate is removed and Cubeb 512 restored. See
+`docs/artifacts/2026-08-29/g5-cubeb-buffer-rejection.md`.
+
 Required next work:
 
 1. Keep G5 open. Before another product build, require a falsifiable mechanism

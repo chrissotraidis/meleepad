@@ -19,6 +19,14 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-181 rejects larger Cubeb buffering while preserving required audio. The
+device minimum is 128 frames, so changing Dolphin's request from 512 to 1,024
+is effective, but Fountain falls from 59.969577 to 59.910028 FPS and retains
+three doubled render rows; p95 is unchanged/slightly worse at 16.789792 ms.
+DSP-thread toggling is inert under Melee's DSP HLE. The candidate and diagnostic
+are removed and the canonical runner hash restored exactly. Keep Cubeb 512.
+See `docs/artifacts/2026-08-29/g5-cubeb-buffer-rejection.md`.
+
 PERF-180 refreshes the user-visible Main Menu on the exact current PGO/Game
 Mode package. A cold MemoryWatcher-gated route reaches the genuine menu class,
 then a conservative 3,413-row buffered bracket averages 59.937749 FPS with no

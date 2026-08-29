@@ -6,6 +6,16 @@ Last updated: 2026-08-29
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-181 rejects doubling Cubeb's requested buffer from 512 to 1,024 frames.
+The CoreAudio device minimum is only 128, so the candidate is effective, but
+Fountain regresses from 59.969577 to 59.910028 FPS and retains three doubled
+render rows; p95 is unchanged/slightly worse at 16.789792 ms. Vblank retains
+five rows above 20 ms and a 34.148375 ms worst. DSP-thread toggling is inert
+under Melee's DSP HLE. The source, diagnostic, and private logger setting were
+restored exactly; no game or Simulator remains. Keep Cubeb 512. G5 remains
+open and G6 blocked. See
+`docs/artifacts/2026-08-29/g5-cubeb-buffer-rejection.md`.
+
 PERF-180 refreshes Main Menu performance on the exact current PGO/Game Mode
 package. A cold MemoryWatcher-gated route proves the genuine revision-0 menu
 class, then a conservative 3,413-row buffered bracket averages 16.683976 ms /

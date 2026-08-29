@@ -3728,3 +3728,21 @@ Append-only execution ledger. Claims are limited to observed evidence.
   blocked.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-current-main-menu-window.md`.
+
+## 2026-08-29 — PERF-181 Cubeb buffer rejection
+
+- Goal: reduce real-time audio callback wake pressure without disabling the
+  required Cubeb output.
+- Preflight: DSP-thread toggling is inert for DSP HLE. Cubeb ignores generic
+  `AudioLatency`; a one-time startup diagnostic measured the device minimum at
+  128 frames, proving a 512-to-1,024 request change is effective.
+- Result: final 2,001 Fountain render rows regress from the 512 control's
+  59.969577 FPS / 16.786209 ms p95 / two >20 ms rows to 59.910028 FPS /
+  16.789792 ms p95 / three doubled rows. Vblank retains five >20 ms rows.
+- Reversal: restored Cubeb 512, removed the diagnostic, rebuilt exact canonical
+  runner SHA-256 `0abc212b...`, and restored the excluded logger probe byte-for-
+  byte. No game or Simulator remains.
+- Decision: larger Cubeb buffer rejected; it adds latency without removing the
+  shared render/vblank hold. G5 open; G6 blocked.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-cubeb-buffer-rejection.md`.
