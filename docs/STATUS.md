@@ -6,6 +6,17 @@ Last updated: 2026-08-29
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-186 directly joins producer/thread-CPU, GPU, and actual-presentation
+clocks. In a 57.844-second pre-transition Fountain window, all 3,470 actual
+intervals meet 16.7 ms with a 16.666916 ms worst, despite thirteen producer
+rows above 20 ms and a 33.532833 ms producer worst. The Metal queue absorbs
+every observed combat-at-start producer stall. This corrects PERF-176's broad
+claim that such stalls necessarily become visible hitches, but does not pass
+G5: the diagnostic is short and observer-bearing, prior sustained display
+holds remain, and Final Destination is uncovered. The hook is removed, the
+canonical runner hash is restored exactly, and 26/26 scoped tests pass. See
+`docs/artifacts/2026-08-29/g5-combined-producer-presentation-join.md`.
+
 PERF-185 completes the first park-and-pivot step after PERF-184: all 26 scoped
 native macOS tests pass, including runtime/module loading, CPU/GX behavior,
 audio, frontend configuration, and netplay protocol. This proves the restored

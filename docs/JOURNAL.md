@@ -3808,3 +3808,26 @@ Append-only execution ledger. Claims are limited to observed evidence.
   G5 remains open. Continue with a new falsifiable product-local mechanism or
   another independent macOS step under the park-and-pivot rule.
 - Evidence: `docs/artifacts/2026-08-29/g5-park-pivot-regression.md`.
+
+## 2026-08-29 — PERF-186 combined producer/presentation join
+
+- Goal: determine whether producer/vblank stalls and actual-display holds are
+  one causal chain by recording producer thread timing, Metal GPU completion,
+  and drawable presentation in the same run.
+- Method: a disposable dormant hook buffered GPU/presentation records until
+  shutdown; the existing detailed phase logger supplied the same-timebase
+  producer data. One isolated native PGO Fountain state used quiet balanced
+  input; no Simulator or unrelated process change occurred.
+- Result: the 57.844-second pre-transition boundary contains 3,470 actual
+  intervals, all at or below 16.7 ms (16.666916 ms worst), while thirteen
+  producer rows exceed 20 ms and one reaches 33.532833 ms. Every producer
+  stall maps to a nominal 16.666625-16.666834 ms actual interval. The later
+  scene transition is separately late in producer, GPU, and presentation.
+- Decision: Metal queue headroom absorbs the observed ordinary producer tail;
+  PERF-176's claim that it necessarily becomes a visible hitch is narrowed.
+  This short observer-bearing window is not G5, prior sustained display holds
+  remain, and Final Destination is untested.
+- Reversal: diagnostic source removed; canonical runner restored exactly to
+  `0abc212b...`; 26/26 scoped native tests pass; no game or Simulator remains.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-combined-producer-presentation-join.md`.

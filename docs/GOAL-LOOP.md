@@ -19,6 +19,16 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-186 joins producer/thread-CPU, GPU, and actual-presentation clocks in one
+disposable Fountain run. Across the 57.844-second pre-transition window, all
+3,470 actual intervals are at or below 16.7 ms with a 16.666916 ms worst,
+while the producer logger retains thirteen rows above 20 ms and a 33.532833 ms
+worst. Every producer stall is buffered into a nominal actual interval. This
+corrects PERF-176's overly broad inheritance claim, but is not G5: the window
+is short and observer-bearing, prior sustained holds remain, and Final
+Destination is uncovered. See
+`docs/artifacts/2026-08-29/g5-combined-producer-presentation-join.md`.
+
 PERF-183 retains only the unchanged A leg of a proposed Activity Monitor
 isolation. With Activity Monitor active, Fountain measures 59.790259 FPS with
 seven doubled render rows and matching vblank stalls. This is not causal.
