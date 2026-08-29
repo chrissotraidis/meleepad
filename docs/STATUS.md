@@ -6,6 +6,17 @@ Last updated: 2026-08-29
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-178 directly tests a newly observed side effect of the FPS-title updater.
+Each live title change does trigger AppKit window-tab and CoreSpotlight
+indexing, but a matched private title-off Fountain run removed recurring combat
+indexing while retaining essentially identical mean cadence and a doubled
+frame: title-on/title-off were 59.969577/59.969452 FPS with
+33.919041/33.398500 ms worst frames. The private setting was restored byte-for-
+byte, no product source changed, and no game or Simulator remains. Keep the FPS
+title option; continue from PERF-176's combined CPU-GPU/vblank host-execution
+stall class. G5 remains open and G6 blocked. See
+`docs/artifacts/2026-08-29/g5-fps-title-spotlight-rejection.md`.
+
 PERF-172 proves that the current refreshed PGO topology still activates Game
 Mode on macOS 26.5.2. A signed disposable LaunchServices wrapper retained exact
 runner `e1f3c1d8...` as its child with known PGO module `bd089303...`.

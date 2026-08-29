@@ -3666,3 +3666,24 @@ Append-only execution ledger. Claims are limited to observed evidence.
   source/config/process change. G5 open; Final Destination and G6 blocked.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-reference-shader-and-streaming-rejection.md`.
+
+## 2026-08-29 — PERF-178 FPS-title Spotlight rejection
+
+- Goal: test whether once-per-second FPS window-title changes cause the current
+  Fountain tail through newly observed AppKit/CoreSpotlight indexing.
+- Mechanism: unified logging proves live title changes trigger recurring
+  window-tab indexing and CoreSpotlight `index-items` batches.
+- Test: a private one-variable `show_fps_in_title=false` run used the same PGO
+  app, isolated Fountain state, fullscreen Metal, Cubeb, confirmed Game Mode,
+  quiet input, one game, and no Simulator. Recurring combat indexing vanished.
+- Result: the final 2,001 rows still average 16.675156588 ms / 59.969452 FPS,
+  with 16.801375 ms p95 and a 33.398500 ms worst frame. The matched title-on
+  control was 59.969577 FPS with a 33.919041 ms worst. Removing the side effect
+  did not remove the failure.
+- Reversal: restored the private config byte-for-byte to SHA-256 `b0823b...`;
+  no source change, game, or Simulator remains.
+- Decision: title indexing is real but not the primary G5 cause. Keep the FPS
+  title option and continue from PERF-176's combined CPU-GPU/vblank host-
+  execution stall class. G5 open; Final Destination and G6 blocked.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-fps-title-spotlight-rejection.md`.

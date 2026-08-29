@@ -19,6 +19,16 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-178 reopens PERF-169 for a newly observed mechanism, then rejects it with
+a clean direct test. Live FPS title changes do trigger recurring AppKit window-
+tab and CoreSpotlight indexing, but disabling the title updates removes that
+traffic without removing the frame tail: matched final 2,001-row Fountain
+windows remain 59.9696 vs 59.9695 FPS with 33.919 vs 33.399 ms worst frames.
+The private setting is restored byte-for-byte. Keep the FPS-title option; it is
+not the primary G5 cause. Continue from PERF-176's combined CPU-GPU/vblank host-
+execution stall class. See
+`docs/artifacts/2026-08-29/g5-fps-title-spotlight-rejection.md`.
+
 PERF-177 closes four false transfers after PERF-176. Current Slippi uses the
 same ordinary pthread/affinity and async-shader structure; it adds no hidden
 macOS scheduler policy. The clean run discovered no pipeline UIDs after its
