@@ -19,6 +19,16 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-172 proves current Game Mode activation for the refreshed PGO topology
+without making a speed claim. A signed LaunchServices wrapper remained parent
+of exact runner `e1f3c1d8...` and known PGO module `bd089303...`. Unified Game
+Policy logs then recorded the identified-game, frontmost, fullscreen, and
+console grants, an active fullscreen gaming session, `Game mode enabled`, DPS,
+and `Game mode status is now on`. The brief boot used no replay or frame-time
+measurement because current external host load is unsuitable for G5 evidence.
+Require the same activation line before the next combat state load. See
+`docs/artifacts/2026-08-29/g5-current-gamemode-activation-probe.md`.
+
 PERF-171 repairs a stale ignored local PGO bundle before another live run. The
 known PGO module was intact, but `SsbmPad-PGO.app` lacked the games category and
 `LSSupportsGameMode`, so it failed the current package-layout test. The

@@ -6,6 +6,18 @@ Last updated: 2026-08-29
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-172 proves that the current refreshed PGO topology still activates Game
+Mode on macOS 26.5.2. A signed disposable LaunchServices wrapper retained exact
+runner `e1f3c1d8...` as its child with known PGO module `bd089303...`.
+`gamepolicyd` identified it through Info.plist, granted frontmost/fullscreen/
+console policy, activated the fullscreen gaming session, logged `Game mode
+enabled`, enabled DPS, and reached `Game mode status is now on`. The probe was
+brief and collected no visual, input, audio, or frame-time evidence because
+current external host load is not a valid G5 environment. All probe processes
+are stopped. Activation readiness is proven; strict G5 remains open and G6 is
+blocked. See
+`docs/artifacts/2026-08-29/g5-current-gamemode-activation-probe.md`.
+
 PERF-171 restores Game Mode eligibility to the fastest known local package.
 The ignored `SsbmPad-PGO.app` still had the correct `bd089303...` PGO module
 but stale metadata without the games category or `LSSupportsGameMode`, and it

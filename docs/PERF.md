@@ -2,6 +2,16 @@
 
 G5 is active. G4 passed with a clean controlled 1v1 on 2026-08-24.
 
+PERF-172 proves current Game Mode activation without collecting performance.
+A signed LaunchServices wrapper retained current runner `e1f3c1d8...` as its
+child with known PGO module `bd089303...`. macOS 26.5.2 Game Policy recorded
+identified-game/frontmost/fullscreen/console grants, an active fullscreen
+gaming session, `Game mode enabled`, DPS, and `Game mode status is now on`.
+The brief probe used no combat state, input, screenshot, or frame-time logger
+because current external host load is unsuitable for G5 evidence. Require the
+same on-state before the next valid Fountain/Final Destination run. See
+`docs/artifacts/2026-08-29/g5-current-gamemode-activation-probe.md`.
+
 PERF-171 refreshes the ignored reusable PGO bundle before another live test.
 Its known `bd089303...` module was intact, but stale bundle metadata omitted
 the games category and `LSSupportsGameMode`, failing the current package-layout

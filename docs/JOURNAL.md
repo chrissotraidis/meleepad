@@ -3567,3 +3567,26 @@ Append-only execution ledger. Claims are limited to observed evidence.
   Mode before using it for Fountain/Final Destination acceptance. G6 blocked.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-pgo-package-gamemode-refresh.md`.
+
+## 2026-08-29 — PERF-172 current Game Mode activation probe
+
+- Goal: prove the refreshed PGO runner topology actually reaches Game Mode on,
+  rather than converting eligibility metadata into an activation claim.
+- Setup: signed disposable LaunchServices wrapper stayed parent of exact
+  current runner `e1f3c1d8...` and known PGO module `bd089303...`; isolated
+  user tree, Metal/Cubeb/fullscreen/prewarm, one game, and no Simulator.
+- Exclusion: the first stream command selected zsh's `log` builtin and failed
+  before launch. The corrected command used `/usr/bin/log`.
+- Result: Game Policy found `SsbmPadRunner` via Info.plist, acquired identified-
+  game/frontmost/fullscreen/console grants, activated a fullscreen gaming
+  session, logged `Game mode enabled`, enabled DPS, and reported `Game mode
+  status is now on`. The initial paused state preceded the fullscreen grant.
+- Boundary: no state load, input, screenshot, visual check, or timing occurred;
+  current external host activity invalidates performance evidence. The runner
+  reached core init and shut down with zero fallback/failed SMC verification.
+- Reversal: stopped runner, wrapper, and log stream; no game or Simulator
+  remains. Disposable data stays private.
+- Decision: **CURRENT GAME MODE ACTIVATION PROVEN; G5 NOT CLAIMED.** Gate the
+  next clean combat run on the same activation line. G6 remains blocked.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-current-gamemode-activation-probe.md`.
