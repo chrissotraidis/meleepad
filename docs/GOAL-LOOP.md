@@ -19,6 +19,18 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-168 rejects a second Dolphin-side presentation reserve before a product
+build. Replaying the retained lightweight Fountain completion trace showed a
+one-frame lead could absorb its sampled producer jitter, but the required
+two-thread Metal control did not improve actual presentation: both queue
+depths retained a 33.333 ms worst interval, while the extra frame increased
+ready-to-submit latency. Metal's existing drawable pipeline already absorbed
+the injected 8 ms producer delay. The disposable harness is removed. Do not
+add an offscreen backbuffer/presentation thread or duplicate buffering already
+provided below Dolphin. Continue G5 from a different causal producer-side
+mechanism. See
+`docs/artifacts/2026-08-29/g5-one-frame-presentation-reserve-rejection.md`.
+
 PERF-134 rejects runner/runtime PGO before a build. The retained current-PGO
 sample has 9,279 `StaticRecompCore::Run` samples and 9,030 in its already-PGO'd
 module child `chassis_dispatch`; even deleting all runner-only work projects

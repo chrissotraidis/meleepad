@@ -1,10 +1,23 @@
 # ssbmpad status
 
-Last updated: 2026-08-28
+Last updated: 2026-08-29
 
 ## Current goal
 
 **G5 — macOS 60 fps: IN PROGRESS**
+
+PERF-168 rejects a Dolphin-side one-frame presentation reserve before touching
+the product. A replay of PERF-152's 1,091 retained Fountain intervals showed
+the queue was mathematically plausible, but the required two-thread Metal
+control disproved benefit at the real boundary. Capacity one already absorbed
+an injected 8 ms producer delay through Metal's existing drawable buffering;
+capacity two preserved distinct ordering but increased frame age. Both the
+optimized and ASan/UBSan repeats retained a 33.333 ms actual-presentation
+worst, and the sanitizer repeat reported no code diagnostic. The disposable
+harness is removed. Do not add an offscreen backbuffer/presentation thread or
+another application queue. G5 remains on a different causal producer-side
+mechanism; G6 stays blocked. See
+`docs/artifacts/2026-08-29/g5-one-frame-presentation-reserve-rejection.md`.
 
 PERF-136/137 phase-attribute current Final Destination and reject transient
 backup/browser load. Two exact 2,001-frame combat windows have essentially

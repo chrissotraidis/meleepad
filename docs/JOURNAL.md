@@ -3475,3 +3475,33 @@ Append-only execution ledger. Claims are limited to observed evidence.
   reversal requires explicit reversible authorization.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-latency-qos-and-logitech-agent-isolation.md`.
+
+## 2026-08-29 — PERF-168 one-frame presentation-reserve rejection
+
+- Goal: determine whether one distinct completed frame held ahead of display
+  can absorb the retained off-core producer tail without changing guest,
+  input, audio, or netplay timing.
+- Trace screen: replaying PERF-152's exact 1,091 combat intervals at a 60 Hz
+  consumer cadence needed at most the current frame plus one reserve and had
+  zero underflows, so the idea advanced to a host-only Metal control.
+- Source audit: Dolphin currently renders XFB/UI directly into a synchronously
+  acquired drawable and commits through the mutable global Metal state tracker.
+  A real reserve would require an isolated consumer queue/thread plus explicit
+  surface, resize, screenshot, UI, GPU-completion, and shutdown ownership.
+- Exclusion: the first disposable harness deadlocked on a missing initial
+  condition-variable notification before any measurement. It was stopped and
+  corrected rather than retried unchanged.
+- Corrected 360-frame result: capacity one versus two both had zero underflows
+  and sequential distinct frames, but actual worst remained
+  33.333917/33.333875 ms. Capacity two raised ready-to-submit p95 from
+  15.017317 to 22.417750 ms.
+- Sanitized 600-frame repeat: after disabling unsupported LeakSanitizer, ASan
+  and UBSan emitted no diagnostic. Actual worst again remained
+  33.333875/33.333792 ms; capacity two again added latency and no cadence gain.
+- Decision: **ONE-FRAME PRESENTATION RESERVE REJECTED.** Metal's drawable path
+  already absorbed the injected 8 ms stall. Do not add a second app-level
+  queue/offscreen presentation thread or duplicate stale content. The
+  disposable source was removed; product and runtime remain unchanged. G5 is
+  open on another causal producer mechanism, and G6 remains blocked.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-one-frame-presentation-reserve-rejection.md`.
