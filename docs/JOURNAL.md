@@ -3420,3 +3420,31 @@ Append-only execution ledger. Claims are limited to observed evidence.
   no fighter-mesh recurrence.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-ntsc-display-boundary-and-light-producer-tail.md`.
+
+## 2026-08-29 — PERF-153/154 quiet input-harness reversal
+
+- Goal: retest the genuine observer-free producer tail after recovering disk
+  headroom, then determine whether streamed controller progress contaminates
+  the severe tail.
+- PERF-153: canonical packaged app/module/state with stock buffered logging and
+  live `gcpipe` progress measured 16.708388 ms mean / 16.793208 ms p95 /
+  16.891375 ms p99 / 33.330875 ms worst in the final 2,001 rows. Five 33 ms
+  and one 30 ms gaps appeared; eight rows exceeded 20 ms.
+- PERF-154 reversal: identical product and FIFO timing with only controller
+  stdout redirected to `/dev/null` measured 16.666653 ms mean / 16.796250 ms
+  p95 / 16.848875 ms p99 / 22.544875 ms worst. Every 30-33 ms gap disappeared;
+  only three rows exceeded 17 ms and two exceeded 20 ms.
+- Mechanism: the remaining pairs are 22.544875+11.455625=34.000500 ms and
+  10.996834+22.290125=33.286959 ms. Mean is exactly 60 FPS, but strict worst
+  still fails.
+- Host audit: no thermal/performance warning and 59% memory free. WindowServer,
+  Codex, OpenCodex/Bun, and Brave were active, but spot CPU values are not
+  causal evidence and no unrelated user process was stopped.
+- Decision: **STREAMED-HARNESS SEVERE TAIL EXCLUDED; RESIDUAL PACING FAILS
+  G5.** Silence controller progress in all future perf windows. This is not a
+  product edit or pass. A matched unrelated-process pause needs explicit user
+  authority. G6 remains blocked.
+- Visual boundary: both Pikachu/Fox Fountain runs are coherent with no fighter-
+  mesh recurrence.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-quiet-input-harness-reversal.md`.

@@ -64,6 +64,10 @@ Repeat until G9 is met:
 - **Clean up after crashes.** A crashed run can leave a booted Simulator or an orphan process; step 2 of the loop exists to catch this.
 - **Never touch the inputs.** The ROM and `ref/sunpad` are read-only. Nothing containing game data ever leaves the machine or enters a git commit (enforce with the audit-script pattern from sunpad).
 - **Timebox repetition.** The same command failing the same way twice is a blocker; stop retrying and enter the unblocking ladder. Never loop a failing action a third time unchanged.
+- **Keep performance input quiet.** Redirect `gcpipe.py` progress output away
+  from the live terminal during measured windows. PERF-153/154 proved streamed
+  UI/terminal output creates severe false tail rows even though the FIFO input
+  itself is unchanged.
 
 ## Unblocking ladder
 
@@ -1237,6 +1241,18 @@ producer intervals above 16.7 ms; recover disk headroom before a new causal
 host-descheduling experiment. Do not change VI/audio/netplay timing or count
 stale duplicates as new frames. G6 remains blocked. See
 `docs/artifacts/2026-08-29/g5-ntsc-display-boundary-and-light-producer-tail.md`.
+
+PERF-153/154 then correct a host-side measurement contaminant. With identical
+canonical app/module/state/input, streaming every `gcpipe.py` step through the
+live Codex session produced five 33 ms and one 30 ms gaps in the final 2,001
+rows. Redirecting only that output to `/dev/null` removed all 30-33 ms gaps and
+restored a 16.666653 ms mean / 60.000049 FPS. This is a harness correction, not
+a product optimization: quiet p95 remains 16.796250 ms and strict worst still
+fails at 22.544875 ms. The two >20 ms rows are delayed/catch-up pairs. Future
+performance input must be quiet. No unrelated user process was stopped; any
+host-contention reversal needs explicit authority. G5 remains open and G6
+blocked. See
+`docs/artifacts/2026-08-29/g5-quiet-input-harness-reversal.md`.
 
 ## Testing rhythm
 

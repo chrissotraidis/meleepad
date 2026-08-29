@@ -1515,3 +1515,12 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   canonical runner restored. G5 remains open on genuine producer-tail rows;
   G6 remains blocked. Evidence:
   `docs/artifacts/2026-08-29/g5-ntsc-display-boundary-and-light-producer-tail.md`.
+- **PERF-153/154 (quiet input-harness reversal):** An observer-free canonical
+  Fountain control that streamed every controller step into Codex contained
+  five 33 ms and one 30 ms gaps. Redirecting only `gcpipe.py` stdout to
+  `/dev/null` removed every 30-33 ms gap and restored 16.666653 ms mean /
+  60.000049 FPS. This is a measurement correction, not a product speedup:
+  quiet p95 is 16.796250 ms and worst remains 22.544875 ms, with two isolated
+  delayed/catch-up rows above 20 ms. Future perf input must be quiet. No
+  unrelated application was stopped. G5 remains open and G6 blocked. Evidence:
+  `docs/artifacts/2026-08-29/g5-quiet-input-harness-reversal.md`.

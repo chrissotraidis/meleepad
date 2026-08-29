@@ -479,6 +479,16 @@ were off-core. Its wall distribution is diagnostic-only because disk pressure
 may aggravate scheduling. The observer is removed. See
 `docs/artifacts/2026-08-29/g5-ntsc-display-boundary-and-light-producer-tail.md`.
 
+PERF-153/154 identify and remove a severe harness contaminant. The same
+observer-free packaged Fountain run with streamed `gcpipe.py` progress measured
+16.708388 ms mean / 16.793208 ms p95 / 33.330875 ms worst and contained five
+33 ms plus one 30 ms gap. Redirecting only progress output to `/dev/null`
+removed every 30-33 ms gap and restored 16.666653 ms mean / 60.000049 FPS.
+Quiet p95 remains 16.796250 ms and strict worst still fails at 22.544875 ms;
+the two >20 ms events are delayed/catch-up pairs. Retain quiet input as a
+measurement rule, not a product optimization. See
+`docs/artifacts/2026-08-29/g5-quiet-input-harness-reversal.md`.
+
 Required next work:
 
 1. Keep G5 open. Before another product build, require a falsifiable mechanism
