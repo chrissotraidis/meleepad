@@ -3505,3 +3505,25 @@ Append-only execution ledger. Claims are limited to observed evidence.
   open on another causal producer mechanism, and G6 remains blocked.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-one-frame-presentation-reserve-rejection.md`.
+
+## 2026-08-29 — PERF-169 title-thread and overloaded-host rejection
+
+- Goal: test whether ModernGekko's once-per-second FPS-title thread causes the
+  remaining isolated clean hitches.
+- Disposable screen: unchanged signed app/current PGO module/Fountain state,
+  fullscreen Metal/Cubeb, quiet 45-second balanced input, one game, and no
+  Simulator. Only private `show_fps_in_title=true/false/true` changed.
+- Exclusion: the common final 1,401 rows degraded monotonically across A/B/A:
+  41.685, 38.389, then 32.110 FPS. Guest work totals also differed. No Game
+  Mode session was confirmed, and read-only snapshots showed substantial,
+  changing normal host activity. No unrelated process was changed. All three
+  legs are excluded as product-speed or title-option evidence.
+- Retained causal screen: a one-second updater should phase-lock hitches within
+  one/two adjacent modulo-60 frame bins. PERF-154's >17 ms rows occupy phases
+  26/21/48; PERF-165's occupy 4/24/34/35/18/56/30. Their best adjacent bins
+  contain only 1/3 and 2/7 respectively.
+- Decision: **FPS TITLE THREAD REJECTED AS CLEAN-TAIL CAUSE.** Preserve the
+  useful option. The disposable setting is restored, product remains unchanged,
+  and no game or Simulator remains. G5 stays open; G6 remains blocked.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-title-thread-and-overloaded-host-rejection.md`.

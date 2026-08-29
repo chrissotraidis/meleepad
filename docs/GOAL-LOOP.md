@@ -19,6 +19,16 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-169 rejects the once-per-second FPS title updater as the common clean-tail
+cause. A disposable title-on/off/on run was invalidated by severe changing host
+load and monotonically degraded 41.685 -> 38.389 -> 32.110 FPS across A/B/A;
+no external process was altered and those numbers are not product baselines.
+The earlier quiet PERF-154/165 controls provide the valid causal screen: their
+>17 ms rows are scattered across unrelated modulo-60 phases rather than
+clustering around a one-second update. The private setting is restored. Do not
+remove the useful FPS title for G5. See
+`docs/artifacts/2026-08-29/g5-title-thread-and-overloaded-host-rejection.md`.
+
 PERF-168 rejects a second Dolphin-side presentation reserve before a product
 build. Replaying the retained lightweight Fountain completion trace showed a
 one-frame lead could absorb its sampled producer jitter, but the required

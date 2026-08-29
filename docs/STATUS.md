@@ -6,6 +6,18 @@ Last updated: 2026-08-29
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-169 rejects the ModernGekko FPS-title thread as the common source of the
+clean producer tail. A disposable title-on/off/on run was dominated by changing
+host load and degraded monotonically from 41.685 to 38.389 to 32.110 FPS across
+A/B/A, so all three legs are excluded rather than promoted as a regression or
+option effect. No unrelated process was touched. The causal result comes from
+the retained quiet PERF-154/165 windows: rows above 17 ms occupy dispersed
+modulo-60 phases, not the one/two adjacent phases predicted for a once-per-
+second title update. The private setting is restored and the product remains
+unchanged. Do not remove the useful FPS title for G5. G5 stays open and G6
+blocked. See
+`docs/artifacts/2026-08-29/g5-title-thread-and-overloaded-host-rejection.md`.
+
 PERF-168 rejects a Dolphin-side one-frame presentation reserve before touching
 the product. A replay of PERF-152's 1,091 retained Fountain intervals showed
 the queue was mathematically plausible, but the required two-thread Metal
