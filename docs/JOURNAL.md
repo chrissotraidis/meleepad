@@ -3253,3 +3253,27 @@ Append-only execution ledger. Claims are limited to observed evidence.
   Until then, do not blame it or WindowServer.
 - Evidence:
   `docs/artifacts/2026-08-28/g5-task-event-attribution.md`.
+
+## 2026-08-29 — PERF-141 Logitech updater isolation
+
+- Goal: test whether the persistently busy Logitech Options+ updater causes
+  Final Destination's remaining whole-app execution-loss tail.
+- Work: resolved the exact root-owned launch daemon, obtained explicit user
+  authority, verified PID 276 stopped at 0% CPU, and reran the same signed
+  current-PGO app, private FD state, and 43.2-second balanced input sequence.
+  One bad `gcpipe` invocation was excluded before combat input and preserved
+  privately; the corrected run used the exact FIFO and an unconditional runner
+  cleanup trap.
+- Result: **SEVERE TAIL IMPROVED; FUNDAMENTAL LIMIT REJECTED**. Exact frames
+  `31813..33813` improve from 18.717 to 17.195 ms p95, 19.466 to 17.365 ms p99,
+  and 21.867 to 17.975 ms worst. Frames above 20 ms fall from ten to zero, but
+  mean remains 16.683 ms and only 57.571% meet 16.7 ms.
+- Visual boundary: fresh endpoints show coherent Pikachu/Yoshi combat from
+  1:31.68 to 0:46.84. Final Destination's neon edge/background cycle is normal
+  stage presentation; no fighter morphing recurred.
+- Decision: Logitech may aggravate intermittent severe stutter, but stopping
+  it does not pass G5. The user requested it remain stopped, so no A/B/A
+  reversal or exclusive-causality claim is made. Retain no product change;
+  continue from the residual required-stage pacing failure. G6 remains blocked.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-logitech-updater-isolation.md`.

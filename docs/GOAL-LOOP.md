@@ -1157,6 +1157,17 @@ routes. The next causal test is an explicitly authorized, reversible Logitech
 updater isolation. G5 remains open and G6 remains blocked. See
 `docs/artifacts/2026-08-28/g5-task-event-attribution.md`.
 
+PERF-141 completes the explicitly authorized Logitech updater isolation. With
+the exact root-owned updater stopped at 0% CPU, the same retained Final
+Destination state improves from 18.717 to 17.195 ms p95, from 19.466 to 17.365
+ms p99, and from 21.867 to 17.975 ms worst; frames above 20 ms fall from ten to
+zero. Mean remains 16.683 ms and only 57.571% of frames meet 16.7 ms. Logitech
+can aggravate intermittent severe stutter but is not the fundamental G5
+limiter. The user directed that it remain stopped, so no A/B/A reversal or
+exclusive-causality claim is made. Retain no product change and continue from
+the residual required-stage pacing failure; G6 remains blocked. See
+`docs/artifacts/2026-08-29/g5-logitech-updater-isolation.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

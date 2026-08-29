@@ -1447,3 +1447,12 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   whole-process blocking activity and strengthening host execution loss.
   This is diagnostic, not a G5 pass; G6 remains blocked. Evidence:
   `docs/artifacts/2026-08-28/g5-task-event-attribution.md`.
+- **PERF-141 (Logitech updater isolation):** The explicitly authorized exact
+  updater pause reduced the retained Final Destination window from 18.717 to
+  17.195 ms p95, 19.466 to 17.365 ms p99, and 21.867 to 17.975 ms worst; all
+  ten frames above 20 ms disappeared. Mean remained 16.683 ms and only 57.571%
+  met 16.7 ms, so external load can aggravate severe stutter but is not the
+  fundamental G5 limiter. The user directed that Logitech remain stopped, so
+  no reversal or exclusive-causality claim is made. No product code changed;
+  G5 remains open and G6 blocked. Evidence:
+  `docs/artifacts/2026-08-29/g5-logitech-updater-isolation.md`.
