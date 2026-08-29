@@ -19,6 +19,14 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-179 rejects the last untested native Metal queue-depth lever. Reducing
+`CAMetalLayer.maximumDrawableCount` from its three-drawable default to two
+collapses Fountain's final 2,001 rows to 38.967624 FPS, 33.393333 ms p95, and
+33.554417 ms worst, with 1,080 render intervals above 30 ms. The one-line
+candidate is removed and the canonical runner hash restored exactly. The
+default pool is necessary queue headroom; do not retry layer-pool reduction.
+See `docs/artifacts/2026-08-29/g5-two-drawable-layer-rejection.md`.
+
 PERF-178 reopens PERF-169 for a newly observed mechanism, then rejects it with
 a clean direct test. Live FPS title changes do trigger recurring AppKit window-
 tab and CoreSpotlight indexing, but disabling the title updates removes that

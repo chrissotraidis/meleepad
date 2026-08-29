@@ -3687,3 +3687,23 @@ Append-only execution ledger. Claims are limited to observed evidence.
   execution stall class. G5 open; Final Destination and G6 blocked.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-fps-title-spotlight-rejection.md`.
+
+## 2026-08-29 — PERF-179 two-drawable Metal layer rejection
+
+- Goal: test whether reducing the native Metal layer pool from its default
+  three drawables to two removes remaining queue/compositor holds without
+  changing guest, audio, or netplay timing.
+- Candidate: one private `setMaximumDrawableCount:2` call, proven in the built
+  Objective-C object and packaged in a unique signed Game Mode app with the
+  unchanged PGO module and Fountain state.
+- Result: catastrophic regression. The final 2,001 render rows average
+  25.662329 ms / 38.967624 FPS, with 33.393333 ms p95, 33.554417 ms worst, and
+  1,080 rows above 30 ms. Vblank independently averages 25.661202 ms with
+  34.497833 ms p95. Repeated doubled/short returns show pool starvation.
+- Reversal: removed the source call and rebuilt the canonical runner to exact
+  SHA-256 `0abc212b...`; the selector is absent, and no game or Simulator
+  remains.
+- Decision: default three-drawable pool retained; do not retry queue-depth
+  reduction. G5 open; G6 blocked.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-two-drawable-layer-rejection.md`.

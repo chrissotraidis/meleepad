@@ -6,6 +6,16 @@ Last updated: 2026-08-29
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-179 rejects reducing the native Metal layer from its default three-
+drawable pool to two. The one-line private candidate catastrophically turns
+Fountain's final 2,001 rows into 38.967624 FPS, 33.393333 ms p95, and
+33.554417 ms worst, with 1,080 render intervals above 30 ms. The repeated
+33-to-16 ms starvation/return pattern persists across shorter suffixes. The
+source was restored, the canonical runner returned exactly to SHA-256
+`0abc212b...`, and no game or Simulator remains. Keep the default layer pool;
+G5 remains open and G6 blocked. See
+`docs/artifacts/2026-08-29/g5-two-drawable-layer-rejection.md`.
+
 PERF-178 directly tests a newly observed side effect of the FPS-title updater.
 Each live title change does trigger AppKit window-tab and CoreSpotlight
 indexing, but a matched private title-off Fountain run removed recurring combat
