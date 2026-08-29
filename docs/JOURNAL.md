@@ -3277,3 +3277,29 @@ Append-only execution ledger. Claims are limited to observed evidence.
   continue from the residual required-stage pacing failure. G6 remains blocked.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-logitech-updater-isolation.md`.
+
+## 2026-08-29 — PERF-142/143/144 Fountain baseline and symbolized sample
+
+- Goal: retest Fountain with the authorized updater stop retained, then use a
+  fresh native sample to select the next coherent producer optimization.
+- Harness: two FIFO-setup failures were excluded before input. The accepted
+  runs pre-created the private named FIFO, used exactly one game process, and
+  installed unconditional cleanup. The Logitech updater stayed `Ts` at 0% CPU;
+  no configuration or launchd state was edited.
+- PERF-142: exact frames `49598..51598` measure 16.677958 ms mean, 17.542125 ms
+  p95, 18.216125 ms p99, and 34.499292 ms worst. Only 1,049/2,001 (52.424%)
+  meet 16.7 ms. The worst row combines 13.545 ms CPU-thread work with 20.483 ms
+  off-core time.
+- Visual boundary: fresh images show coherent Pikachu/Fox Fountain combat from
+  1:44.88 to 0:59.04. No real-mesh warping recurred; the blurred reflection is
+  the documented reference-parity behavior.
+- PERF-143/144: a fresh sample selected previously unclosed `func_80339940`;
+  the line-table rerun used byte-identical `__text`. The function contributes
+  106/2,031 active recompiler top-of-stack samples (5.219% impossible-best-case)
+  but is diffuse across guest blocks. The hottest resolved line has only three
+  samples (0.148%).
+- Decision: **G5 FAILS; LOCAL `func_80339940` REWRITE REJECTED**. Logitech is
+  not the root cause. Require a shared operation with at least 5% fresh
+  projected coverage before another product build. G6 remains blocked.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-fountain-stopped-updater-and-symbolized-sample.md`.

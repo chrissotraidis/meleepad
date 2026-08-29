@@ -1456,3 +1456,13 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   no reversal or exclusive-causality claim is made. No product code changed;
   G5 remains open and G6 blocked. Evidence:
   `docs/artifacts/2026-08-29/g5-logitech-updater-isolation.md`.
+- **PERF-142/143/144 (stopped-updater Fountain and source attribution):**
+  Fountain still averages 16.677958 ms but reaches only 52.424% compliance,
+  17.542125 ms p95, and 34.499292 ms worst with Logitech stopped. Fresh visual
+  endpoints show coherent Pikachu/Fox combat and no fighter-morph recurrence.
+  A byte-identical line-table sample bounds the first unclosed generated family,
+  `func_80339940`, at 106/2,031 active recompiler top-of-stack samples; its
+  hottest resolved line has only three samples. Reject a focused local rewrite
+  and require a shared operation with at least 5% projected coverage. No
+  product code changed; G5 remains open and G6 blocked. Evidence:
+  `docs/artifacts/2026-08-29/g5-fountain-stopped-updater-and-symbolized-sample.md`.

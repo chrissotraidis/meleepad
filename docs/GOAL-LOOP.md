@@ -1168,6 +1168,18 @@ exclusive-causality claim is made. Retain no product change and continue from
 the residual required-stage pacing failure; G6 remains blocked. See
 `docs/artifacts/2026-08-29/g5-logitech-updater-isolation.md`.
 
+PERF-142 then measures the other required stage with that updater still
+stopped. Fountain's exact 2,001-frame combat window averages 16.677958 ms but
+only 52.424% of rows meet 16.7 ms; p95 is 17.542125 ms and one off-core stall
+reaches 34.499292 ms. Fresh endpoints show coherent Pikachu/Fox combat and no
+fighter-morph recurrence. PERF-143/144 use byte-identical symbolized code to
+test the first unclosed sampled function family. `func_80339940` accounts for
+only 106/2,031 active recompiler top-of-stack samples, and those samples are
+diffuse: the hottest individual source line has three samples. Reject a local
+rewrite before build. Continue only from a shared operation with at least 5%
+fresh projected coverage; G5 remains open and G6 remains blocked. See
+`docs/artifacts/2026-08-29/g5-fountain-stopped-updater-and-symbolized-sample.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).
