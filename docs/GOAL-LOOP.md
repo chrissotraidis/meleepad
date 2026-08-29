@@ -19,6 +19,16 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-174/175 extend the confirmed-Game-Mode Fountain result without changing
+product source. A hands-off 36-cycle repeat reaches the same deterministic
+match/results boundary at absolute render row 6,784; its final 2,001 combat
+rows before that boundary average 59.999592 FPS with 16.785125 ms p95 and
+16.946375 ms worst, still above 16.7 ms. A private reversible 1001/1000 host-
+rate alignment candidate retains 16.791291 ms p95 and one 33.281208 ms hold;
+it is rejected and the config is restored byte-for-byte. Do not retry a larger
+speed scale, count post-match transitions as combat, run Final Destination, or
+start G6. See `docs/artifacts/2026-08-29/g5-sustained-pre-results-and-rate-alignment-rejection.md`.
+
 PERF-173 is the first full Fountain combat window gated on confirmed current
 Game Mode. The exact PGO runner/module, quiet 18-cycle input, Metal, Cubeb, and
 no Simulator restore a 60.000651 FPS mean with no rows above 20 ms, but the

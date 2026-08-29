@@ -1604,3 +1604,13 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   source changed, G5 remains open, Final Destination and G6 remain blocked.
   Evidence:
   `docs/artifacts/2026-08-29/g5-confirmed-gamemode-fountain-window.md`.
+- **PERF-174/175 (sustained pre-results window and rate-alignment rejection):**
+  A hands-off confirmed-Game-Mode repeat places the deterministic match/results
+  transition at absolute render row 6,784 in two runs. The clean final 2,001
+  pre-transition combat rows average 59.999592 FPS with 16.785125 ms p95 and
+  16.946375 ms worst; the wider 4,001-row combat window still contains four
+  33 ms holds. A private exact 1001/1000 host-rate candidate retained 16.791291
+  ms p95 and one 33.281208 ms hold. It was rejected and `Dolphin.ini` restored
+  byte-for-byte. No product source changed; G5 remains open, Final Destination
+  and G6 blocked. Evidence:
+  `docs/artifacts/2026-08-29/g5-sustained-pre-results-and-rate-alignment-rejection.md`.

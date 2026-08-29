@@ -3612,3 +3612,26 @@ Append-only execution ledger. Claims are limited to observed evidence.
   G5; do not run Final Destination or G6.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-confirmed-gamemode-fountain-window.md`.
+
+## 2026-08-29 — PERF-174/175 sustained pre-results and rate alignment
+
+- Goal: extend the confirmed-Game-Mode Fountain evidence and test whether exact
+  60000/1001-to-60 host-rate alignment removes the residual holds.
+- Harness correction: an actively polled 36-cycle attempt is excluded from
+  speed claims. A silent persistent-session repeat ran without session polling
+  during gameplay. Both attempts reached their first 621-629 ms transition at
+  exact render row 6,784, followed by results-like transitions 6-8 seconds
+  apart. Rows after 6,783 are excluded from combat metrics.
+- Control: the clean final 2,001 pre-transition rows average 16.666780026 ms /
+  59.999592 FPS, p95 16.785125 ms, p99 16.835750 ms, and worst 16.946375 ms;
+  zero exceed 17 ms. The wider 4,001-row pre-transition window has four rows
+  above 33 ms and remains a strict G5 failure.
+- Candidate: private `EmulationSpeed = 1.001`, with exact same PGO app, state,
+  Metal/Cubeb, fullscreen Game Mode, and quiet 18-cycle input. Final 2,001 rows
+  measure 16.675137619 ms mean, 16.791291 ms p95, and 33.281208 ms worst.
+- Reversal: removed the experimental setting and restored `Dolphin.ini` to
+  exact SHA-256 `1f3a69fa...`. Zero fallback/failed SMC, no thermal warning,
+  no game or Simulator, and no product source change.
+- Decision: rate alignment rejected; G5 open, Final Destination and G6 blocked.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-sustained-pre-results-and-rate-alignment-rejection.md`.
