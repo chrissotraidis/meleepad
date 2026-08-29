@@ -1524,3 +1524,16 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   delayed/catch-up rows above 20 ms. Future perf input must be quiet. No
   unrelated application was stopped. G5 remains open and G6 blocked. Evidence:
   `docs/artifacts/2026-08-29/g5-quiet-input-harness-reversal.md`.
+- **PERF-165/167 (latency-QoS audit and complete Logitech isolation):** XNU
+  labels `THREAD_LATENCY_QOS_POLICY` timer latency QoS and uses it to select
+  timer-coalescing leeway; user-interactive QoS already selected tier 0 in the
+  rejected prior reversal, so this is not a new runnable-CPU mechanism. With
+  both the updater and Options+ agent stopped at 0% CPU, the valid quiet
+  one-process Fountain window measures 16.675053 ms mean / 16.794959 ms p95 /
+  16.838917 ms p99 / 33.249209 ms worst. Only 70.215% meet 16.7 ms. A separate
+  framebuffer replay shows coherent Pikachu/Fox combat advancing from 1:48.24
+  to 1:33.83 with no real-mesh warp; the known reflection distortion remains.
+  No product change was made. G5 remains open, G6 blocked, and any unrelated
+  background-load reversal still requires explicit reversible authorization.
+  Evidence:
+  `docs/artifacts/2026-08-29/g5-latency-qos-and-logitech-agent-isolation.md`.

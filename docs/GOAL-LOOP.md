@@ -1254,6 +1254,21 @@ host-contention reversal needs explicit authority. G5 remains open and G6
 blocked. See
 `docs/artifacts/2026-08-29/g5-quiet-input-harness-reversal.md`.
 
+PERF-165/167 then close two remaining product-local questions. Apple's XNU
+source identifies `THREAD_LATENCY_QOS_POLICY` as timer-coalescing QoS, and
+user-interactive QoS already selected tier 0 in the rejected prior reversal;
+do not relabel it as a new CPU scheduler mechanism or retry timer policy.
+With both the updater and the Options+ agent stopped at 0% CPU, a valid quiet
+one-process Fountain window measures 16.675053 ms mean / 16.794959 ms p95 /
+33.249209 ms worst. Its body is unchanged and its tail is worse than PERF-154,
+so the remaining Logitech agent is not the fundamental limiter. A separate
+framebuffer replay proves coherent Pikachu/Fox combat from 1:48.24 to 1:33.83
+with no real-mesh recurrence. No product edit remains. Further unrelated
+background-load isolation requires explicit reversible authorization; do not
+infer causality from process-name CPU spots. G5 remains open and G6 blocked.
+See
+`docs/artifacts/2026-08-29/g5-latency-qos-and-logitech-agent-isolation.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

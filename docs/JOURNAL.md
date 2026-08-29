@@ -3448,3 +3448,30 @@ Append-only execution ledger. Claims are limited to observed evidence.
   mesh recurrence.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-quiet-input-harness-reversal.md`.
+
+## 2026-08-29 — PERF-165/167 latency-QoS and complete Logitech isolation
+
+- Goal: determine whether direct latency-QoS is a new supported macOS
+  descheduling mechanism, then test the newly authorized complete Logitech
+  stop without touching unrelated applications.
+- Source audit: Apple XNU commit `f6217f891ac0bb64f3d375211650a4c1ff8ca1ea`
+  labels the field timer latency QoS and consumes it in timer coalescing.
+  User-interactive QoS maps to tier 0, so the prior rejected QoS run already
+  covered it. No preflight or product build was justified.
+- Harness correction: excluded setup attempts caught a broad self-matching PID
+  search, early signal-handler timing, `SIGUSR1` save versus `SIGUSR2` load,
+  stale fullscreen IDs, and one invalid two-process capture fallback. The
+  verified state remained `e4813633...`; no excluded attempt is a speed result.
+- PERF-165: exactly one native runner used the current-PGO module, verified
+  Fountain state, Metal/Cubeb, stock buffered logger, and 45-second quiet
+  balanced input while updater PID 276 and agent PID 629 were both stopped at
+  0% CPU. Final 2,001 rows measure 16.675053 ms mean / 16.794959 ms p95 /
+  16.838917 ms p99 / 33.249209 ms worst; 70.215% meet 16.7 ms.
+- PERF-167 visual-only proof: Dolphin framebuffer screenshots advance from
+  1:48.24 to 1:33.83 with coherent Pikachu/Fox models and no real-mesh warp.
+  The known Fountain reflection distortion remains.
+- Decision: **LATENCY-QOS IS NOT NEW; ALL-LOGITECH ISOLATION FAILS G5.** No
+  product change remains. G5 stays open and G6 blocked. A causal unrelated-app
+  reversal requires explicit reversible authorization.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-latency-qos-and-logitech-agent-isolation.md`.
