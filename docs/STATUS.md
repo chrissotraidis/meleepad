@@ -1466,3 +1466,15 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   and require a shared operation with at least 5% projected coverage. No
   product code changed; G5 remains open and G6 blocked. Evidence:
   `docs/artifacts/2026-08-29/g5-fountain-stopped-updater-and-symbolized-sample.md`.
+- **PERF-145/146 (low-overhead Fountain pacing reversal):** Two current-PGO
+  repeats with the detailed phase observer absent average 59.999944/59.999746
+  FPS and improve to 16.780083/16.784000 ms p95 and 19.897333/19.996833 ms
+  worst. The prior 34.499 ms phase-logged tail is not observer-free, but both
+  runs still fail the strict 16.7 ms worst-frame gate. Each residual miss is
+  followed by a compensating 13.4-13.5 ms interval, identifying delayed/catch-
+  up presentation pacing rather than sustained guest under-speed. Coherent
+  Pikachu/Fox endpoints show no mesh-warp recurrence. Fresh guest-cost
+  attribution finds no unclosed local candidate above 5%. G5 remains open and
+  G6 blocked; next observe actual drawable presentation cadence without
+  changing scheduling. Evidence:
+  `docs/artifacts/2026-08-29/g5-low-overhead-fountain-pacing-reversal.md`.

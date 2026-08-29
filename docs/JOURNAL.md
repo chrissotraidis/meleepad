@@ -3303,3 +3303,30 @@ Append-only execution ledger. Claims are limited to observed evidence.
   projected coverage before another product build. G6 remains blocked.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-fountain-stopped-updater-and-symbolized-sample.md`.
+
+## 2026-08-29 — PERF-145/146 low-overhead Fountain pacing reversal
+
+- Goal: determine whether the current-PGO Fountain severe tail survives
+  without the detailed phase logger's per-slice thread-CPU observations.
+- Harness: two independent private user/app copies enabled only Dolphin's
+  buffered render-time logger. `SSBMPAD_FRAME_PHASE_LOG` was absent. Both used
+  the same verified Fountain state, balanced input, one native process, no
+  Simulator, and the updater still `Ts` at 0% CPU.
+- PERF-145: final presented rows `1413..3413` measure 16.666682 ms mean,
+  16.780083 ms p95, 16.824416 ms p99, and 19.897333 ms worst; 72.264% meet
+  16.7 ms.
+- PERF-146: the same row window measures 16.666737 ms mean, 16.784000 ms p95,
+  16.833458 ms p99, and 19.996833 ms worst; 70.965% meet 16.7 ms.
+- Mechanism: the slow intervals are immediately followed by 13.4-13.5 ms
+  catch-up intervals; both two-frame sums remain near 33.33 ms. Mean is exactly
+  60 FPS, but strict worst-frame pacing still fails.
+- Visual boundary: both runs show coherent Pikachu/Fox Fountain combat from
+  about 1:44.5 to 0:59, with no fighter-mesh recurrence.
+- Selection audit: fresh PERF-144 guest-cost attribution maps 1,390 samples;
+  every leading family is already closed and no new local candidate clears 5%.
+- Decision: **DETAILED OBSERVER CONFOUND CONFIRMED; RESIDUAL G5 PACING FAILS**.
+  Keep phase logging for mechanism attribution, not product-speed claims. Next
+  observe actual drawable presentation cadence without another scheduling
+  change. G6 remains blocked.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-low-overhead-fountain-pacing-reversal.md`.

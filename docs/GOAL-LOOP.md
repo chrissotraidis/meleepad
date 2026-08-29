@@ -1180,6 +1180,19 @@ rewrite before build. Continue only from a shared operation with at least 5%
 fresh projected coverage; G5 remains open and G6 remains blocked. See
 `docs/artifacts/2026-08-29/g5-fountain-stopped-updater-and-symbolized-sample.md`.
 
+PERF-145/146 remove the detailed phase observer from two current-PGO Fountain
+repeats and use only Dolphin's buffered presented-frame logger. Their exact
+final 2,001-row windows repeat 59.999944/59.999746 FPS mean, 16.780083/16.784000
+ms p95, and 19.897333/19.996833 ms worst. The earlier 34.499 ms severe tail is
+not observer-free, but strict G5 still fails. Each residual worst is followed
+by a compensating 13.4-13.5 ms interval, so the remaining mechanism is
+delayed/catch-up presentation pacing rather than sustained guest compute.
+Fresh guest-cost attribution also finds no unclosed local implementation above
+the 5% gate. Do not use detailed phase traces as product-speed claims or reopen
+closed codegen/pacing routes. Next obtain actual drawable-presentation cadence
+without changing scheduling; G6 remains blocked. See
+`docs/artifacts/2026-08-29/g5-low-overhead-fountain-pacing-reversal.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).
