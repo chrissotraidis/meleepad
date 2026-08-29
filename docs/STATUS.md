@@ -6,6 +6,13 @@ Last updated: 2026-08-29
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-185 completes the first park-and-pivot step after PERF-184: all 26 scoped
+native macOS tests pass, including runtime/module loading, CPU/GX behavior,
+audio, frontend configuration, and netplay protocol. This proves the restored
+baseline is internally coherent; it is not a frame-rate result or G5 pass. No
+game, Simulator, or unrelated process change was involved. See
+`docs/artifacts/2026-08-29/g5-park-pivot-regression.md`.
+
 PERF-183 retains the unchanged A leg of a proposed Activity Monitor isolation.
 With no external process changed, Fountain measures 59.790259 FPS, 16.795167
 ms p95, 33.468333 ms worst, and seven doubled render rows with matching vblank

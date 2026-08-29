@@ -3795,3 +3795,16 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Pivot: resume the G5 unblocking ladder with scoped macOS work that does not
   depend on changing unrelated processes. G5 remains open and its 16.7 ms
   requirement is unchanged; this correction is not a performance pass.
+
+## 2026-08-29 — PERF-185 park-and-pivot native regression
+
+- Goal: verify the restored macOS baseline after parking optional external
+  isolation, without launching the game or changing unrelated processes.
+- Method: run all 26 `moderngekko.*` CTest cases from the existing desktop-app
+  build in parallel with failure output enabled.
+- Result: 26/26 pass in 4.84 seconds, including runtime/module loading, CPU/GX,
+  audio, frontend configuration, MemoryWatcher utilities, and netplay protocol.
+- Decision: baseline integrity is retained. This is not performance evidence;
+  G5 remains open. Continue with a new falsifiable product-local mechanism or
+  another independent macOS step under the park-and-pivot rule.
+- Evidence: `docs/artifacts/2026-08-29/g5-park-pivot-regression.md`.

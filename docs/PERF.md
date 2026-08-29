@@ -550,6 +550,12 @@ Monitor does not need to be paused; continue without touching unrelated
 processes.
 See `docs/artifacts/2026-08-29/g5-activity-monitor-isolation-a-leg.md`.
 
+PERF-185 takes the first non-blocking park-and-pivot step: the restored macOS
+baseline passes all 26 scoped `moderngekko.*` tests, covering runtime and
+module loading, CPU/GX, audio, frontend configuration, and netplay protocol.
+This is baseline-integrity evidence, not a timing measurement or G5 pass. See
+`docs/artifacts/2026-08-29/g5-park-pivot-regression.md`.
+
 Required next work:
 
 1. Keep G5 open. Before another product build, require a falsifiable mechanism
