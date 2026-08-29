@@ -6,6 +6,15 @@ Last updated: 2026-08-29
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-170 rejects lazy-gating the always-on ModernGekko runtime-diagnostics hook.
+Its exact work is an 88-byte FNV hash plus relaxed statistic stores. Five
+optimized ten-million-call host loops measure 59.410-62.788 ns/call, about
+0.00036% of the frame budget; the ASan/UBSan repeat emits no diagnostic. That
+is orders of magnitude below materiality and cannot correct millisecond-scale
+off-core gaps. Preserve the useful public diagnostics behavior. The disposable
+preflight is removed, product remains unchanged, G5 is open, and G6 blocked.
+See `docs/artifacts/2026-08-29/g5-runtime-diagnostics-cost-rejection.md`.
+
 PERF-169 rejects the ModernGekko FPS-title thread as the common source of the
 clean producer tail. A disposable title-on/off/on run was dominated by changing
 host load and degraded monotonically from 41.685 to 38.389 to 32.110 FPS across

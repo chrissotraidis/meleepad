@@ -19,6 +19,14 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-170 rejects lazy-gating ModernGekko's always-on runtime diagnostics hook.
+The exact-shaped host preflight hashes the same 88 bytes and performs the same
+relaxed atomic operations in 59.410-62.788 ns/call across five ten-million-call
+optimized repeats, only about 0.00036% of a frame. ASan/UBSan also passes. Keep
+the useful public diagnostics behavior; deleting sixty nanoseconds cannot fix
+off-core millisecond gaps. The disposable preflight is removed. See
+`docs/artifacts/2026-08-29/g5-runtime-diagnostics-cost-rejection.md`.
+
 PERF-169 rejects the once-per-second FPS title updater as the common clean-tail
 cause. A disposable title-on/off/on run was invalidated by severe changing host
 load and monotonically degraded 41.685 -> 38.389 -> 32.110 FPS across A/B/A;

@@ -3527,3 +3527,22 @@ Append-only execution ledger. Claims are limited to observed evidence.
   and no game or Simulator remains. G5 stays open; G6 remains blocked.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-title-thread-and-overloaded-host-rejection.md`.
+
+## 2026-08-29 — PERF-170 runtime-diagnostics cost rejection
+
+- Goal: determine whether ModernGekko's always-on `after_frame_event`
+  diagnostics snapshot hook is material enough to lazy-gate for G5.
+- Source audit: the hook hashes 88 projection bytes, increments one relaxed
+  atomic, and stores twelve relaxed statistic values. It performs no lock,
+  allocation, I/O, syscall, GPU operation, or wait. The public snapshot API has
+  future diagnostics value even though the current launcher has no caller.
+- Host preflight: an exact-shaped `-O3 -mcpu=apple-m1` loop repeated ten million
+  calls five times at 59.410-62.788 ns/call, about 0.00036% of 16.7 ms.
+- Sanitizer: ASan/UBSan with unsupported leak detection disabled ran 100,000
+  calls without a diagnostic at 92.040 ns/call.
+- Decision: **DIAGNOSTICS LAZY-GATING REJECTED.** Roughly sixty nanoseconds is
+  far below materiality and cannot solve millisecond off-core gaps. Preserve
+  the public behavior. The disposable source was removed; product remains
+  unchanged, G5 stays open, and G6 blocked.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-runtime-diagnostics-cost-rejection.md`.
