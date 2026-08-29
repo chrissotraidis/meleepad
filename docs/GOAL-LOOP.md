@@ -1205,6 +1205,22 @@ misses. Next distinguish GPU readiness from compositor-only deferral using
 command-buffer timestamps without changing scheduling. G6 remains blocked.
 See `docs/artifacts/2026-08-29/g5-current-actual-presentation-deferral.md`.
 
+PERF-149/150 add in-memory command-buffer and GPU timestamps without changing
+presentation scheduling. A short 2,001-interval screen passes with a
+16.666749 ms worst, but a 95.884-second Fountain combat window contains nine
+33.333 ms actual intervals. At every miss the present record was registered
+12.397-32.797 ms early and GPU work completed 10.408-30.918 ms before the
+skipped refresh deadline; combat GPU duration is only 1.565649 ms mean and
+2.522875 ms worst. GPU/render lateness is rejected: macOS deferred already-
+ready frames, consistent with the independently proven approximately 59.94 Hz
+guest to fixed 60.0 Hz panel conversion. The observer is not used to claim a
+miss rate, only ordering. It was removed and the canonical runner rebuilt
+without its marker. G5 remains open; do not reopen renderer or presentation
+variants. The next candidate must preserve deterministic guest/audio/netplay
+timing and produce a distinct frame each refresh rather than duplicating stale
+content. G6 remains blocked. See
+`docs/artifacts/2026-08-29/g5-gpu-readiness-and-display-deferral.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

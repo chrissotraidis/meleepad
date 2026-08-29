@@ -3358,3 +3358,35 @@ Append-only execution ledger. Claims are limited to observed evidence.
   changing scheduling. G6 remains blocked.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-current-actual-presentation-deferral.md`.
+
+## 2026-08-29 — PERF-149/150 GPU readiness and display deferral
+
+- Goal: distinguish late GPU completion from compositor-only deferral on the
+  current Fountain actual-display misses.
+- Harness: a disposable default-dormant Metal recorder retained acquisition,
+  registration, scheduled, GPU start/end, completion, and `presentedTime`
+  timestamps in memory and wrote once at shutdown. Presentation scheduling,
+  current-PGO module, native Metal/Cubeb configuration, and verified Fountain
+  state were unchanged. One native process ran, no Simulator was booted, and
+  Logitech remained kernel-stopped at 0% CPU.
+- PERF-149: the short final 2,001 actual intervals all pass, with
+  16.666667/16.666708/16.666749 ms p95/p99/worst.
+- PERF-150: the sustained 95.884-second combat boundary retains 5,744 actual
+  intervals at 16.692862 ms mean, 16.666833 ms p95, 16.666834 ms p99, and
+  33.333542 ms worst. Nine intervals miss one refresh; 99.843% meet 16.7 ms.
+- Attribution: all nine records were registered 12.397-32.797 ms before the
+  skipped refresh and their GPU work ended 10.408-30.918 ms before it. GPU
+  duration was 1.565649 ms mean / 1.689158 ms p95 / 2.522875 ms worst.
+  **GPU LATENESS REJECTED; READY-FRAME DISPLAY DEFERRAL RETAINED.**
+- Visual boundary: coherent Pikachu/Fox Fountain combat proceeds to the
+  natural results screen. No fighter-mesh recurrence appears; the known lower
+  reflection remains reference parity.
+- Reversal: removed the complete private observer, rebuilt the canonical
+  runner, and verified its diagnostic marker absent. No product edit remains.
+- Decision: strict G5 still fails. Do not retry renderer, GPU, drawable,
+  present API, display-sync, timer, QoS, or guest-code variants from this
+  evidence. Any next candidate must preserve deterministic guest/audio/netplay
+  timing and produce distinct frames rather than hide the fixed-panel
+  conversion hold with stale duplicates. G6 remains blocked.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-gpu-readiness-and-display-deferral.md`.

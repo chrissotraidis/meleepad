@@ -1490,3 +1490,15 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   next distinguish GPU readiness from compositor deferral without changing
   scheduling. Evidence:
   `docs/artifacts/2026-08-29/g5-current-actual-presentation-deferral.md`.
+- **PERF-149/150 (GPU readiness and display deferral):** A short 2,001-
+  interval actual-display window passes at 16.666749 ms worst, but the sustained
+  95.884-second Fountain combat boundary has nine 33.333 ms intervals and a
+  33.333542 ms worst. Every missed frame was registered 12.397-32.797 ms early
+  and GPU-complete 10.408-30.918 ms before the skipped refresh; GPU duration is
+  only 1.565649 ms mean / 2.522875 ms worst. This rejects M1 GPU saturation and
+  late rendering for the observed class and confirms compositor deferral of
+  ready frames, consistent with the existing 59.94-to-fixed-60 conversion
+  proof. The private observer was removed and canonical source rebuilt without
+  its marker. No fighter-mesh recurrence was seen. G5 remains open and G6
+  blocked. Evidence:
+  `docs/artifacts/2026-08-29/g5-gpu-readiness-and-display-deferral.md`.

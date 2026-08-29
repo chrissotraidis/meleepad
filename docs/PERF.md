@@ -451,20 +451,30 @@ region and require evidence that keeping guest state live removes material
 arm64 loads/stores beyond dispatch savings. See
 `docs/artifacts/2026-08-28/g5-dispatch-trace-coverage-rejection.md`.
 
+PERF-149/150 close the remaining GPU-readiness question. A short current-PGO
+Fountain screen passes all 2,001 actual display intervals with a 16.666749 ms
+worst, but the sustained 95.884-second combat window measures 16.692862 ms
+mean / 16.666833 ms p95 / 16.666834 ms p99 / 33.333542 ms worst. Nine of
+5,744 intervals miss one refresh. Every associated present record was
+registered 12.397-32.797 ms before the skipped refresh, and its Metal GPU work
+ended 10.408-30.918 ms before that deadline. GPU work itself is 1.565649 ms
+mean and 2.522875 ms worst. The M1 GPU and Fountain render path are therefore
+not the cause of this current strict tail; macOS deferred already-ready frames,
+consistent with the retained approximately 59.94 Hz source to fixed 60.0 Hz
+panel conversion proof. The private observer was removed and the canonical
+runner rebuilt without its marker. See
+`docs/artifacts/2026-08-29/g5-gpu-readiness-and-display-deferral.md`.
+
 Required next work:
 
-1. Preflight one genuinely merged generated region from the dominant
-   `8036C8D8..8036C91C` Fountain sequence. Compare arm64 CPUState loads/stores
-   and host cost against separate chunk calls; continue only if keeping guest
-   state live supplies material gain beyond dispatch removal. The focused
-   boundary semantics pass, but dispatcher-only trace chaining is rejected.
-   The broad callback, inline-table, and unguarded transforms,
-   whole-module IR PGO, and global order-file layout are rejected. Blind size
-   thresholds, single-helper inlining,
-   blanket outlining, timer spinning, combined no-EXRAM, and simply diluting
-   its Fountain weighting with another stage are rejected.
-2. Continue reducing the real p95/p99/worst tail to at most 16.7 ms.
-3. Turn the proven isolated-save unlock procedure into a repository-native,
-   data-free setup without distributing the generated GCI.
+1. Keep G5 open. Before another product build, require a falsifiable mechanism
+   that can produce a new distinct frame each fixed-panel refresh while
+   preserving deterministic guest, audio, and netplay timing. Duplicating a
+   stale surface is not a pass.
+2. Do not reopen GPU, renderer, drawable acquisition, VSync, display-sync,
+   direct/scheduled presentation, timer, QoS, or already-rejected guest-code
+   candidates without new contradictory evidence.
+3. Continue reducing any observer-free producer interval above 16.7 ms, but do
+   not conflate fixed-panel conversion holds with M1 compute saturation.
 4. Retain an optimization only after both required stages improve and the G5
    worst-frame requirement is actually met.
