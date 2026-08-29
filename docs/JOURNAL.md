@@ -3635,3 +3635,19 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Decision: rate alignment rejected; G5 open, Final Destination and G6 blocked.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-sustained-pre-results-and-rate-alignment-rejection.md`.
+
+## 2026-08-29 — PERF-176 current render/vblank stall join
+
+- Goal: determine whether current confirmed-Game-Mode pre-results holds begin
+  upstream in vblank/CPU execution or only after submission in the compositor.
+- Method: read-only join of the retained clean render/vblank logs; no game,
+  observer, profiler, setting, source edit, or Simulator.
+- Result: all six post-boot pre-results render intervals above 20 ms pair with
+  vblank stalls at an exact +172-row offset. The four 33.218-33.292 ms render
+  rows pair with 33.969-34.979 ms vblank rows.
+- Decision: current holds begin in the combined CPU-GPU/vblank host-execution
+  path. Existing supported scheduling routes are rejected; Apple's affinity
+  tag is not P-core pinning, so no no-op patch was built. G5 remains open,
+  Final Destination and G6 blocked.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-current-render-vblank-stall-join.md`.

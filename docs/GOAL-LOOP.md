@@ -19,6 +19,16 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-176 joins the clean current render/vblank logs without a live observer.
+All six pre-results render gaps above 20 ms map to vblank stalls at an exact
+fixed +172-row offset, including four 33 ms pairs. The residual hold therefore
+begins in the combined CPU-GPU/vblank host-execution path, not only in the
+compositor. Supported QoS, priority, time-constraint, Game Mode, timer,
+workgroup, and dual-core routes are already rejected; Apple's affinity tag is
+cache-locality guidance rather than P-core pinning and is not a new fix. Do
+not add an affinity no-op. See
+`docs/artifacts/2026-08-29/g5-current-render-vblank-stall-join.md`.
+
 PERF-174/175 extend the confirmed-Game-Mode Fountain result without changing
 product source. A hands-off 36-cycle repeat reaches the same deterministic
 match/results boundary at absolute render row 6,784; its final 2,001 combat

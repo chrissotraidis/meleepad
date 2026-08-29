@@ -1614,3 +1614,13 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   byte-for-byte. No product source changed; G5 remains open, Final Destination
   and G6 blocked. Evidence:
   `docs/artifacts/2026-08-29/g5-sustained-pre-results-and-rate-alignment-rejection.md`.
+- **PERF-176 (current render/vblank stall join):** A read-only join of the
+  clean PERF-174 logs maps every post-boot pre-results render gap above 20 ms
+  to a vblank stall at the exact same +172-row offset. Four 33 ms render rows
+  pair with 33.969-34.979 ms vblank rows. The current residual class begins in
+  the combined CPU-GPU/vblank host-execution path, not only the compositor.
+  Existing supported scheduler routes are already causally rejected, and
+  Apple's affinity tag is cache-locality guidance rather than P-core pinning;
+  no no-op product patch was added. G5 remains open, Final Destination and G6
+  blocked. Evidence:
+  `docs/artifacts/2026-08-29/g5-current-render-vblank-stall-join.md`.
