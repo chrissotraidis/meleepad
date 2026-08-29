@@ -529,6 +529,16 @@ increases >20 ms render rows from two to three. Vblank retains the same hold
 class. The candidate is removed and Cubeb 512 restored. See
 `docs/artifacts/2026-08-29/g5-cubeb-buffer-rejection.md`.
 
+PERF-182 independently audits all remaining public product-local G5 levers
+against current source and causal evidence. It finds no build candidate:
+compute, GPU, presentation, supported scheduler/timer, audio, shader, disc,
+title, and known Logitech routes are closed. It preserves the distinction
+between mathematically required fixed-panel conversion holds and genuine
+producer intervals without weakening D2; the producer class still fails. The
+next unresolved test is an explicitly authorized reversible clean-host
+isolation of unrelated runnable load, followed by both required stages. See
+`docs/artifacts/2026-08-29/g5-independent-boundary-audit.md`.
+
 Required next work:
 
 1. Keep G5 open. Before another product build, require a falsifiable mechanism

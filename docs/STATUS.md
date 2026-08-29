@@ -6,6 +6,18 @@ Last updated: 2026-08-29
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-182 independently audits the accumulated G5 evidence and current source.
+No evidence-qualified public product-local mechanism remains for another
+build: guest compute, GPU, Metal/presentation, supported scheduler/timer,
+audio, shader, disc, FPS-title, and known Logitech routes are causally closed.
+The audit identifies a wording ambiguity between producer and presented
+intervals on this fixed-60 panel, but does not edit or weaken D2; genuine
+producer intervals still exceed 16.7 ms. The next unresolved causal test is a
+reversible clean-host isolation of unrelated runnable load, which requires
+explicit scope. Until then, leave unrelated processes alone. No game or
+Simulator remains. See
+`docs/artifacts/2026-08-29/g5-independent-boundary-audit.md`.
+
 PERF-181 rejects doubling Cubeb's requested buffer from 512 to 1,024 frames.
 The CoreAudio device minimum is only 128, so the candidate is effective, but
 Fountain regresses from 59.969577 to 59.910028 FPS and retains three doubled

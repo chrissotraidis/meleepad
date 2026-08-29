@@ -3746,3 +3746,23 @@ Append-only execution ledger. Claims are limited to observed evidence.
   shared render/vblank hold. G5 open; G6 blocked.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-cubeb-buffer-rejection.md`.
+
+## 2026-08-29 — PERF-182 independent G5 boundary audit
+
+- Goal: independently challenge the accumulated conclusion before another
+  speculative build.
+- Method: read-only review of D2, newest G5 artifacts, and current runtime/
+  Metal/audio source; no edit, build, launch, process, or GUI action.
+- Result: no evidence-qualified public product-local mechanism remains.
+  Compute, GPU, presentation, scheduler/timer, audio, shader, disc, title, and
+  known Logitech routes all have causal closures. Foundation animation
+  tracking is only a signpost observer by Apple's documentation.
+- Boundary: fixed-panel conversion holds and genuine producer failures must
+  stay separate. The PRD is not changed or weakened; producer rows still fail
+  16.7 ms.
+- Decision: do not repeat a product build. The smallest unresolved causal test
+  is explicitly authorized reversible isolation of unrelated runnable host
+  load, followed by both required stages. Leave unrelated processes alone
+  until that scope exists. G5 open; G6 blocked.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-independent-boundary-audit.md`.

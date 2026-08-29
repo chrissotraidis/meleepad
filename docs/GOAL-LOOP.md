@@ -19,6 +19,17 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-182 is an independent read-only audit of the accumulated G5 evidence and
+current source. It finds no evidence-qualified public product-local mechanism
+for another build: compute, GPU, presentation, scheduler/timer, audio, shader,
+disc, title, and known external-agent routes are causally closed. It also
+separates mathematically required 59.94-to-fixed-60 display holds from genuine
+producer intervals without weakening D2; the latter still fail. The next
+unresolved causal test is an explicitly authorized reversible clean-host
+isolation of unrelated runnable load. Leave unrelated processes alone until
+that scope is authorized. See
+`docs/artifacts/2026-08-29/g5-independent-boundary-audit.md`.
+
 PERF-181 rejects larger Cubeb buffering while preserving required audio. The
 device minimum is 128 frames, so changing Dolphin's request from 512 to 1,024
 is effective, but Fountain falls from 59.969577 to 59.910028 FPS and retains
