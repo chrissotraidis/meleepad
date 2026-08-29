@@ -19,6 +19,15 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-180 refreshes the user-visible Main Menu on the exact current PGO/Game
+Mode package. A cold MemoryWatcher-gated route reaches the genuine menu class,
+then a conservative 3,413-row buffered bracket averages 59.937749 FPS with no
+interval above 20 ms and a 59.743392 FPS worst rolling 60-frame rate. The old
+sustained 12.5-30 FPS mode does not reproduce. P95 is still 18.793042 ms and
+the slow rows have compensating early rows, so do not claim perfect menu
+smoothness or G5. See
+`docs/artifacts/2026-08-29/g5-current-main-menu-window.md`.
+
 PERF-179 rejects the last untested native Metal queue-depth lever. Reducing
 `CAMetalLayer.maximumDrawableCount` from its three-drawable default to two
 collapses Fountain's final 2,001 rows to 38.967624 FPS, 33.393333 ms p95, and

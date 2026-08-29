@@ -3707,3 +3707,24 @@ Append-only execution ledger. Claims are limited to observed evidence.
   reduction. G5 open; G6 blocked.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-two-drawable-layer-rejection.md`.
+
+## 2026-08-29 — PERF-180 current Main Menu window
+
+- Goal: determine whether the exact current PGO/Game Mode package still has a
+  sustained 12.5-30 FPS Main Menu mode.
+- Route: one cold packaged process, no savestate or Simulator. MemoryWatcher
+  proved the title lockout and `0x01000000` menu class, followed by a five-
+  second settle and untouched 60-second wall hold with the controller FIFO
+  kept open.
+- Result: the conservative 3,413-row buffered bracket averages 16.683976 ms /
+  59.937749 FPS, with 18.793042 ms p95, 19.611250 ms worst, no row above 20 ms,
+  and 59.743392 FPS worst rolling 60-frame cadence. The old sustained collapse
+  does not reproduce, but delayed/early pacing remains.
+- Boundary: no fresh visual claim; buffered line counts are an interior timing
+  bracket rather than exact wall endpoints. Zero fallback/failed SMC and no
+  thermal or performance warning.
+- Decision: reject a current sustained 12.5-FPS menu diagnosis; do not claim
+  perfect smoothness or G5. Continue the shared pacing/descheduling work. G6
+  blocked.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-current-main-menu-window.md`.

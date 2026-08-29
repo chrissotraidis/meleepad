@@ -6,6 +6,16 @@ Last updated: 2026-08-29
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-180 refreshes Main Menu performance on the exact current PGO/Game Mode
+package. A cold MemoryWatcher-gated route proves the genuine revision-0 menu
+class, then a conservative 3,413-row buffered bracket averages 16.683976 ms /
+59.937749 FPS. No interval exceeds 20 ms; the worst rolling 60-frame rate is
+59.743392 FPS. The old sustained 12.5-30 FPS mode does not reproduce. P95 is
+still 18.793042 ms, with distributed delayed/early compensation, and no fresh
+visual claim is attached. This is not a smoothness or G5 pass. No source or
+config changed, and no game or Simulator remains. See
+`docs/artifacts/2026-08-29/g5-current-main-menu-window.md`.
+
 PERF-179 rejects reducing the native Metal layer from its default three-
 drawable pool to two. The one-line private candidate catastrophically turns
 Fountain's final 2,001 rows into 38.967624 FPS, 33.393333 ms p95, and
