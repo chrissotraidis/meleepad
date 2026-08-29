@@ -3330,3 +3330,31 @@ Append-only execution ledger. Claims are limited to observed evidence.
   change. G6 remains blocked.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-low-overhead-fountain-pacing-reversal.md`.
+
+## 2026-08-29 — PERF-147/148 current actual-presentation deferral
+
+- Goal: determine whether low-overhead app-side jitter reaches the actual
+  display or is absorbed by Metal display synchronization.
+- Harness: a disposable default-dormant presented-handler recorded acquire,
+  registration, and `presentedTime` timestamps on the current runner/module.
+  Phase logging was absent. Same Fountain state/input, one process, no
+  Simulator, updater stopped. The hook and private runner were removed after
+  the runs; the canonical runner was rebuilt without its marker.
+- PERF-147: 2,001 actual intervals measure 16.666750 ms p95, 16.666792 ms p99,
+  and 33.333375 ms worst; 1,998/2,001 meet 16.7 ms and three miss one refresh.
+- PERF-148: p95/p99/worst are 16.666792/16.666833/33.333500 ms; 1,999/2,001
+  meet 16.7 ms and two miss one refresh. Neither boundary contains a dropped
+  `presentedTime == 0` callback.
+- Attribution: all five misses were registered after one normal 16.596-16.792
+  ms producer interval and acquired their drawable in 3.955-5.745 ms. Metal or
+  macOS deferred an on-time present request by one refresh.
+- Observer caveat: callback runs also gained app-side 33 ms intervals absent
+  from PERF-145/146, so the measured miss rate is not claimed observer-free.
+  Historical actual-display full-match evidence independently retains misses.
+- Visual boundary: both runs show coherent Pikachu/Fox Fountain combat with no
+  fighter-mesh recurrence.
+- Decision: **ACTUAL DISPLAY PACING QUANTIFIED; RARE REFRESH DEFERRAL FAILS
+  G5**. Next log command-buffer scheduled/GPU/completed timestamps without
+  changing scheduling. G6 remains blocked.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-current-actual-presentation-deferral.md`.

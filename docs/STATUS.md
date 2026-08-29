@@ -1478,3 +1478,15 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   G6 blocked; next observe actual drawable presentation cadence without
   changing scheduling. Evidence:
   `docs/artifacts/2026-08-29/g5-low-overhead-fountain-pacing-reversal.md`.
+- **PERF-147/148 (current actual-presentation deferral):** Actual drawable
+  callbacks without phase logging measure 16.666750/16.666792 ms p95 and
+  16.666792/16.666833 ms p99, but repeat 33.333375/33.333500 ms worst intervals
+  (three/two missed refreshes). All five requests were registered on time after
+  normal 16.596-16.792 ms producer gaps and 3.955-5.745 ms drawable acquisition;
+  no callback was dropped. Metal/macOS deferred an on-time present request by
+  one refresh. The callback may perturb the run and was removed; historical
+  actual-display evidence independently retains misses. Coherent Fountain
+  endpoints show no mesh-warp recurrence. G5 remains open and G6 blocked;
+  next distinguish GPU readiness from compositor deferral without changing
+  scheduling. Evidence:
+  `docs/artifacts/2026-08-29/g5-current-actual-presentation-deferral.md`.

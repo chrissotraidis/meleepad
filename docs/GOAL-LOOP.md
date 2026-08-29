@@ -1193,6 +1193,18 @@ closed codegen/pacing routes. Next obtain actual drawable-presentation cadence
 without changing scheduling; G6 remains blocked. See
 `docs/artifacts/2026-08-29/g5-low-overhead-fountain-pacing-reversal.md`.
 
+PERF-147/148 then observe current actual drawable presentation without phase
+logging. Their final 2,001 intervals measure 16.666750/16.666792 ms p95 and
+16.666792/16.666833 ms p99, so Metal absorbs almost all app-side jitter. The
+strict worst still fails at 33.333375/33.333500 ms, with three/two exact missed
+refreshes and zero dropped callbacks. Every miss was registered on time
+(16.596-16.792 ms registration gaps) after a 3.955-5.745 ms drawable acquire;
+the producer did not arrive one refresh late. The callback may perturb the run
+and was removed, but historical actual-display evidence independently retains
+misses. Next distinguish GPU readiness from compositor-only deferral using
+command-buffer timestamps without changing scheduling. G6 remains blocked.
+See `docs/artifacts/2026-08-29/g5-current-actual-presentation-deferral.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).
