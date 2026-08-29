@@ -534,17 +534,20 @@ against current source and causal evidence. It finds no build candidate:
 compute, GPU, presentation, supported scheduler/timer, audio, shader, disc,
 title, and known Logitech routes are closed. It preserves the distinction
 between mathematically required fixed-panel conversion holds and genuine
-producer intervals without weakening D2; the producer class still fails. The
-next unresolved test is an explicitly authorized reversible clean-host
-isolation of unrelated runnable load, followed by both required stages. See
+producer intervals without weakening D2; the producer class still fails.
+Reversible clean-host isolation remains an unresolved optional diagnostic, not
+a required next action. PERF-184 parks it so the loop can continue without
+changing unrelated processes. See
 `docs/artifacts/2026-08-29/g5-independent-boundary-audit.md`.
 
 PERF-183 retains an unchanged Activity-Monitor-on A leg without altering any
 external process. Read-only snapshots identify Activity Monitor plus its
 natural `sysmond` sampling as the only material current observer load. The
 final 2,001 Fountain rows measure 59.790259 FPS, 16.795167 ms p95, and seven
-doubled render frames; vblank retains matching stalls. This is not causal until
-an explicitly authorized Activity-Monitor-only stopped B and resumed A2 exist.
+doubled render frames; vblank retains matching stalls. This is not causal.
+PERF-184 parks the B/A2 idea as optional and explicitly non-blocking. Activity
+Monitor does not need to be paused; continue without touching unrelated
+processes.
 See `docs/artifacts/2026-08-29/g5-activity-monitor-isolation-a-leg.md`.
 
 Required next work:

@@ -2,7 +2,11 @@
 
 Date: 2026-08-29
 
-Status: **LOADED A CONTROL RETAINED; CAUSAL B/A2 REQUIRE EXPLICIT SCOPE; G5 OPEN**
+Status: **LOADED A CONTROL RETAINED; OPTIONAL ISOLATION PARKED; G5 OPEN**
+
+> PERF-184 correction: this A leg records an observation only. Activity Monitor
+> does not need to be paused for the project to continue. B/A2 is parked as an
+> optional future diagnostic and is neither a prerequisite nor a blocker.
 
 ## Host audit
 
@@ -65,10 +69,11 @@ Cubeb active, and no thermal or performance warning. Private evidence hashes:
 - runtime stderr: `0719caa57007c0439c38c3e51c8310c2058a940420ca42d3c0883fc8665fbe9d`
 - Game Policy log: `91f421dbfe0b0545ef3cde650d5ff79f8dd383afb8a0610b19f35f9c2596dc45`
 
-## Required completion
+## Optional follow-up, not a blocker
 
 This is not a causal verdict and does not authorize external manipulation.
-Completing the experiment requires explicit scope for exactly:
+If the user ever explicitly requests completion of this optional experiment,
+the exact safe scope would be:
 
 1. verify Activity Monitor's current executable identity;
 2. send `SIGSTOP` to only that user-owned Activity Monitor PID;
@@ -79,6 +84,6 @@ Completing the experiment requires explicit scope for exactly:
 6. run identical resumed A2.
 
 Brave, Claude, OpenCodex, Codex, ChatGPT, Logitech, and all system services
-remain untouched. Until the exact scope is authorized, do not run B or infer
-Activity Monitor causality. G5 remains open; G6 remains blocked. No game or
-Simulator remains.
+remain untouched. Do not run B or infer Activity Monitor causality. Failure to
+run B/A2 does not block continued goal-loop work. G5 remains open; G6 remains
+blocked. No game or Simulator remains.

@@ -2,7 +2,11 @@
 
 Date: 2026-08-29
 
-Status: **NO EVIDENCE-QUALIFIED PRODUCT-LOCAL BUILD REMAINS; G5 OPEN**
+Status: **HISTORICAL BOUNDARY AUDIT; EXTERNAL ISOLATION PARKED; G5 OPEN**
+
+> PERF-184 correction: the external-isolation proposal below is an optional
+> diagnostic, not a prerequisite or project blocker. Continue the unblocking
+> ladder without changing unrelated processes.
 
 ## Scope
 
@@ -71,11 +75,11 @@ documented semantics.
 
 The remaining genuine class is whole-task host-execution loss shared by
 Fountain and Final Destination. Every supported product-local policy found so
-far has a causal rejection. The smallest unresolved test is an explicitly
-authorized, reversible clean-host isolation of unrelated runnable load,
-followed by the same confirmed-Game-Mode Fountain and Final Destination
-controls. Until that scope is authorized, leave unrelated processes alone and
-do not disguise a repeated timing run as progress.
+far has a causal rejection. One unresolved diagnostic is reversible clean-host
+isolation of unrelated runnable load, followed by the same confirmed-Game-Mode
+Fountain and Final Destination controls. PERF-184 parks that diagnostic; it is
+not the next required action. Leave unrelated processes alone and continue
+with scoped macOS work that does not depend on the result.
 
 G5 remains open. Final Destination acceptance and G6 remain blocked. No game or
 Simulator is running.

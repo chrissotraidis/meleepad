@@ -3783,3 +3783,15 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Decision: retain A and wait for exact scope; G5 open, G6 blocked.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-activity-monitor-isolation-a-leg.md`.
+
+## 2026-08-29 — PERF-184 non-blocking correction and pivot
+
+- Correction: Activity Monitor does not need to be paused for the goal loop to
+  continue. PERF-183's B/A2 proposal was an optional causal diagnostic, not a
+  prerequisite or blocker; treating it as the only next action was incorrect.
+- Decision: park B/A2 indefinitely. Do not signal Activity Monitor, `sysmond`,
+  or any unrelated app/service. Preserve PERF-183 only as a non-causal A
+  observation.
+- Pivot: resume the G5 unblocking ladder with scoped macOS work that does not
+  depend on changing unrelated processes. G5 remains open and its 16.7 ms
+  requirement is unchanged; this correction is not a performance pass.

@@ -7,13 +7,12 @@ Last updated: 2026-08-29
 **G5 — macOS 60 fps: IN PROGRESS**
 
 PERF-183 retains the unchanged A leg of a proposed Activity Monitor isolation.
-Read-only snapshots identify Activity Monitor as the only material current
-user sampling load; its CPU varied from 0.6-7.3% and root `sysmond` from 0-4%,
-while OpenCodex's spike was transient and Logitech remained stopped. With no
-external process changed, Fountain measures 59.790259 FPS, 16.795167 ms p95,
-33.468333 ms worst, and seven doubled render rows with matching vblank stalls.
-This is not causal until an explicitly scoped Activity-Monitor-only stopped B
-and resumed A2 exist. Never signal `sysmond` or touch other apps/services. No
+With no external process changed, Fountain measures 59.790259 FPS, 16.795167
+ms p95, 33.468333 ms worst, and seven doubled render rows with matching vblank
+stalls. This is not causal. PERF-184 parks B/A2 as optional follow-up, not a
+prerequisite or blocker. Activity Monitor does not need to be paused for work
+to continue; do not signal it, `sysmond`, or any other app/service. Continue
+with scoped macOS work that does not depend on unrelated process changes. No
 game or Simulator remains. See
 `docs/artifacts/2026-08-29/g5-activity-monitor-isolation-a-leg.md`.
 
@@ -23,9 +22,9 @@ build: guest compute, GPU, Metal/presentation, supported scheduler/timer,
 audio, shader, disc, FPS-title, and known Logitech routes are causally closed.
 The audit identifies a wording ambiguity between producer and presented
 intervals on this fixed-60 panel, but does not edit or weaken D2; genuine
-producer intervals still exceed 16.7 ms. The next unresolved causal test is a
-reversible clean-host isolation of unrelated runnable load, which requires
-explicit scope. Until then, leave unrelated processes alone. No game or
+producer intervals still exceed 16.7 ms. Reversible clean-host isolation is an
+unresolved optional diagnostic, now parked by PERF-184. It is not the next
+required action and does not block other scoped macOS work. No game or
 Simulator remains. See
 `docs/artifacts/2026-08-29/g5-independent-boundary-audit.md`.
 

@@ -20,13 +20,14 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
 PERF-183 retains only the unchanged A leg of a proposed Activity Monitor
-isolation. Read-only snapshots identify Activity Monitor as the sole material
-user sampling load; OpenCodex's spike was transient and Logitech remains
-stopped. With Activity Monitor active, Fountain measures 59.790259 FPS with
-seven doubled render rows and matching vblank stalls. This is not causal until
-an explicitly scoped Activity-Monitor-only stop B and resumed A2 exist. Never
-signal `sysmond` or touch Brave, Claude, OpenCodex, Codex, ChatGPT, Logitech,
-or system services. See
+isolation. With Activity Monitor active, Fountain measures 59.790259 FPS with
+seven doubled render rows and matching vblank stalls. This is not causal.
+PERF-184 parks the proposed B/A2 isolation as an optional future diagnostic,
+not a prerequisite or blocker: Activity Monitor does not need to be paused for
+the goal loop to continue. Do not signal Activity Monitor, `sysmond`, or touch
+Brave, Claude, OpenCodex, Codex, ChatGPT, Logitech, or system services. Continue
+through the unblocking ladder with scoped macOS work that does not depend on
+changing unrelated processes. See
 `docs/artifacts/2026-08-29/g5-activity-monitor-isolation-a-leg.md`.
 
 PERF-182 is an independent read-only audit of the accumulated G5 evidence and
@@ -34,10 +35,10 @@ current source. It finds no evidence-qualified public product-local mechanism
 for another build: compute, GPU, presentation, scheduler/timer, audio, shader,
 disc, title, and known external-agent routes are causally closed. It also
 separates mathematically required 59.94-to-fixed-60 display holds from genuine
-producer intervals without weakening D2; the latter still fail. The next
-unresolved causal test is an explicitly authorized reversible clean-host
-isolation of unrelated runnable load. Leave unrelated processes alone until
-that scope is authorized. See
+producer intervals without weakening D2; the latter still fail. Reversible
+clean-host isolation of unrelated runnable load remains an unresolved optional
+diagnostic, but PERF-184 parks it. It must not stop other scoped macOS work or
+be treated as required. See
 `docs/artifacts/2026-08-29/g5-independent-boundary-audit.md`.
 
 PERF-181 rejects larger Cubeb buffering while preserving required audio. The
