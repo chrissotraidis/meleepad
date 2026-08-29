@@ -3590,3 +3590,25 @@ Append-only execution ledger. Claims are limited to observed evidence.
   next clean combat run on the same activation line. G6 remains blocked.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-current-gamemode-activation-probe.md`.
+
+## 2026-08-29 — PERF-173 confirmed-Game-Mode Fountain window
+
+- Goal: test the strict G5 Fountain boundary with the refreshed current-PGO
+  package only after macOS explicitly activates Game Mode for that process.
+- Setup: disposable signed wrapper, exact `e1f3c1d8...` runner and
+  `bd089303...` PGO module, verified private Fountain state, fullscreen Metal,
+  Cubeb, EFB prewarm, one game, no Simulator, and quiet 18-repeat balanced
+  combat input.
+- Runtime gate: Game Policy logged the identified game, active fullscreen
+  session, `Game mode enabled`, and `Game mode status is now on` before
+  `SIGUSR2` state load. Shutdown recorded 696,674,344 native dispatches, zero
+  fallback, and zero failed SMC verification; thermals recorded no warning.
+- Result: exact final 2,001 rows average 16.666485736 ms / 60.000651 FPS,
+  p95 16.807334 ms, p99 16.916375 ms, and worst 17.477083 ms. No row exceeds
+  20 ms, but only 69.165417% meet 16.7 ms. The largest rows have short catch-up
+  successors, including 17.477083 -> 15.861250 ms.
+- Boundary: no fresh UI-driven screenshot was taken, so no new visual claim is
+  attached. No source or product setting changed. Fountain still fails strict
+  G5; do not run Final Destination or G6.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-confirmed-gamemode-fountain-window.md`.

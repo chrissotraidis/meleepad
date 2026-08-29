@@ -19,6 +19,16 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-173 is the first full Fountain combat window gated on confirmed current
+Game Mode. The exact PGO runner/module, quiet 18-cycle input, Metal, Cubeb, and
+no Simulator restore a 60.000651 FPS mean with no rows above 20 ms, but the
+strict final 2,001 rows still fail at 16.807334 ms p95 and 17.477083 ms worst;
+only 69.165417% meet 16.7 ms. The worst rows have short catch-up successors.
+No fresh visual claim is attached because this run intentionally avoided UI
+automation. Retain the measurement-only result, do not run Final Destination
+or G6, and continue from the residual producer-cadence tail. See
+`docs/artifacts/2026-08-29/g5-confirmed-gamemode-fountain-window.md`.
+
 PERF-172 proves current Game Mode activation for the refreshed PGO topology
 without making a speed claim. A signed LaunchServices wrapper remained parent
 of exact runner `e1f3c1d8...` and known PGO module `bd089303...`. Unified Game

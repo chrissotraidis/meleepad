@@ -1594,3 +1594,13 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   background-load reversal still requires explicit reversible authorization.
   Evidence:
   `docs/artifacts/2026-08-29/g5-latency-qos-and-logitech-agent-isolation.md`.
+- **PERF-173 (confirmed-Game-Mode Fountain window):** The exact refreshed PGO
+  runner/module, fullscreen Metal/Cubeb, quiet 18-cycle input, one game, and no
+  Simulator were gated on `Game mode status is now on` before Fountain state
+  load. The exact final 2,001 rows average 16.666486 ms / 60.000651 FPS with no
+  row above 20 ms, but p95 is 16.807334 ms and worst is 17.477083 ms; only
+  69.165% meet 16.7 ms. Runtime shutdown recorded zero fallback and zero failed
+  SMC verification. No fresh visual claim is attached, no product setting or
+  source changed, G5 remains open, Final Destination and G6 remain blocked.
+  Evidence:
+  `docs/artifacts/2026-08-29/g5-confirmed-gamemode-fountain-window.md`.
