@@ -3390,3 +3390,33 @@ Append-only execution ledger. Claims are limited to observed evidence.
   conversion hold with stale duplicates. G6 remains blocked.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-gpu-readiness-and-display-deferral.md`.
+
+## 2026-08-29 — PERF-151/152 NTSC boundary and light producer split
+
+- Goal: separate fixed-panel conversion holds from genuine late game frames,
+  then classify the remaining low-overhead producer tail without the detailed
+  phase observer.
+- Source/runtime audit: GALE01's current VI registers and Dolphin timing derive
+  exactly to `60000/1001 = 59.94005994 Hz` (16.683333 ms). Core Graphics lists
+  only 60.000000 Hz modes on this M1 panel. In PERF-127's observer-free stable
+  20-100 second trace, 4,794 surfaces queued, 4,788 displayed, and six were not
+  selected versus a five-hold rate-conversion expectation.
+- PERF-151 exclusion: a direct executable launch did not reproduce the package
+  workload and is not a result.
+- PERF-152: a packaged default-dormant recorder took one monotonic and one
+  thread-CPU timestamp per presenter entry into memory. Disk availability fell
+  to 116 MiB; shutdown emitted filesystem rename errors and truncated the CSV.
+  Only 1,091 complete combat intervals before the malformed row are retained.
+- Result: wall p95/worst are diagnostic-only 17.786/24.618 ms. Thread CPU is
+  12.758 ms p95 / 13.852 ms p99 / 14.735 ms worst, with zero rows above 16.7
+  ms. All three >20 ms wall rows lose 5.686-12.657 ms off-core.
+- Decision: **FIXED-RATE HOLDS SEPARATED; CURRENT CAPTURED PRODUCER TAIL IS
+  OFF-CORE.** Do not change VI/audio/netplay timing or count stale duplicates
+  as new frames. Disk pressure excludes acceptance use. Remove the recorder,
+  restore the private config, rebuild canonical, and recover disk headroom
+  before selecting a new host-descheduling mechanism. G5 remains open; G6
+  blocked.
+- Visual boundary: fresh Pikachu/Fox Fountain endpoints are coherent and show
+  no fighter-mesh recurrence.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-ntsc-display-boundary-and-light-producer-tail.md`.

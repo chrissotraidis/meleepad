@@ -1502,3 +1502,16 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   its marker. No fighter-mesh recurrence was seen. G5 remains open and G6
   blocked. Evidence:
   `docs/artifacts/2026-08-29/g5-gpu-readiness-and-display-deferral.md`.
+- **PERF-151/152 (NTSC/display boundary and light producer split):** GALE01's
+  exact VI rate is `60000/1001` or 16.683333 ms, while all current M1 panel
+  modes are fixed 60.000000 Hz. PERF-127's observer-free 20-100 second window
+  has six unselected surfaces against a five-hold conversion expectation, so
+  unique-surface callbacks alone cannot classify D2 compute misses. A separate
+  one-wall/one-thread-clock-per-present diagnostic retained 1,091 complete
+  combat intervals before disk-full shutdown truncation. Thread CPU remained
+  12.758 ms p95 / 14.735 ms worst with zero rows above 16.7 ms; its three
+  >20 ms wall rows lost 5.686-12.657 ms off-core. This is mechanism-only,
+  because disk pressure can aggravate scheduling. The observer is removed and
+  canonical runner restored. G5 remains open on genuine producer-tail rows;
+  G6 remains blocked. Evidence:
+  `docs/artifacts/2026-08-29/g5-ntsc-display-boundary-and-light-producer-tail.md`.

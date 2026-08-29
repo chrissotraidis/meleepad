@@ -465,6 +465,20 @@ panel conversion proof. The private observer was removed and the canonical
 runner rebuilt without its marker. See
 `docs/artifacts/2026-08-29/g5-gpu-readiness-and-display-deferral.md`.
 
+PERF-151/152 separate the fixed-panel boundary from the genuine producer tail.
+GALE01's VI cadence derives exactly to `60000/1001`, or 16.683333 ms, while
+every current M1 built-in mode is 60.000000 Hz. PERF-127's observer-free stable
+20-100 second window queued 4,794 surfaces and displayed 4,788; six holds are
+only one above the five-hold conversion expectation. Proven ready-frame
+conversion holds therefore cannot alone classify D2 compute misses. A
+disposable one-wall/one-thread-clock-per-present split then retained 1,091
+complete combat intervals before a disk-full shutdown truncation. Thread CPU
+measured 11.757568 ms mean / 12.758312 ms p95 / 13.852158 ms p99 /
+14.735375 ms worst, with zero rows above 16.7 ms; all three >20 ms wall rows
+were off-core. Its wall distribution is diagnostic-only because disk pressure
+may aggravate scheduling. The observer is removed. See
+`docs/artifacts/2026-08-29/g5-ntsc-display-boundary-and-light-producer-tail.md`.
+
 Required next work:
 
 1. Keep G5 open. Before another product build, require a falsifiable mechanism
@@ -476,5 +490,7 @@ Required next work:
    candidates without new contradictory evidence.
 3. Continue reducing any observer-free producer interval above 16.7 ms, but do
    not conflate fixed-panel conversion holds with M1 compute saturation.
+   Recover disk headroom before the next measurement and choose a new causal
+   host-descheduling mechanism rather than repeating the same timing observer.
 4. Retain an optimization only after both required stages improve and the G5
    worst-frame requirement is actually met.

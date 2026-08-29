@@ -1221,6 +1221,23 @@ timing and produce a distinct frame each refresh rather than duplicating stale
 content. G6 remains blocked. See
 `docs/artifacts/2026-08-29/g5-gpu-readiness-and-display-deferral.md`.
 
+PERF-151/152 then audit the acceptance boundary instead of treating every
+unique-surface hold as a compute miss. GALE01's VI cadence derives exactly to
+`60000/1001` (16.683333 ms), while every current built-in display mode is
+60.000000 Hz. The observer-free PERF-127 stable window queued 4,794 surfaces,
+displayed 4,788, and held six versus a five-hold conversion expectation.
+Actual display evidence remains necessary, but a proven ready-frame conversion
+hold cannot alone replace D2's guest-work test. A lightweight in-memory
+presenter-entry split retained 1,091 complete combat intervals before a disk-
+full shutdown truncation. Thread CPU stayed below budget at 12.758 ms p95 /
+14.735 ms worst and all three >20 ms wall rows were off-core. Use this only for
+mechanism attribution; disk pressure excludes its wall distribution. The
+observer is removed and canonical runner rebuilt. G5 remains open on genuine
+producer intervals above 16.7 ms; recover disk headroom before a new causal
+host-descheduling experiment. Do not change VI/audio/netplay timing or count
+stale duplicates as new frames. G6 remains blocked. See
+`docs/artifacts/2026-08-29/g5-ntsc-display-boundary-and-light-producer-tail.md`.
+
 ## Testing rhythm
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).
