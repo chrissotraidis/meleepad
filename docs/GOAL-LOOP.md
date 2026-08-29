@@ -19,6 +19,15 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-177 closes four false transfers after PERF-176. Current Slippi uses the
+same ordinary pthread/affinity and async-shader structure; it adds no hidden
+macOS scheduler policy. The clean run discovered no pipeline UIDs after its
+already-warm 11:03 cache, while a retained 12,067-sample profile gives runtime
+shader compilation only 15 samples. `LoadGameIntoMemory` does not wrap the
+extracted `DirectoryBlobReader`, and FastDisc already failed. Do not change
+shader mode, add an inert disc-memory setting, or port a cache-affinity hint.
+See `docs/artifacts/2026-08-29/g5-reference-shader-and-streaming-rejection.md`.
+
 PERF-176 joins the clean current render/vblank logs without a live observer.
 All six pre-results render gaps above 20 ms map to vblank stalls at an exact
 fixed +172-row offset, including four 33 ms pairs. The residual hold therefore

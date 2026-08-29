@@ -3651,3 +3651,18 @@ Append-only execution ledger. Claims are limited to observed evidence.
   Final Destination and G6 blocked.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-current-render-vblank-stall-join.md`.
+
+## 2026-08-29 — PERF-177 reference, shader, and streaming rejection
+
+- Goal: find a distinct supported host-execution mechanism in SunPad, current
+  Slippi/Dolphin, runtime shader workers, or extracted-disc streaming.
+- Result: Slippi retains ordinary pthread workers and Apple's cache-affinity
+  hint, not a hidden scheduler policy. The current pipeline UID cache predates
+  both clean runs and was unchanged, proving no new on-demand pipeline UIDs.
+  A retained profile gives shader compilation only 15/12,067 samples.
+- DVD boundary: runtime boots `DirectoryBlobReader`; `LoadGameIntoMemory` only
+  wraps file discs, and FastDisc already failed. No inert A/B was launched.
+- Decision: shader, DVD, affinity, and Slippi-transfer guesses rejected. No
+  source/config/process change. G5 open; Final Destination and G6 blocked.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-reference-shader-and-streaming-rejection.md`.

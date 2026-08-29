@@ -1624,3 +1624,12 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   no no-op product patch was added. G5 remains open, Final Destination and G6
   blocked. Evidence:
   `docs/artifacts/2026-08-29/g5-current-render-vblank-stall-join.md`.
+- **PERF-177 (reference/shader/streaming rejection):** SunPad and current
+  Slippi expose no distinct supported scheduler route beyond already-rejected
+  QoS/dual-core/affinity mechanisms. The clean run changed no pipeline UID
+  cache after its pre-run mtime; retained sampling gives shader compilation
+  only 15/12,067 samples. SsbmPad boots a directory blob, so Dolphin's
+  file-disc `LoadGameIntoMemory` wrapper is inert, and FastDisc already failed.
+  No shader/DVD/affinity product experiment was justified or launched. G5
+  remains open, Final Destination and G6 blocked. Evidence:
+  `docs/artifacts/2026-08-29/g5-reference-shader-and-streaming-rejection.md`.
