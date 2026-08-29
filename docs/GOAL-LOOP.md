@@ -19,6 +19,16 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-183 retains only the unchanged A leg of a proposed Activity Monitor
+isolation. Read-only snapshots identify Activity Monitor as the sole material
+user sampling load; OpenCodex's spike was transient and Logitech remains
+stopped. With Activity Monitor active, Fountain measures 59.790259 FPS with
+seven doubled render rows and matching vblank stalls. This is not causal until
+an explicitly scoped Activity-Monitor-only stop B and resumed A2 exist. Never
+signal `sysmond` or touch Brave, Claude, OpenCodex, Codex, ChatGPT, Logitech,
+or system services. See
+`docs/artifacts/2026-08-29/g5-activity-monitor-isolation-a-leg.md`.
+
 PERF-182 is an independent read-only audit of the accumulated G5 evidence and
 current source. It finds no evidence-qualified public product-local mechanism
 for another build: compute, GPU, presentation, scheduler/timer, audio, shader,

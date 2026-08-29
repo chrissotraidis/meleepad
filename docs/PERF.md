@@ -539,6 +539,14 @@ next unresolved test is an explicitly authorized reversible clean-host
 isolation of unrelated runnable load, followed by both required stages. See
 `docs/artifacts/2026-08-29/g5-independent-boundary-audit.md`.
 
+PERF-183 retains an unchanged Activity-Monitor-on A leg without altering any
+external process. Read-only snapshots identify Activity Monitor plus its
+natural `sysmond` sampling as the only material current observer load. The
+final 2,001 Fountain rows measure 59.790259 FPS, 16.795167 ms p95, and seven
+doubled render frames; vblank retains matching stalls. This is not causal until
+an explicitly authorized Activity-Monitor-only stopped B and resumed A2 exist.
+See `docs/artifacts/2026-08-29/g5-activity-monitor-isolation-a-leg.md`.
+
 Required next work:
 
 1. Keep G5 open. Before another product build, require a falsifiable mechanism

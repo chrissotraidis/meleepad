@@ -6,6 +6,17 @@ Last updated: 2026-08-29
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-183 retains the unchanged A leg of a proposed Activity Monitor isolation.
+Read-only snapshots identify Activity Monitor as the only material current
+user sampling load; its CPU varied from 0.6-7.3% and root `sysmond` from 0-4%,
+while OpenCodex's spike was transient and Logitech remained stopped. With no
+external process changed, Fountain measures 59.790259 FPS, 16.795167 ms p95,
+33.468333 ms worst, and seven doubled render rows with matching vblank stalls.
+This is not causal until an explicitly scoped Activity-Monitor-only stopped B
+and resumed A2 exist. Never signal `sysmond` or touch other apps/services. No
+game or Simulator remains. See
+`docs/artifacts/2026-08-29/g5-activity-monitor-isolation-a-leg.md`.
+
 PERF-182 independently audits the accumulated G5 evidence and current source.
 No evidence-qualified public product-local mechanism remains for another
 build: guest compute, GPU, Metal/presentation, supported scheduler/timer,

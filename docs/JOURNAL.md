@@ -3766,3 +3766,20 @@ Append-only execution ledger. Claims are limited to observed evidence.
   until that scope exists. G5 open; G6 blocked.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-independent-boundary-audit.md`.
+
+## 2026-08-29 — PERF-183 Activity Monitor isolation A leg
+
+- Goal: identify the exact external-load scope and retain the unchanged A leg
+  without pausing an unauthorized user process.
+- Host audit: Activity Monitor fluctuated at 0.6-7.3% CPU with root `sysmond`
+  at 0-4%; Brave was small, Claude idle, OpenCodex's spike transient, and
+  Logitech remained stopped. No process was changed.
+- Result: confirmed-Game-Mode Fountain final 2,001 rows measure 59.790259 FPS,
+  16.795167 ms p95, 33.468333 ms worst, and seven doubled render rows. Vblank
+  has matching stalls and a 36.375250 ms worst.
+- Boundary: historical quiet controls are context only. No causal verdict is
+  valid until an explicitly scoped Activity-Monitor-only stopped B and resumed
+  A2 exist. `sysmond` and every other app/service stay untouched.
+- Decision: retain A and wait for exact scope; G5 open, G6 blocked.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-activity-monitor-isolation-a-leg.md`.
