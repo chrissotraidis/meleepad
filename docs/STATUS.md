@@ -6,6 +6,17 @@ Last updated: 2026-08-29
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-171 restores Game Mode eligibility to the fastest known local package.
+The ignored `SsbmPad-PGO.app` still had the correct `bd089303...` PGO module
+but stale metadata without the games category or `LSSupportsGameMode`, and it
+failed the current package-layout gate. The supported private-profile workflow
+refreshed the bundle with current metadata and runner `e1f3c1d8...`, preserved
+the stale bundle as a timestamped backup, restored the canonical profile-free
+module pointer, and passed layout, native-arm64/macOS-14, and strict deep-sign
+verification. No game or Simulator ran. This repairs package readiness only;
+Game Mode activation and strict G5 remain unproved, and G6 stays blocked. See
+`docs/artifacts/2026-08-29/g5-pgo-package-gamemode-refresh.md`.
+
 PERF-170 rejects lazy-gating the always-on ModernGekko runtime-diagnostics hook.
 Its exact work is an 88-byte FNV hash plus relaxed statistic stores. Five
 optimized ten-million-call host loops measure 59.410-62.788 ns/call, about

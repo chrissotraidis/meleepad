@@ -3546,3 +3546,24 @@ Append-only execution ledger. Claims are limited to observed evidence.
   unchanged, G5 stays open, and G6 blocked.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-runtime-diagnostics-cost-rejection.md`.
+
+## 2026-08-29 — PERF-171 PGO package Game Mode refresh
+
+- Goal: verify the fastest reusable local PGO package is current and eligible
+  for the next confirmed Game Mode G5 run.
+- Audit: canonical `SsbmPad.app` passed the Game Mode-aware layout check. The
+  ignored PGO app remained signed and retained module `bd089303...`, but its
+  stale `Info.plist` lacked both the games category and `LSSupportsGameMode`,
+  so package layout failed.
+- Repair: ran `package-local-pgo-app.sh` with the validated read-only revision-0
+  ISO and known private profile. The existing script preserved/restored the
+  canonical active pointer and retained the stale app as timestamped backup.
+- Result: refreshed PGO app contains games-category/Game Mode metadata, current
+  runner `e1f3c1d8...`, unchanged PGO module `bd089303...`, native arm64 and
+  macOS-14 identities, passing layout, and a valid strict deep signature. The
+  canonical active module returned to profile-free `03e7936e...`.
+- Decision: **FASTEST PACKAGE READINESS RESTORED; G5 NOT CLAIMED.** No game or
+  Simulator ran. Require a naturally clean host plus confirmed fullscreen Game
+  Mode before using it for Fountain/Final Destination acceptance. G6 blocked.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-pgo-package-gamemode-refresh.md`.

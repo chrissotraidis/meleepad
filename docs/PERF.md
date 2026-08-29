@@ -2,6 +2,16 @@
 
 G5 is active. G4 passed with a clean controlled 1v1 on 2026-08-24.
 
+PERF-171 refreshes the ignored reusable PGO bundle before another live test.
+Its known `bd089303...` module was intact, but stale bundle metadata omitted
+the games category and `LSSupportsGameMode`, failing the current package-layout
+gate. The supported pointer-safe profile workflow repackaged it with current
+runner `e1f3c1d8...`, current canonical metadata, and the unchanged known PGO
+module; layout, arm64/macOS-14 identity, deep signing, and active-pointer
+restoration pass. This restores test-package readiness only and supplies no
+new frame-time result. See
+`docs/artifacts/2026-08-29/g5-pgo-package-gamemode-refresh.md`.
+
 PERF-085 implements the exact `0x803408A0..0x803408D0` matrix-copy preflight
 selected by PERF-084. It passes 20,000 full-state/24-MiB-RAM cases and improves
 77.795167 to 23.738208 ns/call, but exact copy coverage is only 0.059158%/0%

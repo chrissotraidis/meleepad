@@ -19,6 +19,16 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-171 repairs a stale ignored local PGO bundle before another live run. The
+known PGO module was intact, but `SsbmPad-PGO.app` lacked the games category and
+`LSSupportsGameMode`, so it failed the current package-layout test. The
+pointer-safe private-profile packaging workflow refreshed it with the current
+runner and canonical metadata while preserving the old bundle and restoring
+the profile-free active-module pointer. Layout, arm64/macOS-14 identity, and
+deep signing now pass; the known module remains `bd089303...`. This is package
+readiness, not a G5 pass. See
+`docs/artifacts/2026-08-29/g5-pgo-package-gamemode-refresh.md`.
+
 PERF-170 rejects lazy-gating ModernGekko's always-on runtime diagnostics hook.
 The exact-shaped host preflight hashes the same 88 bytes and performs the same
 relaxed atomic operations in 59.410-62.788 ns/call across five ten-million-call
