@@ -3892,3 +3892,28 @@ Append-only execution ledger. Claims are limited to observed evidence.
   to control SHA `1f3a69fa...`; canonical runner exact; no game/Simulator.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-rate-alignment-actual-presentation-rejection.md`.
+
+## 2026-08-29 — PERF-190 frame-interpolation rejection
+
+- Goal: determine whether a genuinely distinct host-generated frame can close
+  fixed 59.94-to-60 display holds without changing guest/audio/netplay timing
+  or duplicating stale output.
+- MetalFX: supported on Apple M1/Metal 4 and fast, but color-only interpolation
+  produces a literal 50/50 two-position ghost. Reject without Dolphin motion
+  vectors/depth.
+- VideoToolbox: macOS 26 low-latency optical flow starts a 640x528 NV12 session;
+  steady processing is 2.380 ms mean / 2.498 ms p95 / 2.849 ms worst. It
+  reconstructs 4-64 px synthetic motion far better than blending, but fails a
+  128 px jump.
+- Visual stress: three private retained Melee adjacent-file pairs reproduce
+  smeared fighter limbs/silhouettes and effects, including in the lowest-change
+  Ness pair. The capture was only about three images/second, so this is a
+  conservative artifact screen, not 60 Hz source-quality proof.
+- Decision: reject integration. Chronological interpolation requires roughly
+  one 16.683 ms source frame of added display/input latency, is macOS/iOS
+  26-only, leaves producer stalls untouched, cannot force compositor selection,
+  and risks the exact morphing class under active visual scrutiny.
+- Reversal: host probes only; product source/module/runner/config unchanged; no
+  game or Simulator remains. G5 open, G6 blocked.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-frame-interpolation-rejection.md`.

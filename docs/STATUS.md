@@ -6,6 +6,18 @@ Last updated: 2026-08-29
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-190 rejects Apple frame generation as the remaining distinct-frame
+display route. Color-only MetalFX produces a two-position ghost. VideoToolbox
+low-latency optical flow is supported at 640x528 on this M1 and costs only
+2.380 ms mean / 2.849 ms worst after session startup, but a 128-pixel synthetic
+jump ghosts and three retained Melee combat stress pairs visibly smear fighter
+limbs, silhouettes, and effects. Chronological conversion also adds about one
+16.683 ms source frame of input/display latency, requires macOS/iOS 26, leaves
+the independent producer tail untouched, and cannot guarantee compositor
+selection. No product source/config/runtime changed; no game or Simulator
+remains. G5 stays open and G6 blocked. See
+`docs/artifacts/2026-08-29/g5-frame-interpolation-rejection.md`.
+
 PERF-189 directly rejects exact `1001/1000` host-rate alignment against actual
 presentation. Under corrected 1x/fullscreen Fountain, `EmulationSpeed = 1.001`
 still produces a GPU-ready 33.333666 ms actual hold after 30.413 seconds; its

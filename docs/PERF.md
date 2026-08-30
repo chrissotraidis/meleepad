@@ -2,6 +2,16 @@
 
 G5 is active. G4 passed with a clean controlled 1v1 on 2026-08-24.
 
+PERF-190 rejects host frame generation before Dolphin integration. MetalFX
+color-only interpolation ghosts. VideoToolbox's macOS 26 low-latency optical
+flow supports 640x528 NV12 and measures 2.380 ms mean / 2.849 ms worst after
+startup, but extreme synthetic motion and retained Melee combat stress pairs
+smear or duplicate fighters and effects. Correct chronological 59.94-to-60
+conversion also adds about one frame of presentation/input latency, leaves the
+independent producer tail untouched, and cannot force compositor selection.
+Product remains unchanged; G5 stays open. See
+`docs/artifacts/2026-08-29/g5-frame-interpolation-rejection.md`.
+
 PERF-189 retests exact `EmulationSpeed = 1.001` against direct actual
 presentation after PERF-187 separated the tails. The corrected 1x/fullscreen
 Fountain candidate retains a GPU-ready 33.333666 ms hold after 30.413 seconds,

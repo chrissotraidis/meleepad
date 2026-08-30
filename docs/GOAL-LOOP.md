@@ -19,6 +19,18 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-190 rejects both available Apple frame-generation routes before product
+integration. Color-only MetalFX is fast but produces a literal two-position
+ghost. VideoToolbox low-latency optical flow supports 640x528 NV12 on this M1
+at 2.380 ms mean / 2.849 ms worst after startup and reconstructs modest
+synthetic motion, but real retained Melee stress pairs smear fighter limbs,
+silhouettes, and effects. A chronological 59.94-to-60 converter also requires
+about one source frame of display/input latency, is macOS/iOS 26-only, does not
+fix the separate producer tail, and cannot force macOS to select a ready
+drawable. Do not integrate interpolation or a delayed synthetic presentation
+queue. See
+`docs/artifacts/2026-08-29/g5-frame-interpolation-rejection.md`.
+
 PERF-189 reopens exact `EmulationSpeed = 1.001` only against the newly
 separated actual-presentation class, then rejects it directly. The corrected
 1x/fullscreen Fountain candidate retains a GPU-ready 33.333666 ms actual hold
