@@ -6,6 +6,15 @@ Last updated: 2026-08-30
 
 **G8 — Test matrix green: IN PROGRESS UNDER USER-AUTHORIZED G5 DEFERRAL**
 
+PERF-222 rejects iOS host-core ThinLTO at the pre-live structural gate. The
+isolated candidate was genuine LLVM ThinLTO, but linked
+`StaticRecompCore::Run` retained the measured `FastDispatchableAt`, `SyncIn`,
+and `SyncOut` calls while growing from 692 to 1,327 instructions. The app grew
+94,224 bytes and no target hot boundary disappeared. No Simulator or private
+game data was used for this rejected candidate. Row 7 remains fail/attributed;
+do not add host-core ThinLTO. See
+`docs/artifacts/2026-08-30/g8-ios-host-core-thinlto-rejection.md`.
+
 SHELL-217 passes G7. On the live iPad Simulator, the three-dot menu applied 2x
 rendering and experimental 16:9 live, exposed the FPS, controller mapping,
 touch settings, game-data, and report actions, resized and reset a control,

@@ -4498,3 +4498,22 @@ Append-only execution ledger. Claims are limited to observed evidence.
   preservation remain separate hardening evidence.
 - Evidence:
   `docs/artifacts/2026-08-30/g8-ipad-game-data-import.md`.
+
+## 2026-08-30 — PERF-222 iOS host-core ThinLTO rejection
+
+- Goal: test whether cross-translation-unit optimization of the iOS host core
+  removes the residual static-core helper boundaries named by the fresh-PGO
+  combat sample.
+- Build: configure an isolated exact-toolchain release core with CMake IPO;
+  verify `-flto=thin` and LLVM-bitcode objects; link only its `libcore.a` into
+  a disposable app with all other archives unchanged.
+- Result: candidate `StaticRecompCore::Run` still directly calls
+  `FastDispatchableAt`, `SyncIn`, and `SyncOut`. It grows from 692 to 1,327
+  instructions, direct calls rise 59 to 61, and the app grows 94,224 bytes.
+- Decision: reject before live replay because the named mechanism did not
+  occur and the hot body doubled. Restore the generated linker response
+  byte-for-byte. Do not add or retry host-core ThinLTO.
+- Cleanup: no Simulator boot, no game process, no tracked source change, and
+  no ROM/module/profile/save mutation. G8 row 7 remains fail/attributed.
+- Evidence:
+  `docs/artifacts/2026-08-30/g8-ios-host-core-thinlto-rejection.md`.

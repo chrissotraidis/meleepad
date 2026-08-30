@@ -98,6 +98,17 @@ measured residual shared dispatch/static-core cost and reverse against both
 control and fresh PGO on a fixed match path. See
 `docs/artifacts/2026-08-30/g8-ipad-audio-and-combat-attribution.md`.
 
+PERF-222 rejects iOS host-core ThinLTO before another live replay. An isolated
+exact-toolchain build emitted LLVM bitcode and linked it into a disposable
+app, but the resulting `StaticRecompCore::Run` still calls
+`FastDispatchableAt`, `SyncIn`, and `SyncOut`. The function instead grew from
+692 to 1,327 instructions, direct calls rose from 59 to 61, and the app binary
+grew by 94,224 bytes. The measured boundary-removal mechanism did not occur,
+so do not promote or repeat this route. Row 7 remains fail/attributed; continue
+only from a new measured static-core path that clears a structural/materiality
+gate before live play. See
+`docs/artifacts/2026-08-30/g8-ios-host-core-thinlto-rejection.md`.
+
 PERF-214 reconciles every current G5 failure class against the retained
 mechanism history. Warm CPU overruns are rare and distributed across already
 closed/profiled families; the largest Fountain tails are proven
