@@ -150,6 +150,14 @@ private comparison floor and require a newly measured residual mechanism
 before another performance replay. See
 `docs/artifacts/2026-08-30/g8-ios-exact-pgo-o3-rejection.md`.
 
+DIAG-227 passes G8 row 12. The macOS launcher now exposes a privacy-bounded
+Export Diagnostics action and a matching automation route through the same
+exporter. The rebuilt binary produced a report from the real runner log with
+static-recompiler, audio, controller, and lifecycle breadcrumbs; a scan found
+no absolute private paths, game/extraction paths, disc-image names, or save
+files. Combined with the retained iPad export, both required platforms pass.
+See `docs/artifacts/2026-08-30/g8-macos-diagnostics-export.md`.
+
 PERF-214 reconciles every current G5 failure class against the retained
 mechanism history. Warm CPU overruns are rare and distributed across already
 closed/profiled families; the largest Fountain tails are proven

@@ -1302,7 +1302,7 @@ not add work to every dispatch. See
 | G5 macOS 60 fps | Deferred, not passed | DECISION-215 permits mobile sequencing while unavailable external 59.94 Hz/VRR verification is deferred; D2 remains unchanged |
 | G6 Simulator core boots | Pass | `docs/artifacts/2026-08-30/g6-ios-simulator-core-and-gameplay.md` |
 | G7 Shell ported | Pass | `docs/artifacts/2026-08-30/g7-shell-parity-and-diagnostics.md` |
-| G8 Test matrix green | In progress | `docs/artifacts/2026-08-30/g8-test-matrix-reconciliation.md`; rows 1, 2, 4, 8, 13, 14, and 15 pass; row 3 is provisionally accepted; others partial/open/failed |
+| G8 Test matrix green | In progress | `docs/artifacts/2026-08-30/g8-test-matrix-reconciliation.md`; rows 1, 2, 4, 8, 12, 13, 14, and 15 pass; row 3 is provisionally accepted; others partial/open/failed |
 | G9 Netplay working | Not started | G8 first; requires a synchronized completed match with an iPadOS endpoint |
 
 ## Pinned inputs and dependencies
@@ -1324,7 +1324,7 @@ not add work to every dispatch. See
 
 The authoritative row-by-row reconciliation is
 `docs/artifacts/2026-08-30/g8-test-matrix-reconciliation.md`. Rows 1, 2, 4, 8,
-13, 14, and 15 pass. Rows 5, 9, 10, 11, and 12 are partial; row 7 is failed and
+12, 13, 14, and 15 pass. Rows 5, 9, 10, and 11 are partial; row 7 is failed and
 attributed. Row 6 is open. Row 3 is provisionally accepted by the user's
 explicit external-display waiver and must be replayed later on suitable
 hardware.
@@ -1345,6 +1345,14 @@ span. No result approaches the required five-percent materiality threshold, so
 there is no live replay and no product promotion. G8 row 7 remains
 fail/attributed. See
 `docs/artifacts/2026-08-30/g8-ios-exact-pgo-o3-rejection.md`.
+
+DIAG-227 closes G8 row 12. The macOS launcher now provides a visible Export
+Diagnostics action and an automation route through the same privacy-bounded
+exporter. The rebuilt binary exported the real runner log with lifecycle,
+static-recompiler, audio, and controller breadcrumbs; zero private-path,
+game-data, disc-image, memory-card, or save matches remained. Together with
+the prior iPad export, both row platforms pass. See
+`docs/artifacts/2026-08-30/g8-macos-diagnostics-export.md`.
 
 ## Open defects and decisions
 

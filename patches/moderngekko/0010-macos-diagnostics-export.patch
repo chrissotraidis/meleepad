@@ -1,0 +1,179 @@
+diff --git a/tools/moderngekko_launcher.cpp b/tools/moderngekko_launcher.cpp
+--- a/tools/moderngekko_launcher.cpp
++++ b/tools/moderngekko_launcher.cpp
+@@ -20,6 +20,7 @@
+ #include <filesystem>
+ #include <fstream>
+ #include <iostream>
++#include <iterator>
+ #include <mutex>
+ #include <optional>
+ #include <string>
+@@ -161,6 +162,95 @@ fs::path DocumentsDirectory()
+   if (const char* home = std::getenv("HOME"))
+     return fs::path(home) / "Documents";
+   return fs::current_path();
++}
++
++void ReplaceAll(std::string* text, std::string_view needle, std::string_view replacement)
++{
++  if (needle.empty())
++    return;
++  std::size_t position = 0;
++  while ((position = text->find(needle, position)) != std::string::npos)
++  {
++    text->replace(position, needle.size(), replacement);
++    position += replacement.size();
++  }
++}
++
++std::string RedactDiagnosticText(std::string text, const fs::path& user_directory,
++                                 const fs::path& game_root)
++{
++  // Replace the paths the product owns first so useful suffixes remain. Then
++  // conservatively remove any other common macOS absolute path through the
++  // end of its line rather than risk exporting a private location.
++  ReplaceAll(&text, game_root.string(), "<game-root>");
++  ReplaceAll(&text, user_directory.string(), "<user-directory>");
++  if (const char* home = std::getenv("HOME"))
++    ReplaceAll(&text, home, "<home>");
++  if (const char* temporary = std::getenv("TMPDIR"))
++    ReplaceAll(&text, temporary, "<temporary>");
++
++  static constexpr std::array<std::string_view, 5> absolute_prefixes = {
++      "/Users/", "/private/", "/var/", "/tmp/", "/Volumes/"};
++  for (std::string_view prefix : absolute_prefixes)
++  {
++    std::size_t position = 0;
++    while ((position = text.find(prefix, position)) != std::string::npos)
++    {
++      const std::size_t line_end = text.find_first_of("\r\n", position);
++      text.replace(position, line_end == std::string::npos ? std::string::npos : line_end - position,
++                   "<absolute-path>");
++      position += std::string_view("<absolute-path>").size();
++    }
++  }
++  return text;
++}
++
++bool ExportDiagnosticReport(const fs::path& user_directory, const fs::path& game_root,
++                            fs::path* report_path, std::string* error)
++{
++  const fs::path log_path = user_directory / "Logs" / MODERNGEKKO_LOG_FILENAME;
++  std::ifstream log_file(log_path, std::ios::binary);
++  std::string log = "unavailable\n";
++  if (log_file)
++  {
++    log.assign(std::istreambuf_iterator<char>(log_file), std::istreambuf_iterator<char>());
++    constexpr std::size_t MAX_LOG_BYTES = 1024 * 1024;
++    if (log.size() > MAX_LOG_BYTES)
++      log.erase(0, log.size() - MAX_LOG_BYTES);
++  }
++  log = RedactDiagnosticText(std::move(log), user_directory, game_root);
++
++  const fs::path directory = user_directory / "Diagnostics";
++  std::error_code ec;
++  fs::create_directories(directory, ec);
++  if (ec)
++  {
++    if (error)
++      *error = "can't create diagnostics directory: " + ec.message();
++    return false;
++  }
++
++  const fs::path destination = directory / "Latest-SsbmPad-Diagnostic.log";
++  std::ofstream report(destination, std::ios::binary | std::ios::trunc);
++  if (!report)
++  {
++    if (error)
++      *error = "can't write diagnostic report";
++    return false;
++  }
++  report << "SsbmPad Diagnostic Report v1\n"
++            "issuesURL=https://github.com/chrissotraidis/ssbmpad/issues\n\n"
++            "[Current Runner Log]\n"
++         << log;
++  if (!report)
++  {
++    if (error)
++      *error = "can't finish diagnostic report";
++    return false;
++  }
++  if (report_path)
++    *report_path = destination;
++  return true;
+ }
+ 
+ fs::path ExecutableDirectory(const char* argv0)
+@@ -502,6 +592,7 @@ int main(int argc, char** argv)
+ int main(int argc, char** argv)
+ {
+   bool use_wayland = false;
++  bool export_diagnostics = false;
+   std::optional<fs::path> extract_only;
+   for (int i = 1; i < argc; ++i)
+   {
+@@ -509,12 +600,28 @@ int main(int argc, char** argv)
+       use_wayland = false;
+     else if (std::string_view(argv[i]) == "--wayland")
+       use_wayland = true;
++    else if (std::string_view(argv[i]) == "--export-diagnostics")
++      export_diagnostics = true;
+     else if (std::string_view(argv[i]) == "--extract" && i + 1 < argc)
+       extract_only = argv[++i];
+   }
+ 
+   const fs::path user_directory = DefaultUserDirectory();
+   const fs::path release_directory = ExecutableDirectory(argv[0]);
++  if (export_diagnostics)
++  {
++    fs::path report_path;
++    std::string error;
++    if (!ExportDiagnosticReport(user_directory,
++                                ReadDefaultGame(user_directory, release_directory),
++                                &report_path, &error))
++    {
++      std::cerr << "diagnostic export failed: " << error << '\n';
++      return 1;
++    }
++    std::cout << report_path << '\n';
++    return 0;
++  }
+   if (extract_only)
+   {
+     ExtractionState extraction;
+@@ -628,6 +735,7 @@ int main(int argc, char** argv)
+       configured_controllers.empty() ? config.controller : configured_controllers.front();
+   int controller_index = FindController(controllers, selected_controller);
+   std::string controller_status;
++  std::string diagnostic_status;
+   const auto select_controller = [&](int index)
+   {
+     std::string message;
+@@ -1040,7 +1131,26 @@ int main(int argc, char** argv)
+       std::lock_guard lock(dialog.mutex);
+       if (!dialog.error.empty())
+         ImGui::TextColored(ImVec4(1.0f, 0.35f, 0.3f, 1.0f), "%s", dialog.error.c_str());
++    }
++    ImGui::Spacing();
++    ImGui::Separator();
++    ImGui::TextUnformatted("Diagnostics");
++    if (ImGui::Button("Export Diagnostics"))
++    {
++      fs::path report_path;
++      std::string error;
++      if (ExportDiagnosticReport(user_directory, current_game, &report_path, &error))
++      {
++        diagnostic_status = "Saved: " + report_path.string();
++      }
++      else
++      {
++        std::lock_guard lock(dialog.mutex);
++        dialog.error = std::move(error);
++      }
+     }
++    if (!diagnostic_status.empty())
++      ImGui::TextWrapped("%s", diagnostic_status.c_str());
+     ImGui::Spacing();
+     ImGui::Separator();
+     ImGui::TextWrapped("Controller: %s", controller_status.c_str());

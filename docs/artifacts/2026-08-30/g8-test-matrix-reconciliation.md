@@ -21,7 +21,7 @@ a completed row.
 | 9 | Touch overlay drives gameplay | Partial | Stick/A/X/Start and layout edit/reset are live-proven. L/R now have matching compact geometry and digital-plus-trigger semantics, with a focused regression and live visual proof; every remaining control still must be verified in-match. |
 | 10 | Menu system parity | Partial | G7 proves live resolution/aspect/FPS/layout/mapping/game-data/report surfaces; every action's full behavior, including import/removal boundaries, remains a G8 row. |
 | 11 | Controller connect/disconnect | Partial | Slot retention, P1 reclaim, and held-input clearing pass focused tests; live overlay hide/show and reconnect need evidence. |
-| 12 | Diagnostics export | Partial | iPad export and privacy scan pass; a macOS export is still required. |
+| 12 | Diagnostics export | Pass | iPad export/privacy scan pass. The rebuilt macOS launcher now exposes Export Diagnostics; its compiled exporter produced a real runner-log report with required breadcrumbs and zero private-path, game-data, disc-image, memory-card, or save matches. |
 | 13 | Game data import flow | Pass | Exact GALE01 validation, 1,209-file extraction, atomic activation, visible boot, normal relaunch, and same-filename Files-folder reimport passed. See the row artifact. |
 | 14 | Regression suite | Pass | All existing G5 tools plus the ported input, controller, diagnostics, performance, frame-mode, touch-layout, and game-data tests pass. |
 | 15 | Clean-clone build | Pass | A fresh checkout exposed and repaired a stale Metal patch-composition hunk, then cloned every pin, extracted the exact private image, regenerated the 237-chunk module, built/signed the macOS app, and passed bootstrap, package, and repository gates. See the row artifact. |
@@ -36,8 +36,8 @@ a completed row.
 2. Close the remaining iPad interaction cluster while keeping exactly one
    Simulator booted: every touch control, controller lifecycle, and import
    rollback/removal hardening. Save persistence is already passed.
-3. Close the missing macOS non-display rows: Battlefield completion, Classic
-   progression, macOS persistence, and diagnostic export.
+3. Close the missing macOS non-display rows: Battlefield completion and
+   Classic progression. macOS persistence and diagnostic export now pass.
 4. Repeat the provisionally accepted row 3 on 59.94 Hz/VRR hardware during
    later device validation; a failure reopens it.
 
@@ -67,3 +67,6 @@ Exact-profile iOS O3 was subsequently rejected before live replay because it
 left `chassis_dispatch` unchanged and grew every sampled hot generated-function
 span. See
 `docs/artifacts/2026-08-30/g8-ios-exact-pgo-o3-rejection.md`.
+
+Row 12 was subsequently closed by
+`docs/artifacts/2026-08-30/g8-macos-diagnostics-export.md`.

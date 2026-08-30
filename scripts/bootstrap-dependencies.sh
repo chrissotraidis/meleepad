@@ -127,6 +127,7 @@ extracted_idle_patch="$ROOT/patches/moderngekko/0006-extracted-game-idle-config.
 app_bundle_sys_patch="$ROOT/patches/moderngekko/0007-macos-app-bundle-sys.patch"
 pgo_cache_patch="$ROOT/patches/moderngekko/0008-private-pgo-cache-identity.patch"
 metal_sync_config_patch="$ROOT/patches/moderngekko/0009-macos-metal-display-sync.patch"
+macos_diagnostics_patch="$ROOT/patches/moderngekko/0010-macos-diagnostics-export.patch"
 render_log_patch="$ROOT/patches/moderngekko-dolphin/0002-buffer-render-time-logging.patch"
 idle_patch="$ROOT/patches/moderngekko-dolphin/0003-gale01r0-staticrecomp-idle.patch"
 memory_watcher_patch="$ROOT/patches/moderngekko-dolphin/0004-static-recomp-memory-watcher.patch"
@@ -198,6 +199,8 @@ apply_patch_once_or_marker "$MG" "$app_bundle_sys_patch" \
 apply_patch_once "$MG" "$pgo_cache_patch"
 apply_patch_once_or_marker "$MG" "$metal_sync_config_patch" \
   CMakeLists.txt MODERNGEKKO_MACOS_METAL_DISPLAY_SYNC
+apply_patch_once_or_marker "$MG" "$macos_diagnostics_patch" \
+  tools/moderngekko_launcher.cpp 'ImGui::Button("Export Diagnostics")'
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$emulated_frame_patch" \
   Source/Core/Common/FramePhaseTiming.h s_emulated_frame_index
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$gxruntime_fma_test_patch" \

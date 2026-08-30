@@ -19,6 +19,7 @@ tests/test-input-pipe-encoder.sh
 tests/test-controller-mapping.sh
 tests/test-controller-slots.sh
 tests/test-diagnostics.sh
+tests/test-macos-diagnostics-export.sh
 tests/test-experimental-performance-config.sh
 tests/test-native-frame-mode.sh
 tests/test-iphone-touch-layout-defaults.sh

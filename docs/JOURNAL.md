@@ -4600,3 +4600,23 @@ Append-only execution ledger. Claims are limited to observed evidence.
   module path. Keep exact PGO O2 as the private comparison floor.
 - Evidence:
   `docs/artifacts/2026-08-30/g8-ios-exact-pgo-o3-rejection.md`.
+
+## 2026-08-30 — DIAG-227 macOS diagnostic export
+
+- Goal: close the missing macOS half of G8 row 12 without exporting game data,
+  saves, or private filesystem locations.
+- Regression: add a focused source contract first and observe it fail because
+  the launcher had no exporter or action.
+- Fix: add one capped runner-log report, known-path plus conservative absolute
+  path redaction, a visible Export Diagnostics action, and a matching
+  automation route through the same compiled exporter.
+- Verification: canonical patch reverse-check and fresh launcher Release build
+  pass. The rebuilt UI visibly exposes the action. The compiled exporter writes
+  a 4.7 KiB report from the real runner log with lifecycle, static-recompiler,
+  audio, and controller breadcrumbs.
+- Privacy: zero absolute home/temp/volume paths, game/extraction paths,
+  disc-image names, memory-card files, or saves occur in the report. The
+  private generated report remains outside Git.
+- Decision: G8 row 12 PASS across iPad and macOS. Close the launcher; leave no
+  SsbmPad process or booted Simulator.
+- Evidence: `docs/artifacts/2026-08-30/g8-macos-diagnostics-export.md`.
