@@ -2,6 +2,16 @@
 
 G5 is active. G4 passed with a clean controlled 1v1 on 2026-08-24.
 
+PERF-206 retains a signed-development-only external ARM64 PC ring and exact
+start-to-start analyzer after `xctrace` CLI counters failed. A 120-second warm
+Fountain ring retains 78,744 error-free samples and joins 48 samples to four
+active-combat CPU overruns versus 73,871 body samples. The leading broad
+symbol is `StaticRecompCore::Run` at 2.99x; state transfer and the
+8033/8035/8036/8038 generated families are sparse and distributed, with no
+leaf above four overrun samples. All named mechanisms already have focused
+and live rejections. Retain no product edit and make no FPS claim. See
+`docs/artifacts/2026-08-30/g5-warm-native-pc-ring-attribution.md`.
+
 PERF-203 rejects CLI CPU Counters as an exact warm-frame attribution method on
 this host. Corrected gates reproduce first-complete/second-live Fountain, but
 the 20-second attached trace crashes `xctrace` during counter aggregation and

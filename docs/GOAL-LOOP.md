@@ -19,6 +19,18 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-206 extends the repaired sampler behind an explicit development-only
+native-PC mode. A complete 120-second same-process warm Fountain ring retains
+78,744 error-free samples, and a tested start-to-start analyzer joins 48 of
+them to four exact active-combat CPU overruns versus 73,871 body samples.
+`StaticRecompCore::Run` rises 2.99x, but the remaining signal is distributed
+across already-closed state-transfer/GPFIFO/paired-single and
+8033/8035/8036/8038 generated families; no leaf owns more than four samples.
+Do not add a product debug entitlement or repeat merged-state, guarded-call,
+register-cache, or structural rewrites from this sparse signal. Retain the
+external tools only; G5 remains open and G6 blocked. See
+`docs/artifacts/2026-08-30/g5-warm-native-pc-ring-attribution.md`.
+
 PERF-205 repairs the retained triggered thread sampler after a current-schema
 regression proves it reads `host_frame_end_unix_ns` as `total_ms` and falsely
 triggers a 10.0 ms row as `1.78807e+18` ms. The tool now resolves required

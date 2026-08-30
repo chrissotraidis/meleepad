@@ -6,6 +6,19 @@ Last updated: 2026-08-30
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-206 replaces the failed CLI-counter path with a bounded external ARM64
+PC ring on a disposable `get-task-allow` runner; the canonical product gains
+no entitlement. A 120-second same-process warm Fountain capture retains
+78,744 samples with zero errors and joins 73,871 body samples plus 48 samples
+to four exact active-combat CPU overruns. `StaticRecompCore::Run` rises 2.99x,
+but the remaining signal is distributed across state transfer, GPFIFO,
+`ppc_psq_load`, and 8033/8035/8036/8038 generated chunks; no leaf owns more
+than four samples. Those mechanisms/families already have semantic and live
+rejections, so no repeated product rewrite is justified. Retain the tested
+sampler/analyzer only; this observer-bearing result makes no FPS claim. G5
+stays open and G6 blocked. See
+`docs/artifacts/2026-08-30/g5-warm-native-pc-ring-attribution.md`.
+
 PERF-205 repairs a retained diagnostic before it can contaminate another G5
 capture. The triggered thread sampler still treated CSV column 3 as
 `total_ms`, but the current phase schema places `host_frame_end_unix_ns` there.

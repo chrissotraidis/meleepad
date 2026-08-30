@@ -4210,3 +4210,28 @@ Append-only execution ledger. Claims are limited to observed evidence.
   blocked.
 - Evidence:
   `docs/artifacts/2026-08-30/g5-triggered-sampler-schema-repair.md`.
+
+## 2026-08-30 — PERF-206 warm native-PC ring attribution
+
+- Goal: replace the failed CLI-counter route with exact native PCs inside
+  same-process warm Fountain CPU overruns.
+- Access boundary: ordinary `task_for_pid` fails with Mach result 5; only a
+  disposable `get-task-allow` runner permits read-only ARM64 thread-state
+  sampling. The canonical product remains unchanged.
+- Corrections: replace the false `CPU thread` label with tested `@hottest`
+  selection; select `cpu_thread_ms` instead of total wall time; and retain the
+  complete bounded PC ring because the live phase stream buffers rows.
+- Capture: exact state/module and MemoryWatcher gates prove first combat plus
+  natural completion and live second combat. The 120-second ring retains
+  78,744 samples with zero errors; one incomplete shutdown phase row is
+  explicitly excluded.
+- Join: 6,750 body frames contribute 73,871 samples; four active-combat CPU
+  overruns contribute 48 samples. `StaticRecompCore::Run` rises 2.99x, but no
+  leaf owns more than four samples and generated work spans the already-closed
+  8033/8035/8036/8038 families.
+- Decision: retain the tested external sampler/analyzer, no product change or
+  FPS claim. The result strengthens distributed-cost closure rather than
+  reopening merged-state/direct-call/register-cache variants. No runner or
+  Simulator remains; G5 stays open and G6 blocked.
+- Evidence:
+  `docs/artifacts/2026-08-30/g5-warm-native-pc-ring-attribution.md`.

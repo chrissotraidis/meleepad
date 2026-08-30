@@ -4,9 +4,11 @@
 from __future__ import annotations
 
 import pathlib
+import csv
 import subprocess
 import tempfile
 import textwrap
+import time
 
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -40,17 +42,20 @@ def run_case(
     name: str,
     phase_text: str,
     expected_returncode: int,
-) -> None:
+    native_pc: bool = False,
+    thread_selector: str = "sampler-target",
+    trigger_metric: str | None = None,
+    require_image_path: bool = True,
+) -> subprocess.CompletedProcess[str]:
     phase_path = work / f"{name}-phase.csv"
     output_path = work / f"{name}-samples.csv"
     phase_path.write_text(phase_text, encoding="utf-8")
     process = subprocess.Popen([str(target)])
     try:
-        result = subprocess.run(
-            [
+        command = [
                 str(sampler),
                 str(process.pid),
-                "sampler-target",
+                thread_selector,
                 str(phase_path),
                 "400",
                 "600",
@@ -58,7 +63,15 @@ def run_case(
                 "1000",
                 "1",
                 str(output_path),
-            ],
+            ]
+        if native_pc:
+            command.append("native-pc")
+        if trigger_metric:
+            if not native_pc:
+                raise AssertionError("custom trigger metric requires native-pc mode")
+            command.append(trigger_metric)
+        result = subprocess.run(
+            command,
             capture_output=True,
             text=True,
             timeout=8,
@@ -72,6 +85,23 @@ def run_case(
             f"{name}: expected {expected_returncode}, got {result.returncode}\n"
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}"
         )
+    if native_pc and expected_returncode in {0, 3}:
+        with output_path.open(newline="", encoding="utf-8") as source:
+            rows = list(csv.DictReader(source))
+        if not rows or not any(int(row["native_pc"]) != 0 for row in rows):
+            raise AssertionError(f"{name}: native-pc mode did not retain a nonzero PC")
+        resolved = [
+            row
+            for row in rows
+            if int(row["native_pc"]) != 0 and int(row["image_base"]) != 0
+        ]
+        if require_image_path and (
+            not resolved or not any(row["image_path"] for row in resolved)
+        ):
+            raise AssertionError(f"{name}: native PCs did not resolve to a Mach-O image")
+        if not all(int(row["pc_read_ns"]) > 0 for row in resolved):
+            raise AssertionError(f"{name}: native PC read latency was not retained")
+    return result
 
 
 def main() -> None:
@@ -92,6 +122,7 @@ def main() -> None:
         sampler = work / "sampler"
         target_source = work / "target.cpp"
         target = work / "target"
+        entitlements = work / "debug-entitlements.plist"
         target_source.write_text(
             textwrap.dedent(
                 """\
@@ -112,6 +143,29 @@ def main() -> None:
         )
         compile_binary(compiler, sdk_path, SAMPLER_SOURCE, sampler)
         compile_binary(compiler, sdk_path, target_source, target)
+        entitlements.write_text(
+            """<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>com.apple.security.get-task-allow</key><true/>
+</dict></plist>
+""",
+            encoding="utf-8",
+        )
+        subprocess.run(
+            [
+                "codesign",
+                "--force",
+                "--sign",
+                "-",
+                "--entitlements",
+                str(entitlements),
+                str(target),
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
 
         cases = (
             (
@@ -144,7 +198,73 @@ def main() -> None:
         )
         for name, phase_text, expected_returncode in cases:
             run_case(sampler, target, work, name, phase_text, expected_returncode)
+        native_result = run_case(
+            sampler,
+            target,
+            work,
+            "current-native-pc-trigger",
+            "frame,emulated_frame,host_frame_end_unix_ns,total_ms,cpu_wall_ms\n"
+            f"1,500,{time.time_ns()},20.0,19.0\n",
+            0,
+            native_pc=True,
+        )
+        run_case(
+            sampler,
+            target,
+            work,
+            "native-pc-missing-host-time",
+            "frame,emulated_frame,total_ms,cpu_wall_ms\n1,500,20.0,19.0\n",
+            2,
+            native_pc=True,
+        )
+        run_case(
+            sampler,
+            target,
+            work,
+            "hottest-native-pc-trigger",
+            "frame,emulated_frame,host_frame_end_unix_ns,total_ms,cpu_wall_ms\n"
+            f"1,500,{time.time_ns()},20.0,19.0\n",
+            0,
+            native_pc=True,
+            thread_selector="@hottest",
+            require_image_path=False,
+        )
+        run_case(
+            sampler,
+            target,
+            work,
+            "cpu-thread-metric-trigger",
+            "frame,emulated_frame,host_frame_end_unix_ns,total_ms,cpu_thread_ms\n"
+            f"1,500,{time.time_ns()},10.0,20.0\n",
+            0,
+            native_pc=True,
+            trigger_metric="cpu_thread_ms",
+        )
+        run_case(
+            sampler,
+            target,
+            work,
+            "native-no-trigger-retains-ring",
+            "frame,emulated_frame,host_frame_end_unix_ns,total_ms,cpu_thread_ms\n"
+            f"1,500,{time.time_ns()},10.0,10.0\n",
+            3,
+            native_pc=True,
+            trigger_metric="cpu_thread_ms",
+        )
+        run_case(
+            sampler,
+            target,
+            work,
+            "missing-custom-metric",
+            "frame,emulated_frame,host_frame_end_unix_ns,total_ms\n"
+            f"1,500,{time.time_ns()},20.0\n",
+            2,
+            native_pc=True,
+            trigger_metric="cpu_thread_ms",
+        )
 
+    native_summary = native_result.stdout.strip().splitlines()[-1]
+    print(f"Native PC preflight: {native_summary}")
     print("Triggered thread sampler tests passed")
 
 

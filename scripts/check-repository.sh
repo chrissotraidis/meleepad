@@ -9,6 +9,7 @@ for script in scripts/*.sh; do
   bash -n "$script"
 done
 python3 scripts/test_classify_g5_intervals.py
+python3 scripts/test_analyze_triggered_native_pcs.py
 python3 scripts/test_lightweight_frame_timing_patch.py
 python3 scripts/test_triggered_thread_sampler.py
 
