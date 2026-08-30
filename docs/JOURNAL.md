@@ -3873,3 +3873,22 @@ Append-only execution ledger. Claims are limited to observed evidence.
   cause of the other.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-final-destination-combined-join.md`.
+
+## 2026-08-29 — PERF-189 exact-rate actual-presentation rejection
+
+- Goal: reopen PERF-175's exact `1001/1000` host-rate candidate only against
+  direct actual presentation, now that PERF-187/188 separate producer and
+  display tails.
+- Method: clone corrected 1x/fullscreen Fountain and change only private
+  `Dolphin.ini` to `EmulationSpeed = 1.001`; retain the same runner/module,
+  state, Metal/Cubeb, quiet input, one native runner, and no Simulator.
+- Result: the 90.213-second combat boundary still has one GPU-ready
+  33.333666 ms actual hold after 30.413 seconds. Producer phase is nominal at
+  16.909166 ms and GPU completion is 31.017 ms early. All eighteen producer
+  rows above 20 ms are separately buffered.
+- Decision: exact rate alignment fixes neither causal class and is rejected.
+  Do not increase wall-rate scale without a new mechanism.
+- Reversal: remove the private setting and restore `Dolphin.ini` byte-for-byte
+  to control SHA `1f3a69fa...`; canonical runner exact; no game/Simulator.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-rate-alignment-actual-presentation-rejection.md`.

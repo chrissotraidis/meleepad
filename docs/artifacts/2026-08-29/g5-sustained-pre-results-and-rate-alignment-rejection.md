@@ -4,6 +4,13 @@ Date: 2026-08-29
 
 Status: **PRE-RESULTS TAIL REPRODUCED; 1001/1000 HOST-RATE ALIGNMENT REJECTED; G5 OPEN**
 
+> PERF-189 follow-up: after producer and actual-presentation tails were
+> separated, the exact candidate was retested with direct drawable/GPU timing
+> under verified 1x/fullscreen configuration. It still produced a GPU-ready
+> 33.333666 ms actual hold after 30.413 seconds. The rejection now covers
+> actual presentation directly. See
+> `g5-rate-alignment-actual-presentation-rejection.md`.
+
 ## Questions
 
 1. Does the clean confirmed-Game-Mode Fountain result remain close to 60 FPS

@@ -19,6 +19,14 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-189 reopens exact `EmulationSpeed = 1.001` only against the newly
+separated actual-presentation class, then rejects it directly. The corrected
+1x/fullscreen Fountain candidate retains a GPU-ready 33.333666 ms actual hold
+after 30.413 seconds, with a nominal 16.909166 ms producer phase and GPU work
+complete 31.017 ms early. The isolated setting is removed and its config
+restored byte-for-byte. See
+`docs/artifacts/2026-08-29/g5-rate-alignment-actual-presentation-rejection.md`.
+
 PERF-188 reproduces PERF-187's same-run separation on verified 1x/fullscreen
 Final Destination. Its 73.449-second combat boundary has one GPU-ready
 33.333667 ms actual hold with a nominal 17.058208 ms producer phase. All

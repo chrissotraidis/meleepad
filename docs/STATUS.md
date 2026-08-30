@@ -6,6 +6,15 @@ Last updated: 2026-08-29
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-189 directly rejects exact `1001/1000` host-rate alignment against actual
+presentation. Under corrected 1x/fullscreen Fountain, `EmulationSpeed = 1.001`
+still produces a GPU-ready 33.333666 ms actual hold after 30.413 seconds; its
+producer phase is 16.909166 ms and GPU work finishes 31.017 ms before the
+skipped deadline. Candidate actual mean/p95/worst are
+16.669889/16.666875/33.333666 ms. The isolated setting is removed and its
+config restored byte-for-byte; no game or Simulator remains. See
+`docs/artifacts/2026-08-29/g5-rate-alignment-actual-presentation-rejection.md`.
+
 PERF-188 reproduces the corrected same-run join on verified 1x/fullscreen
 Final Destination. Across 73.449 seconds and coherent combat/results visual
 endpoints, actual presentation averages 59.985932 FPS with one 33.333667 ms

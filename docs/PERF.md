@@ -2,6 +2,13 @@
 
 G5 is active. G4 passed with a clean controlled 1v1 on 2026-08-24.
 
+PERF-189 retests exact `EmulationSpeed = 1.001` against direct actual
+presentation after PERF-187 separated the tails. The corrected 1x/fullscreen
+Fountain candidate retains a GPU-ready 33.333666 ms hold after 30.413 seconds,
+despite a nominal 16.909166 ms producer phase and GPU completion 31.017 ms
+early. Rate alignment is rejected again and reversed byte-for-byte. See
+`docs/artifacts/2026-08-29/g5-rate-alignment-actual-presentation-rejection.md`.
+
 PERF-188 repeats the corrected same-run join on verified 1x/fullscreen Final
 Destination. The 73.449-second combat boundary has one GPU-ready 33.333667 ms
 actual hold with a nominal producer phase, while all fourteen producer rows
