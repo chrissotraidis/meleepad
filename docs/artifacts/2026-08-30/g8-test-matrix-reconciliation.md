@@ -16,7 +16,7 @@ a completed row.
 | 4 | Fountain of Dreams 1v1 | Pass | Multiple visually verified complete macOS matches and CPU/GPU/presentation profiles are retained; timing failures are recorded honestly. |
 | 5 | 4-player item match, Battlefield | Partial | Coherent live four-player Battlefield frames exist, but a natural full match completion with retained timing evidence is not yet proven. |
 | 6 | Classic mode, 3 stages | Open | Mobile Classic combat does not satisfy the required macOS three-stage progression row. |
-| 7 | Audio continuity | Fail / attributed | Live iPad diagnostics prove RemoteIO callbacks remain active, but demanding combat at 37-40 FPS starves the DMA queue; underruns rose 99→258 in 30 seconds. A 160 ms reserve and stale partial PGO candidate both failed reversal. See the audio/combat artifact. |
+| 7 | Audio continuity | Fail / attributed | Live iPad diagnostics prove RemoteIO callbacks remain active, but demanding combat at 37-40 FPS starves the DMA queue; underruns rose 99→258 in 30 seconds. A 160 ms reserve failed. Fresh exact-source PGO directionally improved demanding demo scenes to roughly 42-48 FPS but still saturated CPU-GPU and accumulated underruns, so it is promising but insufficient. See the audio/combat artifact. |
 | 8 | Save/memory card | Open | Memory-card UI rendered, but macOS+iPad name entry and persistence across relaunch are not proven. |
 | 9 | Touch overlay drives gameplay | Partial | Stick/A/X/Start and layout edit/reset are live-proven; every remaining control must be verified in-match. |
 | 10 | Menu system parity | Partial | G7 proves live resolution/aspect/FPS/layout/mapping/game-data/report surfaces; every action's full behavior, including import/removal boundaries, remains a G8 row. |
@@ -29,8 +29,9 @@ a completed row.
 ## Next execution order
 
 1. Repair the measured generated/static-core combat producer deficit; row 7
-   cannot pass while the game runs at 37-40 FPS. Use a fresh compatible combat
-   profile or a newly measured generated-dispatch mechanism, then reverse live.
+   cannot pass while the optimized game still falls to roughly 42-48 FPS. Use
+   the fresh compatible PGO candidate as the comparison floor and address a
+   newly measured residual generated-dispatch/static-core mechanism.
 2. Close the remaining iPad interaction cluster while keeping exactly one
    Simulator booted: every touch control, save persistence, controller
    lifecycle, and import rollback/removal hardening.

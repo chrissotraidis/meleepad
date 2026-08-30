@@ -77,3 +77,41 @@ over control. The stale partial profile is rejected and is not integrated.
   strict profile-compatibility gate and then a control/candidate live reversal.
 
 No game process or Simulator remained running after the experiment.
+
+## Fresh exact-source PGO follow-up
+
+The stale-profile rejection did not reject PGO as a mechanism. A private iOS
+training dylib was therefore built from the exact current generated source
+with frontend instrumentation. The existing supported reset/dump exports were
+armed on the verified GALE01 match-state predicate. A built-in four-character
+combat sequence provided the corpus; the exported dump function returned zero
+and produced a valid frontend profile containing 6,537 functions. The private
+merged profile SHA-256 is
+`a362d9d1a4de0e20cff7a6f0b60bae2eac6b524598280f128212fb39c3e30c73`.
+
+A strict-use build promoted `profile-instr-out-of-date` to an error. All 237
+generated chunks compiled and linked without a profile mismatch, including
+the `80015940` and `80341940` hot chunks. The resulting 84,031,752-byte module
+has SHA-256
+`207ab99e894f5627d0206bd26a797d850f401456eff88fc9167ee0aa8dcb842d`.
+Neither the profile nor module is tracked.
+
+Live telemetry confirmed that exact candidate was loaded into the normal
+non-instrumented 120 ms app. In demanding four-character demo scenes it was
+generally 42-48 FPS (one later interval measured 41.6 FPS), directionally
+better than the 37-40 FPS control and the approximately 40 FPS stale-profile
+candidate. This is not a strict frame-identical benchmark because the demo
+advanced across stages. CPU-GPU still reached 91-100%, and underruns rose from
+82 to 286 through the first combat cycle and later to 450. Static/intro scenes
+returned to about 59.9 FPS.
+
+The optimized residual sample still places 3,758 of 6,531 CPU-GPU-thread
+samples in the inclusive `StaticRecompCore::Run` branch, with 3,214 below
+`chassis_dispatch`. Vertex loading is about 2.6% of samples. See
+`docs/evidence/g8/ipad-combat-current-pgo-sample-summary.txt`.
+
+Fresh exact-source PGO is therefore a real but insufficient gain. Preserve the
+private profile/candidate for comparison, but do not call row 7 green or make
+the private artifact a repository dependency. The next performance change
+must address the residual shared generated-dispatch/static-core cost and then
+be reversed against both control and this candidate on a fixed match path.

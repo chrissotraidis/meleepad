@@ -83,6 +83,21 @@ the exact current source or name a new measured generated-dispatch cost; do
 not retry buffer growth, stale PGO, or vertex-loader work. See
 `docs/artifacts/2026-08-30/g8-ipad-audio-and-combat-attribution.md`.
 
+PERF-221 proves that exact-source iOS frontend PGO is viable and directionally
+useful, while rejecting it as a complete row-7 fix. A private instrumented
+module captured the built-in four-character combat class through the existing
+supported reset/dump hooks. Its 6,537-function profile passes a strict
+`profile-instr-out-of-date` build across all 237 generated chunks. The exact
+candidate generally improves demanding demo scenes from the 37-40 FPS control
+to roughly 42-48 FPS, but CPU-GPU remains 91-100% and mixer underruns still
+accumulate. A residual sample keeps 3,758/6,531 CPU-GPU samples in the
+inclusive static-core branch and 3,214 under generated `chassis_dispatch`;
+vertex loading remains only about 2.6%. Retain the private candidate as the
+comparison floor, not as a pass or repository dependency. Next address a new
+measured residual shared dispatch/static-core cost and reverse against both
+control and fresh PGO on a fixed match path. See
+`docs/artifacts/2026-08-30/g8-ipad-audio-and-combat-attribution.md`.
+
 PERF-214 reconciles every current G5 failure class against the retained
 mechanism history. Warm CPU overruns are rare and distributed across already
 closed/profiled families; the largest Fountain tails are proven
