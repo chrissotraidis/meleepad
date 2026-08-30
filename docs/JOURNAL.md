@@ -3917,3 +3917,23 @@ Append-only execution ledger. Claims are limited to observed evidence.
   game or Simulator remains. G5 open, G6 blocked.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-frame-interpolation-rejection.md`.
+
+## 2026-08-29 — PERF-191 fixed-priority preflight rejection
+
+- Goal: screen public `THREAD_EXTENDED_POLICY{timeshare=false}` as a distinct
+  response to runnable/off-core producer loss before changing Dolphin.
+- Source audit: XNU maps it to fixed scheduling, distinct from precedence,
+  QoS, and realtime time constraint. Applying legacy policy clears requested
+  pthread QoS unless reapplied; sustained fixed execution also has a demotion
+  failsafe.
+- Preflight: a data-free periodic 11 ms worker competed with eight harness-
+  owned threads. An initial timeshare/fixed/timeshare ordering favored fixed,
+  so no conclusion was drawn until order reversal.
+- Reversal: fixed/timeshare/fixed produced 5/300, 2/300, and 3/300 budget
+  misses. Worst wall times were 29.628, 17.669, and 20.546 ms. Fixed mode does
+  not reliably bound the tail.
+- Decision: reject before product integration. Do not add a policy helper,
+  flag, or `CpuThread` hook. No build, game, Simulator, or unrelated process
+  change occurred. G5 open, G6 blocked.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-fixed-priority-preflight-rejection.md`.

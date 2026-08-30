@@ -19,6 +19,17 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-191 identifies one genuinely distinct public scheduler policy, then
+rejects it before a product build. Apple XNU maps
+`THREAD_EXTENDED_POLICY{timeshare=false}` to fixed rather than timeshare
+scheduling, but also clears requested pthread QoS while applying legacy policy
+and contains a sustained-fixed failsafe. A data-free eight-competitor preflight
+initially favored fixed mode, but the required fixed/timeshare/fixed reversal
+did not: fixed arms missed 5/300 and 3/300 budgets with 29.628/20.546 ms worst,
+versus timeshare's 2/300 and 17.669 ms worst. Do not add the policy to Dolphin.
+See
+`docs/artifacts/2026-08-29/g5-fixed-priority-preflight-rejection.md`.
+
 PERF-190 rejects both available Apple frame-generation routes before product
 integration. Color-only MetalFX is fast but produces a literal two-position
 ghost. VideoToolbox low-latency optical flow supports 640x528 NV12 on this M1

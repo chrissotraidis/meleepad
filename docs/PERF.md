@@ -2,6 +2,13 @@
 
 G5 is active. G4 passed with a clean controlled 1v1 on 2026-08-24.
 
+PERF-191 screens public macOS fixed-priority scheduling without building the
+game. The policy is distinct, but the required fixed/timeshare/fixed reversal
+rejects it: fixed arms miss 5/300 and 3/300 periodic budgets at 29.628/20.546
+ms worst versus timeshare's 2/300 at 17.669 ms. QoS clearing and XNU's fixed-
+execution failsafe add product risks without a repeatable tail win. See
+`docs/artifacts/2026-08-29/g5-fixed-priority-preflight-rejection.md`.
+
 PERF-190 rejects host frame generation before Dolphin integration. MetalFX
 color-only interpolation ghosts. VideoToolbox's macOS 26 low-latency optical
 flow supports 640x528 NV12 and measures 2.380 ms mean / 2.849 ms worst after

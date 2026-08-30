@@ -6,6 +6,16 @@ Last updated: 2026-08-29
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-191 closes the remaining public fixed-priority scheduler screen before a
+game build. `THREAD_EXTENDED_POLICY{timeshare=false}` is genuinely distinct
+from precedence/QoS/time-constraint policies, but its data-free A/B/A result
+does not reverse. In fixed/timeshare/fixed order, fixed misses 5/300 and 3/300
+periodic budgets with 29.628/20.546 ms worst, while timeshare misses 2/300 with
+17.669 ms worst. XNU also clears requested pthread QoS while applying a legacy
+policy and may demote sustained fixed execution. Product remains unchanged;
+no game or Simulator remains. G5 stays open and G6 blocked. See
+`docs/artifacts/2026-08-29/g5-fixed-priority-preflight-rejection.md`.
+
 PERF-190 rejects Apple frame generation as the remaining distinct-frame
 display route. Color-only MetalFX produces a two-position ghost. VideoToolbox
 low-latency optical flow is supported at 640x528 on this M1 and costs only
