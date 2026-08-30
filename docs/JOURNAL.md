@@ -4388,3 +4388,15 @@ Append-only execution ledger. Claims are limited to observed evidence.
   private driver APIs, or start G6.
 - Evidence:
   `docs/artifacts/2026-08-30/g5-remaining-mechanism-and-capability-boundary.md`.
+
+## 2026-08-30 — DECISION-215 defer external-display verification
+
+- Constraint: no external 59.94 Hz / VRR display is available on this machine.
+- User direction: proceed on the assumption needed for sequencing and repeat
+  the external-display test later, after the iPadOS/iOS version exists.
+- Decision: authorize G6 now, in iPad-then-iPhone order with one Simulator at a
+  time. Keep G5 visibly deferred rather than claiming an evidence pass.
+- Completion boundary: PRD D2 remains unchanged and final completion still
+  requires revisiting the deferred verification.
+- Evidence:
+  `docs/artifacts/2026-08-30/g5-external-display-verification-deferral.md`.

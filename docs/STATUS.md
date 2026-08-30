@@ -4,7 +4,14 @@ Last updated: 2026-08-30
 
 ## Current goal
 
-**G5 — macOS 60 fps: BLOCKED ON EXTERNAL 59.94/VRR DISPLAY CAPABILITY**
+**G6 — Simulator core boots: IN PROGRESS UNDER USER-AUTHORIZED G5 DEFERRAL**
+
+DECISION-215 defers the unavailable external 59.94 Hz / VRR display
+verification until after the iPadOS/iOS version exists and authorizes G6 to
+begin now. This is a sequencing exception, not a measured G5 pass: PRD D2 and
+the final completion requirement remain unchanged. Exactly one Simulator will
+run at a time, with iPad first and iPhone second. See
+`docs/artifacts/2026-08-30/g5-external-display-verification-deferral.md`.
 
 PERF-214 reconciles the current G5 evidence and closes the remaining local
 mechanism inventory. Warm Fountain's rare CPU overruns are distributed across
@@ -17,7 +24,9 @@ range, while compiler, renderer, scheduler, audio, input, and macOS vertex-
 loader routes all have direct semantic, reversal, API, or materiality
 rejections. Further G5 work requires a real 59.94 Hz/suitable-VRR macOS
 display (necessary, not sufficient), or genuinely new causal evidence naming
-an uncovered public mechanism. Do not weaken D2 or start G6. See
+an uncovered public mechanism. Do not weaken D2 or report G5 as passed;
+DECISION-215 now permits G6 to proceed while external-display verification is
+deferred. See
 `docs/artifacts/2026-08-30/g5-remaining-mechanism-and-capability-boundary.md`.
 
 PERF-213 rejects generated-function frame-pointer omission before a full

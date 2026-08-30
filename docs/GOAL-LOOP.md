@@ -19,6 +19,15 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+DECISION-215 records a user-authorized sequencing exception after PERF-214.
+There is no external 59.94 Hz / VRR display available on this machine, and the
+user explicitly directed the loop to proceed while deferring that verification
+until after the iPadOS/iOS version exists. For sequencing only, G6 may now
+begin. G5 is **not** converted into an evidence pass, PRD D2 is unchanged, and
+final completion still requires revisiting the deferred verification. Proceed
+with exactly one Simulator at a time: iPad first, then iPhone. See
+`docs/artifacts/2026-08-30/g5-external-display-verification-deferral.md`.
+
 PERF-214 reconciles every current G5 failure class against the retained
 mechanism history. Warm CPU overruns are rare and distributed across already
 closed/profiled families; the largest Fountain tails are proven
@@ -31,7 +40,8 @@ lever has a direct semantic, API, reversal, or materiality rejection. Further
 G5 work now requires a real 59.94 Hz or suitable VRR macOS display (necessary,
 not sufficient), or genuinely new causal evidence naming an uncovered public
 mechanism. Do not weaken D2, count stale duplicates, use private driver APIs,
-or start G6. See
+or treat G5 as proven. Its earlier G6 prohibition is superseded only by the
+explicit DECISION-215 sequencing exception above. See
 `docs/artifacts/2026-08-30/g5-remaining-mechanism-and-capability-boundary.md`.
 
 PERF-213 rejects generated-module frame-pointer omission before a full build.
