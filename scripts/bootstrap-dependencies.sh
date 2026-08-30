@@ -154,6 +154,8 @@ frame_task_event_patch="$ROOT/patches/moderngekko-dolphin/0022-frame-task-event-
 lightweight_frame_timing_patch="$ROOT/patches/moderngekko-dolphin/0023-lightweight-frame-timing.patch"
 lightweight_frame_identity_patch="$ROOT/patches/moderngekko-dolphin/0024-lightweight-frame-identity.patch"
 lightweight_frame_index_activation_patch="$ROOT/patches/moderngekko-dolphin/0025-lightweight-frame-index-activation.patch"
+ios_metal_display_sync_availability_patch="$ROOT/patches/moderngekko-dolphin/0026-ios-metal-display-sync-availability.patch"
+ios_simulator_framebuffer_fetch_patch="$ROOT/patches/moderngekko-dolphin/0027-ios-simulator-disable-framebuffer-fetch.patch"
 apply_patch_once_or_marker "$MG" "$mg_patch" \
   include/moderngekko/runtime.hpp 'struct RuntimeDiagnosticsSnapshot'
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$dolphin_patch" \
@@ -219,6 +221,10 @@ apply_patch_once_or_marker "$MG/vendor/dolphin" "$lightweight_frame_identity_pat
   Source/Core/VideoCommon/LightweightFrameTimingRecorder.cpp emulated_frame
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$lightweight_frame_index_activation_patch" \
   Source/Core/Common/FramePhaseTiming.h IsEmulatedFrameIndexEnabled
+apply_patch_once_or_marker "$MG/vendor/dolphin" "$ios_metal_display_sync_availability_patch" \
+  Source/Core/VideoBackends/Metal/MTLGfx.mm '#if TARGET_OS_OSX'
+apply_patch_once_or_marker "$MG/vendor/dolphin" "$ios_simulator_framebuffer_fetch_patch" \
+  Source/Core/VideoBackends/Metal/MTLUtil.mm 'The Simulator reports an Apple GPU family'
 verify_patch_scope "$MG" "$mg_patch" vendor/dolphin tools/moderngekko_launcher.cpp \
   tools/moderngekko_port.cpp tests/frontend_config_test.cpp \
   tools/frontend_config.cpp tools/frontend_config.hpp tools/moderngekko_run.cpp \
@@ -240,6 +246,7 @@ verify_patch_scope "$MG/vendor/dolphin" "$dolphin_patch" \
   Source/Core/Core/CoreTiming.cpp \
   Source/Core/AudioCommon/Mixer.cpp \
   Source/Core/VideoBackends/Metal/MTLGfx.mm \
+  Source/Core/VideoBackends/Metal/MTLUtil.mm \
   Source/Core/VideoCommon/CMakeLists.txt \
   Source/Core/VideoCommon/Present.cpp \
   Source/Core/VideoCommon/LightweightFrameTimingRecorder.cpp \

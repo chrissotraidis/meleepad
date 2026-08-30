@@ -4400,3 +4400,28 @@ Append-only execution ledger. Claims are limited to observed evidence.
   requires revisiting the deferred verification.
 - Evidence:
   `docs/artifacts/2026-08-30/g5-external-display-verification-deferral.md`.
+
+## 2026-08-30 — MOBILE-216 iOS Simulator core and gameplay
+
+- Goal: prove the no-JIT mobile core on iPad Simulator first, then iPhone
+  Simulator, while running exactly one Simulator at a time.
+- Build: add the arm64 iOS Simulator toolchain, static ModernGekko core build,
+  GALE01 module cross-build, component-archive linker response, Xcode project,
+  and the SsbmPad iOS/shared shell sources derived from the pinned reference.
+- Metal: guard macOS-only `displaySyncEnabled` access and disable framebuffer
+  fetch on Simulator after its Metal shader compiler rejected render-target
+  reads despite the advertised Apple GPU-family capability.
+- Product correction: remove the inherited Sunshine-only experimental 60 FPS
+  control. GALE01 now reports its actual native 60 FPS frame mode.
+- iPad result: memory-card prompt -> title/menu -> Classic character select ->
+  live Fox-versus-Yoshi combat on Yoshi's Story. Actual touch stick, A, X, and
+  Start input drove selection, match start, movement, jump, and attack.
+- iPhone result: after shutting down iPad, the same app reached Classic
+  character select, selected Yoshi by touch, and entered live combat.
+- Performance boundary: static screens often reported 59.9-60.0 FPS, but
+  shader-heavy transitions and combat were materially slower. Simulator
+  timing is diagnostic only and is neither a stable-60 nor real-device claim.
+- Decision: G6 PASS; G7 is active. Both app processes and Simulators were
+  stopped. G5's external-display verification remains deferred and unpassed.
+- Evidence:
+  `docs/artifacts/2026-08-30/g6-ios-simulator-core-and-gameplay.md`.

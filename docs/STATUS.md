@@ -4,13 +4,25 @@ Last updated: 2026-08-30
 
 ## Current goal
 
-**G6 — Simulator core boots: IN PROGRESS UNDER USER-AUTHORIZED G5 DEFERRAL**
+**G7 — Shell ported: IN PROGRESS UNDER USER-AUTHORIZED G5 DEFERRAL**
+
+MOBILE-216 passes G6. The same arm64 IOSSIMULATOR SsbmPad app and locally
+generated ahead-of-time GALE01 module booted sequentially on an iPad Pro
+13-inch (M5) and iPhone 17 Pro Simulator, both on iOS 26.5. Actual touch input
+drove title/menu navigation, fighter selection, and live Classic-mode combat.
+The mobile product path has no compiled PowerPC JIT; interpreter fallback and
+the portable software vertex loader remain selected. Static screens often
+reported 59.9-60.0 FPS, but cold transitions and combat were materially slower,
+so this is a Simulator core/gameplay pass rather than stable-60 or real-device
+performance evidence. G7 must now close the complete overlay, menu, settings,
+diagnostics, lifecycle, layout, controller, and import matrix. See
+`docs/artifacts/2026-08-30/g6-ios-simulator-core-and-gameplay.md`.
 
 DECISION-215 defers the unavailable external 59.94 Hz / VRR display
 verification until after the iPadOS/iOS version exists and authorizes G6 to
-begin now. This is a sequencing exception, not a measured G5 pass: PRD D2 and
-the final completion requirement remain unchanged. Exactly one Simulator will
-run at a time, with iPad first and iPhone second. See
+begin. That sequencing exception enabled MOBILE-216, but it is still not a
+measured G5 pass: PRD D2 and the final completion requirement remain
+unchanged. See
 `docs/artifacts/2026-08-30/g5-external-display-verification-deferral.md`.
 
 PERF-214 reconciles the current G5 evidence and closes the remaining local

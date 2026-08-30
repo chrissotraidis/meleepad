@@ -28,6 +28,16 @@ final completion still requires revisiting the deferred verification. Proceed
 with exactly one Simulator at a time: iPad first, then iPhone. See
 `docs/artifacts/2026-08-30/g5-external-display-verification-deferral.md`.
 
+MOBILE-216 passes G6. One-at-a-time iPad Pro 13-inch (M5) and iPhone
+17 Pro Simulators on iOS 26.5 both booted the same arm64 IOSSIMULATOR app and
+ahead-of-time GALE01 module into live Classic-mode combat. Actual on-screen
+stick/A/X/Start input drove menu selection, fighter selection, movement,
+jump, attack, and match start. This proves the no-JIT Simulator core path, not
+real-device performance: static screens often reported 59.9-60.0 FPS while
+shader-heavy transitions and combat slowed materially. G7 is now active; G5's
+external-display verification remains deferred and unpassed. See
+`docs/artifacts/2026-08-30/g6-ios-simulator-core-and-gameplay.md`.
+
 PERF-214 reconciles every current G5 failure class against the retained
 mechanism history. Warm CPU overruns are rare and distributed across already
 closed/profiled families; the largest Fountain tails are proven
