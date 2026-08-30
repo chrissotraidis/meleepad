@@ -19,6 +19,16 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-213 rejects generated-module frame-pointer omission before a full build.
+On a retained hot PGO chunk, `-fomit-frame-pointer` keeps the x29/LR save pair
+and removes essentially one frame-establishment instruction per generated
+function: 434 fewer instructions across 446 `func_` symbols. PERF-212's direct
+same-machine result bounds that at about 0.0044 ms/frame for 116,775
+dispatches, far below the 5% product-build gate. Do not build or retest this
+flag without a source-level mechanism that materially changes register
+pressure. The product was unchanged, G5 remains open, and G6 blocked. See
+`docs/artifacts/2026-08-30/g5-generated-frame-pointer-omission-rejection.md`.
+
 PERF-212 closes the ARM64 dispatcher calling-convention and cold-frame-split
 routes. The optimized runner emits no per-dispatch spills around its indirect
 module call, so `preserve_most` has no caller traffic to remove and would push
