@@ -4517,3 +4517,24 @@ Append-only execution ledger. Claims are limited to observed evidence.
   no ROM/module/profile/save mutation. G8 row 7 remains fail/attributed.
 - Evidence:
   `docs/artifacts/2026-08-30/g8-ios-host-core-thinlto-rejection.md`.
+
+## 2026-08-30 — SAVE-223 macOS and iPad persistence
+
+- Goal: close G8 row 8 with visible post-relaunch name and settings evidence
+  on macOS and the iPad Simulator.
+- iPad: enable the FPS setting, terminate, relaunch, and observe the label and
+  persisted preference; create `CODX`, terminate, relaunch, return to Name
+  Entry, and visibly recover `CODX`.
+- macOS: create `CODM`, close the runner normally, start a new process, and
+  visibly recover `CODM` in the Rumble settings name list. Close and relaunch
+  the SsbmPad frontend and read back its checked FPS-title setting.
+- Save evidence: the macOS GCI changed from
+  `5fd9152de18e51987f237b871189adeaacfeafed90f2c45b1e4d2aa43d36fd74`
+  to `812c246dcdcd24e3f04316b09ab8a1b1b80a741dd04726454ee023b953e7af39`;
+  private save files remain untracked.
+- Cleanup: restore the temporary iPad FPS setting, terminate the app, shut
+  down the only Simulator, and close the macOS runner and frontend normally.
+- Decision: G8 row 8 PASS. G8 remains active; no combat/audio/netplay claim is
+  promoted.
+- Evidence:
+  `docs/artifacts/2026-08-30/g8-save-and-settings-persistence.md`.

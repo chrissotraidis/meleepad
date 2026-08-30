@@ -109,6 +109,16 @@ only from a new measured static-core path that clears a structural/materiality
 gate before live play. See
 `docs/artifacts/2026-08-30/g8-ios-host-core-thinlto-rejection.md`.
 
+SAVE-223 passes G8 row 8. Live Melee name entry created `CODX` on the iPad
+Simulator and `CODM` on macOS; both names were visibly present after normal
+termination and fresh-process relaunch. SsbmPad's FPS setting was also read
+back after relaunch on both platforms. The iPad preference was restored to its
+prior off state after proof. No ROM, module, save, or preference file is
+committed, and the sole Simulator is shut down. Continue with the remaining
+G8 rows; this does not promote audio continuity, combat performance, or
+netplay. See
+`docs/artifacts/2026-08-30/g8-save-and-settings-persistence.md`.
+
 PERF-214 reconciles every current G5 failure class against the retained
 mechanism history. Warm CPU overruns are rare and distributed across already
 closed/profiled families; the largest Fountain tails are proven

@@ -6,6 +6,14 @@ Last updated: 2026-08-30
 
 **G8 — Test matrix green: IN PROGRESS UNDER USER-AUTHORIZED G5 DEFERRAL**
 
+SAVE-223 passes G8 row 8 on macOS and the iPad Simulator. Live Melee name
+entry created `CODM` and `CODX`; both were visibly recovered after normal
+termination and fresh-process relaunch. SsbmPad's FPS setting was also read
+back after relaunch on both platforms. Private game data and saves remain
+untracked, both app processes are stopped, and the sole Simulator is shut
+down. See
+`docs/artifacts/2026-08-30/g8-save-and-settings-persistence.md`.
+
 PERF-222 rejects iOS host-core ThinLTO at the pre-live structural gate. The
 isolated candidate was genuine LLVM ThinLTO, but linked
 `StaticRecompCore::Run` retained the measured `FastDispatchableAt`, `SyncIn`,
@@ -1307,10 +1315,11 @@ not add work to every dispatch. See
 ## Test matrix
 
 The authoritative row-by-row reconciliation is
-`docs/artifacts/2026-08-30/g8-test-matrix-reconciliation.md`. Rows 1, 2, 4,
-13, and 14 pass. Rows 5, 7, 9, 10, 11, and 12 are partial. Rows 6, 8, and 15
-are open. Row 3 remains blocked by the explicitly deferred G5 external-display
-verification and is not counted as a pass.
+`docs/artifacts/2026-08-30/g8-test-matrix-reconciliation.md`. Rows 1, 2, 4, 8,
+13, and 14 pass. Rows 5, 9, 10, 11, and 12 are partial; row 7 is failed and
+attributed. Rows 6 and 15 are open. Row 3 is provisionally accepted by the
+user's explicit external-display waiver and must be replayed later on suitable
+hardware.
 
 ## Open defects and decisions
 
