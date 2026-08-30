@@ -26,7 +26,7 @@
 
 static constexpr CGFloat SsbmPadDrawableScale = 1.0;
 static NSString *const SsbmPadSupportedImageSHA256 =
-    @"67cec1634e641227a4cd51e6a0b277730cb9a1adaa867530c9e66de45373e51d";
+    @"2393aadd346c23e3e44291e7bb7e16dbc4970bc703028261659a87cde9d90484";
 
 static uintptr_t SsbmPadControllerInstanceID(GCController *controller) {
     return reinterpret_cast<uintptr_t>((__bridge void *)controller);
@@ -1352,7 +1352,9 @@ static NSUInteger SsbmPadRegularFileCount(NSString *directory) {
                 NSArray<NSString *> *required = @[
                     @"sys/boot.bin", @"sys/bi2.bin", @"sys/apploader.img",
                     @"sys/fst.bin", @"sys/main.dol", @"files/opening.bnr",
-                    @"files/AudioRes/mSound.asn", @"files/data/common.szs",
+                    @"files/GmRegEnd.dat", @"files/MnSlChr.dat",
+                    @"files/MnSlMap.dat", @"files/PlFx.dat",
+                    @"files/GrNBa.dat",
                 ];
                 for (NSString *relative in required) {
                     if (![[NSFileManager defaultManager] fileExistsAtPath:
@@ -1364,7 +1366,7 @@ static NSUInteger SsbmPadRegularFileCount(NSString *directory) {
                         return;
                     }
                 }
-                if (SsbmPadRegularFileCount([stagedRoot stringByAppendingPathComponent:@"files"]) != 174) {
+                if (SsbmPadRegularFileCount([stagedRoot stringByAppendingPathComponent:@"files"]) != 1209) {
                     [[NSFileManager defaultManager] removeItemAtPath:stagingDirectory error:nil];
                     [progressAlert dismissViewControllerAnimated:YES completion:^{
                         [completedSelf presentBootError:@"The extracted game file count is incomplete."];

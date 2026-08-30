@@ -49,6 +49,23 @@ gate pass. G8 is now active; import, every-control, two-controller, save, and
 the remaining matrix rows are not promoted by this decision. See
 `docs/artifacts/2026-08-30/g7-shell-parity-and-diagnostics.md`.
 
+MATRIX-218 reconciles G8 without replaying or overclaiming prior evidence.
+Rows 1 (boot), 2 (menu navigation), 4 (Fountain 1v1/profile), and 14
+(regression suite) pass. Rows 5, 7, 9, 10, 11, and 12 are partial; rows 6, 8,
+13, and 15 are open. Row 3 remains tied to the deferred, unpassed G5 display
+verification. Close the remaining one-Simulator iPad cluster first, then the
+missing non-display macOS rows and clean-clone build. See
+`docs/artifacts/2026-08-30/g8-test-matrix-reconciliation.md`.
+
+IMPORT-219 passes G8 row 13. A real iPad Simulator import first exposed stale
+Sunshine SHA/file-layout checks. After replacing them with the pinned GALE01
+revision-0 hash, 1,209-file count, and Melee anchors, the app validated,
+copied, extracted, atomically activated, and visibly booted the user's image.
+Normal sandbox relaunch and same-filename reimport from the Files-visible
+SsbmPad folder also passed. Retain the private active import for the remaining
+save/control rows; do not commit it. See
+`docs/artifacts/2026-08-30/g8-ipad-game-data-import.md`.
+
 PERF-214 reconciles every current G5 failure class against the retained
 mechanism history. Warm CPU overruns are rare and distributed across already
 closed/profiled families; the largest Fountain tails are proven

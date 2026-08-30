@@ -14,9 +14,19 @@ absolute game-root path in the first export; the retained repair sanitizes the
 breadcrumb, scrubs host path tokens again at export, and adds a regression.
 The rebuilt report had zero path/game-image leak matches. All focused shell
 tests and the repository gate pass. Defaults were restored and the sole
-Simulator was shut down. G8 must now execute the full matrix; import,
-every-control, two-controller, saves, and remaining scene/target rows are still
-open. See `docs/artifacts/2026-08-30/g7-shell-parity-and-diagnostics.md`.
+Simulator was shut down. G8 must now execute the full matrix; every-control,
+two-controller, saves, and remaining scene/target rows are still open. See
+`docs/artifacts/2026-08-30/g7-shell-parity-and-diagnostics.md`.
+
+IMPORT-219 passes G8 row 13. Live testing exposed and removed three inherited
+Sunshine import invariants: the SHA-256, 174-file count, and Sunshine-only
+required files. The corrected app strictly validated the pinned GALE01
+revision-0 image, retained the exact 1,459,978,240-byte ISO, extracted 1,209
+Melee files, activated them atomically, booted visible frames, survived a
+normal sandbox relaunch, and passed same-filename reimport from the
+Files-visible SsbmPad folder. The temporary Files source was removed; private
+active data remains for later tests. See
+`docs/artifacts/2026-08-30/g8-ipad-game-data-import.md`.
 
 MOBILE-216 passes G6. The same arm64 IOSSIMULATOR SsbmPad app and locally
 generated ahead-of-time GALE01 module booted sequentially on an iPad Pro
@@ -26,8 +36,8 @@ The mobile product path has no compiled PowerPC JIT; interpreter fallback and
 the portable software vertex loader remain selected. Static screens often
 reported 59.9-60.0 FPS, but cold transitions and combat were materially slower,
 so this is a Simulator core/gameplay pass rather than stable-60 or real-device
-performance evidence. G7 must now close the complete overlay, menu, settings,
-diagnostics, lifecycle, layout, controller, and import matrix. See
+performance evidence. G7 subsequently closed the shell boundary; the broader
+control, lifecycle, persistence, and import cases belong to G8. See
 `docs/artifacts/2026-08-30/g6-ios-simulator-core-and-gameplay.md`.
 
 DECISION-215 defers the unavailable external 59.94 Hz / VRR display
@@ -1264,10 +1274,10 @@ not add work to every dispatch. See
 | G2 Module recompiles and links | Pass | `docs/artifacts/2026-08-24/g2-module-and-package.md` |
 | G3 macOS boots to title | Pass | `docs/artifacts/2026-08-24/g3-macos-title-and-input.md`; retained title and A-transition screenshots |
 | G4 macOS playable | Pass | `docs/artifacts/2026-08-24/g4-controlled-match.md`; clean CSS -> 1v1 -> results plus live Cubeb/CoreAudio mixing evidence |
-| G5 macOS 60 fps | In progress | Cache-control parity retained; PGO, busy-spin, idle shortcuts, activity hints, and focus causality rejected. A CSS-gated trigger captured a one-second 54.918 FPS hitch cluster as off-core host delay, while 2/5/10-second windows held 57.316/58.866/59.399 FPS. Return to the normal required-stage strict tail; reopen the major-menu branch only for a multi-second sub-55 recurrence |
-| G6 Simulator core boots | Not started | G5 first; no Simulator booted |
-| G7 Shell ported | Not started | G6 first |
-| G8 Test matrix green | Not started | G7 first |
+| G5 macOS 60 fps | Deferred, not passed | DECISION-215 permits mobile sequencing while unavailable external 59.94 Hz/VRR verification is deferred; D2 remains unchanged |
+| G6 Simulator core boots | Pass | `docs/artifacts/2026-08-30/g6-ios-simulator-core-and-gameplay.md` |
+| G7 Shell ported | Pass | `docs/artifacts/2026-08-30/g7-shell-parity-and-diagnostics.md` |
+| G8 Test matrix green | In progress | `docs/artifacts/2026-08-30/g8-test-matrix-reconciliation.md`; rows 1, 2, 4, 13, and 14 pass, others partial/open/deferred |
 | G9 Netplay working | Not started | G8 first; requires a synchronized completed match with an iPadOS endpoint |
 
 ## Pinned inputs and dependencies
@@ -1287,9 +1297,11 @@ not add work to every dispatch. See
 
 ## Test matrix
 
-The macOS build/package/title, controlled-gameplay, and live-audio-stack rows
-are proven. Lifecycle and performance rows remain open. All iPadOS and iOS
-rows are not run because the loop forbids moving to G6 before G5 passes.
+The authoritative row-by-row reconciliation is
+`docs/artifacts/2026-08-30/g8-test-matrix-reconciliation.md`. Rows 1, 2, 4,
+13, and 14 pass. Rows 5, 7, 9, 10, 11, and 12 are partial. Rows 6, 8, and 15
+are open. Row 3 remains blocked by the explicitly deferred G5 external-display
+verification and is not counted as a pass.
 
 ## Open defects and decisions
 

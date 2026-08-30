@@ -24,9 +24,20 @@ for text in (
 if startup.index("if (!gameRootReadable)") > startup.index("_coreHost ="):
     raise SystemExit("game-data guard must run before runtime creation")
 for text in ('importConfiguration.title = @"Choose ISO or GCM"',
-             'initWithString:@"Game data required\\n"'):
+             'initWithString:@"Game data required\\n"',
+             '@"2393aadd346c23e3e44291e7bb7e16dbc4970bc703028261659a87cde9d90484"',
+             '@"files/GmRegEnd.dat"',
+             '@"files/MnSlChr.dat"',
+             '@"files/MnSlMap.dat"',
+             '@"files/PlFx.dat"',
+             '@"files/GrNBa.dat"',
+             '!= 1209'):
     if text not in source:
         raise SystemExit(f"missing first-run contract: {text}")
+for stale in ('@"67cec1634e641227a4cd51e6a0b277730cb9a1adaa867530c9e66de45373e51d"',
+              '@"files/AudioRes/mSound.asn"', '@"files/data/common.szs"', '!= 174'):
+    if stale in source:
+        raise SystemExit(f"Sunshine-only import invariant remains: {stale}")
 PY
 
 grep -Fq 'Import or Reimport Game Data' "$OVERLAY"

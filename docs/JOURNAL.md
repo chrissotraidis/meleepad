@@ -4454,3 +4454,47 @@ Append-only execution ledger. Claims are limited to observed evidence.
   remains deferred and unpassed.
 - Evidence:
   `docs/artifacts/2026-08-30/g7-shell-parity-and-diagnostics.md`.
+
+## 2026-08-30 — MATRIX-218 G8 evidence reconciliation
+
+- Goal: apply all 15 PRD row conditions to retained evidence after G6/G7 and
+  select the next true gap without replaying already-proven work.
+- Pass: rows 1 boot, 2 menu navigation, 4 Fountain 1v1/profile, and 14
+  regression suite.
+- Partial: rows 5 Battlefield completion, 7 iPad audio continuity, 9 every
+  touch control, 10 every menu action, 11 live controller lifecycle, and 12
+  macOS diagnostic export.
+- Open: rows 6 macOS Classic progression, 8 persistence, 13 live import, and
+  15 clean-clone build.
+- Deferred: row 3 retains extensive FD evidence but cannot pass the strict
+  tail while G5 external-display verification remains deferred.
+- Decision: close the one-Simulator iPad interaction/import/persistence cluster
+  next, then missing non-display macOS rows and clean clone. G8 remains active.
+- Evidence:
+  `docs/artifacts/2026-08-30/g8-test-matrix-reconciliation.md`.
+
+## 2026-08-30 — IMPORT-219 live iPad GALE01 import
+
+- Goal: close G8 row 13 with the user's real disc through the iPad Simulator
+  import/extract/activate/boot path.
+- First failure: the strict hash gate rejected the exact pinned image because
+  the app still contained Sunshine's SHA-256. Source audit also found
+  Sunshine's 174-file count and two Sunshine-only required files.
+- Fix: use the documented GALE01 revision-0 hash, require 1,209 Melee files,
+  require Melee-specific menu/fighter/stage anchors, and make the regression
+  reject the stale invariants.
+- First corrected run: exact size/hash validation, 1,209-file extraction,
+  atomic activation, sandbox root selection, module/disc readiness, runtime
+  creation, input connection, and visible boot all passed.
+- Persistence: terminate and relaunch without the test hook; the sandbox copy
+  booted visibly and recreated the runtime.
+- Files route: stage the same ISO in the app's Files-visible Documents folder,
+  choose `Import from SsbmPad Folder`, and observe another successful atomic
+  activation, runtime creation, and visible boot. Active hash/count remained
+  exact.
+- Cleanup: remove the temporary Files source, retain the original ISO and
+  private active import, terminate the app, and shut down the sole Simulator.
+- Decision: G8 row 13 PASS. Failed-import rollback and removal/save
+  preservation remain separate hardening evidence.
+- Evidence:
+  `docs/artifacts/2026-08-30/g8-ipad-game-data-import.md`.
