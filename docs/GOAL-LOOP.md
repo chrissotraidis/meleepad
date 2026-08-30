@@ -19,6 +19,14 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-188 reproduces PERF-187's same-run separation on verified 1x/fullscreen
+Final Destination. Its 73.449-second combat boundary has one GPU-ready
+33.333667 ms actual hold with a nominal 17.058208 ms producer phase. All
+fourteen separate producer rows above 20 ms are buffered into nominal actual
+intervals. Fountain and Final Destination therefore share two independent
+tails; both still fail G5. See
+`docs/artifacts/2026-08-29/g5-final-destination-combined-join.md`.
+
 PERF-187 invalidates PERF-186's hidden 3x/windowed profile and reruns the same
 join at verified 640x528/fullscreen. The 94.650-second Fountain combat boundary
 has two 33.333 ms actual holds whose producer phases are nominal and whose GPU

@@ -3854,3 +3854,22 @@ Append-only execution ledger. Claims are limited to observed evidence.
   exact `0abc212b...`; 26/26 scoped tests pass; no game or Simulator remains.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-corrected-combined-producer-presentation-join.md`.
+
+## 2026-08-29 — PERF-188 Final Destination combined join
+
+- Goal: determine whether PERF-187's independent producer/display tails are
+  Fountain-specific by repeating the exact joined diagnostic on the retained
+  verified Final Destination state.
+- Method: verified root 640x528/fullscreen, `InternalResolution = 1`, Metal,
+  Cubeb, exact PGO module, quiet input, one native runner, no Simulator, and
+  fresh full-screen combat/results endpoints.
+- Result: the 73.449-second combat boundary has 4,406 actual intervals at
+  16.670575 ms mean / 16.666875 ms p95 / 33.333667 ms worst. Its one actual
+  hold has a nominal 17.058208 ms producer phase and GPU completion 31.500 ms
+  early. All fourteen producer rows above 20 ms map to nominal actual
+  intervals; producer worst is 34.064583 ms.
+- Decision: Final Destination reproduces Fountain's two independent tails.
+  Both required stages fail G5; do not optimize or describe either tail as the
+  cause of the other.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-final-destination-combined-join.md`.

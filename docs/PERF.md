@@ -2,6 +2,14 @@
 
 G5 is active. G4 passed with a clean controlled 1v1 on 2026-08-24.
 
+PERF-188 repeats the corrected same-run join on verified 1x/fullscreen Final
+Destination. The 73.449-second combat boundary has one GPU-ready 33.333667 ms
+actual hold with a nominal producer phase, while all fourteen producer rows
+above 20 ms are displayed at nominal intervals. Actual/producer worst are
+33.333667/34.064583 ms. Both required stages now prove the same independent
+tails; G5 remains open. See
+`docs/artifacts/2026-08-29/g5-final-destination-combined-join.md`.
+
 PERF-187 invalidates PERF-186's hidden 3x/windowed profile, then repeats the
 same join at verified 640x528/fullscreen. The 94.650-second Fountain boundary
 has two GPU-ready 33.333 ms actual holds with nominal producer phases, while

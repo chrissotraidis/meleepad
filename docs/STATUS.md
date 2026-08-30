@@ -6,6 +6,16 @@ Last updated: 2026-08-29
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-188 reproduces the corrected same-run join on verified 1x/fullscreen
+Final Destination. Across 73.449 seconds and coherent combat/results visual
+endpoints, actual presentation averages 59.985932 FPS with one 33.333667 ms
+hold; that frame has a nominal 17.058208 ms producer phase and GPU completion
+31.500 ms before the skipped deadline. Separately, all fourteen producer rows
+above 20 ms map to nominal actual intervals. Fountain and Final Destination
+therefore share two independent tails, and both fail the unchanged gate. No
+game or Simulator remains. See
+`docs/artifacts/2026-08-29/g5-final-destination-combined-join.md`.
+
 PERF-187 invalidates PERF-186's accidentally regenerated 3x/windowed profile
 and reruns the combined join at verified 640x528/fullscreen. Across 94.650
 seconds of Fountain combat, actual presentation averages 59.978560 FPS with
