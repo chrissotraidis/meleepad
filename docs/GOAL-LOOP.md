@@ -19,6 +19,15 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-211 rechecks LLVM sample PGO only because PERF-206 added native-PC data.
+The installed Xcode lacks `llvm-profgen`, the shipped module has neither DWARF
+line data nor pseudo probes, and the ring contains PC snapshots rather than
+branch/context trace. A symbol-only profile would be strictly weaker than the
+retained frontend profile's exact entries, blocks, and branch weights. Do not
+synthesize it, rebuild with probes, or install a second profiling toolchain.
+G5 remains open and G6 blocked. See
+`docs/artifacts/2026-08-30/g5-native-pc-sample-pgo-screen.md`.
+
 PERF-210 proves that fixed scheduling plus requested user-interactive QoS is
 not a supported untested combination. Public fixed policy immediately clears
 requested QoS; reapplication fails with `EPERM` and readback stays fixed plus

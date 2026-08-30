@@ -4311,3 +4311,19 @@ Append-only execution ledger. Claims are limited to observed evidence.
   binary was deleted; no game or Simulator ran. G5 open, G6 blocked.
 - Evidence:
   `docs/artifacts/2026-08-30/g5-fixed-plus-qos-contract-rejection.md`.
+
+## 2026-08-30 — PERF-211 native-PC sample-PGO screen
+
+- Goal: determine whether PERF-206's new native-PC ring changes the older
+  sample-PGO rejection.
+- Prerequisites: AppleClang accepts sample profiles, but this Xcode has no
+  `llvm-profgen`; the exact product module has no DWARF lines or pseudo probes;
+  the retained ring has no branch/LBR/ETM context.
+- Information: symbol-only sample counts would approximate function hotness
+  already known more exactly from frontend-PGO function, block, and branch
+  instrumentation.
+- Decision: no synthetic weak profile, pseudo-probe rebuild, or second
+  profiling toolchain. No module/game build and no Simulator. Product
+  unchanged, G5 open, G6 blocked.
+- Evidence:
+  `docs/artifacts/2026-08-30/g5-native-pc-sample-pgo-screen.md`.

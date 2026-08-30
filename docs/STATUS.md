@@ -6,6 +6,16 @@ Last updated: 2026-08-30
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-211 reopens sample PGO only against PERF-206's new native-PC ring, then
+closes it before a module build. This Xcode has no `llvm-profgen`; the shipped
+module has no DWARF line data or pseudo probes; and the ring contains PC
+snapshots rather than branch/context trace. A symbol-only profile would merely
+approximate function hotness already measured more exactly by the retained
+frontend profile's entries, blocks, and branch weights. Do not synthesize a
+weaker profile, rebuild with probes, or install another profiling toolchain.
+Product unchanged; G5 stays open and G6 blocked. See
+`docs/artifacts/2026-08-30/g5-native-pc-sample-pgo-screen.md`.
+
 PERF-210 closes a possible fixed-scheduler escape route. Apple's pthread
 contract says incompatible legacy scheduling permanently opts a thread out of
 requested QoS. A disposable readback proves user-interactive QoS applies,
