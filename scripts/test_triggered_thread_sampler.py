@@ -46,6 +46,7 @@ def run_case(
     thread_selector: str = "sampler-target",
     trigger_metric: str | None = None,
     require_image_path: bool = True,
+    native_stack: bool = False,
 ) -> subprocess.CompletedProcess[str]:
     phase_path = work / f"{name}-phase.csv"
     output_path = work / f"{name}-samples.csv"
@@ -65,7 +66,7 @@ def run_case(
                 str(output_path),
             ]
         if native_pc:
-            command.append("native-pc")
+            command.append("native-stack" if native_stack else "native-pc")
         if trigger_metric:
             if not native_pc:
                 raise AssertionError("custom trigger metric requires native-pc mode")
@@ -101,6 +102,8 @@ def run_case(
             raise AssertionError(f"{name}: native PCs did not resolve to a Mach-O image")
         if not all(int(row["pc_read_ns"]) > 0 for row in resolved):
             raise AssertionError(f"{name}: native PC read latency was not retained")
+        if native_stack and not any(int(row["return_pc_0"]) != 0 for row in rows):
+            raise AssertionError(f"{name}: native-stack mode did not retain a link register")
     return result
 
 
@@ -207,6 +210,17 @@ def main() -> None:
             f"1,500,{time.time_ns()},20.0,19.0\n",
             0,
             native_pc=True,
+        )
+        run_case(
+            sampler,
+            target,
+            work,
+            "current-native-stack-trigger",
+            "frame,emulated_frame,host_frame_end_unix_ns,total_ms,cpu_wall_ms\n"
+            f"1,500,{time.time_ns()},20.0,19.0\n",
+            0,
+            native_pc=True,
+            native_stack=True,
         )
         run_case(
             sampler,

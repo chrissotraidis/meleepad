@@ -25,11 +25,11 @@ def main() -> None:
             encoding="utf-8",
         )
         samples.write_text(
-            "wall_ns,unix_ns,cpu_ns,state,sleep_seconds,native_pc,pc_read_ns,image_base,image_offset,image_path\n"
-            "1,990000000,1,1,0,4097,10,4096,1,/tmp/body\n"
-            "2,995000000,2,3,0,4098,10,4096,2,/tmp/body\n"
-            "3,1000000000,3,1,0,8193,10,8192,1,/tmp/tail\n"
-            "4,1010000000,4,1,0,8193,10,8192,1,/tmp/tail\n",
+            "wall_ns,unix_ns,cpu_ns,state,sleep_seconds,native_pc,pc_read_ns,image_base,image_offset,image_path,return_pc_0,return_image_base_0,return_image_offset_0,return_image_path_0\n"
+            "1,990000000,1,1,0,4097,10,4096,1,/tmp/body,0,0,0,\n"
+            "2,995000000,2,3,0,4098,10,4096,2,/tmp/body,0,0,0,\n"
+            "3,1000000000,3,1,0,8193,10,8192,1,/tmp/tail,12304,12288,16,/tmp/caller\n"
+            "4,1010000000,4,1,0,8193,10,8192,1,/tmp/tail,12304,12288,16,/tmp/caller\n",
             encoding="utf-8",
         )
         result = subprocess.run(
@@ -42,6 +42,7 @@ def main() -> None:
                 "500",
                 "--max-emulated-frame",
                 "502",
+                "--show-stacks",
             ],
             check=True,
             capture_output=True,
@@ -56,6 +57,8 @@ def main() -> None:
     if "FRAME,2,501,20.000000,18.000000,2,2,0" not in result.stdout:
         raise AssertionError(result.stdout)
     if "SYMBOL,0,2,0.000000,2.000000,2.000000,inf,/tmp/tail+0x1" not in result.stdout:
+        raise AssertionError(result.stdout)
+    if "STACK,2,/tmp/tail+0x1 <- /tmp/caller+0x10" not in result.stdout:
         raise AssertionError(result.stdout)
     print("Triggered native PC analysis tests passed")
 

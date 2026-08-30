@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import bisect
 import csv
+import ctypes
 import math
 import pathlib
 import re
@@ -78,6 +79,30 @@ def symbolize(samples: list[dict[str, str]], batch_size: int = 500) -> dict[int,
                     print(f"warning: atos unavailable for {path}; using image offsets", file=sys.stderr)
                 continue
             result.update((pc, symbol_name(text)) for pc, text in zip(batch, symbols))
+    if sys.platform == "darwin":
+        class DlInfo(ctypes.Structure):
+            _fields_ = (
+                ("filename", ctypes.c_char_p),
+                ("image_base", ctypes.c_void_p),
+                ("symbol_name", ctypes.c_char_p),
+                ("symbol_address", ctypes.c_void_p),
+            )
+
+        process = ctypes.CDLL(None)
+        process.dladdr.argtypes = (ctypes.c_void_p, ctypes.POINTER(DlInfo))
+        process.dladdr.restype = ctypes.c_int
+        for sample in samples:
+            if sample["image_path"] or int(sample["image_base"]) == 0:
+                continue
+            pc = int(sample["native_pc"])
+            if pc in result:
+                continue
+            info = DlInfo()
+            if process.dladdr(ctypes.c_void_p(pc), ctypes.byref(info)) and info.symbol_name:
+                name = info.symbol_name.decode(errors="replace")
+                symbol_address = info.symbol_address or 0
+                offset = pc - symbol_address
+                result[pc] = name if offset == 0 else f"{name} + 0x{offset:x}"
     return result
 
 
@@ -85,8 +110,28 @@ def sample_key(sample: dict[str, str], symbols: dict[int, str]) -> str:
     pc = int(sample["native_pc"])
     if pc in symbols:
         return symbols[pc]
-    path = sample["image_path"] or "shared-cache"
+    path = sample["image_path"] or (
+        "shared-cache" if int(sample["image_base"]) != 0 else "unresolved"
+    )
     return f"{path}+0x{int(sample['image_offset']):x}"
+
+
+def return_frames(sample: dict[str, str]) -> list[dict[str, str]]:
+    frames: list[dict[str, str]] = []
+    index = 0
+    while f"return_pc_{index}" in sample:
+        pc = sample.get(f"return_pc_{index}", "")
+        if pc not in (None, "", "0"):
+            frames.append(
+                {
+                    "native_pc": pc,
+                    "image_base": sample.get(f"return_image_base_{index}", "0") or "0",
+                    "image_offset": sample.get(f"return_image_offset_{index}", "0") or "0",
+                    "image_path": sample.get(f"return_image_path_{index}", "") or "",
+                }
+            )
+        index += 1
+    return frames
 
 
 def main() -> int:
@@ -99,6 +144,7 @@ def main() -> int:
     parser.add_argument("--threshold-ms", type=float, default=16.7)
     parser.add_argument("--limit", type=int, default=30)
     parser.add_argument("--symbolize", action="store_true")
+    parser.add_argument("--show-stacks", action="store_true")
     args = parser.parse_args()
     if args.min_emulated_frame >= args.max_emulated_frame:
         parser.error("min-emulated-frame must be below max-emulated-frame")
@@ -138,7 +184,11 @@ def main() -> int:
 
     if not joined:
         parser.error("no phase frames overlap sample coverage")
-    symbols = symbolize(selected_samples) if args.symbolize else {}
+    symbol_inputs = list(selected_samples)
+    if args.show_stacks:
+        for sample in selected_samples:
+            symbol_inputs.extend(return_frames(sample))
+    symbols = symbolize(symbol_inputs) if args.symbolize else {}
     for _row, exact, is_overrun in joined:
         target = overrun if is_overrun else body
         target.update(sample_key(sample, symbols) for sample in exact)
@@ -197,6 +247,18 @@ def main() -> int:
                 key,
             )
         )
+    if args.show_stacks:
+        stacks: Counter[tuple[str, ...]] = Counter()
+        for _row, exact, is_overrun in joined:
+            if not is_overrun:
+                continue
+            for sample in exact:
+                stack = (sample_key(sample, symbols),) + tuple(
+                    sample_key(frame, symbols) for frame in return_frames(sample)
+                )
+                stacks[stack] += 1
+        for stack, count in stacks.most_common(args.limit):
+            writer.writerow(("STACK", count, " <- ".join(stack)))
     return 0
 
 

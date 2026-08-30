@@ -1,10 +1,12 @@
 #include <libproc.h>
 #include <mach/arm/thread_status.h>
 #include <mach/mach.h>
+#include <mach/mach_vm.h>
 #include <signal.h>
 #include <sys/proc_info.h>
 
 #include <algorithm>
+#include <array>
 #include <chrono>
 #include <cstdint>
 #include <cstdlib>
@@ -17,6 +19,8 @@
 
 namespace
 {
+constexpr std::size_t MAX_RETURN_PCS = 4;
+
 struct Sample
 {
   std::uint64_t wall_ns;
@@ -24,6 +28,7 @@ struct Sample
   std::uint64_t cpu_ns;
   std::uint64_t native_pc;
   std::uint64_t pc_read_ns;
+  std::array<std::uint64_t, MAX_RETURN_PCS> return_pcs;
   int state;
   int sleep_seconds;
 };
@@ -157,7 +162,9 @@ thread_t FindMachThread(task_t task, std::uint64_t thread_handle)
   return found;
 }
 
-bool ReadNativePc(thread_t thread, std::uint64_t* pc)
+bool ReadNativeState(task_t task, thread_t thread, bool unwind,
+                     std::uint64_t* pc,
+                     std::array<std::uint64_t, MAX_RETURN_PCS>* return_pcs)
 {
   arm_thread_state64_t state{};
   mach_msg_type_number_t count = ARM_THREAD_STATE64_COUNT;
@@ -165,6 +172,31 @@ bool ReadNativePc(thread_t thread, std::uint64_t* pc)
                        &count) != KERN_SUCCESS)
     return false;
   *pc = arm_thread_state64_get_pc(state);
+  return_pcs->fill(0);
+  if (!unwind)
+    return true;
+
+  (*return_pcs)[0] = arm_thread_state64_get_lr(state);
+  std::uint64_t frame_pointer = arm_thread_state64_get_fp(state);
+  for (std::size_t index = 1; index < return_pcs->size(); ++index)
+  {
+    struct FrameRecord
+    {
+      std::uint64_t previous_frame_pointer;
+      std::uint64_t saved_link_register;
+    } record{};
+    mach_vm_size_t bytes_read = 0;
+    if (frame_pointer == 0 || (frame_pointer & 0xf) != 0 ||
+        mach_vm_read_overwrite(task, frame_pointer, sizeof(record),
+                               reinterpret_cast<mach_vm_address_t>(&record),
+                               &bytes_read) != KERN_SUCCESS ||
+        bytes_read != sizeof(record))
+      break;
+    (*return_pcs)[index] = record.saved_link_register;
+    if (record.previous_frame_pointer <= frame_pointer)
+      break;
+    frame_pointer = record.previous_frame_pointer;
+  }
   return true;
 }
 
@@ -325,7 +357,7 @@ int main(int argc, char** argv)
   if (argc < 10 || argc > 12)
   {
     std::cerr << "usage: sampler pid thread-substring phase.csv min-emu max-emu threshold-ms "
-                 "interval-us max-seconds output.csv [native-pc [trigger-column]]\n";
+                 "interval-us max-seconds output.csv [native-pc|native-stack [trigger-column]]\n";
     return 2;
   }
   const int pid = std::atoi(argv[1]);
@@ -337,7 +369,10 @@ int main(int argc, char** argv)
   const int interval_us = std::atoi(argv[7]);
   const int max_seconds = std::atoi(argv[8]);
   const std::string output_path = argv[9];
-  const bool sample_native_pc = argc >= 11 && std::string(argv[10]) == "native-pc";
+  const bool sample_native_pc =
+      argc >= 11 && (std::string(argv[10]) == "native-pc" ||
+                     std::string(argv[10]) == "native-stack");
+  const bool sample_native_stack = argc >= 11 && std::string(argv[10]) == "native-stack";
   const std::string trigger_metric_name = argc == 12 ? argv[11] : "total_ms";
   if (pid <= 0 || needle.empty() || min_emu >= max_emu || threshold_ms <= 0 || interval_us <= 0 ||
       max_seconds <= 0 || (argc >= 11 && !sample_native_pc) || trigger_metric_name.empty())
@@ -438,8 +473,11 @@ int main(int argc, char** argv)
           std::chrono::duration_cast<std::chrono::nanoseconds>(now - start).count());
       std::uint64_t native_pc = 0;
       std::uint64_t pc_read_ns = 0;
+      std::array<std::uint64_t, MAX_RETURN_PCS> return_pcs{};
       const auto pc_read_start = std::chrono::steady_clock::now();
-      const bool pc_ok = !sample_native_pc || ReadNativePc(mach_thread, &native_pc);
+      const bool pc_ok = !sample_native_pc ||
+                         ReadNativeState(task, mach_thread, sample_native_stack,
+                                         &native_pc, &return_pcs);
       if (sample_native_pc)
       {
         pc_read_ns = static_cast<std::uint64_t>(std::chrono::duration_cast<std::chrono::nanoseconds>(
@@ -453,6 +491,7 @@ int main(int argc, char** argv)
       {
         ring.push_back({wall_ns, unix_start_ns + wall_ns,
                         info.pth_user_time + info.pth_system_time, native_pc, pc_read_ns,
+                        return_pcs,
                         info.pth_run_state, info.pth_sleep_time});
         if (ring.size() > ring_capacity)
           ring.pop_front();
@@ -505,7 +544,11 @@ int main(int argc, char** argv)
   if (!output)
     return 1;
   output << "wall_ns,unix_ns,cpu_ns,state,sleep_seconds,native_pc,pc_read_ns,image_base,"
-            "image_offset,image_path\n";
+            "image_offset,image_path";
+  for (std::size_t index = 0; index < MAX_RETURN_PCS; ++index)
+    output << ",return_pc_" << index << ",return_image_base_" << index
+           << ",return_image_offset_" << index << ",return_image_path_" << index;
+  output << '\n';
   std::vector<ImageInfo> image_cache;
   for (const Sample& sample : ring)
   {
@@ -514,7 +557,21 @@ int main(int argc, char** argv)
            << sample.state << ',' << sample.sleep_seconds << ',' << sample.native_pc << ','
            << sample.pc_read_ns << ',' << image.base << ','
            << (sample.native_pc >= image.base ? sample.native_pc - image.base : 0) << ','
-           << CsvEscape(image.path) << '\n';
+           << CsvEscape(image.path);
+    for (const std::uint64_t raw_return_pc : sample.return_pcs)
+    {
+      std::uint64_t return_pc = raw_return_pc;
+      ImageInfo return_image = ResolveImageCached(pid, return_pc, &image_cache);
+      if (return_image.size == 0 && return_pc != 0)
+      {
+        return_pc &= 0x0000000fffffffffULL;
+        return_image = ResolveImageCached(pid, return_pc, &image_cache);
+      }
+      output << ',' << return_pc << ',' << return_image.base << ','
+             << (return_pc >= return_image.base ? return_pc - return_image.base : 0) << ','
+             << CsvEscape(return_image.path);
+    }
+    output << '\n';
   }
   if (mach_thread != MACH_PORT_NULL)
     mach_port_deallocate(mach_task_self(), mach_thread);

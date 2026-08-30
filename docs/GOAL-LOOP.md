@@ -19,6 +19,19 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-207 adds a bounded four-frame unwind to the development-only external
+sampler and resolves the unexplained warm wall wait exactly. A same-process
+second Fountain match retains 52,906 error-free samples; 31/32 timed-semaphore
+samples inside six wall tails share the libdispatch -> QuartzCore ->
+`-[CAMetalLayer nextDrawable]` chain. The phase logger's Metal values describe
+the current present while `total_ms` ends at that present's start, so the
+correct one-row join maps the three 31.5-34.7 ms tails to prior 16.9-21.8 ms
+drawable waits. Do not misclassify this as throttle/FIFO/idle residency or
+reopen already-rejected pool-depth, Rush, direct/absolute presentation, or
+reserve-frame changes. Retain the external tools only; the diagnostic is
+observer-bearing, G5 remains open, and G6 remains blocked. See
+`docs/artifacts/2026-08-30/g5-warm-wall-stack-attribution.md`.
+
 PERF-206 extends the repaired sampler behind an explicit development-only
 native-PC mode. A complete 120-second same-process warm Fountain ring retains
 78,744 error-free samples, and a tested start-to-start analyzer joins 48 of

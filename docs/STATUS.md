@@ -6,6 +6,20 @@ Last updated: 2026-08-30
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-207 resolves PERF-206's unexplained warm wall-wait residency without a
+product edit. An optional four-frame external unwind passes its signed target
+regression and retains 52,906 error-free second-match samples. Offline joining
+finds six wall rows above 20 ms but only one CPU-thread overrun; 31/32 timed-
+semaphore tail samples share the exact libdispatch -> QuartzCore ->
+`-[CAMetalLayer nextDrawable]` chain. The phase logger records current Metal
+subphases beside the next start-to-start interval, and the corrected one-row
+join maps the three 31.5-34.7 ms tails to prior 16.9-21.8 ms drawable waits.
+This strengthens already-known drawable backpressure and does not reopen
+rejected pool-depth, Rush, direct/absolute presentation, or reserve-queue
+changes. Retain the external diagnostic only; this observer-bearing run makes
+no FPS claim. G5 stays open and G6 blocked. See
+`docs/artifacts/2026-08-30/g5-warm-wall-stack-attribution.md`.
+
 PERF-206 replaces the failed CLI-counter path with a bounded external ARM64
 PC ring on a disposable `get-task-allow` runner; the canonical product gains
 no entitlement. A 120-second same-process warm Fountain capture retains

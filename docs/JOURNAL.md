@@ -4235,3 +4235,27 @@ Append-only execution ledger. Claims are limited to observed evidence.
   Simulator remains; G5 stays open and G6 blocked.
 - Evidence:
   `docs/artifacts/2026-08-30/g5-warm-native-pc-ring-attribution.md`.
+
+## 2026-08-30 — PERF-207 warm wall-stack attribution
+
+- Goal: identify the caller behind PERF-206's severe warm wall rows parked in
+  `semaphore_timedwait_trap` despite negligible same-row throttle and idle.
+- Boundary correction: single-core `RunGpuOnCpu` has no FIFO wait. Phase
+  `total_ms` is start-to-start while Metal subphases describe the current
+  present, so a drawable wait maps to the following total row.
+- Tool: explicit development-only `native-stack` mode follows at most four
+  ARM64 frame records; the analyzer groups return chains and resolves dyld
+  shared-cache symbols. Signed data-free regressions and the full repository
+  gate pass; the canonical app gains no entitlement.
+- Capture: one exact process completes the first Fountain match, reloads the
+  identical state, and retains 52,906 error-free second-match samples. Six of
+  6,731 joined rows exceed 20 ms; only one CPU row exceeds 16.7 ms.
+- Attribution: 31/32 timed-semaphore tail samples share the exact kernel ->
+  libdispatch -> QuartzCore -> `-[CAMetalLayer nextDrawable]` chain. Corrected
+  joins map the three 31.5-34.7 ms tails to prior 16.9-21.8 ms acquisitions.
+- Decision: retain the diagnostic tools, not a product rewrite. Existing
+  drawable-pool, Rush, direct/absolute presentation, and reserve-queue
+  reversals remain authoritative. No game or Simulator remains; G5 stays open
+  and G6 blocked.
+- Evidence:
+  `docs/artifacts/2026-08-30/g5-warm-wall-stack-attribution.md`.
