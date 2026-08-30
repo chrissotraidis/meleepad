@@ -19,6 +19,14 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-210 proves that fixed scheduling plus requested user-interactive QoS is
+not a supported untested combination. Public fixed policy immediately clears
+requested QoS; reapplication fails with `EPERM` and readback stays fixed plus
+unspecified QoS. Timeshare restoration succeeds. Fixed alone already failed
+PERF-191's reversal, so do not rerun it, add a combined mode, or use private
+policy interfaces. G5 remains open and G6 blocked. See
+`docs/artifacts/2026-08-30/g5-fixed-plus-qos-contract-rejection.md`.
+
 PERF-209 closes the Apple-recommended drawable-lifecycle route. The current
 backend performs independent presenter work before acquisition, scopes
 drawable references with autorelease pools, and clears its sole retained

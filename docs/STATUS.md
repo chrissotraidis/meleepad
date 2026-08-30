@@ -6,6 +6,16 @@ Last updated: 2026-08-30
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-210 closes a possible fixed-scheduler escape route. Apple's pthread
+contract says incompatible legacy scheduling permanently opts a thread out of
+requested QoS. A disposable readback proves user-interactive QoS applies,
+public fixed policy clears it, and reapplying QoS fails with `EPERM` while the
+thread remains fixed; timeshare restoration succeeds. Fixed plus user-
+interactive is not a supported untested combination, and fixed alone already
+failed PERF-191's reversal. Do not add a policy mode or use private APIs.
+Product unchanged; G5 stays open and G6 blocked. See
+`docs/artifacts/2026-08-30/g5-fixed-plus-qos-contract-rejection.md`.
+
 PERF-209 audits PERF-207 against Apple's current drawable guidance. Dolphin
 already performs independent presenter work before `nextDrawable`, contains
 acquisition/presentation in autorelease scopes, and clears its retained

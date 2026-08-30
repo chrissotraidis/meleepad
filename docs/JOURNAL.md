@@ -4295,3 +4295,19 @@ Append-only execution ledger. Claims are limited to observed evidence.
   Simulator ran. Product unchanged, G5 open, G6 blocked.
 - Evidence:
   `docs/artifacts/2026-08-30/g5-apple-drawable-lifecycle-audit.md`.
+
+## 2026-08-30 — PERF-210 fixed-plus-QoS contract rejection
+
+- Goal: determine whether fixed scheduling plus retained user-interactive QoS
+  is a distinct supported combination missing from PERF-191.
+- Contract: Apple's pthread header says incompatible legacy scheduling clears
+  QoS, permanently opts the thread out, and makes later QoS requests fail
+  `EPERM`.
+- Readback: user-interactive QoS applies; public fixed policy clears it;
+  reapplication returns `EPERM` while fixed mode remains; timeshare restores
+  successfully.
+- Decision: the combination is unsupported and fixed alone already failed its
+  reversal. No product or private-policy experiment. The exact disposable
+  binary was deleted; no game or Simulator ran. G5 open, G6 blocked.
+- Evidence:
+  `docs/artifacts/2026-08-30/g5-fixed-plus-qos-contract-rejection.md`.
