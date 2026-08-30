@@ -119,6 +119,18 @@ G8 rows; this does not promote audio continuity, combat performance, or
 netplay. See
 `docs/artifacts/2026-08-30/g8-save-and-settings-persistence.md`.
 
+CLEAN-224 passes G8 row 15. A fresh checkout first exposed that canonical
+Dolphin patch 0017 expected pre-iOS-guard Metal context and therefore failed
+after the pinned SunPad patch. The retained context-only repair nests the
+existing forced macOS display-sync policy inside SunPad's availability guard.
+The corrected clean tree then cloned every pin, extracted the exact private
+GALE01 image, regenerated all 237 chunks, linked the module, built and signed
+the arm64 macOS app, and passed bootstrap, package-layout, signature, and full
+repository gates. Private game and generated output remain untracked. Continue
+with the remaining interaction/performance rows; reproducible construction is
+not gameplay proof. See
+`docs/artifacts/2026-08-30/g8-clean-clone-build.md`.
+
 PERF-214 reconciles every current G5 failure class against the retained
 mechanism history. Warm CPU overruns are rare and distributed across already
 closed/profiled families; the largest Fountain tails are proven

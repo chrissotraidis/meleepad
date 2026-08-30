@@ -6,6 +6,14 @@ Last updated: 2026-08-30
 
 **G8 — Test matrix green: IN PROGRESS UNDER USER-AUTHORIZED G5 DEFERRAL**
 
+CLEAN-224 passes G8 row 15. A fresh checkout exposed a stale context hunk in
+Dolphin patch 0017 after the pinned SunPad iOS guard. The retained patch-only
+repair applies the existing forced macOS display-sync behavior inside that
+guard. The corrected clean tree then fetched every pin, validated/extracted
+the exact private image, regenerated 237 chunks, built and ad-hoc signed the
+arm64 macOS app, and passed bootstrap, package, signature, and repository
+gates. See `docs/artifacts/2026-08-30/g8-clean-clone-build.md`.
+
 SAVE-223 passes G8 row 8 on macOS and the iPad Simulator. Live Melee name
 entry created `CODM` and `CODX`; both were visibly recovered after normal
 termination and fresh-process relaunch. SsbmPad's FPS setting was also read
@@ -1316,9 +1324,9 @@ not add work to every dispatch. See
 
 The authoritative row-by-row reconciliation is
 `docs/artifacts/2026-08-30/g8-test-matrix-reconciliation.md`. Rows 1, 2, 4, 8,
-13, and 14 pass. Rows 5, 9, 10, 11, and 12 are partial; row 7 is failed and
-attributed. Rows 6 and 15 are open. Row 3 is provisionally accepted by the
-user's explicit external-display waiver and must be replayed later on suitable
+13, 14, and 15 pass. Rows 5, 9, 10, 11, and 12 are partial; row 7 is failed and
+attributed. Row 6 is open. Row 3 is provisionally accepted by the user's
+explicit external-display waiver and must be replayed later on suitable
 hardware.
 
 ## Open defects and decisions

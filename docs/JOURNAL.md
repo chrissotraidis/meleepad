@@ -4538,3 +4538,27 @@ Append-only execution ledger. Claims are limited to observed evidence.
   promoted.
 - Evidence:
   `docs/artifacts/2026-08-30/g8-save-and-settings-persistence.md`.
+
+## 2026-08-30 — CLEAN-224 clean-clone repair and reproduction
+
+- Goal: close G8 row 15 by reproducing the public dependency, private game
+  preparation, module, and macOS package pipeline in a fresh directory.
+- Initial failure: bootstrap stopped at Dolphin patch 0017 because it expected
+  unguarded Metal display-sync calls after the pinned SunPad patch had already
+  wrapped them in `TARGET_OS_OSX`. The working dependency tree masked this
+  stale context through its retained final marker.
+- Fix: update only patch 0017's canonical context/nesting so the existing
+  forced product display-sync behavior lives inside the prior availability
+  guard.
+- Reproduction: clone every pin and nested dependency; apply through Dolphin
+  patch 0028; pass the scope audit and repository suite; validate/extract the
+  exact GALE01 revision-0 image to 1,209 files; generate/compile 237 chunks;
+  package separate fresh runner and launcher builds; pass layout and strict
+  deep ad-hoc signature verification; and pass bootstrap/repository gates
+  again after packaging.
+- Output: arm64 frontend 21,900,480 bytes, runner 22,005,984 bytes, and macOS
+  14.0 module 81,865,632 bytes with SHA-256
+  `935349ac88488ca0623d2302cae31653ab1a08d2c9b7643706ad6cf8e4d4fc08`.
+- Decision: G8 row 15 PASS. This is build reproducibility, not gameplay or
+  performance evidence. Private inputs and generated outputs remain untracked.
+- Evidence: `docs/artifacts/2026-08-30/g8-clean-clone-build.md`.

@@ -24,7 +24,7 @@ a completed row.
 | 12 | Diagnostics export | Partial | iPad export and privacy scan pass; a macOS export is still required. |
 | 13 | Game data import flow | Pass | Exact GALE01 validation, 1,209-file extraction, atomic activation, visible boot, normal relaunch, and same-filename Files-folder reimport passed. See the row artifact. |
 | 14 | Regression suite | Pass | All existing G5 tools plus the ported input, controller, diagnostics, performance, frame-mode, touch-layout, and game-data tests pass. |
-| 15 | Clean-clone build | Open | No fresh-directory end-to-end reproduction has been retained for the current G7 tree. |
+| 15 | Clean-clone build | Pass | A fresh checkout exposed and repaired a stale Metal patch-composition hunk, then cloned every pin, extracted the exact private image, regenerated the 237-chunk module, built/signed the macOS app, and passed bootstrap, package, and repository gates. See the row artifact. |
 
 ## Next execution order
 
@@ -37,8 +37,7 @@ a completed row.
    lifecycle, and import rollback/removal hardening.
 3. Close the missing macOS non-display rows: Battlefield completion, Classic
    progression, macOS persistence, and diagnostic export.
-4. Run the clean-clone pipeline.
-5. Repeat the provisionally accepted row 3 on 59.94 Hz/VRR hardware during
+4. Repeat the provisionally accepted row 3 on 59.94 Hz/VRR hardware during
    later device validation; a failure reopens it.
 
 G9 netplay begins only after G8 is green. G5 is provisionally accepted for
@@ -54,3 +53,6 @@ combat. See
 
 Row 8 was subsequently closed by
 `docs/artifacts/2026-08-30/g8-save-and-settings-persistence.md`.
+
+Row 15 was subsequently closed by
+`docs/artifacts/2026-08-30/g8-clean-clone-build.md`.
