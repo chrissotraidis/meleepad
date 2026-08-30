@@ -6,6 +6,18 @@ Last updated: 2026-08-29
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-196 joins a visually verified same-process warm Fountain body to the
+retained one-in-4,096 dispatch sampler. Five CPU overruns contain 175 samples
+versus 146.46 expected; `0x80360000..0x8036FFFF` explains 64.4% of the sample
+excess, but no individual PC exceeds 2.557 excess samples. The exact PCs are
+the already-tested PERF-075 HSD/GX family: direct-call, guarded, trace,
+merged-state, register-cache, LLVM, and structural variants all previously
+failed materiality or semantics. No repeated product rewrite is justified.
+Observer-free images correct a near-misclassification of Fountain background
+art as mesh warp; fighters are coherent, while the known lower-floor
+reflection smear remains open. G5 stays open and G6 blocked. See
+`docs/artifacts/2026-08-29/g5-warm-dispatch-region-rejection.md`.
+
 PERF-195 adds exact emulated-frame identity to the default-dormant lightweight
 recorder and uses it to join every one of 7,431 warm Fountain combat rows to
 the retained phase observer. All eight combined-thread CPU overruns are

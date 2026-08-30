@@ -1499,6 +1499,18 @@ See
 
 ## Testing rhythm
 
+PERF-196 completes exact guest-PC attribution for the warm static-core class.
+Five warm CPU overruns contain 175 one-in-4,096 samples versus 146.46 expected;
+`0x80360000..0x8036FFFF` explains 64.4% of their excess, but no single PC
+dominates. Those PCs are the already-closed PERF-075 HSD/GX family, so another
+direct-call, trace, merged-state, register-cache, LLVM, or structural rewrite
+would repeat a rejected mechanism. Observer-free images also correct an
+initial near-misclassification of Fountain background art: fighter meshes are
+coherent, while the separate lower-floor reflection smear remains open. Keep
+G5 open and continue from a genuinely new observer-light compute/wall-tail
+mechanism; do not start G6. See
+`docs/artifacts/2026-08-29/g5-warm-dispatch-region-rejection.md`.
+
 PERF-195 closes the warm-overrun subsystem attribution without weakening G5.
 Exact emulated-frame identity joins all 7,431 warm Fountain combat records to
 phase timing and places all eight combined-thread CPU overruns in static-core

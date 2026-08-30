@@ -4020,3 +4020,27 @@ Append-only execution ledger. Claims are limited to observed evidence.
   PC regions enriched in the exact warm overrun frames.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-warm-static-core-attribution.md`.
+
+## 2026-08-29 — PERF-196 exact warm dispatch-region rejection
+
+- Goal: determine whether the five warm Fountain CPU overruns select a new
+  guest-PC region that supports a bounded static-recompiler optimization.
+- Harness correction: exclude two runs without a pre-created FIFO and one
+  disk-full savestate-copy run. The valid route creates and holds the FIFO,
+  uses quiet input, one native runner, and no Simulator or unrelated process.
+- Integrity: 6,650/6,650 warm rows join exactly to phase timing; dispatch frame
+  offset zero is independently confirmed against native-dispatch counts.
+- Result: five overrun frames contain 175 samples versus 146.46 expected.
+  `0x80360000..0x8036FFFF` explains 64.4% of sample excess, but the largest
+  PC excess is only 2.557 samples across all five frames.
+- Closure: the exact PCs recur in PERF-075's already-tested HSD/GX family.
+  Direct-call, guarded, trace, merged-state, register-cache, LLVM, and
+  structural screens already reject the available mechanisms.
+- Visual correction: observer-free live endpoints show coherent Pikachu and
+  Fox. Oversized Fountain background art was nearly mislabeled as mesh warp;
+  the distinct lower-floor reflection smear remains visibly open and tracked.
+- Decision: retain no repeated local rewrite. G5 remains open on genuine
+  observer-light compute/wall tails; G6 remains blocked.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-warm-dispatch-region-rejection.md` and
+  `docs/evidence/g5-warm-dispatch-attribution/`.
