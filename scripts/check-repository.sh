@@ -8,10 +8,21 @@ git diff --check
 for script in scripts/*.sh; do
   bash -n "$script"
 done
+for script in tests/*.sh; do
+  bash -n "$script"
+done
 python3 scripts/test_classify_g5_intervals.py
 python3 scripts/test_analyze_triggered_native_pcs.py
 python3 scripts/test_lightweight_frame_timing_patch.py
 python3 scripts/test_triggered_thread_sampler.py
+tests/test-input-pipe-encoder.sh
+tests/test-controller-mapping.sh
+tests/test-controller-slots.sh
+tests/test-diagnostics.sh
+tests/test-experimental-performance-config.sh
+tests/test-native-frame-mode.sh
+tests/test-iphone-touch-layout-defaults.sh
+tests/test-game-data-setup.sh
 
 prohibited=$(git ls-files | grep -E \
   '(^|/)(ref|DerivedData|Provisioned|build[^/]*)/|\.(iso|gcm|rvz|wia|wbfs|gcz|dylib|ipa|xcarchive|mobileprovision|p12|pem|key|gci|sav|raw|profraw|profdata)$' || true)

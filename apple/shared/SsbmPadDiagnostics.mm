@@ -49,6 +49,21 @@ static NSString *SsbmPadRedactedString(NSString *value) {
     if (home.length > 0)
         redacted = [redacted stringByReplacingOccurrencesOfString:home
                                                        withString:@"<app-container>"];
+    // Simulator provisioning can reference a host path outside the simulated
+    // app container. Scrub complete user/volume/private path tokens both when
+    // they are logged and again when older logs are exported.
+    static NSRegularExpression *absolutePathExpression;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        absolutePathExpression = [NSRegularExpression
+            regularExpressionWithPattern:
+                @"(?:/Users|/Volumes|/private|/var/folders)/[^\\s,;\\]\\)]+"
+                                  options:0 error:nil];
+    });
+    redacted = [absolutePathExpression
+        stringByReplacingMatchesInString:redacted options:0
+                                   range:NSMakeRange(0, redacted.length)
+                            withTemplate:@"<absolute-path>"];
     return redacted;
 }
 
@@ -219,11 +234,11 @@ NSURL *SsbmPadDiagnosticsReportURL(
         [report appendString:@"\n[Runtime Warning/Error Summary]\n"];
         [report appendString:SsbmPadRuntimeEventSummaryLocked()];
         [report appendString:@"\n[Current Session]\n"];
-        [report appendString:current];
+        [report appendString:SsbmPadRedactedString(current)];
         if (![report hasSuffix:@"\n"])
             [report appendString:@"\n"];
         [report appendString:@"\n[Previous Session]\n"];
-        [report appendString:previous];
+        [report appendString:SsbmPadRedactedString(previous)];
 
         NSString *documents = [NSSearchPathForDirectoriesInDomains(
             NSDocumentDirectory, NSUserDomainMask, YES) firstObject];

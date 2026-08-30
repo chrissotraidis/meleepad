@@ -4425,3 +4425,32 @@ Append-only execution ledger. Claims are limited to observed evidence.
   stopped. G5's external-display verification remains deferred and unpassed.
 - Evidence:
   `docs/artifacts/2026-08-30/g6-ios-simulator-core-and-gameplay.md`.
+
+## 2026-08-30 — SHELL-217 iPad shell parity and diagnostic privacy
+
+- Goal: exercise the ported SsbmPad shell over a live iPad Simulator game and
+  close D4 without promoting untested G8 rows.
+- Live menu: 2x rendering changed the EFB to 1280x1056; experimental 16:9
+  changed the projection; the FPS label appeared; controller mapping and
+  game-data actions opened; A-button size changed from 1.0 to 1.2; layout reset
+  restored defaults; and the diagnostic share sheet presented a generated
+  text file.
+- Defect: the first dev-provisioned export retained an absolute host path for
+  the extracted game root. No game bytes were exported, but the path violated
+  the privacy contract.
+- Fix: replace raw boot paths with availability/source fields, redact complete
+  host path tokens, re-redact current and previous logs during export, and add
+  an external-host-path regression.
+- Verification: the rebuilt 34,609-byte export has SHA-256
+  `4a2ed56279707f58b89a22a5186a5ad2de9247db31a63eb62bc84c165b3a24f7`
+  and zero matches for host/private paths, game-root names, module names, or
+  disc-image extensions. New input, controller, diagnostics, performance,
+  native-frame-mode, layout, and game-data tests all pass in the full
+  repository gate; the iOS Simulator app rebuild also succeeds.
+- Cleanup: restore Native/1x, Original 4:3, FPS off, and default touch layout;
+  terminate the app and shut down the only Simulator.
+- Decision: G7 PASS; G8 active. Import, every-control, two-controller, saves,
+  and remaining target/scene matrix rows stay open. G5 display verification
+  remains deferred and unpassed.
+- Evidence:
+  `docs/artifacts/2026-08-30/g7-shell-parity-and-diagnostics.md`.

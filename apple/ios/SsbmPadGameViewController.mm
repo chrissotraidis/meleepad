@@ -830,9 +830,10 @@ static NSUInteger SsbmPadRegularFileCount(NSString *directory) {
         settings.extractedGameRoot = gameRoot;
         [settings synchronize];
     }
-    SsbmPadLog(@"boot data support=%@ root=%@ rootExists=%d persistedRoot=%@",
-              supportRoot, gameRoot, currentRootExists,
-              settings.extractedGameRoot ?: @"none");
+    SsbmPadLog(@"boot data supportReady=%d rootSource=%@ currentRootExists=%d persistedRoot=%d",
+              supportRoot.length > 0,
+              [gameRoot isEqualToString:currentContainerRoot] ? @"sandbox" : @"provisioned",
+              currentRootExists, settings.extractedGameRoot.length > 0);
 
     BOOL gameRootIsDirectory = NO;
     BOOL gameRootExists =

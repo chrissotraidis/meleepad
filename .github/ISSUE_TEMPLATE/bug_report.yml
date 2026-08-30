@@ -1,0 +1,59 @@
+name: Bug report
+description: Share an SsbmPad diagnostic report and the smallest useful visual evidence
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        SsbmPad can fill most of this form: choose **••• → Report a Problem… → Report on GitHub** in the app.
+
+        Attach `On My iPhone/iPad → SsbmPad → Diagnostics → Latest-SsbmPad-Diagnostic.log`. If the problem is visual, also attach a screenshot or short video. Never upload game images, extracted assets, generated modules, saves, signing material, or an entire device container.
+  - type: input
+    id: report-id
+    attributes:
+      label: Report ID
+      placeholder: SB-1234ABCD
+  - type: input
+    id: revision
+    attributes:
+      label: SsbmPad revision
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options: [iPhone, iPad, iOS Simulator, macOS]
+    validations:
+      required: true
+  - type: input
+    id: performance-profile
+    attributes:
+      label: Performance profile
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: What went wrong?
+    validations:
+      required: true
+  - type: input
+    id: context
+    attributes:
+      label: Area and what you were doing
+  - type: input
+    id: frequency
+    attributes:
+      label: How often did it happen?
+  - type: upload
+    id: diagnostic-report
+    attributes:
+      label: SsbmPad diagnostic report
+      accept: ".log,.txt"
+  - type: upload
+    id: visual-evidence
+    attributes:
+      label: Screenshot or short video
+      accept: ".png,.jpg,.jpeg,.webp,.mov,.mp4"

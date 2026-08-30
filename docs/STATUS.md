@@ -4,7 +4,19 @@ Last updated: 2026-08-30
 
 ## Current goal
 
-**G7 — Shell ported: IN PROGRESS UNDER USER-AUTHORIZED G5 DEFERRAL**
+**G8 — Test matrix green: IN PROGRESS UNDER USER-AUTHORIZED G5 DEFERRAL**
+
+SHELL-217 passes G7. On the live iPad Simulator, the three-dot menu applied 2x
+rendering and experimental 16:9 live, exposed the FPS, controller mapping,
+touch settings, game-data, and report actions, resized and reset a control,
+and generated a diagnostic share file. A live privacy audit caught a dev-only
+absolute game-root path in the first export; the retained repair sanitizes the
+breadcrumb, scrubs host path tokens again at export, and adds a regression.
+The rebuilt report had zero path/game-image leak matches. All focused shell
+tests and the repository gate pass. Defaults were restored and the sole
+Simulator was shut down. G8 must now execute the full matrix; import,
+every-control, two-controller, saves, and remaining scene/target rows are still
+open. See `docs/artifacts/2026-08-30/g7-shell-parity-and-diagnostics.md`.
 
 MOBILE-216 passes G6. The same arm64 IOSSIMULATOR SsbmPad app and locally
 generated ahead-of-time GALE01 module booted sequentially on an iPad Pro

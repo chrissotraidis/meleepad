@@ -38,6 +38,17 @@ shader-heavy transitions and combat slowed materially. G7 is now active; G5's
 external-display verification remains deferred and unpassed. See
 `docs/artifacts/2026-08-30/g6-ios-simulator-core-and-gameplay.md`.
 
+SHELL-217 passes G7 on the iPad Simulator. The live three-dot menu changed
+render scale and aspect, toggled the FPS label, opened controller mapping and
+game-data actions, edited and reset the touch layout, and generated a
+diagnostic share file. The first export exposed a dev-only absolute game-root
+path; the retained fix now sanitizes boot breadcrumbs, redacts host path tokens
+again at export, and has a focused regression. The rebuilt export had zero
+path/game-image leak matches. All new shell regressions and the full repository
+gate pass. G8 is now active; import, every-control, two-controller, save, and
+the remaining matrix rows are not promoted by this decision. See
+`docs/artifacts/2026-08-30/g7-shell-parity-and-diagnostics.md`.
+
 PERF-214 reconciles every current G5 failure class against the retained
 mechanism history. Warm CPU overruns are rare and distributed across already
 closed/profiled families; the largest Fountain tails are proven
