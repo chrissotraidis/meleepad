@@ -2,6 +2,54 @@
 
 G5 is active. G4 passed with a clean controlled 1v1 on 2026-08-24.
 
+PERF-200 retains a sanitized host-only `CAMetalDisplayLink` preflight. An
+exact-60 source yields 599/599 actual intervals within 16.7 ms and no modeled
+source repeats. Requesting 59.94005994 Hz is quantized to the fixed panel's
+60 Hz cadence: 2,399/2,399 generated-color intervals meet 16.7 ms, but two of
+2,400 callbacks have no new valid 59.94 Hz source frame. Integration would
+require stale duplication, interpolation, or changed deterministic guest/
+audio timing and is rejected. See
+`docs/artifacts/2026-08-29/g5-metal-display-link-rejection.md`.
+
+PERF-199 maps PERF-198's three warm Final Destination 25.267-26.498 ms
+producer rows exactly to 26.349-28.361 ms vblank stalls with only 6.019-6.648
+ms thread CPU. A separate exact 5,890-frame phase join reproduces one 59.994
+ms wall stall with 10.339 ms CPU; guest work, Metal, audio, EFB, and fallback
+are nominal. The remaining class is host execution/wake loss. See
+`docs/artifacts/2026-08-29/g5-warm-final-destination-wall-attribution.md`.
+
+PERF-198 compares the same 5,890 Final Destination combat frames twice in one
+process. Warm combat averages 59.959490 FPS with zero CPU rows over 16.7 ms,
+but wall p95 is 17.268541 ms and three rows exceed 20 ms (26.497500 ms worst).
+G5 remains open. See
+`docs/artifacts/2026-08-29/g5-same-process-final-destination-warmup.md`.
+
+PERF-197 repairs lightweight-only emulated-frame identity. Its 2,496-row smoke
+is nonzero, unique, and monotonic; the fix adds no default-path atomic store.
+This is measurement integrity, not a speed result. See
+`docs/artifacts/2026-08-29/g5-lightweight-frame-identity-activation.md`.
+
+PERF-196 joins 6,650 exact warm Fountain rows to dispatch sampling. Five CPU
+overruns contain 175 samples versus 146.46 expected; `0x80360000..8036FFFF`
+explains most excess, but no PC dominates and all selected PCs belong to the
+already-rejected HSD/GX family. See
+`docs/artifacts/2026-08-29/g5-warm-dispatch-region-rejection.md`.
+
+PERF-195 joins all 7,431 warm Fountain rows to phase evidence. All eight CPU
+overruns are static-core compute, with 16.852 ms median CPU-thread time versus
+11.591 ms in within-budget rows; Metal, audio, EFB, and fallback do not rise.
+See `docs/artifacts/2026-08-29/g5-warm-static-core-attribution.md`.
+
+PERF-194 repeats Fountain twice in one process. Cold combat has 105 CPU
+overruns; warm combat has eight, proving most cold cost is one-time warm-up.
+Warm mean is 59.984858 FPS but worst is 29.475375 ms, so G5 still fails. See
+`docs/artifacts/2026-08-29/g5-same-process-fountain-warmup.md`.
+
+PERF-193 introduces the low-overhead wall/thread recorder. Corrected cold
+Fountain averages 59.942726 FPS with 39.496833 ms worst; all 104 CPU overruns
+occur in the first ten seconds, while later wall holds remain. See
+`docs/artifacts/2026-08-29/g5-lightweight-producer-recorder.md`.
+
 PERF-192 retains `scripts/classify-g5-intervals.py` plus nine data-free
 regressions. Exact PERF-187/188/189 replay reproduces 2/1/1 GPU-ready fixed-
 rate holds, zero ambiguous/undisplayed records, and independent

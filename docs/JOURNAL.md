@@ -4121,3 +4121,21 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-metal-display-link-rejection.md` and
   `scripts/g5_metal_display_link_preflight.mm`.
+
+## 2026-08-29 — PERF-201 QoS override and reference pacing audit
+
+- Goal: find a genuinely distinct supported host-wake mechanism after
+  PERF-199, or a pacing implementation delta in current Dolphin/Slippi.
+- QoS result: Apple's temporary override requires a real pending-work
+  dependency and runs the target at the maximum requested/override class. It
+  cannot exceed the already-rejected user-interactive, relative-priority-zero
+  request; a permanent fake dependency is invalid and not a new tier.
+- Reference result: freshly fetched upstream Dolphin and Slippi
+  `CoreTiming.cpp` and `MTLGfx.mm` are byte-identical. Their small
+  `Present.cpp` delta removes framebuffer metadata but does not change
+  throttling, precision sleep, presentation sleep, or Metal submission.
+- Compiler recheck: O2/ThinLTO/frontend-PGO is already retained; O3/native,
+  IR PGO, order files, LLVM, and PERF-196's dispatch families are closed.
+- Decision: no product edit or game launch. G5 remains open and G6 blocked.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-qos-override-and-reference-pacing-audit.md`.

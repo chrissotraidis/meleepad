@@ -6,6 +6,19 @@ Last updated: 2026-08-29
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-201 closes two proposed host-wake escape routes without launching the
+game. Apple's temporary pthread QoS override represents a real pending-work
+dependency and can only raise a target to the maximum of its requested and
+override classes. The rejected user-interactive/priority-zero run already
+exercised that maximum; a permanent fake dependency is neither valid nor a new
+scheduler tier. Fresh upstream Dolphin and Slippi `CoreTiming.cpp`/Metal
+submission files are byte-identical, and their only relevant `Present.cpp`
+difference is removed framebuffer metadata—not pacing. This checkout already
+uses the same throttle, precision sleep, intended-presentation sleep, and
+Metal submission flow. There is no reference patch to transfer. Retain no
+product edit; G5 stays open and G6 blocked. See
+`docs/artifacts/2026-08-29/g5-qos-override-and-reference-pacing-audit.md`.
+
 PERF-200 tests the last unpreflighted current Apple display-cadence primitive
 before any game integration. A retained, sanitized host-only
 `CAMetalDisplayLink` harness drives this M1's panel perfectly at an exact 60 Hz

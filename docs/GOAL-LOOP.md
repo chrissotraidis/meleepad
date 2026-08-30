@@ -19,6 +19,16 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-201 rejects a pthread QoS override and a reference-pacing transfer before
+a game build. Apple's override API requires a real pending-work dependency and
+cannot exceed the same user-interactive/priority-zero class already rejected
+in a matched run. Current upstream Dolphin and Slippi use the same throttle,
+precision sleep, presentation sleep, and Metal submission algorithms as this
+checkout; their only relevant source delta is non-pacing framebuffer metadata.
+Do not add a fake permanent dependency or copy identical reference code. G5
+remains open and G6 blocked. See
+`docs/artifacts/2026-08-29/g5-qos-override-and-reference-pacing-audit.md`.
+
 PERF-200 preflights `CAMetalDisplayLink` without a game build. An exact 60 Hz
 control delivers 599/599 actual intervals within 16.7 ms and no modeled source
 repeat. An exact 59.94005994 Hz request is nevertheless quantized to this
