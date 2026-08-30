@@ -6,6 +6,18 @@ Last updated: 2026-08-30
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-208 screens the installed macOS 26.5 Metal/QuartzCore API surface after
+PERF-207's exact drawable-wait attribution. `CAMetalLayer` supports only two or
+three drawables and already defaults to the maximum three; the actual host
+also reports framebuffer-only textures, asynchronous layer updates, display
+sync, and finite timeout behavior. The ordinary Metal queue permits 64
+incomplete command buffers, so its limit is not the three-drawable bottleneck.
+Metal 4 still requires the same acquired `MTLDrawable` and present APIs;
+`waitForDrawable`/`signalDrawable` add ordering but no capacity or source
+frame. No command-count, timeout, transaction, or backend-migration candidate
+is causal enough to build. Product unchanged; G5 stays open and G6 blocked.
+See `docs/artifacts/2026-08-30/g5-current-metal-drawable-api-screen.md`.
+
 PERF-207 resolves PERF-206's unexplained warm wall-wait residency without a
 product edit. An optional four-frame external unwind passes its signed target
 regression and retains 52,906 error-free second-match samples. Offline joining

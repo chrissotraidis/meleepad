@@ -4259,3 +4259,21 @@ Append-only execution ledger. Claims are limited to observed evidence.
   and G6 blocked.
 - Evidence:
   `docs/artifacts/2026-08-30/g5-warm-wall-stack-attribution.md`.
+
+## 2026-08-30 — PERF-208 current Metal drawable API screen
+
+- Goal: find a genuinely distinct installed-SDK drawable/latency primitive
+  after PERF-207 proved `CAMetalLayer.nextDrawable` residency.
+- SDK result: the layer supports only two or three drawables and defaults to
+  three; disabling its timeout only permits an infinite wait. The ordinary
+  Metal queue already permits 64 incomplete command buffers.
+- Host probe: a real layer reports framebuffer-only textures, three drawables,
+  asynchronous transactions, display sync, and finite timeout behavior.
+- Metal 4: explicit drawable wait/signal APIs still require an acquired
+  `MTLDrawable` and the same present methods; they add ordering, not swap-queue
+  capacity or source frames.
+- Decision: no command-count, timeout, transaction, or backend-migration build
+  is justified. The disposable probe binary was deleted. No game or Simulator
+  ran; product unchanged, G5 open, G6 blocked.
+- Evidence:
+  `docs/artifacts/2026-08-30/g5-current-metal-drawable-api-screen.md`.

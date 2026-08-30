@@ -19,6 +19,16 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-208 closes the installed macOS 26.5 drawable-API escape route without a
+product build. A real host layer already uses framebuffer-only textures, the
+maximum supported three drawables, asynchronous updates, display sync, and a
+finite timeout. The ordinary Metal queue's 64-command-buffer allowance is not
+the three-drawable bottleneck. Metal 4 still consumes the same acquired
+`MTLDrawable`; its explicit wait/signal calls add ordering, not capacity or a
+new distinct source frame. Do not build command-count, timeout, transaction,
+or Metal-4 migration variants from PERF-207. G5 remains open and G6 blocked.
+See `docs/artifacts/2026-08-30/g5-current-metal-drawable-api-screen.md`.
+
 PERF-207 adds a bounded four-frame unwind to the development-only external
 sampler and resolves the unexplained warm wall wait exactly. A same-process
 second Fountain match retains 52,906 error-free samples; 31/32 timed-semaphore
