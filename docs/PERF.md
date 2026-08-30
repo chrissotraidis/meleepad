@@ -2,6 +2,15 @@
 
 G5 is active. G4 passed with a clean controlled 1v1 on 2026-08-24.
 
+PERF-202 rejects another warm-specific PGO collection/build. The active
+profile already spans verified Fountain combat, and exact coverage
+reconstruction gives PERF-196's five enriched warm PCs 2.524M-17.523M hits.
+An independent full local-training repeat assigns all five the exact same
+counts and matches their containing function hashes, counter shapes, and
+entry counts. The proposed candidate has no new coverage or weighting signal,
+so no game build is justified. See
+`docs/artifacts/2026-08-29/g5-warm-profile-refresh-rejection.md`.
+
 PERF-200 retains a sanitized host-only `CAMetalDisplayLink` preflight. An
 exact-60 source yields 599/599 actual intervals within 16.7 ms and no modeled
 source repeats. Requesting 59.94005994 Hz is quantized to the fixed panel's

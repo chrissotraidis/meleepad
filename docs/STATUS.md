@@ -6,6 +6,17 @@ Last updated: 2026-08-29
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-202 tests whether the rare warm Fountain compute overruns justify a new
+PGO collection/build. The active profile was reset only after verified
+Fountain combat began and dumped at natural combat completion; it already
+covers the proposed scene. Coverage reconstruction gives the five PERF-196
+PCs 2,523,933-17,523,395 hits. An independent local-training repeat has the
+same function hashes/counter shapes and assigns every selected PC the exact
+same count, despite an aggregate-profile difference of 873. Warm-profile
+absence or unstable weighting is rejected before a build. Retain the current
+module; G5 stays open and G6 blocked. See
+`docs/artifacts/2026-08-29/g5-warm-profile-refresh-rejection.md`.
+
 PERF-201 closes two proposed host-wake escape routes without launching the
 game. Apple's temporary pthread QoS override represents a real pending-work
 dependency and can only raise a target to the maximum of its requested and

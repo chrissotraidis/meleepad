@@ -19,6 +19,17 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-202 closes stale or scene-incomplete PGO weighting as the explanation for
+PERF-196's rare warm Fountain compute overruns. The active profile begins only
+after verified Fountain combat entry and ends at natural combat completion.
+Its five enriched PCs have 2,523,933-17,523,395 exact coverage hits, and an
+independent full local-training repeat assigns every one the identical count
+with matching function hashes and counter shapes. Do not collect or build a
+third warm Fountain profile without a genuinely different workload or
+compiler mechanism. Retain the current PGO module; G5 remains open and G6
+blocked. See
+`docs/artifacts/2026-08-29/g5-warm-profile-refresh-rejection.md`.
+
 PERF-201 rejects a pthread QoS override and a reference-pacing transfer before
 a game build. Apple's override API requires a real pending-work dependency and
 cannot exceed the same user-interactive/priority-zero class already rejected

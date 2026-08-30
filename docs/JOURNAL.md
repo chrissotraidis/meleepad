@@ -4139,3 +4139,23 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Decision: no product edit or game launch. G5 remains open and G6 blocked.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-qos-override-and-reference-pacing-audit.md`.
+
+## 2026-08-29 — PERF-202 warm-profile refresh rejection
+
+- Goal: determine whether PERF-196's rare warm Fountain CPU-overrun PCs are
+  absent or materially misweighted in the retained frontend-PGO profile.
+- Provenance: the profile resets only after verified Fountain combat entry and
+  dumps at natural combat completion; its historical `idle` filename does not
+  describe its measurement boundary.
+- Exact reconstruction: the five enriched PCs have 2,523,933-17,523,395
+  coverage hits. Their four containing functions have 47,905,570-121,766,257
+  entries.
+- Reversal: an independently retained full local-training profile assigns all
+  five PCs the exact same counts and matches the function hashes, counter
+  shapes, and entry counts. Whole-profile aggregate count differs by only 873.
+- Decision: reject another warm-specific collection/build before compilation.
+  It supplies neither new scene coverage nor a new weighting signal. Retain
+  the current PGO module; G5 remains open and G6 blocked. No game or Simulator
+  ran.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-warm-profile-refresh-rejection.md`.
