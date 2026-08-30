@@ -6,6 +6,18 @@ Last updated: 2026-08-30
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-209 audits PERF-207 against Apple's current drawable guidance. Dolphin
+already performs independent presenter work before `nextDrawable`, contains
+acquisition/presentation in autorelease scopes, and clears its retained
+drawable through the existing scheduled handler; direct presentation already
+has a live rejection. A real host `CAMetalLayer` reports opaque RGB
+`BGRA8Unorm` and framebuffer-only defaults, and the retained product is
+fullscreen, satisfying Apple's direct-to-display prerequisites on Apple
+silicon. Acquiring materially later would require the already-rejected
+offscreen/reserve architecture. Do not add an opacity, retain, framebuffer,
+or latency no-op. Product unchanged; G5 stays open and G6 blocked. See
+`docs/artifacts/2026-08-30/g5-apple-drawable-lifecycle-audit.md`.
+
 PERF-208 screens the installed macOS 26.5 Metal/QuartzCore API surface after
 PERF-207's exact drawable-wait attribution. `CAMetalLayer` supports only two or
 three drawables and already defaults to the maximum three; the actual host

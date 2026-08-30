@@ -19,6 +19,17 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-209 closes the Apple-recommended drawable-lifecycle route. The current
+backend performs independent presenter work before acquisition, scopes
+drawable references with autorelease pools, and clears its sole retained
+drawable through the existing scheduled handler. A real host layer is already
+opaque, RGB `BGRA8Unorm`, and framebuffer-only; the retained product is
+fullscreen, satisfying Apple's direct-to-display prerequisites. A materially
+later acquisition needs the already-rejected offscreen/reserve architecture.
+Do not add opacity, retain, framebuffer, or preferred-latency no-ops. G5
+remains open and G6 blocked. See
+`docs/artifacts/2026-08-30/g5-apple-drawable-lifecycle-audit.md`.
+
 PERF-208 closes the installed macOS 26.5 drawable-API escape route without a
 product build. A real host layer already uses framebuffer-only textures, the
 maximum supported three drawables, asynchronous updates, display sync, and a

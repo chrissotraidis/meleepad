@@ -4277,3 +4277,21 @@ Append-only execution ledger. Claims are limited to observed evidence.
   ran; product unchanged, G5 open, G6 blocked.
 - Evidence:
   `docs/artifacts/2026-08-30/g5-current-metal-drawable-api-screen.md`.
+
+## 2026-08-30 — PERF-209 Apple drawable-lifecycle audit
+
+- Goal: test Apple's current late-acquire/early-release/direct-to-display
+  guidance against the exact PERF-207 wait before changing product code.
+- Source: independent presenter work already precedes `nextDrawable`;
+  acquisition/presentation use autorelease scopes; the scheduled handler owns
+  and then releases the sole retained drawable. Direct presentation is already
+  rejected.
+- Host preflight: a real `CAMetalLayer` reports opaque RGB `BGRA8Unorm` and
+  framebuffer-only defaults. With verified fullscreen operation, the product
+  already meets Apple's direct-to-display prerequisites.
+- Decision: no opacity, framebuffer, retain, preferred-latency, or later-
+  acquisition build. The latter requires the already-rejected offscreen/
+  reserve architecture. The exact disposable probe was deleted; no game or
+  Simulator ran. Product unchanged, G5 open, G6 blocked.
+- Evidence:
+  `docs/artifacts/2026-08-30/g5-apple-drawable-lifecycle-audit.md`.
