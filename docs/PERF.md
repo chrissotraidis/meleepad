@@ -2,6 +2,13 @@
 
 G5 is active. G4 passed with a clean controlled 1v1 on 2026-08-24.
 
+PERF-192 retains `scripts/classify-g5-intervals.py` plus nine data-free
+regressions. Exact PERF-187/188/189 replay reproduces 2/1/1 GPU-ready fixed-
+rate holds, zero ambiguous/undisplayed records, and independent
+2,583/1,908/2,393 producer misses. Only 2/0/1 misses exceed 16.7 ms of thread
+CPU. Repository checks pass, the tool never claims G5, and no runtime ran. See
+`docs/artifacts/2026-08-29/g5-strict-evidence-classifier.md`.
+
 PERF-191 screens public macOS fixed-priority scheduling without building the
 game. The policy is distinct, but the required fixed/timeshare/fixed reversal
 rejects it: fixed arms miss 5/300 and 3/300 periodic budgets at 29.628/20.546

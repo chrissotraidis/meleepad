@@ -19,6 +19,18 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-192 retains a strict repository-native classifier for the independent
+producer and actual-presentation timelines. Nine data-free regressions prevent
+wrong clock joins, hidden producer misses, silent zero-present removal, and
+false fixed-rate labels. Exact replay of PERF-187/188/189 reproduces 2/1/1
+GPU-ready conversion holds with zero ambiguous/undisplayed records while
+independently retaining 2,583/1,908/2,393 producer misses. Only 2/0/1 of those
+misses have thread CPU above 16.7 ms. The tool always emits
+`g5_pass_claimed=false`; G5 remains open. Next add a default-dormant
+observer-light wall/thread producer recorder rather than another codegen or
+display candidate. See
+`docs/artifacts/2026-08-29/g5-strict-evidence-classifier.md`.
+
 PERF-191 identifies one genuinely distinct public scheduler policy, then
 rejects it before a product build. Apple XNU maps
 `THREAD_EXTENDED_POLICY{timeshare=false}` to fixed rather than timeshare

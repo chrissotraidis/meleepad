@@ -3937,3 +3937,23 @@ Append-only execution ledger. Claims are limited to observed evidence.
   change occurred. G5 open, G6 blocked.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-fixed-priority-preflight-rejection.md`.
+
+## 2026-08-29 — PERF-192 strict G5 evidence classifier
+
+- Goal: make the independent producer/presentation classification durable and
+  fail closed on wrong joins, dropped callbacks, or ambiguous readiness.
+- Implementation: add `scripts/classify-g5-intervals.py`, explicit bounds,
+  one-to-one common-clock/emulated-frame joins, strict GPU-ready two-refresh
+  rules, independent producer budget reporting, and no G5 pass claim.
+- Regression: nine data-free tests fail before implementation and now pass;
+  `scripts/check-repository.sh` runs them and passes.
+- Replay: PERF-187/188/189 reproduce 2/1/1 fixed-rate holds, no ambiguous or
+  undisplayed records, and 2,583/1,908/2,393 producer misses. Thread CPU is
+  above budget in only 2/0/1 rows. Published hand counts and event phases match.
+- Decision: retain the tool; do not treat observer-bearing diagnostic traces
+  as acceptance or return to broad codegen. Next build a default-dormant,
+  observer-light wall/thread producer recorder for the canonical package.
+- Runtime: no game, Simulator, build, ROM, save, module, or private trace
+  changed.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-strict-evidence-classifier.md`.

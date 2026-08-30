@@ -6,6 +6,17 @@ Last updated: 2026-08-29
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-192 adds a strict test-driven producer/presentation classifier and wires
+its nine regressions into repository checks. It reproduces all retained
+PERF-187/188/189 display events as 2/1/1 GPU-ready fixed-rate holds with zero
+ambiguous or undisplayed rows, while independently retaining
+2,583/1,908/2,393 producer misses. Thread CPU exceeds 16.7 ms in only 2/0/1 of
+those rows. The tool explicitly never claims G5 and does not promote observer-
+bearing diagnostic traces to acceptance evidence. No game or Simulator ran.
+Next is a default-dormant observer-light wall/thread producer recorder on the
+canonical package. See
+`docs/artifacts/2026-08-29/g5-strict-evidence-classifier.md`.
+
 PERF-191 closes the remaining public fixed-priority scheduler screen before a
 game build. `THREAD_EXTENDED_POLICY{timeshare=false}` is genuinely distinct
 from precedence/QoS/time-constraint policies, but its data-free A/B/A result
