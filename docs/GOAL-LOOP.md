@@ -19,6 +19,16 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-194 repeats two visually verified Fountain matches in one continuous
+single-core process. The cold leg has 105 combined-thread CPU overruns; the
+same-process warm leg has eight. In the first ten seconds the count collapses
+from 104 to two, proving most of PERF-193's cold compute burst is one-time
+warm-up. The warm match improves to 59.984858 FPS mean but still fails at
+29.475375 ms worst, with eight CPU overruns and a separate 15.100374 ms wall-
+minus-thread tail. Next use the retained phase logger only on a verified warm
+match to attribute those eight CPU rows. G5 remains open and G6 blocked. See
+`docs/artifacts/2026-08-29/g5-same-process-fountain-warmup.md`.
+
 PERF-193 retains a default-dormant observer-light producer recorder in the
 canonical Dolphin patch stack. Its disabled regression proves zero thread-
 clock calls and no output; opt-in mode reuses the existing wall timestamp,

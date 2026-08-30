@@ -3979,3 +3979,23 @@ Append-only execution ledger. Claims are limited to observed evidence.
   up versus recurring match-start work.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-lightweight-producer-recorder.md`.
+
+## 2026-08-29 — PERF-194 same-process Fountain warm-up
+
+- Goal: distinguish one-time cold warm-up from compute that repeats at every
+  Fountain match start.
+- Correction: exclude an initial diagnostic whose second-stage highlight was
+  not visually verified. Repeat both legs in one process with fresh visual
+  Fountain confirmation before each watcher-gated start.
+- Cold result: 7,431 rows at 59.949019 FPS mean, 30.972167 ms worst, and 105
+  thread-CPU overruns; 104 occur in the first ten seconds.
+- Warm result: 7,430 rows at 59.984858 FPS mean, 29.475375 ms worst, and eight
+  thread-CPU overruns; only two occur in the first ten seconds.
+- Integrity: 30,258 common recorder/render intervals match exactly at the
+  expected +1 row offset. One signed process and module remained alive across
+  both matches; no Simulator or unrelated process change was used.
+- Decision: most cold compute overruns are one-time warm-up, but warm Fountain
+  still fails G5 on both compute and separate wall tails. Next join a verified
+  warm match's eight CPU rows to retained phase timing. G6 remains blocked.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-same-process-fountain-warmup.md`.

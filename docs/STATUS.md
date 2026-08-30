@@ -1780,3 +1780,15 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   checks pass. G5 remains open, Final Destination and G6 remain blocked; next
   run a second Fountain match in the same process. Evidence:
   `docs/artifacts/2026-08-29/g5-lightweight-producer-recorder.md`.
+- **PERF-194 (same-process Fountain warm-up reversal):** Two visually verified
+  Fountain matches ran in one continuous single-core process. Cold match one
+  has 105 combined-thread CPU overruns, 104 in its first ten seconds; warm
+  match two has eight total, two in its first ten seconds. The same-process
+  leg improves to 16.670874 ms mean / 59.984858 FPS, but still fails at
+  16.863511 ms p95 and 29.475375 ms worst, with a separate 15.100374 ms wall-
+  minus-thread tail. All 30,258 common recorder/render rows match exactly at
+  the expected offset. Most cold compute work is one-time warm-up, but warm
+  Fountain is not stable at strict 60 FPS. G5 remains open, Final Destination
+  and G6 blocked; next join the eight warm CPU overruns to retained phase
+  timing. Evidence:
+  `docs/artifacts/2026-08-29/g5-same-process-fountain-warmup.md`.
