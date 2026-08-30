@@ -4159,3 +4159,36 @@ Append-only execution ledger. Claims are limited to observed evidence.
   ran.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-warm-profile-refresh-rejection.md`.
+
+## 2026-08-30 — PERF-203 warm CPU-counter CLI rejection
+
+- Goal: attribute CPU bottleneck classes inside an exact same-process warm
+  Fountain window rather than an average combat sample.
+- Harness correction: wait for revision-0 title readiness and register both
+  MemoryWatcher addresses before boot. The accepted reproduction proves first
+  combat plus natural completion and a live second combat; a fresh private
+  image shows coherent Fountain at `1:43.19`.
+- Failure: the 20-second attached trace crashes `xctrace` in
+  `SystemCounterAggregator`, leaving no exportable template/data. A five-second
+  data-free attach also hangs and grows an invalid trace to 4.4 GiB.
+- Cleanup: stop only the owned preflight processes and delete the exact
+  disposable invalid 4.4 GiB trace to recover disk. It is not recoverable.
+- Decision: make no counter or performance claim and reject CLI CPU Counters
+  on this Xcode/macOS installation. Retain no product edit; G5 remains open.
+- Evidence:
+  `docs/artifacts/2026-08-30/g5-warm-cpu-counter-cli-rejection.md`.
+
+## 2026-08-30 — PERF-204 hot/cold splitting rejection
+
+- Goal: test intra-function splitting as a distinct instruction-delivery
+  mechanism for the selected warm-overrun chunks.
+- Target result: AppleClang rejects `-fsplit-machine-functions` for
+  `arm64-apple-macos14`; the documented late splitter is ELF-only.
+- IR result: normal frontend-PGO objects already contain 311/315 outlined cold
+  functions. Explicit `-mllvm -hot-cold-split` produces byte-identical objects
+  with identical 294,988/286,464-byte text sections.
+- Decision: the supported splitting mechanism is already active and the other
+  cannot target this product. No module/game build; G5 remains open and G6
+  blocked.
+- Evidence:
+  `docs/artifacts/2026-08-30/g5-hot-cold-splitting-rejection.md`.

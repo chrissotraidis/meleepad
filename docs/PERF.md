@@ -2,6 +2,20 @@
 
 G5 is active. G4 passed with a clean controlled 1v1 on 2026-08-24.
 
+PERF-203 rejects CLI CPU Counters as an exact warm-frame attribution method on
+this host. Corrected gates reproduce first-complete/second-live Fountain, but
+the 20-second attached trace crashes `xctrace` during counter aggregation and
+cannot export; a five-second data-free attach also hangs and grows to 4.4 GiB.
+No counter metric or frame join is claimed. See
+`docs/artifacts/2026-08-30/g5-warm-cpu-counter-cli-rejection.md`.
+
+PERF-204 rejects another compiler-splitting build. Late machine-function
+splitting is unsupported for arm64 Mach-O. Normal frontend-PGO objects for the
+selected `func_8035D940`/`func_80361940` chunks already contain 311/315 cold
+functions, and explicit IR hot/cold splitting produces byte-identical objects
+at 294,988/286,464 text bytes. See
+`docs/artifacts/2026-08-30/g5-hot-cold-splitting-rejection.md`.
+
 PERF-202 rejects another warm-specific PGO collection/build. The active
 profile already spans verified Fountain combat, and exact coverage
 reconstruction gives PERF-196's five enriched warm PCs 2.524M-17.523M hits.

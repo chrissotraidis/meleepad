@@ -19,6 +19,18 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-203 rejects `xctrace` CLI CPU Counters as an exact warm-frame method on
+this Xcode/macOS pair. Corrected title/GameState gates reproduce a complete
+first Fountain match and live second match, but attached traces crash or hang
+during aggregation and remain unexportable. Do not retry a longer CLI trace or
+infer counters from its visual reproduction. PERF-204 then closes LLVM
+splitting: late machine splitting is unsupported on arm64 Mach-O, while the IR
+hot/cold pass is already active and explicit enablement produces byte-identical
+PGO objects for the selected warm chunks. Retain no product edit; G5 remains
+open and G6 blocked. See
+`docs/artifacts/2026-08-30/g5-warm-cpu-counter-cli-rejection.md` and
+`docs/artifacts/2026-08-30/g5-hot-cold-splitting-rejection.md`.
+
 PERF-202 closes stale or scene-incomplete PGO weighting as the explanation for
 PERF-196's rare warm Fountain compute overruns. The active profile begins only
 after verified Fountain combat entry and ends at natural combat completion.

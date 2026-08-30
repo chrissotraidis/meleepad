@@ -1,10 +1,29 @@
 # ssbmpad status
 
-Last updated: 2026-08-29
+Last updated: 2026-08-30
 
 ## Current goal
 
 **G5 — macOS 60 fps: IN PROGRESS**
+
+PERF-203 reproduces an exact same-process warm Fountain window but rejects the
+command-line CPU Counters route before making a metric claim. Corrected
+startup and MemoryWatcher gates prove title readiness, first combat and its
+natural completion, then second combat; a fresh frame shows coherent Fountain.
+The attached trace crashes `xctrace` inside `SystemCounterAggregator` and is
+unexportable, while a five-second data-free attach hangs and grows to 4.4 GiB.
+The invalid disposable trace was deleted and all owned processes stopped.
+The reusable PGO bundle also predates the lightweight recorder, preventing a
+clock join. Retain no product edit and do not retry CLI CPU Counters. See
+`docs/artifacts/2026-08-30/g5-warm-cpu-counter-cli-rejection.md`.
+
+PERF-204 closes the remaining compiler-splitting escape route without a game
+build. AppleClang rejects late machine splitting for arm64 Mach-O. The
+format-independent IR hot/cold splitter is already active under the retained
+frontend profile: normal and explicitly enabled builds of the two selected
+warm-overrun chunks are byte-identical and already contain 311/315 cold
+functions. G5 stays open and G6 blocked. See
+`docs/artifacts/2026-08-30/g5-hot-cold-splitting-rejection.md`.
 
 PERF-202 tests whether the rare warm Fountain compute overruns justify a new
 PGO collection/build. The active profile was reset only after verified
