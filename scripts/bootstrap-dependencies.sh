@@ -151,6 +151,7 @@ frame_wait_attribution_patch="$ROOT/patches/moderngekko-dolphin/0019-frame-wait-
 efb_vram_prewarm_patch="$ROOT/patches/moderngekko-dolphin/0020-efb-vram-prewarm.patch"
 frame_phase_host_timestamp_patch="$ROOT/patches/moderngekko-dolphin/0021-frame-phase-host-timestamp.patch"
 frame_task_event_patch="$ROOT/patches/moderngekko-dolphin/0022-frame-task-event-attribution.patch"
+lightweight_frame_timing_patch="$ROOT/patches/moderngekko-dolphin/0023-lightweight-frame-timing.patch"
 apply_patch_once_or_marker "$MG" "$mg_patch" \
   include/moderngekko/runtime.hpp 'struct RuntimeDiagnosticsSnapshot'
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$dolphin_patch" \
@@ -210,6 +211,8 @@ apply_patch_once_or_marker "$MG/vendor/dolphin" "$frame_phase_host_timestamp_pat
   Source/Core/VideoCommon/Present.cpp host_frame_end_unix_ns
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$frame_task_event_patch" \
   Source/Core/VideoCommon/Present.cpp task_context_switches
+apply_patch_once_or_marker "$MG/vendor/dolphin" "$lightweight_frame_timing_patch" \
+  Source/Core/VideoCommon/PerformanceTracker.cpp SSBMPAD_LIGHTWEIGHT_FRAME_LOG
 verify_patch_scope "$MG" "$mg_patch" vendor/dolphin tools/moderngekko_launcher.cpp \
   tools/moderngekko_port.cpp tests/frontend_config_test.cpp \
   tools/frontend_config.cpp tools/frontend_config.hpp tools/moderngekko_run.cpp \
@@ -231,7 +234,11 @@ verify_patch_scope "$MG/vendor/dolphin" "$dolphin_patch" \
   Source/Core/Core/CoreTiming.cpp \
   Source/Core/AudioCommon/Mixer.cpp \
   Source/Core/VideoBackends/Metal/MTLGfx.mm \
+  Source/Core/VideoCommon/CMakeLists.txt \
   Source/Core/VideoCommon/Present.cpp \
+  Source/Core/VideoCommon/LightweightFrameTimingRecorder.cpp \
+  Source/Core/VideoCommon/LightweightFrameTimingRecorder.h \
+  Source/Core/VideoCommon/PerformanceTracker.h \
   Source/Core/VideoCommon/ShaderCache.cpp \
   Source/Core/DolphinNoGUI/Platform.cpp \
   Source/Core/Core/Cheats/MemoryWatcher.cpp \

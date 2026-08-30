@@ -3957,3 +3957,25 @@ Append-only execution ledger. Claims are limited to observed evidence.
   changed.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-strict-evidence-classifier.md`.
+
+## 2026-08-29 — PERF-193 lightweight producer recorder
+
+- Goal: retain a reproducible, default-dormant wall/thread-CPU recorder with
+  negligible observer work, then classify the cold Fountain producer tail.
+- Regression: the data-free compile/behavior test failed before patch 0023
+  existed. It now proves disabled mode makes zero clock calls and no file,
+  while opt-in mode buffers and flushes once at destruction.
+- Correction: exclude an initial dual-core trace that measured the separate
+  GPU thread. The valid run explicitly uses `CPUThread = False`.
+- Result: 7,431 exact combat intervals average 16.682591 ms / 59.942726 FPS,
+  with 16.840625 ms p95 and 39.496833 ms worst. All 104 thread-CPU overruns
+  occur in the first ten seconds; later CPU stays within budget while separate
+  33.251625/20.855458 ms wall holds remain.
+- Verification: the recorder matches all 22,240 independent render-log values
+  exactly at the expected one-row offset; Release links, 26/26 scoped tests,
+  nine classifier tests, bootstrap, and repository checks pass.
+- Decision: retain default-dormant patch 0023. G5 remains open and G6 blocked.
+  Next run a second Fountain match in the same process to test one-time warm-
+  up versus recurring match-start work.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-lightweight-producer-recorder.md`.

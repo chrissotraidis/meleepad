@@ -19,6 +19,18 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-193 retains a default-dormant observer-light producer recorder in the
+canonical Dolphin patch stack. Its disabled regression proves zero thread-
+clock calls and no output; opt-in mode reuses the existing wall timestamp,
+reads one thread CPU clock per interval, buffers in memory, and flushes once at
+shutdown. A corrected single-core cold Fountain window averages 59.942726 FPS
+but fails at 39.496833 ms worst. All 104 combined-thread CPU overruns occur in
+the first ten seconds; after that CPU stays within 16.7 ms while separate
+33.251625/20.855458 ms wall holds remain. Next run a second Fountain match in
+the same process to distinguish one-time warm-up from recurring match-start
+work. G5 remains open and G6 blocked. See
+`docs/artifacts/2026-08-29/g5-lightweight-producer-recorder.md`.
+
 PERF-192 retains a strict repository-native classifier for the independent
 producer and actual-presentation timelines. Nine data-free regressions prevent
 wrong clock joins, hidden producer misses, silent zero-present removal, and

@@ -9,6 +9,7 @@ for script in scripts/*.sh; do
   bash -n "$script"
 done
 python3 scripts/test_classify_g5_intervals.py
+python3 scripts/test_lightweight_frame_timing_patch.py
 
 prohibited=$(git ls-files | grep -E \
   '(^|/)(ref|DerivedData|Provisioned|build[^/]*)/|\.(iso|gcm|rvz|wia|wbfs|gcz|dylib|ipa|xcarchive|mobileprovision|p12|pem|key|gci|sav|raw|profraw|profdata)$' || true)

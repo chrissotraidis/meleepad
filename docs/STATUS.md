@@ -1767,3 +1767,16 @@ rows are not run because the loop forbids moving to G6 before G5 passes.
   No shader/DVD/affinity product experiment was justified or launched. G5
   remains open, Final Destination and G6 blocked. Evidence:
   `docs/artifacts/2026-08-29/g5-reference-shader-and-streaming-rejection.md`.
+- **PERF-193 (default-dormant lightweight producer recorder):** Canonical
+  patch 0023 reuses the existing render wall timestamp, reads one thread CPU
+  clock only when explicitly enabled, buffers records in memory, and flushes
+  once at shutdown. Its regression proves zero disabled clock calls/output.
+  A corrected single-core cold Fountain match retains 7,431 combat intervals
+  at 16.682591 ms mean / 59.942726 FPS, 16.840625 ms p95, and 39.496833 ms
+  worst. All 104 combined-thread CPU overruns occur in the first ten seconds;
+  after that CPU remains within 16.7 ms while separate 33.251625/20.855458 ms
+  wall holds remain. All 22,240 wall records match the independent render log
+  exactly. Release links, 26/26 scoped tests, nine classifier tests, and repo
+  checks pass. G5 remains open, Final Destination and G6 remain blocked; next
+  run a second Fountain match in the same process. Evidence:
+  `docs/artifacts/2026-08-29/g5-lightweight-producer-recorder.md`.
