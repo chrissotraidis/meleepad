@@ -6,6 +6,18 @@ Last updated: 2026-08-30
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-205 repairs a retained diagnostic before it can contaminate another G5
+capture. The triggered thread sampler still treated CSV column 3 as
+`total_ms`, but the current phase schema places `host_frame_end_unix_ns` there.
+An end-to-end regression proves a true 10.0 ms row falsely triggered as
+`1.78807e+18` ms. The sampler now resolves `emulated_frame` and `total_ms` by
+header name and passes current, legacy, reordered, below-threshold, and
+malformed-schema cases; the full repository gate passes. This restores tool
+correctness only: it records external run state/CPU time, not native PCs, and
+does not justify a new FPS claim or game run by itself. G5 stays open and G6
+blocked. See
+`docs/artifacts/2026-08-30/g5-triggered-sampler-schema-repair.md`.
+
 PERF-203 reproduces an exact same-process warm Fountain window but rejects the
 command-line CPU Counters route before making a metric claim. Corrected
 startup and MemoryWatcher gates prove title readiness, first combat and its

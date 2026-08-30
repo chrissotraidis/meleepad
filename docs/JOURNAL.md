@@ -4192,3 +4192,21 @@ Append-only execution ledger. Claims are limited to observed evidence.
   blocked.
 - Evidence:
   `docs/artifacts/2026-08-30/g5-hot-cold-splitting-rejection.md`.
+
+## 2026-08-30 — PERF-205 triggered sampler schema repair
+
+- Goal: audit the retained observer-light trigger path before trusting it for
+  another exact warm-overrun capture.
+- Regression: a current-schema row with emulated frame 500 and true 10.0 ms
+  total falsely triggers because the fixed-position parser reads the host Unix
+  timestamp as `1.78807e+18` ms.
+- Repair: resolve `emulated_frame` and `total_ms` from the CSV header, require
+  complete numeric parses, and reject missing required columns explicitly.
+- Verification: five end-to-end current/legacy/reordered/malformed/threshold
+  cases pass; the full repository check passes.
+- Decision: retain the tool/test repair, but make no product or FPS claim. The
+  sampler does not capture native PCs and a live repeat would not add a new
+  causal dimension by itself. No game or Simulator ran; G5 remains open and G6
+  blocked.
+- Evidence:
+  `docs/artifacts/2026-08-30/g5-triggered-sampler-schema-repair.md`.

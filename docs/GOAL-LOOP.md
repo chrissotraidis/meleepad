@@ -19,6 +19,16 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-205 repairs the retained triggered thread sampler after a current-schema
+regression proves it reads `host_frame_end_unix_ns` as `total_ms` and falsely
+triggers a 10.0 ms row as `1.78807e+18` ms. The tool now resolves required
+columns by header name and passes five end-to-end current, legacy, reordered,
+threshold, and malformed-schema cases in the full repository gate. This is a
+diagnostic correctness repair only: it records external run state/CPU time,
+not native PCs, so it does not justify a fresh game run or FPS claim by itself.
+G5 remains open and G6 blocked. See
+`docs/artifacts/2026-08-30/g5-triggered-sampler-schema-repair.md`.
+
 PERF-203 rejects `xctrace` CLI CPU Counters as an exact warm-frame method on
 this Xcode/macOS pair. Corrected title/GameState gates reproduce a complete
 first Fountain match and live second match, but attached traces crash or hang

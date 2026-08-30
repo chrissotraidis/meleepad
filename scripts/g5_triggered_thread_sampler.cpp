@@ -22,6 +22,12 @@ struct Sample
   int sleep_seconds;
 };
 
+struct PhaseColumns
+{
+  std::size_t emulated_frame;
+  std::size_t total_ms;
+};
+
 bool ReadThread(int pid, std::uint64_t tid, proc_threadinfo* info)
 {
   return proc_pidinfo(pid, PROC_PIDTHREADINFO, tid, info, sizeof(*info)) == sizeof(*info);
@@ -47,23 +53,63 @@ std::uint64_t FindThread(int pid, const std::string& needle, proc_threadinfo* fo
   return 0;
 }
 
-bool ParsePhase(const std::string& line, std::uint64_t* emulated_frame, double* total_ms)
+std::vector<std::string> SplitCsv(const std::string& line)
 {
-  const std::size_t first = line.find(',');
-  const std::size_t second = line.find(',', first + 1);
-  const std::size_t third = line.find(',', second + 1);
-  if (first == std::string::npos || second == std::string::npos || third == std::string::npos)
+  std::vector<std::string> fields;
+  std::size_t begin = 0;
+  while (true)
+  {
+    const std::size_t end = line.find(',', begin);
+    fields.push_back(line.substr(begin, end == std::string::npos ? end : end - begin));
+    if (end == std::string::npos)
+      break;
+    begin = end + 1;
+  }
+  if (!fields.empty() && !fields.back().empty() && fields.back().back() == '\r')
+    fields.back().pop_back();
+  return fields;
+}
+
+bool ParsePhaseHeader(const std::string& line, PhaseColumns* columns)
+{
+  const std::vector<std::string> fields = SplitCsv(line);
+  columns->emulated_frame = fields.size();
+  columns->total_ms = fields.size();
+  for (std::size_t index = 0; index < fields.size(); ++index)
+  {
+    if (fields[index] == "emulated_frame")
+      columns->emulated_frame = index;
+    else if (fields[index] == "total_ms")
+      columns->total_ms = index;
+  }
+  return columns->emulated_frame < fields.size() && columns->total_ms < fields.size();
+}
+
+bool ParsePhase(const std::string& line, const PhaseColumns& columns,
+                std::uint64_t* emulated_frame, double* total_ms)
+{
+  const std::vector<std::string> fields = SplitCsv(line);
+  if (columns.emulated_frame >= fields.size() || columns.total_ms >= fields.size())
     return false;
   try
   {
-    *emulated_frame = std::stoull(line.substr(first + 1, second - first - 1));
-    *total_ms = std::stod(line.substr(second + 1, third - second - 1));
-    return true;
+    std::size_t emulated_parsed = 0;
+    std::size_t total_parsed = 0;
+    *emulated_frame = std::stoull(fields[columns.emulated_frame], &emulated_parsed);
+    *total_ms = std::stod(fields[columns.total_ms], &total_parsed);
+    return emulated_parsed == fields[columns.emulated_frame].size() &&
+           total_parsed == fields[columns.total_ms].size();
   }
   catch (...)
   {
     return false;
   }
+}
+
+bool ReadFirstLine(const std::string& path, std::string* line)
+{
+  std::ifstream input(path);
+  return static_cast<bool>(std::getline(input, *line)) && !line->empty();
 }
 
 bool ReadLastLine(const std::string& path, std::string* line)
@@ -118,6 +164,25 @@ int main(int argc, char** argv)
       max_seconds <= 0)
     return 2;
 
+  std::string phase_header;
+  for (int attempt = 0; attempt < 500 && phase_header.empty(); ++attempt)
+  {
+    ReadFirstLine(phase_path, &phase_header);
+    if (phase_header.empty())
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  }
+  if (phase_header.empty())
+  {
+    std::cerr << "phase header not found\n";
+    return 1;
+  }
+  PhaseColumns phase_columns{};
+  if (!ParsePhaseHeader(phase_header, &phase_columns))
+  {
+    std::cerr << "phase header missing emulated_frame or total_ms\n";
+    return 2;
+  }
+
   proc_threadinfo first{};
   std::uint64_t tid = 0;
   for (int attempt = 0; attempt < 500 && tid == 0; ++attempt)
@@ -168,7 +233,8 @@ int main(int argc, char** argv)
     if (!triggered && samples % 32 == 0)
     {
       std::string line;
-      if (ReadLastLine(phase_path, &line) && ParsePhase(line, &trigger_emu, &trigger_total_ms) &&
+      if (ReadLastLine(phase_path, &line) &&
+          ParsePhase(line, phase_columns, &trigger_emu, &trigger_total_ms) &&
           trigger_emu >= min_emu && trigger_emu < max_emu && trigger_total_ms > threshold_ms)
       {
         triggered = true;
