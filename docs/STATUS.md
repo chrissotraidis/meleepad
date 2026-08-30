@@ -6,6 +6,19 @@ Last updated: 2026-08-29
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-200 tests the last unpreflighted current Apple display-cadence primitive
+before any game integration. A retained, sanitized host-only
+`CAMetalDisplayLink` harness drives this M1's panel perfectly at an exact 60 Hz
+source: 599/599 actual intervals meet 16.7 ms with 16.667083 ms worst and zero
+source repeats. Requesting 59.94005994 Hz for 2,400 intervals is still
+quantized to 60 Hz: all 2,399 generated-color presentations meet 16.7 ms, but
+the measured target timeline requires two callbacks with no new 59.94 Hz
+source frame. Integration would have to duplicate stale content, interpolate,
+or change deterministic guest/audio speed; those violate the distinct-frame
+boundary or already have direct rejections. Do not integrate the display link.
+G5 stays open and G6 blocked. See
+`docs/artifacts/2026-08-29/g5-metal-display-link-rejection.md`.
+
 PERF-199 joins PERF-198's three observer-free warm Final Destination wall
 outliers exactly into vblank: 25.267167/26.342000/26.497500 ms producer rows
 map to 26.349416/26.652583/28.360792 ms vblank stalls, while thread CPU is only

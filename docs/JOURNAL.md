@@ -4097,3 +4097,27 @@ Append-only execution ledger. Claims are limited to observed evidence.
   reversals. G5 remains open and G6 blocked.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-warm-final-destination-wall-attribution.md`.
+
+## 2026-08-29 — PERF-200 CAMetalDisplayLink rejection
+
+- Goal: test the remaining current Apple display-cadence primitive before any
+  product integration.
+- API boundary: the macOS 26.5 SDK exposes drawable, target-render, and target-
+  presentation timestamps plus an exact requested frame-rate range. Dolphin
+  does not currently use it.
+- Harness: retained host-only arm64 preflight compiles at `-O2 -Wall -Wextra
+  -Werror` with ASan/UBSan and records callback/target/actual cadence plus
+  distinct-source availability.
+- Exact-60 control: 599/599 actual intervals meet 16.7 ms, 16.667083 ms worst,
+  and zero source repeats.
+- 59.94005994 request: Core Animation still produces a 60 Hz timeline. All
+  2,399 host-generated-color intervals meet 16.7 ms, but 2,400 target intervals
+  force two callbacks without a new valid 59.94 Hz source frame.
+- Decision: reject integration. It would require stale duplication,
+  interpolation, or changed deterministic guest/audio speed. These violate the
+  distinct-frame boundary or already have direct reversals. No game, product
+  source, ROM, save, module, or Simulator changed. G5 remains open and G6
+  blocked.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-metal-display-link-rejection.md` and
+  `scripts/g5_metal_display_link_preflight.mm`.

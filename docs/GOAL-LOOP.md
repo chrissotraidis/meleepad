@@ -19,6 +19,16 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-200 preflights `CAMetalDisplayLink` without a game build. An exact 60 Hz
+control delivers 599/599 actual intervals within 16.7 ms and no modeled source
+repeat. An exact 59.94005994 Hz request is nevertheless quantized to this
+fixed panel's 60 Hz cadence; over 2,400 intervals it forces two callbacks where
+a valid source has no new distinct frame. The API can appear perfect only by
+duplicating/synthesizing content or changing deterministic guest/audio speed,
+all of which violate the boundary or have direct rejections. Retain the host
+harness, do not integrate it into Dolphin, and keep G5 open/G6 blocked. See
+`docs/artifacts/2026-08-29/g5-metal-display-link-rejection.md`.
+
 PERF-199 maps all three PERF-198 warm Final Destination producer stalls to
 vblank with ordinary 6.019-6.648 ms thread CPU. A separate exact 5,890-frame
 phase join reproduces a 59.993541 ms wall stall with only 10.339240 ms thread
