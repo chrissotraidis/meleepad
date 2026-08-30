@@ -6,6 +6,20 @@ Last updated: 2026-08-29
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-197 fixes a measurement defect: lightweight-only recording previously
+left every emulated-frame identity at zero because the shared index advanced
+only for the heavier phase observer. Canonical patch 0025 activates the
+existing store for either recorder while preserving the disabled path; its
+2,496-row smoke is nonzero, unique, and monotonic. The fix and regression are
+published in `10dcb11`. PERF-198 then compares 5,890 exact Final Destination
+combat frames twice in one process. Warm combat averages 59.959490 FPS and has
+zero CPU frames over 16.7 ms, but wall p95 is 17.268541 ms and three wall
+intervals exceed 20 ms (26.497500 ms worst). This is playable-looking but not
+stable 60 or a G5 pass. Next join those exact warm wall rows to render/vblank/
+presentation timing; do not repeat a static-recompiler rewrite. G6 remains
+blocked. See `docs/artifacts/2026-08-29/g5-lightweight-frame-identity-activation.md`
+and `docs/artifacts/2026-08-29/g5-same-process-final-destination-warmup.md`.
+
 PERF-196 joins a visually verified same-process warm Fountain body to the
 retained one-in-4,096 dispatch sampler. Five CPU overruns contain 175 samples
 versus 146.46 expected; `0x80360000..0x8036FFFF` explains 64.4% of the sample

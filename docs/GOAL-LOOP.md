@@ -19,6 +19,18 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-197 repairs lightweight-only emulated-frame identity and publishes the
+regression/fix in `10dcb11`. PERF-198 uses that identity for a visually verified
+same-process Final Destination comparison. The 5,890-frame warm combat body
+averages 59.959490 FPS with zero CPU frames above 16.7 ms, but wall p95 is
+17.268541 ms and three frames exceed 20 ms (26.497500 ms worst). Final
+Destination is not static-core-bound after warm-up in this run, but it is not
+stable 60 FPS. Next join those exact wall rows to render/vblank/presentation
+timing; do not repeat guest-PC rewrites without a new mechanism. G5 remains
+open and G6 blocked. See
+`docs/artifacts/2026-08-29/g5-lightweight-frame-identity-activation.md` and
+`docs/artifacts/2026-08-29/g5-same-process-final-destination-warmup.md`.
+
 PERF-194 repeats two visually verified Fountain matches in one continuous
 single-core process. The cold leg has 105 combined-thread CPU overruns; the
 same-process warm leg has eight. In the first ten seconds the count collapses

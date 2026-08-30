@@ -4044,3 +4044,32 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-warm-dispatch-region-rejection.md` and
   `docs/evidence/g5-warm-dispatch-attribution/`.
+
+## 2026-08-29 — PERF-197 lightweight frame identity activation
+
+- Goal: make exact emulated-frame identity work when only the low-overhead
+  recorder is enabled.
+- Failure: the first lightweight-only trace recorded zero on every row because
+  the shared frame index advanced only under the phase observer.
+- Correction: regression-first canonical patch 0025 activates the existing
+  index store for either recorder and preserves the disabled path.
+- Verification: 2,496 smoke rows are nonzero, unique, and monotonic; patch
+  apply/reverse, Release link, 26/26 scoped tests, bootstrap, and repository
+  checks pass. Published as `10dcb11`.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-lightweight-frame-identity-activation.md`.
+
+## 2026-08-29 — PERF-198 same-process Final Destination warm-up
+
+- Goal: separate warm Final Destination compute cost from remaining wall tail.
+- Method: two visually verified 5,890-frame combat windows in one continuous
+  single-core Metal/Cubeb process, using identical state and quiet input.
+- Cold: 59.721505 FPS mean, 16.790042 ms p95, 388.145417 ms wall worst,
+  one CPU frame above 16.7 ms.
+- Warm: 59.959490 FPS mean, 17.268541 ms wall p95, 26.497500 ms worst,
+  three wall rows above 20 ms, and zero CPU rows above 16.7 ms.
+- Decision: warm Final Destination is not static-core-bound in this run but
+  still fails G5. Join the exact wall rows to render/vblank/presentation
+  timing before changing product code. G6 remains blocked.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-same-process-final-destination-warmup.md`.
