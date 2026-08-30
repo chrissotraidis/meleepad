@@ -4073,3 +4073,27 @@ Append-only execution ledger. Claims are limited to observed evidence.
   timing before changing product code. G6 remains blocked.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-same-process-final-destination-warmup.md`.
+
+## 2026-08-29 — PERF-199 warm Final Destination wall attribution
+
+- Goal: distinguish guest compute, Metal/presentation work, and host wall loss
+  in PERF-198's three warm Final Destination producer stalls.
+- Read-only join: all 17,498 comparable lightweight/render values match exactly
+  at +1 row. A stable +347 render-to-vblank offset maps all three 25.267-
+  26.498 ms producer stalls to 26.349-28.361 ms vblank stalls; thread CPU is
+  only 6.019-6.648 ms.
+- Diagnostic: a separate visually verified same-process phase run joins all
+  5,890 warm combat frames exactly and reproduces one 59.993541 ms wall stall
+  with 10.339240 ms thread CPU.
+- Attribution: guest cycles/dispatch are ordinary, `nextDrawable` is 0.032333
+  ms, presentation 0.266333 ms, audio 2.076958 ms, and EFB/fallback are zero.
+  The missing interval is host execution/wake loss in the CPU/vblank path.
+- Harness correction: a stale owned wrapper runner launched during UI target
+  resolution was immediately detected and stopped; its prefix is excluded.
+  Both valid combat legs ran with exactly one game process. No unrelated
+  process or Simulator was touched.
+- Decision: retain no product edit. Existing scheduler, precision-timer, Rush,
+  dual-core, affinity, Game Mode, and drawable mechanisms already have direct
+  reversals. G5 remains open and G6 blocked.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-warm-final-destination-wall-attribution.md`.

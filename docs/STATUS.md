@@ -6,6 +6,20 @@ Last updated: 2026-08-29
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-199 joins PERF-198's three observer-free warm Final Destination wall
+outliers exactly into vblank: 25.267167/26.342000/26.497500 ms producer rows
+map to 26.349416/26.652583/28.360792 ms vblank stalls, while thread CPU is only
+6.019-6.648 ms. A separate visually verified same-process phase run joins all
+5,890 warm combat frames exactly and reproduces one 59.993541 ms wall stall
+with 10.339240 ms thread CPU. Guest work is ordinary; `nextDrawable` is
+0.032333 ms, presentation 0.266333 ms, audio 2.076958 ms, and EFB/fallback are
+zero. The missing interval is host execution/wake loss in the combined CPU/
+vblank path, not static recompiler, Metal cost, or M1 throughput. Existing
+scheduler, timer, Rush, dual-core, and drawable candidates already have direct
+reversals, so no speculative product edit is retained. G5 stays open and G6
+blocked. See
+`docs/artifacts/2026-08-29/g5-warm-final-destination-wall-attribution.md`.
+
 PERF-197 fixes a measurement defect: lightweight-only recording previously
 left every emulated-frame identity at zero because the shared index advanced
 only for the heavier phase observer. Canonical patch 0025 activates the

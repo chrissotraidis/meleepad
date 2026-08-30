@@ -19,6 +19,16 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-199 maps all three PERF-198 warm Final Destination producer stalls to
+vblank with ordinary 6.019-6.648 ms thread CPU. A separate exact 5,890-frame
+phase join reproduces a 59.993541 ms wall stall with only 10.339240 ms thread
+CPU; guest work is ordinary, Metal/presentation is below 0.3 ms, audio is
+2.077 ms, and EFB/fallback are zero. The remaining producer tail is host
+execution/wake loss, not static-recompiler or GPU cost. Available scheduler,
+timer, pacing, dual-core, and drawable mechanisms already have direct
+reversals; retain no speculative edit. G5 remains open and G6 blocked. See
+`docs/artifacts/2026-08-29/g5-warm-final-destination-wall-attribution.md`.
+
 PERF-197 repairs lightweight-only emulated-frame identity and publishes the
 regression/fix in `10dcb11`. PERF-198 uses that identity for a visually verified
 same-process Final Destination comparison. The 5,890-frame warm combat body
