@@ -4327,3 +4327,64 @@ Append-only execution ledger. Claims are limited to observed evidence.
   unchanged, G5 open, G6 blocked.
 - Evidence:
   `docs/artifacts/2026-08-30/g5-native-pc-sample-pgo-screen.md`.
+
+## 2026-08-30 — PERF-212 dispatcher ABI and cold-frame split
+
+- Goal: determine whether the actual ARM64 module boundary has removable
+  caller spills or a materially overbuilt dispatcher frame.
+- Caller result: `StaticRecompCore::Run` saves x19-x28 once at function entry
+  and emits no adjacent spill/reload around `m_module->dispatch`. A custom
+  `preserve_most` ABI has no positive caller mechanism.
+- Candidate: move host-call and physical-alias fallback work to two noinline
+  helpers while preserving replacement -> host -> original -> alias order.
+  ThinLTO removes the common x19/x20 save pair and grows text only 296 bytes.
+- Semantics: 512 randomized generated-function cases plus host hit, host miss,
+  physical alias, and complete miss all match the packaged canonical module.
+- Timing: five-million-call alternating medians are 49.475708 ns control and
+  49.285442 ns candidate, saving 0.190267 ns/call / 0.384566%. Projection at
+  116,775 dispatches/frame is only 0.022216 ms/frame.
+- Decision: reject below the 5% build gate; remove comparator/candidate source,
+  restore template source byte-for-byte, and do not launch the game.
+- Evidence:
+  `docs/artifacts/2026-08-30/g5-dispatch-frame-split-rejection.md`.
+
+## 2026-08-30 — PERF-213 generated frame-pointer omission
+
+- Goal: screen x29 frame-pointer omission as distinct from the rejected
+  O3/native compiler matrix.
+- Method: compile hot generated chunk `chunk_0207_text1_8033D940.c` with the
+  same current frontend profile, O2, ARM64/macOS 14 target, and strict FP
+  flags, changing only explicit frame-pointer retention versus omission.
+- Result: text falls from 365,656 to 363,920 bytes and instruction count from
+  88,056 to 87,622. Across 446 generated functions, nearly all 434 removed
+  instructions are one x29 frame-establishment `add`; x29/LR remains saved.
+- Bound: PERF-212's direct same-machine timing projects this to approximately
+  0.0044 ms/frame, far below materiality.
+- Decision: reject before a full module/game build and delete both temporary
+  objects. No product, runtime, ROM, save, or Simulator changed.
+- Evidence:
+  `docs/artifacts/2026-08-30/g5-generated-frame-pointer-omission-rejection.md`.
+
+## 2026-08-30 — PERF-214 remaining mechanism and capability boundary
+
+- Goal: reconcile current superseding G5 evidence instead of selecting another
+  stale historical “next experiment.”
+- Warm compute: PERF-207 has only one CPU overrun across 6,731 Fountain frames;
+  enriched PCs are distributed across already-profiled/rejected generated
+  families. No static-recompiler leaf clears the build threshold.
+- Warm wall: the largest Fountain tails are proven `nextDrawable` waits;
+  Final Destination's warm misses are vblank/host execution loss with CPU
+  inside budget. Public renderer, scheduler, timer, audio, and workgroup routes
+  all have direct reversals or API-contract rejections.
+- Display: all nine sustained Fountain actual-display misses were GPU-complete
+  10.3-30.7 ms early. The current host reports only its built-in 60.00 Hz mode;
+  retained Quartz/IOKit evidence has no 59.94 mode or VRR range.
+- Last PRD lever: macOS generated ARM64 vertex loading is below materiality—
+  nine samples in the strongest older Fountain profile and two incidental
+  PERF-207 tail stacks with CPU still inside budget.
+- Decision: G5 remains unpassed. A real 59.94 Hz or suitable-VRR macOS display
+  is now a necessary (not sufficient) capability for the next canonical
+  FD/Fountain verification. Do not weaken D2, count stale duplicates, use
+  private driver APIs, or start G6.
+- Evidence:
+  `docs/artifacts/2026-08-30/g5-remaining-mechanism-and-capability-boundary.md`.

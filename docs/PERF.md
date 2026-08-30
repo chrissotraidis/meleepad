@@ -699,3 +699,61 @@ Required next work:
    host-descheduling mechanism rather than repeating the same timing observer.
 4. Retain an optimization only after both required stages improve and the G5
    worst-frame requirement is actually met.
+
+## 2026-08-30 — PERF-212 dispatcher frame-split rejection
+
+- Active runner disassembly emits no spill/reload around the indirect module
+  dispatch call; its x19-x28 saves occur once at `StaticRecompCore::Run`
+  entry. A `preserve_most` ABI therefore has no caller traffic to remove.
+- A semantics-preserving disposable split moved the proven-zero-hit host and
+  alias branches out of the common dispatcher. ThinLTO removed the x19/x20
+  save pair and reduced the common frame sequence while growing module text by
+  only 296 bytes.
+- Canonical/candidate comparison passed 512 randomized generated-function
+  cases plus host hit, host miss, physical alias, and complete miss branches.
+- Nine alternating five-million-call repeats measured 49.475708 ns/call
+  control versus 49.285442 ns/call split: 0.190267 ns or 0.384566% saved.
+  At 116,775 dispatches/frame, projection is only 0.022216 ms/frame.
+- Decision: reject custom calling convention and cold-frame split below the
+  5% build gate. No candidate reached the app or game.
+- Evidence:
+  `docs/artifacts/2026-08-30/g5-dispatch-frame-split-rejection.md`.
+
+## 2026-08-30 — PERF-213 generated frame-pointer omission rejection
+
+- One retained hot frontend-PGO chunk compiled with identical strict flags
+  and explicit frame-pointer on/off modes.
+- Control: 365,656 text bytes / 88,056 instructions. Omit candidate: 363,920
+  text bytes / 87,622 instructions.
+- The 434-instruction reduction across 446 generated functions is almost
+  entirely one removed x29 frame-establishment `add` per function; x29/LR is
+  still saved/restored.
+- PERF-212's direct same-machine result bounds this at approximately
+  0.0044 ms/frame, far below materiality.
+- Decision: reject before ThinLTO module/game build; temporary objects deleted.
+- Evidence:
+  `docs/artifacts/2026-08-30/g5-generated-frame-pointer-omission-rejection.md`.
+
+## 2026-08-30 — PERF-214 remaining mechanism and capability boundary
+
+- Warm Fountain: 6,731 PERF-207 frames, 12.273 ms mean combined-thread CPU,
+  one CPU overrun, but six wall intervals above 20 ms. The three largest map
+  to prior 16.9-21.8 ms `nextDrawable` waits.
+- Warm Final Destination: zero CPU rows above 16.7 ms in 5,890 frames, but
+  three wall intervals above 20 ms; later join maps them to vblank/host
+  execution loss.
+- Actual Fountain presentation: all nine 33.333 ms PERF-150 misses were
+  GPU-complete 10.3-30.7 ms before the skipped refresh. GPU work is 1.566 ms
+  mean / 2.523 ms worst.
+- Current host: only the built-in `1440 x 900 @ 60.00Hz` mode; retained
+  Quartz/IOKit audit has no 59.94 or VRR range. The 59.94005994-to-60
+  conversion class cannot be falsified on this display without stale
+  duplication, interpolation, or guest-speed changes, all invalid/rejected.
+- PRD AOT vertex specialization is below threshold on macOS: nine samples in
+  the strongest older Fountain profile and only two incidental PERF-207 tail
+  stacks while CPU remained inside budget.
+- Decision: the next necessary capability is a real 59.94 Hz or suitable-VRR
+  macOS display, followed by the unchanged audio-on FD/Fountain gates. This is
+  necessary, not sufficient. G5 remains unpassed and G6 blocked.
+- Evidence:
+  `docs/artifacts/2026-08-30/g5-remaining-mechanism-and-capability-boundary.md`.

@@ -4,7 +4,36 @@ Last updated: 2026-08-30
 
 ## Current goal
 
-**G5 — macOS 60 fps: IN PROGRESS**
+**G5 — macOS 60 fps: BLOCKED ON EXTERNAL 59.94/VRR DISPLAY CAPABILITY**
+
+PERF-214 reconciles the current G5 evidence and closes the remaining local
+mechanism inventory. Warm Fountain's rare CPU overruns are distributed across
+already-profiled/rejected static-recompiler families; its largest wall tails
+are proven `nextDrawable` waits. Warm Final Destination remains wall/vblank-
+bound with CPU inside budget. GPU-complete Fountain frames are independently
+deferred by the built-in fixed 60.00 Hz panel converting Melee's exact
+59.94005994 Hz source. The current Mac exposes neither a 59.94 mode nor a VRR
+range, while compiler, renderer, scheduler, audio, input, and macOS vertex-
+loader routes all have direct semantic, reversal, API, or materiality
+rejections. Further G5 work requires a real 59.94 Hz/suitable-VRR macOS
+display (necessary, not sufficient), or genuinely new causal evidence naming
+an uncovered public mechanism. Do not weaken D2 or start G6. See
+`docs/artifacts/2026-08-30/g5-remaining-mechanism-and-capability-boundary.md`.
+
+PERF-213 rejects generated-function frame-pointer omission before a full
+module build. A hot PGO chunk compiled with and without x29 frame establishment
+differs by only 434 instructions across 446 generated functions—essentially
+one instruction per native dispatch. PERF-212's direct same-machine result
+bounds that at approximately 0.0044 ms/frame, far below the 5% build gate.
+Product unchanged. See
+`docs/artifacts/2026-08-30/g5-generated-frame-pointer-omission-rejection.md`.
+
+PERF-212 proves the optimized runner emits no per-dispatch caller spills, so a
+custom `preserve_most` ABI has nothing to remove. Splitting zero-hit host/alias
+paths does remove the dispatcher's x19/x20 save pair and passes 512 randomized
+generated-function cases plus host, alias, and miss branches, but saves only
+0.190 ns/call (0.385%), projecting 0.022 ms/frame. Product unchanged. See
+`docs/artifacts/2026-08-30/g5-dispatch-frame-split-rejection.md`.
 
 PERF-211 reopens sample PGO only against PERF-206's new native-PC ring, then
 closes it before a module build. This Xcode has no `llvm-profgen`; the shipped

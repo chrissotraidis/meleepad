@@ -19,6 +19,21 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-214 reconciles every current G5 failure class against the retained
+mechanism history. Warm CPU overruns are rare and distributed across already
+closed/profiled families; the largest Fountain tails are proven
+`nextDrawable` waits; warm Final Destination is wall/vblank-bound with CPU
+inside budget; and GPU-complete frames are still deferred by the built-in
+fixed 60.00 Hz panel converting Melee's 59.94005994 Hz distinct source. The
+current Mac exposes no 59.94 or variable-refresh mode, and every public
+product-local compiler, renderer, scheduler, audio, input, and vertex-loader
+lever has a direct semantic, API, reversal, or materiality rejection. Further
+G5 work now requires a real 59.94 Hz or suitable VRR macOS display (necessary,
+not sufficient), or genuinely new causal evidence naming an uncovered public
+mechanism. Do not weaken D2, count stale duplicates, use private driver APIs,
+or start G6. See
+`docs/artifacts/2026-08-30/g5-remaining-mechanism-and-capability-boundary.md`.
+
 PERF-213 rejects generated-module frame-pointer omission before a full build.
 On a retained hot PGO chunk, `-fomit-frame-pointer` keeps the x29/LR save pair
 and removes essentially one frame-establishment instruction per generated
