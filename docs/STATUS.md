@@ -6,6 +6,17 @@ Last updated: 2026-08-29
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
+PERF-195 adds exact emulated-frame identity to the default-dormant lightweight
+recorder and uses it to join every one of 7,431 warm Fountain combat rows to
+the retained phase observer. All eight combined-thread CPU overruns are
+static-core compute: their phase CPU-thread median is 16.852 ms versus 11.591
+ms in within-budget rows, with elevated native dispatch and guest-cycle counts.
+Metal/presentation, audio, EFB traffic, and fallback handling are not elevated.
+This is observer-bearing causal evidence, not an acceptance FPS claim. G5
+remains open and G6 blocked; next use the bounded dispatch/frame sampler to
+name the enriched guest-PC regions. See
+`docs/artifacts/2026-08-29/g5-warm-static-core-attribution.md`.
+
 PERF-192 adds a strict test-driven producer/presentation classifier and wires
 its nine regressions into repository checks. It reproduces all retained
 PERF-187/188/189 display events as 2/1/1 GPU-ready fixed-rate holds with zero

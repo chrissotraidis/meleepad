@@ -1,0 +1,87 @@
+diff --git a/Source/Core/VideoCommon/LightweightFrameTimingRecorder.cpp b/Source/Core/VideoCommon/LightweightFrameTimingRecorder.cpp
+index 50f9068471..1d89d568d4 100644
+--- a/Source/Core/VideoCommon/LightweightFrameTimingRecorder.cpp
++++ b/Source/Core/VideoCommon/LightweightFrameTimingRecorder.cpp
+@@ -33,8 +33,9 @@ LightweightFrameTimingRecorder::~LightweightFrameTimingRecorder()
+ {
+   Flush();
+ }
+ 
+-void LightweightFrameTimingRecorder::Record(std::chrono::steady_clock::time_point wall_time)
++void LightweightFrameTimingRecorder::Record(std::chrono::steady_clock::time_point wall_time,
++                                            std::uint64_t emulated_frame)
+ {
+   if (!m_output_path)
+     return;
+@@ -55,8 +56,8 @@ void LightweightFrameTimingRecorder::Record(std::chrono::steady_clock::time_poi
+   {
+     const auto unix_offset_ns =
+         std::chrono::duration_cast<std::chrono::nanoseconds>(wall_time - m_wall_base).count();
+-    m_records.push_back({m_unix_base_ns + unix_offset_ns, static_cast<std::uint64_t>(wall_ns),
+-                         thread_ns});
++    m_records.push_back({emulated_frame, m_unix_base_ns + unix_offset_ns,
++                         static_cast<std::uint64_t>(wall_ns), thread_ns});
+   }
+ 
+   m_last_wall_time = wall_time;
+@@ -81,15 +82,17 @@ void LightweightFrameTimingRecorder::Flush() const
+   if (!stream)
+     return;
+ 
+-  stream << "index,host_frame_end_unix_ns,total_ms,thread_cpu_ms,wall_minus_thread_ms\n";
++  stream << "index,emulated_frame,host_frame_end_unix_ns,total_ms,thread_cpu_ms,"
++            "wall_minus_thread_ms\n";
+   stream << std::fixed << std::setprecision(6);
+   for (std::size_t index = 0; index < m_records.size(); ++index)
+   {
+     const TimingRecord& record = m_records[index];
+     const std::uint64_t remainder_ns =
+         record.wall_ns > record.thread_cpu_ns ? record.wall_ns - record.thread_cpu_ns : 0;
+-    stream << index + 1 << ',' << record.host_frame_end_unix_ns << ','
+-           << record.wall_ns / 1000000.0 << ',' << record.thread_cpu_ns / 1000000.0 << ','
++    stream << index + 1 << ',' << record.emulated_frame << ',' << record.host_frame_end_unix_ns
++           << ','
++           << record.wall_ns / 1000000.0 << ',' << record.thread_cpu_ns / 1000000.0 << ','
+            << remainder_ns / 1000000.0 << '\n';
+   }
+ }
+diff --git a/Source/Core/VideoCommon/LightweightFrameTimingRecorder.h b/Source/Core/VideoCommon/LightweightFrameTimingRecorder.h
+index 0e3e6af856..1945281bc5 100644
+--- a/Source/Core/VideoCommon/LightweightFrameTimingRecorder.h
++++ b/Source/Core/VideoCommon/LightweightFrameTimingRecorder.h
+@@ -24,11 +24,12 @@ public:
+   LightweightFrameTimingRecorder(LightweightFrameTimingRecorder&&) = delete;
+   LightweightFrameTimingRecorder& operator=(LightweightFrameTimingRecorder&&) = delete;
+ 
+-  void Record(std::chrono::steady_clock::time_point wall_time);
++  void Record(std::chrono::steady_clock::time_point wall_time, std::uint64_t emulated_frame);
+ 
+ private:
+   struct TimingRecord
+   {
++    std::uint64_t emulated_frame;
+     std::uint64_t host_frame_end_unix_ns;
+     std::uint64_t wall_ns;
+     std::uint64_t thread_cpu_ns;
+diff --git a/Source/Core/VideoCommon/PerformanceTracker.cpp b/Source/Core/VideoCommon/PerformanceTracker.cpp
+index 6116da09a3..aa5ac72dbc 100644
+--- a/Source/Core/VideoCommon/PerformanceTracker.cpp
++++ b/Source/Core/VideoCommon/PerformanceTracker.cpp
+@@ -12,6 +12,7 @@
+ 
+ #include "Common/CommonTypes.h"
+ #include "Common/FileUtil.h"
++#include "Common/FramePhaseTiming.h"
+ #include "Common/MathUtil.h"
+ #include "VideoCommon/VideoConfig.h"
+ 
+@@ -61,7 +62,8 @@ void PerformanceTracker::Count()
+   }
+ 
+   if (m_lightweight_frame_timing)
+-    m_lightweight_frame_timing->Record(current_time);
++    m_lightweight_frame_timing->Record(current_time,
++                                       Common::FramePhaseTiming::GetEmulatedFrameIndex());
+ 
+   m_last_raw_dt = diff;
+   m_raw_dts.Push(diff);

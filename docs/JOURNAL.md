@@ -3999,3 +3999,24 @@ Append-only execution ledger. Claims are limited to observed evidence.
   warm match's eight CPU rows to retained phase timing. G6 remains blocked.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-same-process-fountain-warmup.md`.
+
+## 2026-08-29 — PERF-195 exact warm static-core attribution
+
+- Goal: join the eight warm-match combined-thread CPU overruns to detailed
+  phase evidence without timestamp sliding across delayed/catch-up pairs.
+- Correction: patch 0024 adds the already-available emulated-frame identity to
+  the default-dormant lightweight recorder. It adds no disabled-path work and
+  no enabled clock, syscall, or per-frame flush.
+- Integrity: all 7,431 warm combat rows join one-to-one to phase rows by exact
+  emulated frame plus nearest common-clock timestamp; zero are unmatched.
+- Result: the eight overrun rows have 16.852 ms median phase CPU-thread time
+  versus 11.591 ms within budget, with higher static dispatch/cycle counts.
+  Metal/presentation, audio, EFB pipeline, and fallback metrics do not rise
+  coherently.
+- Decision: classify the remaining warm compute class inside the static core.
+  The detailed observer makes this mechanism evidence only, not an acceptance
+  FPS distribution. G5 remains open and G6 blocked.
+- Next: use the retained one-in-4,096 dispatch/frame sampler to identify guest
+  PC regions enriched in the exact warm overrun frames.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-warm-static-core-attribution.md`.

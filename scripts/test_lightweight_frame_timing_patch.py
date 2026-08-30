@@ -10,6 +10,7 @@ import tempfile
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 PATCH = ROOT / "patches/moderngekko-dolphin/0023-lightweight-frame-timing.patch"
+IDENTITY_PATCH = ROOT / "patches/moderngekko-dolphin/0024-lightweight-frame-identity.patch"
 
 
 def added_file(patch_text: str, path: str) -> str:
@@ -27,6 +28,7 @@ def added_file(patch_text: str, path: str) -> str:
 
 def main() -> None:
     patch_text = PATCH.read_text()
+    identity_patch_text = IDENTITY_PATCH.read_text()
     header_path = "Source/Core/VideoCommon/LightweightFrameTimingRecorder.h"
     source_path = "Source/Core/VideoCommon/LightweightFrameTimingRecorder.cpp"
 
@@ -36,6 +38,14 @@ def main() -> None:
         include_dir.mkdir(parents=True)
         (root / header_path).write_text(added_file(patch_text, header_path))
         (root / source_path).write_text(added_file(patch_text, source_path))
+        identity_sections = []
+        for path in (header_path, source_path):
+            marker = f"diff --git a/{path} b/{path}\n"
+            section = identity_patch_text.split(marker, 1)[1].split("\ndiff --git ", 1)[0]
+            identity_sections.append(marker + section)
+        filtered_patch = root / "identity.patch"
+        filtered_patch.write_text("\n".join(identity_sections) + "\n")
+        subprocess.run(["git", "apply", str(filtered_patch)], cwd=root, check=True)
         harness = root / "recorder_test.cpp"
         harness.write_text(
             r'''
@@ -69,16 +79,16 @@ int main(int argc, char** argv)
   const auto t0 = std::chrono::steady_clock::time_point{std::chrono::seconds{10}};
   {
     LightweightFrameTimingRecorder disabled(std::nullopt, FakeThreadClock);
-    disabled.Record(t0);
-    disabled.Record(t0 + std::chrono::milliseconds{20});
+    disabled.Record(t0, 7);
+    disabled.Record(t0 + std::chrono::milliseconds{20}, 8);
   }
   if (s_clock_calls != 0 || std::filesystem::exists(output))
     return 11;
 
   {
     LightweightFrameTimingRecorder enabled(output.string(), FakeThreadClock);
-    enabled.Record(t0);
-    enabled.Record(t0 + std::chrono::milliseconds{20});
+    enabled.Record(t0, 41);
+    enabled.Record(t0 + std::chrono::milliseconds{20}, 42);
     if (std::filesystem::exists(output))
       return 12;
   }
@@ -87,9 +97,9 @@ int main(int argc, char** argv)
 
   std::ifstream stream(output);
   const std::string text{std::istreambuf_iterator<char>{stream}, {}};
-  if (text.find("index,host_frame_end_unix_ns,total_ms,thread_cpu_ms,wall_minus_thread_ms\n") != 0)
+  if (text.find("index,emulated_frame,host_frame_end_unix_ns,total_ms,thread_cpu_ms,wall_minus_thread_ms\n") != 0)
     return 14;
-  if (text.find("1,") == std::string::npos || text.find(",20.000000,1.000000,19.000000\n") == std::string::npos)
+  if (text.find("1,42,") == std::string::npos || text.find(",20.000000,1.000000,19.000000\n") == std::string::npos)
     return 15;
   return 0;
 }

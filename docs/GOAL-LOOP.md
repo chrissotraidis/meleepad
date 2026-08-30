@@ -1499,6 +1499,17 @@ See
 
 ## Testing rhythm
 
+PERF-195 closes the warm-overrun subsystem attribution without weakening G5.
+Exact emulated-frame identity joins all 7,431 warm Fountain combat records to
+phase timing and places all eight combined-thread CPU overruns in static-core
+compute, with elevated native-dispatch and guest-cycle counts. Metal, audio,
+EFB traffic, and fallback handling are rejected for this class. The trace is
+observer-bearing and therefore cannot satisfy acceptance. Continue G5 by
+using the retained one-in-4,096 dispatch/frame sampler to name guest-PC regions
+enriched in those exact overrun frames, then verify any causal change with the
+observer-light recorder. See
+`docs/artifacts/2026-08-29/g5-warm-static-core-attribution.md`.
+
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).
 - **Per goal claim:** full evidence per PRD Section 11 before marking a goal met in STATUS.md.
 - **Per session:** before ending, run the ported regression scripts (sunpad `tests/` equivalents) plus a boot check on the highest working target, so the journal's last entry states a known-good state.
