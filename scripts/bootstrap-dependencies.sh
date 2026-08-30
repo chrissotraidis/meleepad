@@ -153,6 +153,7 @@ frame_phase_host_timestamp_patch="$ROOT/patches/moderngekko-dolphin/0021-frame-p
 frame_task_event_patch="$ROOT/patches/moderngekko-dolphin/0022-frame-task-event-attribution.patch"
 lightweight_frame_timing_patch="$ROOT/patches/moderngekko-dolphin/0023-lightweight-frame-timing.patch"
 lightweight_frame_identity_patch="$ROOT/patches/moderngekko-dolphin/0024-lightweight-frame-identity.patch"
+lightweight_frame_index_activation_patch="$ROOT/patches/moderngekko-dolphin/0025-lightweight-frame-index-activation.patch"
 apply_patch_once_or_marker "$MG" "$mg_patch" \
   include/moderngekko/runtime.hpp 'struct RuntimeDiagnosticsSnapshot'
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$dolphin_patch" \
@@ -216,6 +217,8 @@ apply_patch_once_or_marker "$MG/vendor/dolphin" "$lightweight_frame_timing_patch
   Source/Core/VideoCommon/PerformanceTracker.cpp SSBMPAD_LIGHTWEIGHT_FRAME_LOG
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$lightweight_frame_identity_patch" \
   Source/Core/VideoCommon/LightweightFrameTimingRecorder.cpp emulated_frame
+apply_patch_once_or_marker "$MG/vendor/dolphin" "$lightweight_frame_index_activation_patch" \
+  Source/Core/Common/FramePhaseTiming.h IsEmulatedFrameIndexEnabled
 verify_patch_scope "$MG" "$mg_patch" vendor/dolphin tools/moderngekko_launcher.cpp \
   tools/moderngekko_port.cpp tests/frontend_config_test.cpp \
   tools/frontend_config.cpp tools/frontend_config.hpp tools/moderngekko_run.cpp \

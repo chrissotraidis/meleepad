@@ -1,0 +1,30 @@
+diff --git a/Source/Core/Common/FramePhaseTiming.h b/Source/Core/Common/FramePhaseTiming.h
+--- a/Source/Core/Common/FramePhaseTiming.h
++++ b/Source/Core/Common/FramePhaseTiming.h
+@@ -62,6 +62,15 @@ inline bool IsEnabled()
+   return enabled;
+ }
+ 
++inline bool IsEmulatedFrameIndexEnabled()
++{
++  static const bool enabled = [] {
++    const char* path = std::getenv("SSBMPAD_LIGHTWEIGHT_FRAME_LOG");
++    return IsEnabled() || (path != nullptr && path[0] != '\0');
++  }();
++  return enabled;
++}
++
+ inline u64 ToNanoseconds(DT duration)
+ {
+   return static_cast<u64>(
+diff --git a/Source/Core/Core/HW/VideoInterface.cpp b/Source/Core/Core/HW/VideoInterface.cpp
+--- a/Source/Core/Core/HW/VideoInterface.cpp
++++ b/Source/Core/Core/HW/VideoInterface.cpp
+@@ -686,6 +686,6 @@ void VideoInterfaceManager::Update(u64 ticks)
+   {
+     auto& movie = m_system.GetMovie();
+     movie.FrameUpdate();
+-    if (Common::FramePhaseTiming::IsEnabled())
++    if (Common::FramePhaseTiming::IsEmulatedFrameIndexEnabled())
+       Common::FramePhaseTiming::SetEmulatedFrameIndex(movie.GetCurrentFrame());
+   }

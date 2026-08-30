@@ -11,6 +11,9 @@ import tempfile
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 PATCH = ROOT / "patches/moderngekko-dolphin/0023-lightweight-frame-timing.patch"
 IDENTITY_PATCH = ROOT / "patches/moderngekko-dolphin/0024-lightweight-frame-identity.patch"
+INDEX_ACTIVATION_PATCH = (
+    ROOT / "patches/moderngekko-dolphin/0025-lightweight-frame-index-activation.patch"
+)
 
 
 def added_file(patch_text: str, path: str) -> str:
@@ -29,6 +32,15 @@ def added_file(patch_text: str, path: str) -> str:
 def main() -> None:
     patch_text = PATCH.read_text()
     identity_patch_text = IDENTITY_PATCH.read_text()
+    index_activation_patch_text = INDEX_ACTIVATION_PATCH.read_text()
+    required_activation_fragments = (
+        'std::getenv("SSBMPAD_LIGHTWEIGHT_FRAME_LOG")',
+        "inline bool IsEmulatedFrameIndexEnabled()",
+        "if (Common::FramePhaseTiming::IsEmulatedFrameIndexEnabled())",
+    )
+    for fragment in required_activation_fragments:
+        if fragment not in index_activation_patch_text:
+            raise RuntimeError(f"identity activation patch is missing: {fragment}")
     header_path = "Source/Core/VideoCommon/LightweightFrameTimingRecorder.h"
     source_path = "Source/Core/VideoCommon/LightweightFrameTimingRecorder.cpp"
 
