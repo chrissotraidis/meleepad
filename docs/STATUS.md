@@ -6,6 +6,17 @@ Last updated: 2026-08-30
 
 **G8 — Test matrix green: IN PROGRESS UNDER USER-AUTHORIZED G5 DEFERRAL**
 
+KEYBOARD-229 repairs a macOS playability regression. The default WASD profile
+was present in the app, but prior automation left both persistent controller
+selectors on `Pipe/0/ssbmpad`, so a normal launch had no keyboard controls.
+The wrapper now migrates only that exact internal profile to Quartz in both
+files, keeps arbitrary custom profiles unchanged, and adds Space as a jump
+key. Focused functional/package regressions and the full repository suite pass;
+the rebuilt launcher visibly selects `Quartz/0/Keyboard & Mouse`. Physical-key
+in-game confirmation remains pending because Computer Use taps do not appear
+in Quartz's held-key state. See
+`docs/artifacts/2026-08-30/macos-default-keyboard-controls.md`.
+
 CLEAN-224 passes G8 row 15. A fresh checkout exposed a stale context hunk in
 Dolphin patch 0017 after the pinned SunPad iOS guard. The retained patch-only
 repair applies the existing forced macOS display-sync behavior inside that

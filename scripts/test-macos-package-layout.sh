@@ -14,6 +14,11 @@ test "$(plutil -extract LSApplicationCategoryType raw "$APP/Contents/Info.plist"
   "public.app-category.games"
 test "$(plutil -extract LSSupportsGameMode raw "$APP/Contents/Info.plist")" = true
 grep -F 'SSBMPAD_PREWARM_EFB_VRAM=1' "$APP/Contents/MacOS/SsbmPad" >/dev/null
+grep -F 'Pipe/[0-9]+/ssbmpad' "$APP/Contents/MacOS/SsbmPad" >/dev/null
+grep -Fqx 'Main Stick/Up = W' \
+  "$APP/Contents/Resources/default-GCPadNew.ini"
+grep -Fqx 'Buttons/X = U | Space' \
+  "$APP/Contents/Resources/default-GCPadNew.ini"
 strings "$APP/Contents/MacOS/SsbmPadRunner" | grep -F \
   "metal layer display sync: product policy enabled" >/dev/null
 strings "$APP/Contents/MacOS/SsbmPadRunner" | grep -F \

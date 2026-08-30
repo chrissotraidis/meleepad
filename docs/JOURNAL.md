@@ -4643,3 +4643,29 @@ Append-only execution ledger. Claims are limited to observed evidence.
   producer deficit remain open.
 - Evidence:
   `docs/artifacts/2026-08-30/g8-macos-battlefield-four-player-item-match.md`.
+
+## 2026-08-30 — KEYBOARD-229 macOS default controls repair
+
+- Goal: restore a sensible out-of-box keyboard path after the user found WASD
+  and the other macOS controls inert.
+- Cause: the app shipped a valid Quartz profile, but a prior automation run
+  persisted `Pipe/0/ssbmpad` in both `GCPadNew.ini` and `config.ini`; the wrapper
+  then preserved those files indefinitely.
+- Fix: migrate only SsbmPad's exact internal pipe selector in both persistent
+  files, retain arbitrary custom keyboard/SDL profiles, add Space as an X/jump
+  binding, and publish a compact control table in the README.
+- Regression: a synthetic app bundle proves first install, two-file pipe
+  migration, and byte-exact custom-profile preservation. Package layout also
+  requires WASD, Space, and the migration path.
+- Verification: focused tests, shell syntax, package layout, signature, and
+  the full repository suite pass. The actual packaged/user profiles share
+  SHA-256
+  `9ee3ae05c8d56919c9bcc929cea61f4b2ee276729a0ada318901812ed21c7eb9`,
+  and the launcher visibly reports `Quartz/0/Keyboard & Mouse`.
+- Boundary: a 1 kHz read-only probe saw none of Computer Use's synthetic
+  Return/W/Space taps in the Quartz held-key API. Do not treat those taps as a
+  gameplay failure or success; a physical-key in-game check remains pending.
+- Cleanup: close the runner and launcher normally; no SsbmPad process or
+  Simulator remains.
+- Evidence:
+  `docs/artifacts/2026-08-30/macos-default-keyboard-controls.md`.

@@ -20,6 +20,7 @@ tests/test-controller-mapping.sh
 tests/test-controller-slots.sh
 tests/test-diagnostics.sh
 tests/test-macos-diagnostics-export.sh
+tests/test-macos-keyboard-profile.sh
 tests/test-experimental-performance-config.sh
 tests/test-native-frame-mode.sh
 tests/test-iphone-touch-layout-defaults.sh

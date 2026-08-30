@@ -118,8 +118,22 @@ can automatically hide the touch overlay; controller input and touch input use
 the same thread-safe GameCube state.
 
 On macOS, the launcher can select a generated GameCube profile or an existing
-controller profile. The default keyboard profile uses WASD, arrow keys,
-J/K/U/I/O for A/B/X/Y/Z, Q/E for L/R, and Return for Start.
+controller profile. The built-in keyboard controls are:
+
+| Action | Keys |
+|---|---|
+| Move | W / A / S / D |
+| Attack / confirm | J |
+| Special / back | K |
+| Jump | Space or U; I is the second jump button |
+| C-stick / smash | Arrow keys |
+| Shield | Q or E |
+| Grab | O |
+| Start / pause | Return |
+
+Launching the macOS app automatically replaces SsbmPad's internal automation
+pipe profile with this interactive keyboard profile. Existing custom keyboard
+and physical-controller profiles are preserved.
 
 ## Testing and project policy
 

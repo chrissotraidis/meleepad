@@ -169,6 +169,17 @@ pauses are separated, but effective game progress is only about 36.2 FPS. Row
 core producer deficit remains open. See
 `docs/artifacts/2026-08-30/g8-macos-battlefield-four-player-item-match.md`.
 
+KEYBOARD-229 repairs the macOS interactive-launch path. The shipped WASD
+profile existed, but prior automation had persisted both controller selectors
+as `Pipe/0/ssbmpad`, and the wrapper preserved that internal profile forever.
+The wrapper now migrates only SsbmPad's exact pipe transport to the Quartz
+keyboard profile in both files, preserves custom keyboard/SDL profiles, and
+adds Space as an X/jump binding. Focused migration/package regressions and the
+full repository gate pass; the real launcher visibly reports the Quartz
+profile. Computer Use taps do not enter Quartz's held-key API, so final
+physical-key gameplay confirmation remains pending and is not overclaimed. See
+`docs/artifacts/2026-08-30/macos-default-keyboard-controls.md`.
+
 PERF-214 reconciles every current G5 failure class against the retained
 mechanism history. Warm CPU overruns are rare and distributed across already
 closed/profiled families; the largest Fountain tails are proven
