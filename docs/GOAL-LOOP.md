@@ -19,6 +19,17 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+PERF-212 closes the ARM64 dispatcher calling-convention and cold-frame-split
+routes. The optimized runner emits no per-dispatch spills around its indirect
+module call, so `preserve_most` has no caller traffic to remove and would push
+extra preservation into the callee. Splitting the proven-zero-hit host/alias
+paths does remove the dispatcher's x19/x20 save pair while preserving all
+tested branch semantics, but a five-million-call reversal saves only 0.190 ns
+per call (0.385%), projecting 0.022 ms at 116,775 dispatches/frame. Do not add
+a custom ABI or repeat the cold-path split. The product was unchanged, G5
+remains open, and G6 blocked. See
+`docs/artifacts/2026-08-30/g5-dispatch-frame-split-rejection.md`.
+
 PERF-211 rechecks LLVM sample PGO only because PERF-206 added native-PC data.
 The installed Xcode lacks `llvm-profgen`, the shipped module has neither DWARF
 line data nor pseudo probes, and the ring contains PC snapshots rather than
