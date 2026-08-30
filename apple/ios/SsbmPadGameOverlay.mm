@@ -754,9 +754,7 @@ static CGFloat SsbmPadDefaultSizeScaleForControl(UIView *view, NSString *identif
 }
 
 - (void)addButton:(NSString *)label mask:(uint16_t)mask {
-    SsbmPadGameButton *button = mask == SsbmPadButtonR ?
-        [SsbmPadTriggerButton buttonWithType:UIButtonTypeSystem] :
-        [SsbmPadGameButton buttonWithType:UIButtonTypeSystem];
+    SsbmPadGameButton *button = [SsbmPadGameButton buttonWithType:UIButtonTypeSystem];
     [button setTitle:label forState:UIControlStateNormal];
     UIColor *fill = [UIColor colorWithWhite:0.22 alpha:0.88];
     UIColor *titleColor = UIColor.whiteColor;
@@ -799,13 +797,6 @@ static CGFloat SsbmPadDefaultSizeScaleForControl(UIView *view, NSString *identif
     [self addSubview:button];
     [self addEditGesturesToControl:button];
 
-    if (mask == SsbmPadButtonR) {
-        _rTriggerButton = (SsbmPadTriggerButton *)button;
-        __weak SsbmPadGameOverlay *weakSelf = self;
-        _rTriggerButton.pressureChanged = ^(uint8_t pressure, BOOL fullPress) {
-            [weakSelf rPressureChanged:pressure fullPress:fullPress];
-        };
-    }
 }
 
 - (void)stickChanged:(SsbmPadStickView *)stick x:(float)x y:(float)y {
@@ -827,8 +818,6 @@ static CGFloat SsbmPadDefaultSizeScaleForControl(UIView *view, NSString *identif
 - (void)buttonDown:(SsbmPadGameButton *)button {
     if (_editingLayout)
         return;
-    if (button.inputMask == SsbmPadButtonR)
-        return;
     _touchState.buttons |= button.inputMask;
     if (button.inputMask == SsbmPadButtonL)
         _touchState.triggerL = 255;
@@ -841,8 +830,6 @@ static CGFloat SsbmPadDefaultSizeScaleForControl(UIView *view, NSString *identif
 
 - (void)buttonUp:(SsbmPadGameButton *)button {
     if (_editingLayout)
-        return;
-    if (button.inputMask == SsbmPadButtonR)
         return;
     _touchState.buttons &= ~button.inputMask;
     if (button.inputMask == SsbmPadButtonL)
@@ -969,15 +956,14 @@ static CGFloat SsbmPadDefaultSizeScaleForControl(UIView *view, NSString *identif
     [self placeControl:[self buttonWithMask:SsbmPadButtonL]
           defaultFrame:lDefault
             identifier:@"L"];
-    CGFloat rightShoulderWidth = shoulderWidth + 2.0 * small + 24.0 * scale;
     SsbmPadGameButton *rightShoulder = [self buttonWithMask:SsbmPadButtonR];
     CGRect rDefault = phone ?
         SsbmPadFrameAtNormalizedCenter(safe, 0.8687500000, 0.2729166667,
-                                      rightShoulderWidth, small) : pad ?
+                                      shoulderWidth, small) : pad ?
         SsbmPadFrameAtNormalizedCenter(safe, 0.8960468521, 0.6478800414,
-                                      rightShoulderWidth, small) :
-        CGRectMake(CGRectGetMaxX(safe) - margin - rightShoulderWidth, shoulderY,
-                   rightShoulderWidth, small);
+                                      shoulderWidth, small) :
+        CGRectMake(CGRectGetMaxX(safe) - margin - shoulderWidth, shoulderY,
+                   shoulderWidth, small);
     [self placeControl:rightShoulder
           defaultFrame:rDefault
             identifier:@"R"];

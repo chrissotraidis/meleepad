@@ -10,9 +10,15 @@ for contract in \
   '0.0812777778, 0.4677364865' \
   '1.158457040786743' \
   'savedScales[identifier] != nil' \
+  'SsbmPadGameButton *button = [SsbmPadGameButton buttonWithType:UIButtonTypeSystem]' \
+  'CGRectGetMaxX(safe) - margin - shoulderWidth, shoulderY' \
   'CGRectGetMaxX(safe) - margin - large' \
   '0.1310395315, 0.7905894519' \
   '0.2686676428, 0.7947259566'; do
   grep -Fq "$contract" "$OVERLAY"
 done
+if grep -Fq 'rightShoulderWidth' "$OVERLAY"; then
+  echo "R must use the same compact shoulder width as L" >&2
+  exit 1
+fi
 echo "iPhone touch-layout default checks passed"

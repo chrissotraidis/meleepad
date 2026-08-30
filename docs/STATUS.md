@@ -1302,7 +1302,7 @@ not add work to every dispatch. See
 | G5 macOS 60 fps | Deferred, not passed | DECISION-215 permits mobile sequencing while unavailable external 59.94 Hz/VRR verification is deferred; D2 remains unchanged |
 | G6 Simulator core boots | Pass | `docs/artifacts/2026-08-30/g6-ios-simulator-core-and-gameplay.md` |
 | G7 Shell ported | Pass | `docs/artifacts/2026-08-30/g7-shell-parity-and-diagnostics.md` |
-| G8 Test matrix green | In progress | `docs/artifacts/2026-08-30/g8-test-matrix-reconciliation.md`; rows 1, 2, 4, 13, and 14 pass, others partial/open/deferred |
+| G8 Test matrix green | In progress | `docs/artifacts/2026-08-30/g8-test-matrix-reconciliation.md`; rows 1, 2, 4, 8, 13, 14, and 15 pass; row 3 is provisionally accepted; others partial/open/failed |
 | G9 Netplay working | Not started | G8 first; requires a synchronized completed match with an iPadOS endpoint |
 
 ## Pinned inputs and dependencies
@@ -1328,6 +1328,23 @@ The authoritative row-by-row reconciliation is
 attributed. Row 6 is open. Row 3 is provisionally accepted by the user's
 explicit external-display waiver and must be replayed later on suitable
 hardware.
+
+POLISH-225 adds a first-class ROM-safe root README and replaces the inherited
+sun icon with an original controller-free charcoal/silver/crimson SsbmPad
+arena-impact emblem. The touch R shoulder now uses the same compact standard
+button and width as L, with matching digital-plus-255/0 trigger semantics. The
+focused layout regression, a fresh Release build, and a live iPad Simulator
+visual check pass. G8 row 9 remains partial until every control is exercised in
+live gameplay. See
+`docs/artifacts/2026-08-30/g8-public-presentation-and-compact-r.md`.
+
+PERF-226 rejects exact-profile iOS `-O3` at the structural gate. Relative to
+the same-source exact PGO O2 module, O3 grows `__text` by 16,580 bytes, leaves
+`chassis_dispatch` unchanged, and grows each sampled hot generated-function
+span. No result approaches the required five-percent materiality threshold, so
+there is no live replay and no product promotion. G8 row 7 remains
+fail/attributed. See
+`docs/artifacts/2026-08-30/g8-ios-exact-pgo-o3-rejection.md`.
 
 ## Open defects and decisions
 

@@ -4562,3 +4562,41 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Decision: G8 row 15 PASS. This is build reproducibility, not gameplay or
   performance evidence. Private inputs and generated outputs remain untracked.
 - Evidence: `docs/artifacts/2026-08-30/g8-clean-clone-build.md`.
+
+## 2026-08-30 — POLISH-225 public presentation and compact R
+
+- Goal: bring the public repository and iPad presentation up to product
+  quality without obscuring the open mobile-performance gate.
+- README: add a ROM-safe root landing page with architecture, supported
+  targets, private-input preparation, build/import instructions, controls,
+  project policy, and an honest 42-48 FPS iPad Simulator status.
+- Icon: replace the inherited sun with an original controller-free abstract
+  arena-impact emblem using charcoal, silver-white, crimson, and restrained
+  blue. Retain generation provenance and the opaque 1024x1024 master hash.
+- Controls: replace SunPad's long analog R slider with the same standard button
+  class and compact default width as L. Both emit digital plus 255/0 trigger
+  semantics.
+- Verification: focused touch-layout regression and fresh Release iOS build
+  pass. A live iPad Pro 13-inch (M5) Simulator check shows equal-size L/R and
+  no pressure-slider hint. Retain the screenshot, terminate the app, and shut
+  down the sole Simulator.
+- Decision: retain the product changes. G8 row 9 remains partial until every
+  control is live-proven in gameplay; no performance or netplay claim changes.
+- Evidence:
+  `docs/artifacts/2026-08-30/g8-public-presentation-and-compact-r.md`.
+
+## 2026-08-30 — PERF-226 exact-profile iOS O3 rejection
+
+- Goal: test whether generated-module O3 materially reduces the residual
+  static-recompiler cost named by the current iPad combat profile.
+- Build: use the exact current generated source and 6,537-function combat
+  profile, strict stale-profile error, strict FP, ThinLTO, arm64 iOS Simulator
+  16.0, and SDK 26.5; change only O2 to O3 in an isolated private build.
+- Result: O3 grows `__text` by 16,580 bytes, leaves the 9,048-byte
+  `chassis_dispatch` span unchanged, and grows all four sampled hot generated
+  functions by 0.011-0.184%.
+- Decision: reject before live replay. The candidate does not approach the
+  five-percent structural/materiality gate and is not copied to the canonical
+  module path. Keep exact PGO O2 as the private comparison floor.
+- Evidence:
+  `docs/artifacts/2026-08-30/g8-ios-exact-pgo-o3-rejection.md`.

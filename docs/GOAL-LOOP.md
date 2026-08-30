@@ -131,6 +131,25 @@ with the remaining interaction/performance rows; reproducible construction is
 not gameplay proof. See
 `docs/artifacts/2026-08-30/g8-clean-clone-build.md`.
 
+POLISH-225 retains a ROM-safe public README, a SsbmPad-specific app icon, and
+the requested compact R shoulder. The new icon uses an abstract charcoal,
+silver-white, crimson, and restrained-blue arena-impact motif with no
+controller, text, characters, or copied logo. R now uses the same standard
+button class and default width as L and emits matching digital-plus-255/0
+trigger semantics. A focused regression, fresh Release build, and live iPad
+Simulator visual check pass. This advances G8 row 9 but does not close its
+remaining every-control live-play requirement. See
+`docs/artifacts/2026-08-30/g8-public-presentation-and-compact-r.md`.
+
+PERF-226 rejects exact-profile iOS `-O3` before live replay. Against the same
+current-source combat profile and ThinLTO configuration, O3 grows `__text` by
+16,580 bytes, leaves `chassis_dispatch` unchanged, and grows all four sampled
+hot generated-function spans by 0.011-0.184%. That does not approach the
+predeclared five-percent materiality gate. Keep the exact PGO O2 module as the
+private comparison floor and require a newly measured residual mechanism
+before another performance replay. See
+`docs/artifacts/2026-08-30/g8-ios-exact-pgo-o3-rejection.md`.
+
 PERF-214 reconciles every current G5 failure class against the retained
 mechanism history. Warm CPU overruns are rare and distributed across already
 closed/profiled families; the largest Fountain tails are proven

@@ -18,7 +18,7 @@ a completed row.
 | 6 | Classic mode, 3 stages | Open | Mobile Classic combat does not satisfy the required macOS three-stage progression row. |
 | 7 | Audio continuity | Fail / attributed | Live iPad diagnostics prove RemoteIO callbacks remain active, but demanding combat at 37-40 FPS starves the DMA queue; underruns rose 99→258 in 30 seconds. A 160 ms reserve failed. Fresh exact-source PGO directionally improved demanding demo scenes to roughly 42-48 FPS but still saturated CPU-GPU and accumulated underruns, so it is promising but insufficient. See the audio/combat artifact. |
 | 8 | Save/memory card | Pass | Live `CODM` (macOS) and `CODX` (iPad Simulator) names were visibly recovered after clean process relaunches. SsbmPad settings were also read back after relaunch on both targets. See the row artifact. |
-| 9 | Touch overlay drives gameplay | Partial | Stick/A/X/Start and layout edit/reset are live-proven; every remaining control must be verified in-match. |
+| 9 | Touch overlay drives gameplay | Partial | Stick/A/X/Start and layout edit/reset are live-proven. L/R now have matching compact geometry and digital-plus-trigger semantics, with a focused regression and live visual proof; every remaining control still must be verified in-match. |
 | 10 | Menu system parity | Partial | G7 proves live resolution/aspect/FPS/layout/mapping/game-data/report surfaces; every action's full behavior, including import/removal boundaries, remains a G8 row. |
 | 11 | Controller connect/disconnect | Partial | Slot retention, P1 reclaim, and held-input clearing pass focused tests; live overlay hide/show and reconnect need evidence. |
 | 12 | Diagnostics export | Partial | iPad export and privacy scan pass; a macOS export is still required. |
@@ -31,10 +31,11 @@ a completed row.
 1. Repair the measured generated/static-core combat producer deficit; row 7
    cannot pass while the optimized game still falls to roughly 42-48 FPS. Use
    the fresh compatible PGO candidate as the comparison floor and address a
-   newly measured residual generated-dispatch/static-core mechanism.
+   newly measured residual generated-dispatch/static-core mechanism. Exact-PGO
+   O3 is structurally rejected and must not be replayed.
 2. Close the remaining iPad interaction cluster while keeping exactly one
-   Simulator booted: every touch control, save persistence, controller
-   lifecycle, and import rollback/removal hardening.
+   Simulator booted: every touch control, controller lifecycle, and import
+   rollback/removal hardening. Save persistence is already passed.
 3. Close the missing macOS non-display rows: Battlefield completion, Classic
    progression, macOS persistence, and diagnostic export.
 4. Repeat the provisionally accepted row 3 on 59.94 Hz/VRR hardware during
@@ -56,3 +57,13 @@ Row 8 was subsequently closed by
 
 Row 15 was subsequently closed by
 `docs/artifacts/2026-08-30/g8-clean-clone-build.md`.
+
+The compact equal-size L/R product correction and live visual proof are
+retained in
+`docs/artifacts/2026-08-30/g8-public-presentation-and-compact-r.md`; row 9
+remains partial pending every-control live gameplay proof.
+
+Exact-profile iOS O3 was subsequently rejected before live replay because it
+left `chassis_dispatch` unchanged and grew every sampled hot generated-function
+span. See
+`docs/artifacts/2026-08-30/g8-ios-exact-pgo-o3-rejection.md`.
