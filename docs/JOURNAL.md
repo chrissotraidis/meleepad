@@ -3831,3 +3831,26 @@ Append-only execution ledger. Claims are limited to observed evidence.
   `0abc212b...`; 26/26 scoped native tests pass; no game or Simulator remains.
 - Evidence:
   `docs/artifacts/2026-08-29/g5-combined-producer-presentation-join.md`.
+
+## 2026-08-29 — PERF-187 corrected 1x/fullscreen combined join
+
+- Invalidation: after PERF-186 publication, direct configuration inspection
+  found authoritative root `config.ini` regenerated as 1920x1080/windowed.
+  PERF-186's scale/fullscreen and G5-comparability claims are invalid.
+- Correction: set and verify root `resolution=640x528`, `fullscreen=true`,
+  `InternalResolution = 1`, and Dolphin fullscreen before launch. Fresh full-
+  screen combat and natural-results endpoints bound a 94.650-second Fountain
+  match; one runner, Metal/Cubeb, quiet input, and no Simulator were retained.
+- Result: actual display mean/p95/p99/worst are
+  16.672624/16.666833/16.666834/33.333500 ms. Two actual holds were registered
+  and GPU-complete well before their missed deadlines with nominal producer
+  phases. All fourteen producer rows above 20 ms map to nominal actual
+  intervals; producer worst is 35.904291 ms.
+- Decision: fixed-display conversion and producer stalls are independent in
+  the same run. Both fail the unchanged G5 gate under their respective
+  interpretations. Do not claim stable worst-case 60 FPS or optimize one tail
+  as though it causes the other.
+- Restoration: disposable hook is absent from checkout; canonical runner is
+  exact `0abc212b...`; 26/26 scoped tests pass; no game or Simulator remains.
+- Evidence:
+  `docs/artifacts/2026-08-29/g5-corrected-combined-producer-presentation-join.md`.

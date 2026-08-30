@@ -2,7 +2,13 @@
 
 Date: 2026-08-29
 
-Status: **PRE-TRANSITION DISPLAY WINDOW CLEAN; PRODUCER STALLS BUFFERED; G5 OPEN**
+Status: **INVALID G5 CONFIGURATION; SUPERSEDED BY PERF-187**
+
+> PERF-187 correction: this run's copied private user directory regenerated
+> authoritative root `config.ini` as 1920x1080 and windowed. Its native-scale/
+> fullscreen descriptions and G5 comparability are invalid. Preserve the data
+> only as a causal preflight. The corrected 640x528/fullscreen same-run join is
+> `g5-corrected-combined-producer-presentation-join.md`.
 
 ## Question
 
@@ -74,10 +80,10 @@ hundreds of milliseconds late does propagate after queue headroom is exhausted.
 
 ## Decision and reversal
 
-PERF-176 remains valid only for its measured app render/vblank relationship;
-its statement that ordinary producer stalls necessarily propagate to actual
-presentation is too broad. PERF-186 directly proves that the normal combat
-stall class can be buffered completely in the same run.
+PERF-176 remains valid only for its measured app render/vblank relationship.
+This invalidly configured preflight suggested that ordinary producer stalls
+can be buffered, but cannot establish the product boundary. PERF-187 proves
+the separation under verified 1x/fullscreen conditions.
 
 This does not pass G5. It is a short observer-bearing Fountain window, prior
 sustained actual-display runs still contain rare holds, Final Destination is

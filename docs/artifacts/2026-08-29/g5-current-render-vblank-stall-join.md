@@ -4,12 +4,12 @@ Date: 2026-08-29
 
 Status: **CURRENT PRE-RESULTS HOLDS BEGIN IN THE VBLANK/CPU PATH; G5 OPEN**
 
-> PERF-186 correction: this artifact proves that app render and vblank stalls
+> PERF-187 correction: this artifact proves that app render and vblank stalls
 > share a producer-side interval. It does not prove that each such interval is
-> visible at the actual display. A later same-run join buffered thirteen
-> producer rows above 20 ms, including a 33.532833 ms row, into uninterrupted
-> actual intervals at or below 16.7 ms. See
-> `g5-combined-producer-presentation-join.md`.
+> visible at the actual display. A corrected 1x/fullscreen same-run join
+> buffered all fourteen producer rows above 20 ms into nominal actual
+> intervals, while two separate actual holds had nominal producer phases. See
+> `g5-corrected-combined-producer-presentation-join.md`.
 
 ## Question
 

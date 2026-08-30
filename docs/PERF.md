@@ -2,14 +2,13 @@
 
 G5 is active. G4 passed with a clean controlled 1v1 on 2026-08-24.
 
-PERF-186 joins producer/thread-CPU, GPU, and actual presentation in the same
-run. Its 57.844-second pre-transition Fountain window presents all 3,470
-intervals at or below 16.7 ms with a 16.666916 ms worst, although thirteen
-producer rows exceed 20 ms and one reaches 33.532833 ms. Those rows all map to
-nominal actual intervals, proving queue absorption and narrowing PERF-176's
-inheritance claim. This is a short observer-bearing diagnostic, not G5. The
-hook is removed and the canonical runner restored. See
-`docs/artifacts/2026-08-29/g5-combined-producer-presentation-join.md`.
+PERF-187 invalidates PERF-186's hidden 3x/windowed profile, then repeats the
+same join at verified 640x528/fullscreen. The 94.650-second Fountain boundary
+has two GPU-ready 33.333 ms actual holds with nominal producer phases, while
+all fourteen producer rows above 20 ms map to nominal actual intervals. This
+proves the fixed-display and producer tails are independent in the same run.
+Actual and producer worst are 33.333500/35.904291 ms, so G5 remains open. See
+`docs/artifacts/2026-08-29/g5-corrected-combined-producer-presentation-join.md`.
 
 PERF-172 proves current Game Mode activation without collecting performance.
 A signed LaunchServices wrapper retained current runner `e1f3c1d8...` as its

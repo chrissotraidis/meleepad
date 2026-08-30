@@ -6,16 +6,17 @@ Last updated: 2026-08-29
 
 **G5 — macOS 60 fps: IN PROGRESS**
 
-PERF-186 directly joins producer/thread-CPU, GPU, and actual-presentation
-clocks. In a 57.844-second pre-transition Fountain window, all 3,470 actual
-intervals meet 16.7 ms with a 16.666916 ms worst, despite thirteen producer
-rows above 20 ms and a 33.532833 ms producer worst. The Metal queue absorbs
-every observed combat-at-start producer stall. This corrects PERF-176's broad
-claim that such stalls necessarily become visible hitches, but does not pass
-G5: the diagnostic is short and observer-bearing, prior sustained display
-holds remain, and Final Destination is uncovered. The hook is removed, the
-canonical runner hash is restored exactly, and 26/26 scoped tests pass. See
-`docs/artifacts/2026-08-29/g5-combined-producer-presentation-join.md`.
+PERF-187 invalidates PERF-186's accidentally regenerated 3x/windowed profile
+and reruns the combined join at verified 640x528/fullscreen. Across 94.650
+seconds of Fountain combat, actual presentation averages 59.978560 FPS with
+16.666833/16.666834 ms p95/p99 but retains two 33.333 ms holds. Both frames
+were registered and GPU-complete 17-33/15-31 ms before the missed deadline,
+with nominal producer phases. Separately, all fourteen producer rows above
+20 ms are buffered into nominal actual intervals. The two tails are independent
+and both fail the unchanged gate under their respective interpretations. Fresh
+combat/results endpoints are coherent. The hook is absent, the canonical
+runner remains exact, and 26/26 scoped tests pass. See
+`docs/artifacts/2026-08-29/g5-corrected-combined-producer-presentation-join.md`.
 
 PERF-185 completes the first park-and-pivot step after PERF-184: all 26 scoped
 native macOS tests pass, including runtime/module loading, CPU/GX behavior,
