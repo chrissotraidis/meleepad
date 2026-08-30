@@ -24,6 +24,8 @@ namespace fs = std::filesystem;
 /* The ModernGekko runtime header is a C++ header; include it here only. */
 #include "moderngekko/runtime.hpp"
 
+#include "AudioCommon/Mixer.h"
+#include "AudioCommon/SoundStream.h"
 #include "Core/Core.h"
 #include "Core/Config/StaticRecompSettings.h"
 #include "Core/Config/GraphicsSettings.h"
@@ -466,6 +468,20 @@ static void SsbmPadRuntimeLogCallback(
     NSString *profile;
     NSString *profileSource;
     NSString *frameMode;
+    unsigned long long audioCallbacks = 0;
+    unsigned long long audioFrames = 0;
+    unsigned long long audioDMAUnderruns = 0;
+    unsigned long long audioDMAQueued = 0;
+    unsigned long long audioDMATarget = 0;
+    if (SoundStream *soundStream = Core::System::GetInstance().GetSoundStream()) {
+        if (Mixer *mixer = soundStream->GetMixer()) {
+            audioCallbacks = mixer->GetOutputCallbackCount();
+            audioFrames = mixer->GetOutputFrameCount();
+            audioDMAUnderruns = mixer->GetDMAUnderrunCount();
+            audioDMAQueued = mixer->GetDMAQueuedGranules();
+            audioDMATarget = mixer->GetDMAQueueTargetGranules();
+        }
+    }
     @synchronized (self) {
         profile = _activePerformanceProfile;
         profileSource = _activePerformanceSource;
@@ -473,6 +489,7 @@ static void SsbmPadRuntimeLogCallback(
     }
     return [NSString stringWithFormat:
         @"runtimeState=%@ paused=%d audioInterrupted=%d\n"
+         @"audio callbacks=%llu frames=%llu dmaUnderruns=%llu dmaQueued=%llu dmaTarget=%llu\n"
          @"performanceProfile=%@ profileSource=%@ frameMode=%@\n"
          @"metalDevice=%@ moduleBytes=%llu\n"
          @"graphics frames=%llu projectionHash=%016llx draws=%u primitives=%u "
@@ -482,6 +499,7 @@ static void SsbmPadRuntimeLogCallback(
         hasRuntime ? @"created" : (_starting->load() ? @"starting" :
             (_running->load() ? @"running-without-handle" : @"stopped")),
         _runtimePausedForSystemEvent, _audioInterrupted,
+        audioCallbacks, audioFrames, audioDMAUnderruns, audioDMAQueued, audioDMATarget,
         profile ?: @"unknown", profileSource ?: @"unknown", frameMode ?: @"unknown",
         _layer.device.name ?: @"unknown", _moduleFileSize,
         diagnostics.frame_count, diagnostics.projection_hash,

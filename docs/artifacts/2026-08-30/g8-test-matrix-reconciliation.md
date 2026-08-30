@@ -12,11 +12,11 @@ a completed row.
 |---|---|---|---|
 | 1 | Boot to title | Pass | macOS G3 plus iPad/iPhone G6 rendered title/menu/gameplay frames without a crash. |
 | 2 | Menu navigation | Pass | CSS reached on macOS, iPad Simulator, and iPhone Simulator. |
-| 3 | Final Destination, 8 min | Blocked by deferred G5 | macOS gameplay and extensive timing exist, but the strict audio-inclusive 16.7 ms tail has not passed; external 59.94 Hz/VRR verification is deferred. |
+| 3 | Final Destination, 8 min | Provisionally accepted by user waiver | Warm game-side CPU/audio evidence is retained; the unavailable 59.94 Hz/VRR display check is assumed to pass by explicit user direction and must be repeated later. This is not an empirical external-display result. |
 | 4 | Fountain of Dreams 1v1 | Pass | Multiple visually verified complete macOS matches and CPU/GPU/presentation profiles are retained; timing failures are recorded honestly. |
 | 5 | 4-player item match, Battlefield | Partial | Coherent live four-player Battlefield frames exist, but a natural full match completion with retained timing evidence is not yet proven. |
 | 6 | Classic mode, 3 stages | Open | Mobile Classic combat does not satisfy the required macOS three-stage progression row. |
-| 7 | Audio continuity | Partial | macOS G4 proves Cubeb/CoreAudio and iPad G6 proves RemoteIO music/gameplay activity; a retained full iPad continuity/underrun window is still needed. |
+| 7 | Audio continuity | Fail / attributed | Live iPad diagnostics prove RemoteIO callbacks remain active, but demanding combat at 37-40 FPS starves the DMA queue; underruns rose 99→258 in 30 seconds. A 160 ms reserve and stale partial PGO candidate both failed reversal. See the audio/combat artifact. |
 | 8 | Save/memory card | Open | Memory-card UI rendered, but macOS+iPad name entry and persistence across relaunch are not proven. |
 | 9 | Touch overlay drives gameplay | Partial | Stick/A/X/Start and layout edit/reset are live-proven; every remaining control must be verified in-match. |
 | 10 | Menu system parity | Partial | G7 proves live resolution/aspect/FPS/layout/mapping/game-data/report surfaces; every action's full behavior, including import/removal boundaries, remains a G8 row. |
@@ -28,16 +28,25 @@ a completed row.
 
 ## Next execution order
 
-1. Close the remaining iPad interaction cluster while keeping exactly one
-   Simulator booted: every touch control, audio continuity, save persistence,
-   controller lifecycle, and import rollback/removal hardening.
-2. Close the missing macOS non-display rows: Battlefield completion, Classic
+1. Repair the measured generated/static-core combat producer deficit; row 7
+   cannot pass while the game runs at 37-40 FPS. Use a fresh compatible combat
+   profile or a newly measured generated-dispatch mechanism, then reverse live.
+2. Close the remaining iPad interaction cluster while keeping exactly one
+   Simulator booted: every touch control, save persistence, controller
+   lifecycle, and import rollback/removal hardening.
+3. Close the missing macOS non-display rows: Battlefield completion, Classic
    progression, macOS persistence, and diagnostic export.
-3. Run the clean-clone pipeline.
-4. Revisit row 3 when the deferred external-display capability exists.
+4. Run the clean-clone pipeline.
+5. Repeat the provisionally accepted row 3 on 59.94 Hz/VRR hardware during
+   later device validation; a failure reopens it.
 
-G9 netplay begins only after G8 is green. G5 remains unpassed under the
-user-authorized sequencing exception.
+G9 netplay begins only after G8 is green. G5 is provisionally accepted for
+loop progression under the explicit user waiver recorded in
+`docs/artifacts/2026-08-30/g5-external-display-user-acceptance.md`.
 
 Row 13 was subsequently closed by
 `docs/artifacts/2026-08-30/g8-ipad-game-data-import.md`.
+
+Row 7 was subsequently measured and failed under sustained iPad Simulator
+combat. See
+`docs/artifacts/2026-08-30/g8-ipad-audio-and-combat-attribution.md`.

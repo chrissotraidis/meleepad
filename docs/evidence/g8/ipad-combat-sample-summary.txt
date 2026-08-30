@@ -1,0 +1,24 @@
+SsbmPad iPad Simulator combat sample summary
+Date: 2026-08-30
+Source: 10-second /usr/bin/sample capture during live four-character combat
+Platform: arm64 iOS Simulator
+
+CPU-GPU thread samples: 7017
+StaticRecompCore::Run inclusive branch: 3921
+  chassis_dispatch below that branch: 3137
+  func_80015940 below chassis_dispatch: 310
+  func_80341940 below chassis_dispatch: 227
+Additional StaticRecompCore::Run top-of-stack samples: 619
+Additional chassis_dispatch top-of-stack samples: 321
+func_80015940 total top-of-stack samples: 331
+func_80341940 total top-of-stack samples: 244
+VertexLoader::RunVertices inclusive samples: 64
+VertexLoader::RunVertices top-of-stack samples: 20
+
+Interpretation: steady combat is dominated by the generated static-recompile
+module and its dispatch path. Vertex loading is below two percent of the
+CPU-GPU thread sample count and is not the primary limiter in this capture.
+
+The raw sample is intentionally not committed because it contains private
+absolute Simulator/container paths. Counts above can be reproduced from the
+retained private capture /tmp/ssbmpad-ipad-combat-20260830.sample.txt.

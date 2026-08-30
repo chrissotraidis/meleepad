@@ -19,14 +19,14 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
-DECISION-215 records a user-authorized sequencing exception after PERF-214.
-There is no external 59.94 Hz / VRR display available on this machine, and the
-user explicitly directed the loop to proceed while deferring that verification
-until after the iPadOS/iOS version exists. For sequencing only, G6 may now
-begin. G5 is **not** converted into an evidence pass, PRD D2 is unchanged, and
-final completion still requires revisiting the deferred verification. Proceed
-with exactly one Simulator at a time: iPad first, then iPhone. See
-`docs/artifacts/2026-08-30/g5-external-display-verification-deferral.md`.
+DECISION-215 originally recorded a user-authorized sequencing exception after
+PERF-214. On 30 Aug 2026 the user explicitly broadened that direction: assume
+the unavailable external-display check passes and repeat it later once the
+iPadOS/iOS version is ready. G5 and G8 row 3 are therefore provisionally
+accepted for loop progression by user waiver. This is not an empirical
+external-display result; a later failed 59.94 Hz/VRR hardware run reopens both
+gates. Proceed with exactly one Simulator at a time. See
+`docs/artifacts/2026-08-30/g5-external-display-user-acceptance.md`.
 
 MOBILE-216 passes G6. One-at-a-time iPad Pro 13-inch (M5) and iPhone
 17 Pro Simulators on iOS 26.5 both booted the same arm64 IOSSIMULATOR app and
@@ -35,7 +35,8 @@ stick/A/X/Start input drove menu selection, fighter selection, movement,
 jump, attack, and match start. This proves the no-JIT Simulator core path, not
 real-device performance: static screens often reported 59.9-60.0 FPS while
 shader-heavy transitions and combat slowed materially. G7 is now active; G5's
-external-display verification remains deferred and unpassed. See
+external-display verification is provisionally accepted under the later user
+waiver described above. See
 `docs/artifacts/2026-08-30/g6-ios-simulator-core-and-gameplay.md`.
 
 SHELL-217 passes G7 on the iPad Simulator. The live three-dot menu changed
@@ -52,8 +53,9 @@ the remaining matrix rows are not promoted by this decision. See
 MATRIX-218 reconciles G8 without replaying or overclaiming prior evidence.
 Rows 1 (boot), 2 (menu navigation), 4 (Fountain 1v1/profile), and 14
 (regression suite) pass. Rows 5, 7, 9, 10, 11, and 12 are partial; rows 6, 8,
-13, and 15 are open. Row 3 remains tied to the deferred, unpassed G5 display
-verification. Close the remaining one-Simulator iPad cluster first, then the
+13, and 15 are open. Row 3 was subsequently provisionally accepted by explicit
+user waiver because the required display is unavailable. Close the remaining
+one-Simulator iPad cluster first, then the
 missing non-display macOS rows and clean-clone build. See
 `docs/artifacts/2026-08-30/g8-test-matrix-reconciliation.md`.
 
@@ -65,6 +67,21 @@ Normal sandbox relaunch and same-filename reimport from the Files-visible
 SsbmPad folder also passed. Retain the private active import for the remaining
 save/control rows; do not commit it. See
 `docs/artifacts/2026-08-30/g8-ipad-game-data-import.md`.
+
+AUDIO-220 closes the G8 row-7 attribution question without claiming a pass.
+Read-only iPad diagnostics prove that RemoteIO output callbacks survive, but
+four-character combat at 37-40 FPS starves the mixer DMA queue: underruns rise
+from 99 to 258 in 30 seconds while the CPU-GPU thread remains about 99%. A
+larger 160 ms reserve only delays the failure and was reverted. A 10-second
+sample places the dominant cost in `StaticRecompCore::Run` and generated
+`chassis_dispatch`; vertex loading is below two percent of CPU-GPU samples.
+The retained macOS PGO profile fails strict current-source compatibility, and
+a disposable partial-profile candidate still falls to 39.9 FPS while
+underruns reach 506, so it is rejected. Row 7 is now fail/attributed, not
+partial/unmeasured. Next generate a fresh combat-representative profile for
+the exact current source or name a new measured generated-dispatch cost; do
+not retry buffer growth, stale PGO, or vertex-loader work. See
+`docs/artifacts/2026-08-30/g8-ipad-audio-and-combat-attribution.md`.
 
 PERF-214 reconciles every current G5 failure class against the retained
 mechanism history. Warm CPU overruns are rare and distributed across already

@@ -23,6 +23,7 @@ tests/test-experimental-performance-config.sh
 tests/test-native-frame-mode.sh
 tests/test-iphone-touch-layout-defaults.sh
 tests/test-game-data-setup.sh
+tests/test-ios-audio-diagnostics.sh
 
 prohibited=$(git ls-files | grep -E \
   '(^|/)(ref|DerivedData|Provisioned|build[^/]*)/|\.(iso|gcm|rvz|wia|wbfs|gcz|dylib|ipa|xcarchive|mobileprovision|p12|pem|key|gci|sav|raw|profraw|profdata)$' || true)

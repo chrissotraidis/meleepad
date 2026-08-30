@@ -1,0 +1,87 @@
+diff --git a/Source/Core/AudioCommon/CoreAudioSoundStream.cpp b/Source/Core/AudioCommon/CoreAudioSoundStream.cpp
+index bdad5d0..233d2e2 100644
+--- a/Source/Core/AudioCommon/CoreAudioSoundStream.cpp
++++ b/Source/Core/AudioCommon/CoreAudioSoundStream.cpp
+@@ -23,6 +23,7 @@ OSStatus CoreAudioSound::OutputCallback(void* ref_con, AudioUnitRenderActionFlags
+   AudioBuffer& buffer = io_data->mBuffers[0];
+   const UInt32 available_frames = buffer.mDataByteSize / (2 * sizeof(s16));
+   const UInt32 frames = std::min(number_frames, available_frames);
++  sound->GetMixer()->RecordOutputCallback(frames);
+   if (buffer.mData && frames > 0)
+     sound->GetMixer()->Mix(static_cast<s16*>(buffer.mData), frames);
+ 
+diff --git a/Source/Core/AudioCommon/Mixer.cpp b/Source/Core/AudioCommon/Mixer.cpp
+index ef2b1e3..d83f24a 100644
+--- a/Source/Core/AudioCommon/Mixer.cpp
++++ b/Source/Core/AudioCommon/Mixer.cpp
+@@ -607,6 +607,7 @@ bool Mixer::MixerFifo::Dequeue(Granule* granule)
+     // muted as Dolphin's gap filler repeatedly fades the replayed data.
+     if (this == &m_mixer->m_dma_mixer)
+     {
++      m_mixer->m_dma_underrun_count.fetch_add(1, std::memory_order_relaxed);
+       std::fill(granule->begin(), granule->end(), StereoPair{0.0f, 0.0f});
+       m_queue_fading.store(false, std::memory_order_relaxed);
+       m_queue_looping.store(false, std::memory_order_relaxed);
+diff --git a/Source/Core/AudioCommon/Mixer.h b/Source/Core/AudioCommon/Mixer.h
+index 672d47d..75cd7b9 100644
+--- a/Source/Core/AudioCommon/Mixer.h
++++ b/Source/Core/AudioCommon/Mixer.h
+@@ -42,6 +42,29 @@ public:
+   // Note: NullSoundStream sets the sample rate to 0.
+   bool IsOutputSampleRateValid() const { return m_output_sample_rate != 0; }
+ 
++  void RecordOutputCallback(std::size_t num_frames)
++  {
++    m_output_callback_count.fetch_add(1, std::memory_order_relaxed);
++    m_output_frame_count.fetch_add(num_frames, std::memory_order_relaxed);
++  }
++  u64 GetOutputCallbackCount() const
++  {
++    return m_output_callback_count.load(std::memory_order_relaxed);
++  }
++  u64 GetOutputFrameCount() const
++  {
++    return m_output_frame_count.load(std::memory_order_relaxed);
++  }
++  u64 GetDMAUnderrunCount() const
++  {
++    return m_dma_underrun_count.load(std::memory_order_relaxed);
++  }
++  std::size_t GetDMAQueuedGranules() const { return m_dma_mixer.GetQueuedGranules(); }
++  std::size_t GetDMAQueueTargetGranules() const
++  {
++    return m_dma_mixer.GetQueueTargetGranules();
++  }
++
+   void SetDMAInputSampleRateDivisor(u32 rate_divisor);
+   void SetStreamInputSampleRateDivisor(u32 rate_divisor);
+   void SetGBAInputSampleRate(std::size_t device_number, u32 sample_rate);
+@@ -124,6 +147,18 @@ public:
+ 
+     void Mix(s16* samples, std::size_t num_samples);
+ 
++    std::size_t GetQueuedGranules() const
++    {
++      const std::size_t head = m_queue_head.load(std::memory_order_acquire);
++      const std::size_t tail = m_queue_tail.load(std::memory_order_acquire);
++      return (head - tail) & GRANULE_QUEUE_MASK;
++    }
++    std::size_t GetQueueTargetGranules() const
++    {
++      return std::max<std::size_t>(2,
++          m_granule_queue_size.load(std::memory_order_relaxed) / 2);
++    }
++
+     void SetInputSampleRateDividend(u32 rate_dividend);
+     u32 GetInputSampleRateDividend() const;
+ 
+@@ -150,6 +185,9 @@ private:
+   void RefreshConfig();
+ 
+   MixerFifo m_dma_mixer{this, FIXED_SAMPLE_RATE_DIVIDEND / 32000};
++  std::atomic<u64> m_output_callback_count{0};
++  std::atomic<u64> m_output_frame_count{0};
++  std::atomic<u64> m_dma_underrun_count{0};
+   MixerFifo m_streaming_mixer{this, FIXED_SAMPLE_RATE_DIVIDEND / 48000};
+   std::array<MixerFifo, 4> m_wiimote_speaker_mixers{
+       MixerFifo{this, FIXED_SAMPLE_RATE_DIVIDEND / 3000},

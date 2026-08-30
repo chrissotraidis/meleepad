@@ -156,6 +156,7 @@ lightweight_frame_identity_patch="$ROOT/patches/moderngekko-dolphin/0024-lightwe
 lightweight_frame_index_activation_patch="$ROOT/patches/moderngekko-dolphin/0025-lightweight-frame-index-activation.patch"
 ios_metal_display_sync_availability_patch="$ROOT/patches/moderngekko-dolphin/0026-ios-metal-display-sync-availability.patch"
 ios_simulator_framebuffer_fetch_patch="$ROOT/patches/moderngekko-dolphin/0027-ios-simulator-disable-framebuffer-fetch.patch"
+ios_audio_diagnostics_patch="$ROOT/patches/moderngekko-dolphin/0028-ios-audio-continuity-diagnostics.patch"
 apply_patch_once_or_marker "$MG" "$mg_patch" \
   include/moderngekko/runtime.hpp 'struct RuntimeDiagnosticsSnapshot'
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$dolphin_patch" \
@@ -225,6 +226,8 @@ apply_patch_once_or_marker "$MG/vendor/dolphin" "$ios_metal_display_sync_availab
   Source/Core/VideoBackends/Metal/MTLGfx.mm '#if TARGET_OS_OSX'
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$ios_simulator_framebuffer_fetch_patch" \
   Source/Core/VideoBackends/Metal/MTLUtil.mm 'The Simulator reports an Apple GPU family'
+apply_patch_once_or_marker "$MG/vendor/dolphin" "$ios_audio_diagnostics_patch" \
+  Source/Core/AudioCommon/Mixer.h GetDMAUnderrunCount
 verify_patch_scope "$MG" "$mg_patch" vendor/dolphin tools/moderngekko_launcher.cpp \
   tools/moderngekko_port.cpp tests/frontend_config_test.cpp \
   tools/frontend_config.cpp tools/frontend_config.hpp tools/moderngekko_run.cpp \
