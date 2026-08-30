@@ -4620,3 +4620,26 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Decision: G8 row 12 PASS across iPad and macOS. Close the launcher; leave no
   SsbmPad process or booted Simulator.
 - Evidence: `docs/artifacts/2026-08-30/g8-macos-diagnostics-export.md`.
+
+## 2026-08-30 — BATTLE-228 four-player Battlefield completion
+
+- Goal: close G8 row 5 with an explicit macOS four-player item match on
+  Battlefield, natural completion, and retained timing.
+- Exclusions: reject a no-input presentation/demo route because it did not
+  provide a clean Battlefield boundary; reject the first controlled attempt at
+  Stage Select because its private cloned memory card left special stages
+  locked.
+- Retained setup: MemoryWatcher-gated cold title-to-CSS route; P1 Pikachu plus
+  level-1 CPU Peach, Mario, and Ness; two-minute KO format; literal Battlefield
+  selection; current PGO module; Metal; Cubeb; native EFB; no Simulator.
+- Visual result: coherent four-player combat, a live item bottle on the right
+  platform, and natural Time Battle results with all four KO/fall totals.
+- Timing: rows 27,825..39,590 contain 11,766 intervals over 198.890 seconds.
+  Two capture-scale pauses are reported separately; the remaining presentation
+  cadence averages 59.940 FPS, but a 120-second game timer over the full host
+  bracket means only about 36.2 effective game FPS.
+- Decision: G8 row 5 PASS for completion/stability with its permitted honest
+  target miss. This is not a 60 FPS claim; row 7 and the measured static-core
+  producer deficit remain open.
+- Evidence:
+  `docs/artifacts/2026-08-30/g8-macos-battlefield-four-player-item-match.md`.

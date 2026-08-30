@@ -158,6 +158,17 @@ no absolute private paths, game/extraction paths, disc-image names, or save
 files. Combined with the retained iPad export, both required platforms pass.
 See `docs/artifacts/2026-08-30/g8-macos-diagnostics-export.md`.
 
+BATTLE-228 passes G8 row 5 without hiding its severe performance result. A
+MemoryWatcher-gated macOS run explicitly configured P1 Pikachu plus three
+level-1 CPUs, selected the literal Battlefield tile, showed an item in live
+combat, and reached the natural two-minute Time Battle results screen without
+a crash. The retained 11,766-interval bracket spans 198.890 host seconds for a
+120-second game timer: presentation remains near 59.94 after two capture-scale
+pauses are separated, but effective game progress is only about 36.2 FPS. Row
+5 permits an honest target miss, so completion passes while the row-7/static-
+core producer deficit remains open. See
+`docs/artifacts/2026-08-30/g8-macos-battlefield-four-player-item-match.md`.
+
 PERF-214 reconciles every current G5 failure class against the retained
 mechanism history. Warm CPU overruns are rare and distributed across already
 closed/profiled families; the largest Fountain tails are proven

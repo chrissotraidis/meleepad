@@ -1302,7 +1302,7 @@ not add work to every dispatch. See
 | G5 macOS 60 fps | Deferred, not passed | DECISION-215 permits mobile sequencing while unavailable external 59.94 Hz/VRR verification is deferred; D2 remains unchanged |
 | G6 Simulator core boots | Pass | `docs/artifacts/2026-08-30/g6-ios-simulator-core-and-gameplay.md` |
 | G7 Shell ported | Pass | `docs/artifacts/2026-08-30/g7-shell-parity-and-diagnostics.md` |
-| G8 Test matrix green | In progress | `docs/artifacts/2026-08-30/g8-test-matrix-reconciliation.md`; rows 1, 2, 4, 8, 12, 13, 14, and 15 pass; row 3 is provisionally accepted; others partial/open/failed |
+| G8 Test matrix green | In progress | `docs/artifacts/2026-08-30/g8-test-matrix-reconciliation.md`; rows 1, 2, 4, 5, 8, 12, 13, 14, and 15 pass; row 3 is provisionally accepted; others partial/open/failed |
 | G9 Netplay working | Not started | G8 first; requires a synchronized completed match with an iPadOS endpoint |
 
 ## Pinned inputs and dependencies
@@ -1323,8 +1323,8 @@ not add work to every dispatch. See
 ## Test matrix
 
 The authoritative row-by-row reconciliation is
-`docs/artifacts/2026-08-30/g8-test-matrix-reconciliation.md`. Rows 1, 2, 4, 8,
-12, 13, 14, and 15 pass. Rows 5, 9, 10, and 11 are partial; row 7 is failed and
+`docs/artifacts/2026-08-30/g8-test-matrix-reconciliation.md`. Rows 1, 2, 4, 5,
+8, 12, 13, 14, and 15 pass. Rows 9, 10, and 11 are partial; row 7 is failed and
 attributed. Row 6 is open. Row 3 is provisionally accepted by the user's
 explicit external-display waiver and must be replayed later on suitable
 hardware.
@@ -1353,6 +1353,15 @@ static-recompiler, audio, and controller breadcrumbs; zero private-path,
 game-data, disc-image, memory-card, or save matches remained. Together with
 the prior iPad export, both row platforms pass. See
 `docs/artifacts/2026-08-30/g8-macos-diagnostics-export.md`.
+
+BATTLE-228 closes G8 row 5. A controlled macOS run visibly proved four
+fighters, the literal Battlefield selection, an item in live combat, and a
+natural Time Battle results screen. The full bracket completes without a
+crash but takes 198.890 host seconds for a two-minute game timer, approximately
+36.2 effective game FPS despite near-59.94 presentation. This is an honest row
+5 target miss, not a 60 FPS claim, and strengthens the existing static-core
+producer attribution. See
+`docs/artifacts/2026-08-30/g8-macos-battlefield-four-player-item-match.md`.
 
 ## Open defects and decisions
 
