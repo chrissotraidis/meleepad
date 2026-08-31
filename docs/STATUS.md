@@ -15,7 +15,12 @@ hitch. The captured sample puts 1,756/2,604 CPU-GPU-thread samples in
 `StaticRecompCore::Run` and 1,648 below `chassis_dispatch`. The build is not
 currently playable in Simulator and is not ready for physical-iPad promotion.
 The refined loop now requires two fresh-process boot-to-Fountain routes with
-all intervals retained and FPS/VPS >=59.0 before promotion. See
+all intervals retained and FPS/VPS >=59.0, followed by an unchanged-build
+manual five-minute Fountain play route with visible recording, before
+promotion. Diagnostic profiles, attract runs, savestate windows, and focused
+reversals may guide optimization but cannot pass row 7. A manual visible
+failure vetoes faster diagnostic evidence until a same-path reversal explains
+and removes it. See
 `docs/artifacts/2026-08-31/g8-ios-fountain-20fps-retraction.md`.
 
 PERF-240 makes that correction operational rather than rhetorical. The lower
@@ -1524,7 +1529,9 @@ remains separately open. See
 - **PERF-238 (open):** The first manual iPad Simulator Fountain run visibly
   held about 20-24 FPS/VPS with sustained DMA underruns. This supersedes the
   prior row-7 pass and blocks physical-iPad promotion. Acceptance now requires
-  two fresh-process boot-to-Fountain routes with every interval retained.
+  two fresh-process boot-to-Fountain routes with every interval retained plus
+  an unchanged-build manual five-minute Fountain play route. Manual visible
+  failure has veto authority over diagnostic or automated promotion evidence.
 
 - **INPUT-001:** Supplied disc is GALE01 revision 0 rather than the PRD's
   preferred revision 2. Proceed per PRD Section 5.1 and keep module identity

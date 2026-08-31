@@ -1984,6 +1984,27 @@ slow first-run gameplay path. Row 7 is **failed** at the start of every
 performance iteration until the complete protocol below passes; an improving
 experiment changes the diagnosis, not the gate state.
 
+There are three evidence lanes, and they are not interchangeable:
+
+- **Diagnostic lane:** profiles, samples, counters, savestates, attract mode,
+  and focused phase reversals identify mechanisms and reject candidates. They
+  cannot pass row 7 or establish playability.
+- **Automated acceptance lane:** two complete fresh-process product routes
+  prove repeatability and catch cold-path failures. Automation must use the
+  same product input/runtime path as the shipped app unless an explicitly
+  logged harness change is itself under test.
+- **Manual product lane:** a person launches the installed app normally,
+  navigates through the menus, starts a match, and plays it while the visible
+  FPS label, responsiveness, audio, and rendering are observed. This lane is
+  mandatory after the automated routes and before physical-device promotion.
+
+The lanes combine pessimistically. A manual visible failure vetoes promotion
+even when diagnostic or automated evidence is faster. Resolve a disagreement
+by preserving both observations, confirming build/module/config identities,
+and reproducing the failed visible phase; never discard the lower result as
+"an outlier" without a demonstrated cause and a successful same-path
+reversal.
+
 1. Test the exact product build and default product settings from a fresh app
    process. Record the complete visible route from boot/title through normal
    menu navigation into a full 1v1 Fountain of Dreams match with music and
@@ -2034,7 +2055,16 @@ experiment changes the diagnosis, not the gate state.
    phase and threshold in steps 1-3. Stop a run as a pass attempt immediately
    after an interval below 55.0, but retain enough surrounding diagnostics to
    attribute it; do not spend minutes collecting a misleading recovery tail.
-6. Only after both Simulator runs pass may the same build be called a
+6. Freeze the exact app, module, settings, save-state policy, and input-path
+   identities from the automated pass. On that unchanged installed build, run
+   one fresh **manual product route** from launch through menus and at least
+   five minutes of active Fountain combat. Retain a visible recording with the
+   FPS label plus the matching complete runtime log. Any visible slowdown,
+   input lag, audio breakup, character/stage corruption, crash, or threshold
+   miss fails row 7 and returns the loop to mechanism attribution. A tester's
+   direct observation is acceptance evidence, not anecdotal evidence.
+7. Only after both automated Simulator runs and the manual product route pass
+   may the same build be called a
    physical-iPad test candidate. Physical-device readiness then requires its
    own signed-device replay covering the same match, touch latency, audio,
    lifecycle, controller reconnect, and a 15-minute thermal soak. Simulator
@@ -2043,8 +2073,9 @@ experiment changes the diagnosis, not the gate state.
 Current anchor: the retained manual Fountain run reached 21.9 FPS on screen
 and 20.2 FPS / 19.8 VPS in matching diagnostics with growing DMA underruns.
 Until a matched candidate directly reverses that phase and then passes two
-complete cold routes, describe the Simulator build as **unplayable in the
-failing workload**, never as playable, stable-60, nearly ready, or device-ready.
+complete cold routes plus the manual product route, describe the Simulator
+build as **unplayable in the failing workload**, never as playable, stable-60,
+nearly ready, or device-ready.
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).
 - **Per goal claim:** full evidence per PRD Section 11 before marking a goal met in STATUS.md.

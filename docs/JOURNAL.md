@@ -4923,3 +4923,20 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Next: fixed Fox/CPU-DK Fountain control/candidate/control reversal, judged by
   the visible/runtime lower FPS, complete phase distribution, DMA underruns,
   visuals, and stability before any full-route replay.
+
+## 2026-08-31 — Row-7 manual product acceptance lane
+
+- Refine the goal loop after reconciling the user's visible 21.9 FPS first
+  Simulator run with faster diagnostic and mixed-route observations.
+- Separate three evidence lanes: diagnostics can identify mechanisms and
+  reject candidates; two complete automated cold routes establish
+  repeatability; an unchanged-build manual route establishes actual product
+  playability. None substitutes for another.
+- Add a mandatory fresh manual launch-to-Fountain route with at least five
+  minutes of active combat, visible recording, and matching complete runtime
+  log after the two automated passes and before physical-iPad promotion.
+- Give manual visible failure veto authority. Contradictory faster evidence
+  must retain both observations, prove exact identities, reproduce the failed
+  phase, and reverse its cause before the gate can change from FAIL.
+- Current decision is unchanged: row 7 fails, the Simulator build is
+  unplayable in the failing workload, and physical-iPad promotion is closed.
