@@ -2048,7 +2048,9 @@ There are three evidence lanes, and they are not interchangeable:
 - **Manual product lane:** a person launches the installed app normally,
   navigates through the menus, starts a match, and plays it while the visible
   FPS label, responsiveness, audio, and rendering are observed. This lane is
-  mandatory after the automated routes and before physical-device promotion.
+  mandatory twice: first as the reality-check baseline that selects the slow
+  workload for the iteration, and again after the automated routes as the
+  final veto before physical-device promotion.
 
 The lanes combine pessimistically. A manual visible failure vetoes promotion
 even when diagnostic or automated evidence is faster. Resolve a disagreement
@@ -2056,6 +2058,17 @@ by preserving both observations, confirming build/module/config identities,
 and reproducing the failed visible phase; never discard the lower result as
 "an outlier" without a demonstrated cause and a successful same-path
 reversal.
+
+0. Begin every row-7 optimization cycle with a cold, ordinary product launch
+   and a visible manual sanity route. Do not preload a savestate, preserve a
+   warmed shader cache specifically for the run, enable a private input mode,
+   or skip the opening/menu path. Record cold boot/opening video, title/menu,
+   CSS/stage selection, match loading, and the first active combat minute.
+   The lowest repeatable visible phase becomes the iteration's control
+   workload. If a tester reports a slower normal route than the retained
+   automation, reproduce and explain that route before optimizing an easier
+   roster or phase. Diagnostic collection may follow, but no diagnostic result
+   can upgrade the visible baseline.
 
 1. Test the exact product build and default product settings from a fresh app
    process. Record the complete visible route from boot/title through normal
@@ -2093,6 +2106,11 @@ reversal.
      without moving the cost, underruns, or visual corruption elsewhere. This
      is progress evidence, never a row-7 pass by itself.
 
+   The matched phase must be the slowest retained manual workload unless a
+   measured experiment is explicitly diagnosing one of its sub-phases. A
+   one-opponent Fountain trace at 47.7 FPS may classify a mechanism, but it
+   cannot reverse or replace the retained normal-route 21.9 FPS control.
+
    A candidate that fails any gate is reverted and entered in the do-not-repeat
    record with its measured rejection. A candidate that passes all three earns
    the full-route test in step 5.
@@ -2122,8 +2140,11 @@ reversal.
    lifecycle, controller reconnect, and a 15-minute thermal soak. Simulator
    or generic-device compilation is never device acceptance.
 
-Current anchor: the retained manual Fountain run reached 21.9 FPS on screen
-and 20.2 FPS / 19.8 VPS in matching diagnostics with growing DMA underruns.
+Current anchor: the user's first ordinary Simulator run reached 21.9 FPS on
+screen in active Fountain combat, with 20.2 FPS / 19.8 VPS in matching
+diagnostics and growing DMA underruns. This is the control workload for the
+next performance reversal; the later lighter one-CPU 47.7 FPS diagnostic does
+not supersede it.
 Until a matched candidate directly reverses that phase and then passes two
 complete cold routes plus the manual product route, describe the Simulator
 build as **unplayable in the failing workload**, never as playable, stable-60,

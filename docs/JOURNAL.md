@@ -5012,3 +5012,16 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Stop the app and unset the private-pipe environment. Next collect matched
   process-filtered instruction-address-translation and discarded-sampling
   Fountain windows before naming a source candidate.
+
+## 2026-08-31 — Row-7 manual-baseline protocol tightened
+
+- Treat the user's first ordinary Simulator route and visible 21.9 FPS
+  Fountain combat as the active performance control. The later one-CPU 47.7
+  FPS trace is diagnostic evidence only and cannot supersede that failure.
+- Require a cold, default-settings manual sanity route at the beginning of
+  every optimization cycle as well as the final manual veto after automation.
+  Preserve opening/menu, CSS/stage, load, and first-minute combat evidence.
+- Require candidate reversals to use the slowest retained normal-route
+  workload. Easier rosters may classify a mechanism but cannot qualify a
+  candidate for a full route or reopen physical-iPad promotion.
+- Row 7 remains failed and physical-iPad promotion remains closed.
