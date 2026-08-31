@@ -192,6 +192,15 @@ screens. This proves no three-stage progression blocker; it does not close the
 separately tracked geometry/character-warping defect. See
 `docs/artifacts/2026-08-30/g8-macos-classic-three-stage-progression.md`.
 
+PERF-231 retains iOS host-runtime PGO as a material row-7 direction. The fresh
+iPad sample exposes 14.48% host-only opportunity, unlike the already-rejected
+2.68% macOS bound. A strict profile-use build materially shrank the measured
+runtime helpers and lifted heavy scenes with the unchanged non-PGO module into
+the 59.0-59.9 FPS range; a later shader-heavy scene still fell to 54.5 FPS and
+DMA underruns accumulated. Row 7 remains open. Next combine this private host
+profile with the retained exact-source game-module PGO on a fixed path. See
+`docs/artifacts/2026-08-30/g8-ios-host-runtime-pgo-direction.md`.
+
 PERF-214 reconciles every current G5 failure class against the retained
 mechanism history. Warm CPU overruns are rare and distributed across already
 closed/profiled families; the largest Fountain tails are proven

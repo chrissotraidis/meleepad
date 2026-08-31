@@ -6,6 +6,15 @@ Last updated: 2026-08-30
 
 **G8 — Test matrix green: IN PROGRESS UNDER USER-AUTHORIZED G5 DEFERRAL**
 
+PERF-231 proves iOS host-runtime PGO is materially useful but does not yet
+close row 7. A platform-specific sample overturned only the old macOS coverage
+bound: iPad host-only work is 14.48%, not 2.68%. Strict host profile use shrank
+the measured helpers and raised heavy scenes with the non-PGO game module to
+59.0-59.9 FPS before a later 54.5 FPS shader-heavy interval. DMA underruns
+still accumulated, so the next required reversal combines host PGO with the
+exact-source game-module PGO. See
+`docs/artifacts/2026-08-30/g8-ios-host-runtime-pgo-direction.md`.
+
 CLASSIC-230 passes G8 row 6. Generated GALE01 instructions corrected the live
 player table from a stale external address to `0x804510C0`; the new pointer-
 chain harness then read fighter percentages that matched the screen. The

@@ -4689,3 +4689,20 @@ Append-only execution ledger. Claims are limited to observed evidence.
   save, profile, or savestate in Git.
 - Evidence:
   `docs/artifacts/2026-08-30/g8-macos-classic-three-stage-progression.md`.
+
+## 2026-08-30 — PERF-231 iOS host-runtime PGO direction
+
+- Reconcile the old macOS runner-PGO bound against the current iPad sample:
+  host-only opportunity is 14.48%, clearing the experiment gate.
+- Instrument only nine static-recompiler runtime units; capture 1.33 billion
+  dispatch/lockstep calls in representative demanding scenes; strict profile
+  use passes.
+- Structural result: `Run` -18.5%, `FastDispatchableAt` -11.5%,
+  `DispatchableAt` -11.1%, and `ShouldCheck` -56.3%.
+- Live result with unchanged non-PGO module: demanding intervals rise to
+  59.0-59.9 FPS, but a later scene falls to 54.5 FPS and underruns continue.
+- Decision: retain the private profiles/builds for a combined host+module PGO
+  reversal. G8 row 7 remains open; no product promotion.
+- Cleanup: terminate the app and shut down the only Simulator.
+- Evidence:
+  `docs/artifacts/2026-08-30/g8-ios-host-runtime-pgo-direction.md`.

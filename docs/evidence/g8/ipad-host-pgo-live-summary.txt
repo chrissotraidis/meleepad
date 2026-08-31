@@ -1,0 +1,34 @@
+SsbmPad iPad Simulator host-runtime PGO live summary
+Date: 2026-08-30
+Platform: iPad Pro 13-inch (M5), iOS 26.5 Simulator, arm64
+Game module: unchanged 82,821,272-byte non-PGO control
+
+Fresh profile counts:
+  StaticRecompCore::FastDispatchableAt  1,331,646,004
+  StaticRecompCore::ChunkIndexOf        1,350,590,498
+  StaticRecompLockstep::ShouldCheck     1,331,646,004
+  StaticRecompCore::SyncIn                119,117,581
+  StaticRecompCore::SyncOut               119,117,581
+
+Matched binary structure (control -> host PGO):
+  StaticRecompCore::Run                 2768 -> 2256 bytes (-18.5%)
+  FastDispatchableAt                    312 -> 276 bytes (-11.5%)
+  DispatchableAt                        360 -> 320 bytes (-11.1%)
+  ShouldCheck                           284 -> 124 bytes (-56.3%)
+  SyncIn                               1008 -> 1008 bytes
+  SyncOut                               120 -> 988 bytes (hot state-copy folding)
+
+Retained live telemetry:
+  fps   CPU-GPU%  DMA underruns  queued/target
+  59.0     72.1        10          6/15
+  59.5     97.5        17         14/15
+  59.9     90.4        25         14/15
+  54.5     67.6        31          6/15
+  60.1     97.2        39         21/15
+
+The later return-to-title boundary reported 5.0 presentation FPS but 60.3 VPS
+and speedRatio 1.000; it is not a combat throughput sample. DMA underruns had
+reached 53 at that boundary.
+
+Verdict: material direction, row 7 still open. Combine with the exact-source
+game-module PGO profile and repeat a fixed heavy path before product promotion.
