@@ -18,6 +18,18 @@ The refined loop now requires two fresh-process boot-to-Fountain routes with
 all intervals retained and FPS/VPS >=59.0 before promotion. See
 `docs/artifacts/2026-08-31/g8-ios-fountain-20fps-retraction.md`.
 
+PERF-239 further splits that route into independently judged opening, menu,
+selection, loading, Fountain, results, and return phases. An unchanged-process
+comparison reached 60.0 FPS/VPS with measurable timer slack immediately after
+the slow Fountain/Stage Clear route, so this is phase-specific generated-code
+work rather than a whole-machine M1 ceiling. Representative module-profile
+coverage remains the next falsifiable mechanism, but the first fresh training
+attempt is rejected: its Fountain trigger never armed and inspected target
+counts were all zero. The exact normal module is restored. No PGO build may
+start until the control automation visibly traverses the route and the
+instrumented capture proves nonzero target counts. See
+`docs/artifacts/2026-08-31/g8-ios-phase-specific-profile-gate.md`.
+
 STABILITY-236 previously reopened and then appeared to re-close G8 row 7.
 PERF-235's iOS
 CPU/video split crashed after 139.4 seconds with a malformed FIFO command and

@@ -4862,3 +4862,27 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Next: compare the exact low-FPS sample to a same-build 59.9 interval and
   select only a new source mechanism with at least five-percent differential
   coverage before another full replay.
+
+## 2026-08-31 — PERF-239 phase-specific attribution and PGO training gate
+
+- Compare the exact slow Fountain/Stage Clear route with the next Classic
+  stage in the same unchanged process. The latter holds 60.0 FPS/VPS and the
+  CPU-GPU sample contains 232/2,604 timer-sleep ticks; the former has none.
+  Reject a blanket M1/Simulator-ceiling explanation.
+- Inspect the exact retained module profile against the slow sample. Three
+  sampled generated chunks have zero function-entry count, so representative
+  profile coverage is a falsifiable mechanism worth testing.
+- Run the already-retained instrumented module privately. It reproduces severe
+  opening/attract slowdown, but automated input does not enter the requested
+  Fountain trigger. Both raw files report zero counts for every inspected
+  target function; reject them and do not merge or build.
+- Restore the exact 81,006,192-byte control module with SHA-256
+  `af1364e6fabe9ee29d2a64ee6268bd80ba3ef2aaa47de9c7741655fae9f3211b`.
+- Refine row 7 into independently judged route phases. Require visible control
+  traversal plus trigger entry/exit and nonzero target counters before any PGO
+  build. A `.profraw` file existing is not sufficient evidence.
+- Evidence:
+  `docs/artifacts/2026-08-31/g8-ios-phase-specific-profile-gate.md`.
+- Next: repair/calibrate the automated Start route on the exact control build,
+  then repeat the private Fountain profile capture and merge only if the target
+  counts are nonzero.

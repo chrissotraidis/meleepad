@@ -1963,6 +1963,20 @@ Simulator gameplay is not currently playable and the build is not ready for
 physical-iPad promotion. See
 `docs/artifacts/2026-08-31/g8-ios-fountain-20fps-retraction.md`.
 
+PERF-239 makes the row-7 loop phase-specific and rejects unverified PGO
+training. In one unchanged process and with the same product/module hashes,
+Fountain and Stage Clear exhausted the CPU-GPU thread at roughly 20-48 FPS,
+while the next Classic stage held 60.0 FPS/VPS with 232/2,604 sampled ticks in
+`PrecisionTimer::SleepUntil`. The deficit is therefore workload-specific, not
+a blanket M1 or Simulator ceiling. The existing module profile gives zero
+function-entry counts to three chunks observed in the slow sample, which makes
+representative coverage a falsifiable next mechanism, not a conclusion. A
+fresh instrumented attempt was rejected before merging: it reproduced severe
+opening/attract slowdown, but the automation never entered the requested
+Fountain trigger and all inspected target counts were zero. Restore the exact
+normal module and do not build from that capture. See
+`docs/artifacts/2026-08-31/g8-ios-phase-specific-profile-gate.md`.
+
 ## G8 row-7 and iPad promotion acceptance protocol
 
 This protocol prevents a fast idle/menu tail or final interval from hiding a
@@ -1977,6 +1991,10 @@ slow first-run gameplay path.
    runtime performance row for the route. Report the minimum and the complete
    interval distribution; never use only the mean, best, final, or selected
    flat-underrun windows.
+   Divide the route into cold boot/opening, title/menu, CSS/stage selection,
+   match loading, Fountain combat, results, and return-to-menu phases. Each
+   phase is independently pass/fail; a later fast phase cannot repair an
+   earlier failed one.
 3. After the first visible game frame, every non-paused interval must report
    both FPS and VPS at least 59.0, `speedRatio` at least 0.98, continuing audio
    callbacks, and no sustained DMA-underrun growth. Any interval below 59.0,
@@ -1987,6 +2005,12 @@ slow first-run gameplay path.
    performance experiment is accepted only by a fixed-route control/candidate/
    control reversal or equivalent fresh-process comparison, with semantic and
    crash checks retained.
+   Before using any PGO candidate, first prove the control build can traverse
+   the scripted route. The instrumented run must retain visible trigger-entry
+   and trigger-exit evidence, and `llvm-profdata show` must report nonzero
+   counts for the target workload. A created `.profraw` file alone is not
+   training evidence. If input automation does not visibly advance the guest,
+   stop and repair/calibrate the harness; never merge the resulting profile.
 5. Only after both Simulator runs pass may the same build be called a
    physical-iPad test candidate. Physical-device readiness then requires its
    own signed-device replay covering the same match, touch latency, audio,
