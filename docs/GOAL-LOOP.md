@@ -1977,6 +1977,31 @@ Fountain trigger and all inspected target counts were zero. Restore the exact
 normal module and do not build from that capture. See
 `docs/artifacts/2026-08-31/g8-ios-phase-specific-profile-gate.md`.
 
+PERF-242 rejects the corrected Fountain-composite PGO candidate before a full
+acceptance route. The exact Fox/CPU-DK Fountain control itself averages only
+41.772 FPS with a 17.0 minimum and +790 DMA underruns. On a same-publisher
+normal-route screen, the candidate then regresses the first ten intervals from
+47.820 to 35.210 mean FPS, lowers mean speed ratio from 0.810 to 0.609, and
+adds more underruns. The exact candidate route did not complete, so no exact
+Fountain improvement is claimed; the independent route regression is enough
+to fail candidate integrity. Restore control `af1364e6...` and do not spend a
+full route on this candidate.
+
+PERF-243 narrows that failure to an instruction-front-end direction without
+promoting a flag. Candidate ThinLTO grows module text 2.091% and expands the
+three newly trained generated functions 4.35-27.15% while sharply reducing
+calls, consistent with aggressive helper inlining. Unroll suppression is an
+exact no-op and a blanket inline clamp grows bounded mini-links, so both are
+rejected. A valid four-second Instruments UI trace of separate visible 31.1
+FPS four-character Brinstar gameplay reports 42.22% instruction-delivery,
+21.22% processing, 6.66% discarded, and 30.03% useful cycles for SsbmPad PID
+75863. This proves crowded-combat front-end pressure on the M1 host, not the
+literal Fountain ratio or iPad-device performance. Next test strict PGO
+generated chunks as native non-ThinLTO objects while retaining ThinLTO only
+for small runtime helpers; require structural shrinkage before a fixed
+Fountain reversal. See
+`docs/artifacts/2026-08-31/g8-ios-fountain-profile-rejection-and-front-end-attribution.md`.
+
 ## G8 row-7 and iPad promotion acceptance protocol
 
 This protocol prevents a fast idle/menu tail or final interval from hiding a

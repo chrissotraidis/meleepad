@@ -4940,3 +4940,35 @@ Append-only execution ledger. Claims are limited to observed evidence.
   phase, and reverse its cause before the gate can change from FAIL.
 - Current decision is unchanged: row 7 fails, the Simulator build is
   unplayable in the failing workload, and physical-iPad promotion is closed.
+
+## 2026-08-31 — PERF-242 Fountain profile candidate rejected
+
+- Complete a fresh exact Fox/CPU-DK Fountain control: 18 combat intervals
+  average 41.772 FPS, reach 17.0 FPS, average 0.704 speed ratio, and add 790
+  DMA underruns. This is a hard control failure.
+- The corrected strict-use profile candidate does not complete the exact
+  automated route, so make no exact Fountain comparison. On a bounded
+  same-publisher normal-route screen, its first ten intervals regress control
+  from 47.820 to 35.210 mean FPS and 0.810 to 0.609 mean speed ratio while
+  underrun growth increases from 334 to 387.
+- Reject the candidate for displaced route/audio cost before another full
+  route. Restore active control SHA-256 `af1364e6...` and stop the app.
+
+## 2026-08-31 — PERF-243 crowded-combat front-end attribution
+
+- Candidate `__text` grows 2.091%. ThinLTO expands the three newly trained
+  generated functions by 4.35-27.15% while cutting their direct call counts,
+  which identifies profile-driven helper inlining/code expansion.
+- Reject two bounded flags before a product build: unroll suppression is
+  byte-identical for all three PGO objects, and a blanket inline clamp makes
+  all three representative ThinLTO mini-links larger.
+- Use Instruments UI, not the already-rejected CLI attach route, for a bounded
+  four-second Apple M1 all-process trace. Filter to SsbmPad PID 75863 during
+  visibly verified 31.1 FPS four-character Brinstar gameplay: instruction
+  delivery 42.22%, processing 21.22%, discarded 6.66%, useful 30.03%.
+- Treat this as crowded-combat host front-end attribution only. It is not a
+  literal Fountain ratio, an acceptance run, or physical-device evidence.
+- Next: preflight strict PGO generated chunks as native non-ThinLTO Mach-O
+  objects while keeping small runtime helpers ThinLTO. Require a distinct
+  signed module, no profile mismatch, no named-function growth, and whole-text
+  shrinkage before any fixed Fountain control/candidate/control reversal.

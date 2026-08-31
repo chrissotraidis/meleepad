@@ -32,17 +32,29 @@ gain may be retained for composition but cannot change row 7 from FAIL. Only
 two complete cold routes with every active phase at or above the written
 threshold can reopen physical-iPad candidacy.
 
-The repaired external-pipe route then completed a private instrumented Fox-vs-
-DK Fountain match and exited the gameplay trigger. Its profile contains 6,556
-functions and nonzero counts for all three formerly uncovered slow-phase
-chunks (`80275940` 1,286,147; `8004D940` 4,694,178; `8000D940` 8,743,130).
-Merged with the prior exact-source corpus, it records 1,364,776,045
-`chassis_dispatch` calls. A first strict-use link was rejected before install
-because its Mach-O minimum OS was accidentally 26.5. The corrected private
-candidate is arm64 IOSSIMULATOR, minimum iOS 16.0, contains no profile sections,
-is ad-hoc signed, and has SHA-256 `4f3c3fd88db3be4bbf9cdadec148f2b33089c19397a14e2e41d349344255a08e`.
-It is build-eligible only; no FPS improvement is claimed. The active module is
-still the control SHA-256 `af1364e6fabe9ee29d2a64ee6268bd80ba3ef2aaa47de9c7741655fae9f3211b`.
+PERF-242 rejects the corrected Fountain-composite PGO candidate. The exact
+Fox/CPU-DK Fountain control averages 41.772 FPS, reaches a 17.0 minimum, and
+adds 790 DMA underruns. The candidate could not complete that exact route, so
+no Fountain gain is claimed. It nevertheless fails the independent
+route-integrity screen: against a fresh same-publisher control over the first
+ten normal-route intervals, mean FPS regresses 47.820 -> 35.210, mean speed
+ratio regresses 0.810 -> 0.609, and underrun growth increases 334 -> 387.
+The candidate is removed from active use and control
+`af1364e6fabe9ee29d2a64ee6268bd80ba3ef2aaa47de9c7741655fae9f3211b`
+is restored.
+
+PERF-243 confirms a broad instruction-front-end direction for crowded combat,
+not a new candidate. Candidate ThinLTO grows module text 2.091% and expands
+the three newly trained generated functions 4.35-27.15% while sharply reducing
+their calls. `-fno-unroll-loops` is an exact no-op; a blanket inline clamp
+grows all three bounded mini-links. A valid four-second Instruments UI trace
+of separate visible 31.1 FPS four-character Brinstar gameplay reports 42.22%
+instruction-delivery, 21.22% processing, 6.66% discarded, and 30.03% useful
+cycles for the exact SsbmPad process. This does not quantify literal Fountain
+or a physical iPad. Next test mixed-LTO strict PGO only if its binary preflight
+shrinks the named functions and whole module before another fixed Fountain
+reversal. See
+`docs/artifacts/2026-08-31/g8-ios-fountain-profile-rejection-and-front-end-attribution.md`.
 
 PERF-239 further splits that route into independently judged opening, menu,
 selection, loading, Fountain, results, and return phases. An unchanged-process
@@ -1532,6 +1544,13 @@ remains separately open. See
   two fresh-process boot-to-Fountain routes with every interval retained plus
   an unchanged-build manual five-minute Fountain play route. Manual visible
   failure has veto authority over diagnostic or automated promotion evidence.
+- **PERF-242 (rejected):** The valid Fountain-composite profile produces a
+  semantically eligible module but regresses a same-publisher normal-route
+  screen by 26.37% mean FPS and increases underrun growth. It is no longer an
+  active candidate; exact control is restored.
+- **PERF-243 (attributed):** A valid UI CPU-counter trace of separate 31.1 FPS
+  four-character combat assigns 42.22% to instruction delivery. This supports
+  a mixed-LTO structural preflight, not a stable-60 or literal-Fountain claim.
 
 - **INPUT-001:** Supplied disc is GALE01 revision 0 rather than the PRD's
   preferred revision 2. Proceed per PRD Section 5.1 and keep module identity
