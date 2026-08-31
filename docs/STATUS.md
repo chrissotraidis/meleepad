@@ -6,6 +6,8 @@ Last updated: 2026-08-30
 
 **G8 — Test matrix green: IN PROGRESS UNDER USER-AUTHORIZED G5 DEFERRAL**
 
+AUDIT-232 is ingested as evidence-gated row-7 advice; next verify E1's live iOS fallback counters before E3. See `docs/artifacts/2026-08-30/g8-independent-ipad-performance-audit.md`.
+
 PERF-232 combines the independently useful host and exact-source game-module
 profiles. The non-instrumented candidate holds long 59.8-60.0 FPS stretches,
 including visible four-character combat, but is not stable: cold shader/resource

@@ -4727,3 +4727,5 @@ Append-only execution ledger. Claims are limited to observed evidence.
   issue. Terminate the app and shut down the only Simulator.
 - Evidence:
   `docs/artifacts/2026-08-30/g8-ios-combined-pgo-reversal.md`.
+
+- 2026-08-30 — AUDIT-232 ingested for G8 row 7; verify E1 live iOS fallback counters before E3 (`docs/artifacts/2026-08-30/g8-independent-ipad-performance-audit.md`).
