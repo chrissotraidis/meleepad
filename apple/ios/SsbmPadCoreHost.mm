@@ -362,14 +362,23 @@ static void SsbmPadRuntimeLogCallback(
     if (_pipeFd < 0)
         return;
     static uint16_t lastButtons = 0;
+    static BOOL traceButtonEdges = [] {
+        NSString *value = NSProcessInfo.processInfo.environment[@"SSBMPAD_TRACE_BUTTON_EDGES"];
+        return value.boolValue;
+    }();
     BOOL modernCStick = [SsbmPadSettings sharedSettings].modernCStickHorizontal;
     std::string commands = SsbmPadEncodePipeCommands(input, lastButtons, modernCStick);
     if (!commands.empty()) {
+        uint16_t priorButtons = lastButtons;
         ssize_t written = ::write(_pipeFd, commands.data(), commands.size());
         if (written == static_cast<ssize_t>(commands.size())) {
             // Advance edge tracking only after the whole atomic FIFO message
             // is delivered; an EAGAIN will retry the same button transition.
             lastButtons = input.buttons;
+            if (traceButtonEdges && priorButtons != input.buttons) {
+                SsbmPadLog(@"input button edge delivered previous=0x%04x current=0x%04x bytes=%lu",
+                          priorButtons, input.buttons, (unsigned long)commands.size());
+            }
         } else if (written < 0 && errno != EAGAIN) {
             SsbmPadLog(@"input pipe write failed errno=%d bytes=%lu", errno,
                       (unsigned long)commands.size());

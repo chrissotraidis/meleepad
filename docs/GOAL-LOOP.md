@@ -1980,7 +1980,9 @@ normal module and do not build from that capture. See
 ## G8 row-7 and iPad promotion acceptance protocol
 
 This protocol prevents a fast idle/menu tail or final interval from hiding a
-slow first-run gameplay path.
+slow first-run gameplay path. Row 7 is **failed** at the start of every
+performance iteration until the complete protocol below passes; an improving
+experiment changes the diagnosis, not the gate state.
 
 1. Test the exact product build and default product settings from a fresh app
    process. Record the complete visible route from boot/title through normal
@@ -1995,27 +1997,54 @@ slow first-run gameplay path.
    match loading, Fountain combat, results, and return-to-menu phases. Each
    phase is independently pass/fail; a later fast phase cannot repair an
    earlier failed one.
+   When the on-screen FPS label and runtime diagnostics differ, retain both
+   and judge the lower value. The user's visible 21.9 FPS Fountain frame is
+   therefore a failure even if a nearby diagnostic interval is faster.
 3. After the first visible game frame, every non-paused interval must report
    both FPS and VPS at least 59.0, `speedRatio` at least 0.98, continuing audio
    callbacks, and no sustained DMA-underrun growth. Any interval below 59.0,
    or any two consecutive intervals that add underruns, fails the run and
    reopens row 7. A single interval below 55.0 is an immediate performance
    failure regardless of later recovery.
-4. Repeat the same route in a fresh second process. Both runs must pass. A
-   performance experiment is accepted only by a fixed-route control/candidate/
-   control reversal or equivalent fresh-process comparison, with semantic and
-   crash checks retained.
+4. Work each candidate through three gates before spending another complete
+   route on it:
+   - **Mechanism:** connect the exact slow phase to measured code or resource
+     work and state the predicted effect. Do not optimize a broad suspect just
+     because it is present in a profile.
+   - **Integrity:** pass focused semantics, build, crash, and ROM-boundary
+     checks. A faster corrupt, unstable, or timing-inaccurate build is rejected.
+   - **Matched phase reversal:** replay the same roster, stage, process state,
+     settings, and input path against control/candidate/control (or an equally
+     strong fresh-process reversal). Retain the candidate for composition only
+     if the failing Fountain phase improves materially (normally at least 5%)
+     without moving the cost, underruns, or visual corruption elsewhere. This
+     is progress evidence, never a row-7 pass by itself.
+
+   A candidate that fails any gate is reverted and entered in the do-not-repeat
+   record with its measured rejection. A candidate that passes all three earns
+   the full-route test in step 5.
+
    Before using any PGO candidate, first prove the control build can traverse
    the scripted route. The instrumented run must retain visible trigger-entry
    and trigger-exit evidence, and `llvm-profdata show` must report nonzero
    counts for the target workload. A created `.profraw` file alone is not
    training evidence. If input automation does not visibly advance the guest,
    stop and repair/calibrate the harness; never merge the resulting profile.
-5. Only after both Simulator runs pass may the same build be called a
+5. Repeat the complete route in two fresh processes. Both runs must pass every
+   phase and threshold in steps 1-3. Stop a run as a pass attempt immediately
+   after an interval below 55.0, but retain enough surrounding diagnostics to
+   attribute it; do not spend minutes collecting a misleading recovery tail.
+6. Only after both Simulator runs pass may the same build be called a
    physical-iPad test candidate. Physical-device readiness then requires its
    own signed-device replay covering the same match, touch latency, audio,
    lifecycle, controller reconnect, and a 15-minute thermal soak. Simulator
    or generic-device compilation is never device acceptance.
+
+Current anchor: the retained manual Fountain run reached 21.9 FPS on screen
+and 20.2 FPS / 19.8 VPS in matching diagnostics with growing DMA underruns.
+Until a matched candidate directly reverses that phase and then passes two
+complete cold routes, describe the Simulator build as **unplayable in the
+failing workload**, never as playable, stable-60, nearly ready, or device-ready.
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).
 - **Per goal claim:** full evidence per PRD Section 11 before marking a goal met in STATUS.md.

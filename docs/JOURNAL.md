@@ -4886,3 +4886,40 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Next: repair/calibrate the automated Start route on the exact control build,
   then repeat the private Fountain profile capture and merge only if the target
   counts are nonzero.
+
+## 2026-08-31 — PERF-240 visible-FPS-first row-7 loop refinement
+
+- Treat the user's visible 21.9 FPS Fountain frame as the authoritative route
+  failure; when UI and runtime diagnostics differ, retain both and judge the
+  lower value.
+- Keep row 7 explicitly failed throughout optimization. A candidate must pass
+  a measured-mechanism gate, focused integrity checks, and a matched Fountain
+  control/candidate/control reversal before another complete route.
+- A material partial improvement may be retained for composition but cannot be
+  described as playable, stable-60, nearly ready, or physical-iPad-ready.
+- Require two complete fresh-process routes with every active phase at or above
+  the existing thresholds before reopening physical-device candidacy.
+- Next: finish the valid phase-specific profile capture only if its trigger and
+  target counts are proven, build the smallest strict-use candidate, and judge
+  its exact Fountain phase before any broader promotion replay.
+
+## 2026-08-31 — PERF-241 valid Fountain profile and candidate integrity gate
+
+- Repair private input automation by allowing an explicit external-pipe mode
+  to suppress only the app's neutral 60 Hz publisher; default product input is
+  unchanged. The control route visibly reaches Fox versus CPU DK on Fountain.
+- Complete the instrumented match and trigger exit. The retained private raw
+  profile reports 1.125B `chassis_dispatch` calls and nonzero counts for all
+  three previously uncovered slow-phase chunks.
+- Merge it with the prior exact-source cache-direct corpus: 6,556 functions,
+  1.365B dispatches, profile SHA-256 `a1e9def7...`.
+- Strict-use compile all 237 chunks. Reject the first link before install when
+  direct Mach-O inspection finds minimum Simulator OS 26.5 instead of 16.0.
+- Rebuild every object with explicit iOS 16.0 deployment target. The corrected
+  arm64 IOSSIMULATOR candidate has matching exports, no profile sections, a
+  valid ad-hoc signature, and SHA-256 `4f3c3fd8...`.
+- Restore and retain the exact control module `af1364e6...`; stop the app. This
+  is candidate eligibility, not an FPS improvement or row-7 pass.
+- Next: fixed Fox/CPU-DK Fountain control/candidate/control reversal, judged by
+  the visible/runtime lower FPS, complete phase distribution, DMA underruns,
+  visuals, and stability before any full-route replay.

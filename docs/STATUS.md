@@ -18,6 +18,27 @@ The refined loop now requires two fresh-process boot-to-Fountain routes with
 all intervals retained and FPS/VPS >=59.0 before promotion. See
 `docs/artifacts/2026-08-31/g8-ios-fountain-20fps-retraction.md`.
 
+PERF-240 makes that correction operational rather than rhetorical. The lower
+of the visible FPS label and runtime diagnostics is authoritative, so the
+user's 21.9 FPS frame fails the whole route. Each optimization must now pass a
+measured-mechanism gate, semantic/stability checks, and a matched Fountain
+control/candidate/control reversal before a full replay. A material partial
+gain may be retained for composition but cannot change row 7 from FAIL. Only
+two complete cold routes with every active phase at or above the written
+threshold can reopen physical-iPad candidacy.
+
+The repaired external-pipe route then completed a private instrumented Fox-vs-
+DK Fountain match and exited the gameplay trigger. Its profile contains 6,556
+functions and nonzero counts for all three formerly uncovered slow-phase
+chunks (`80275940` 1,286,147; `8004D940` 4,694,178; `8000D940` 8,743,130).
+Merged with the prior exact-source corpus, it records 1,364,776,045
+`chassis_dispatch` calls. A first strict-use link was rejected before install
+because its Mach-O minimum OS was accidentally 26.5. The corrected private
+candidate is arm64 IOSSIMULATOR, minimum iOS 16.0, contains no profile sections,
+is ad-hoc signed, and has SHA-256 `4f3c3fd88db3be4bbf9cdadec148f2b33089c19397a14e2e41d349344255a08e`.
+It is build-eligible only; no FPS improvement is claimed. The active module is
+still the control SHA-256 `af1364e6fabe9ee29d2a64ee6268bd80ba3ef2aaa47de9c7741655fae9f3211b`.
+
 PERF-239 further splits that route into independently judged opening, menu,
 selection, loading, Fountain, results, and return phases. An unchanged-process
 comparison reached 60.0 FPS/VPS with measurable timer slack immediately after

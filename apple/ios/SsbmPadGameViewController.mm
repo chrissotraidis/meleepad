@@ -965,6 +965,13 @@ static NSUInteger SsbmPadRegularFileCount(NSString *directory) {
 
 - (void)startInputConsumer {
     // Feed the game thread the merged touch+controller snapshot at 60 Hz.
+    // Private automation can own the same FIFO directly. Without this guard,
+    // the normal publisher overwrites a scripted stick position with its
+    // neutral snapshot on the next 60 Hz tick.
+    if ([NSProcessInfo.processInfo.environment[@"SSBMPAD_EXTERNAL_PIPE_INPUT"] boolValue]) {
+        SsbmPadLog(@"input publisher disabled source=external-pipe");
+        return;
+    }
     if (_controllerTimer)
         return;
     _controllerTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0,
