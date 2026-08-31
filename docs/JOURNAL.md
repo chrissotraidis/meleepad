@@ -4729,3 +4729,29 @@ Append-only execution ledger. Claims are limited to observed evidence.
   `docs/artifacts/2026-08-30/g8-ios-combined-pgo-reversal.md`.
 
 - 2026-08-30 — AUDIT-232 ingested for G8 row 7; verify E1 live iOS fallback counters before E3 (`docs/artifacts/2026-08-30/g8-independent-ipad-performance-audit.md`).
+
+## 2026-08-30 — PERF-233 persisted shader-cache rejection
+
+- A fresh combined-PGO process reused the persisted UID/shader cache and cut
+  runtime creation from about 43 to 23 seconds, but still produced 42-55 and
+  47-52 FPS heavy windows while DMA underruns rose 5 -> 128.
+- Decision: cache persistence remains enabled but is insufficient; row 7 stays
+  open. Evidence:
+  `docs/artifacts/2026-08-30/g8-ios-cache-prewarm-rejection.md`.
+
+## 2026-08-30 — PERF-234 live fallback and cache-source reversal
+
+- E1: 10,873 combined-PGO phase rows record 132,082,558 hook fallbacks versus
+  12,603,242 bursts. Cache operations contribute 130,890,484; `mtspr` only
+  1,192,060. Broad A1 confirmed; narrow `mtspr` E3 priority refuted.
+- Cause: the iOS module reused legacy generated C with zero direct cache
+  helpers despite the retained generator correction.
+- Reversal: isolated regeneration produces exactly 14 cache-helper sites. The
+  profile-free iOS run records zero cache fallbacks, 144,173,043 direct cache
+  helpers, and only 1,349,480 hook fallbacks, a 98.98% reduction.
+- Product result: reject the unprofiled candidate; heavy intervals still fall
+  to 33-50 FPS and underruns rise 2 -> 232. Next collect a fresh exact-source
+  module profile and combine it with retained host PGO; do not apply the stale
+  legacy profile or specialize `mtspr` first.
+- Cleanup: terminate the app and shut down the sole Simulator. Evidence:
+  `docs/artifacts/2026-08-30/g8-ios-fallback-counter-cache-source-reversal.md`.

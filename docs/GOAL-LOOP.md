@@ -1891,6 +1891,21 @@ enriched in those exact overrun frames, then verify any causal change with the
 observer-light recorder. See
 `docs/artifacts/2026-08-29/g5-warm-static-core-attribution.md`.
 
+PERF-233/234 close the next iOS row-7 attribution branch. Persisted shader
+cache state improves startup but does not prevent 42-55 and 47-52 FPS resource
+windows. Live E1 counters then confirm 132.1 million hook fallbacks versus
+12.6 million native bursts, but refute the audit's narrow `mtspr` priority:
+130.9 million are cache operations and only 1.19 million are `mtspr`.
+Regenerating the exact source with the retained cache-control backend moves all
+cache work to direct helpers and cuts hook fallbacks 98.98%. The profile-free
+candidate still falls to 33-50 FPS and is rejected as a product build because
+it lacks the legacy module's fresh combat PGO. Next train and strict-use a
+fresh profile on the regenerated cache-direct source, combine it with retained
+host PGO, and judge per-interval FPS/underruns. Do not apply the stale legacy
+profile or specialize `mtspr` first. Row 7 remains open. See
+`docs/artifacts/2026-08-30/g8-ios-cache-prewarm-rejection.md` and
+`docs/artifacts/2026-08-30/g8-ios-fallback-counter-cache-source-reversal.md`.
+
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).
 - **Per goal claim:** full evidence per PRD Section 11 before marking a goal met in STATUS.md.
 - **Per session:** before ending, run the ported regression scripts (sunpad `tests/` equivalents) plus a boot check on the highest working target, so the journal's last entry states a known-good state.

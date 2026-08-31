@@ -6,7 +6,26 @@ Last updated: 2026-08-30
 
 **G8 — Test matrix green: IN PROGRESS UNDER USER-AUTHORIZED G5 DEFERRAL**
 
-AUDIT-232 is ingested as evidence-gated row-7 advice; next verify E1's live iOS fallback counters before E3. See `docs/artifacts/2026-08-30/g8-independent-ipad-performance-audit.md`.
+PERF-234 verifies the independent audit's broad A1 claim but refutes its narrow
+`mtspr` E3 priority. The combined-PGO route executes 132.1 million live hook
+fallbacks: 130.9 million cache operations, only 1.19 million `mtspr`, and zero
+direct cache helpers. Regenerating with the already-retained cache-control
+backend moves all cache work to 144.2 million direct helpers and cuts hook
+fallbacks 98.98%, but the profile-free iOS candidate still falls to 33-50 FPS
+and accumulates 232 DMA underruns. Next train and strict-use a fresh profile on
+that corrected source, then combine it with host PGO; do not specialize
+`mtspr` first. See
+`docs/artifacts/2026-08-30/g8-ios-fallback-counter-cache-source-reversal.md`.
+
+PERF-233 rejects existing shader-cache persistence as a sufficient row-7 fix.
+It improves fresh-process runtime creation from about 43 to 23 seconds, but
+the cached candidate still records 42-55 and 47-52 FPS resource windows and
+DMA underruns rising 5 to 128. See
+`docs/artifacts/2026-08-30/g8-ios-cache-prewarm-rejection.md`.
+
+AUDIT-232 is ingested as evidence-gated row-7 advice. Its E1 claim is now
+measured rather than inferred. See
+`docs/artifacts/2026-08-30/g8-independent-ipad-performance-audit.md`.
 
 PERF-232 combines the independently useful host and exact-source game-module
 profiles. The non-instrumented candidate holds long 59.8-60.0 FPS stretches,
