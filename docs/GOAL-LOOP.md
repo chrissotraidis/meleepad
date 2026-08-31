@@ -2029,6 +2029,17 @@ afterward. Before another module build, repeat matched Fountain windows with
 instruction-address-translation and discarded-sampling modes. See
 `docs/artifacts/2026-08-31/g8-ios-fountain-instruction-delivery-latency.md`.
 
+PERF-246 adds a second normal-product failure that the loop must not hide. A
+cold launch driven through the visible touch overlay reached the title, menus,
+and character select without a savestate or private input mode. During normal
+front-end transitions the runtime fell through 51.0 and 49.1 FPS while DMA
+underruns rose 10 -> 41, then a later transition presented 52.6 FPS and raised
+underruns to 54 before the stable screen recovered. This run did not reach a
+valid matched Fountain setup, so it does not replace the user's 21.9 FPS combat
+control. It proves that moving opening/menu content must be judged separately
+from combat and that warmed CSS/idle recovery cannot pass the route. See
+`docs/artifacts/2026-08-31/g8-ios-normal-launch-menu-failure.md`.
+
 ## G8 row-7 and iPad promotion acceptance protocol
 
 This protocol prevents a fast idle/menu tail or final interval from hiding a
@@ -2079,19 +2090,26 @@ reversal.
    runtime performance row for the route. Report the minimum and the complete
    interval distribution; never use only the mean, best, final, or selected
    flat-underrun windows.
-   Divide the route into cold boot/opening, title/menu, CSS/stage selection,
+   Divide the route into cold boot/moving opening or attract content,
+   title/menu transitions, CSS/stage selection,
    match loading, Fountain combat, results, and return-to-menu phases. Each
    phase is independently pass/fail; a later fast phase cannot repair an
    earlier failed one.
    When the on-screen FPS label and runtime diagnostics differ, retain both
    and judge the lower value. The user's visible 21.9 FPS Fountain frame is
    therefore a failure even if a nearby diagnostic interval is faster.
-3. After the first visible game frame, every non-paused interval must report
+3. After the product begins presenting moving game content (including the
+   opening/attract sequence and animated menus), every non-paused interval must report
    both FPS and VPS at least 59.0, `speedRatio` at least 0.98, continuing audio
    callbacks, and no sustained DMA-underrun growth. Any interval below 59.0,
    or any two consecutive intervals that add underruns, fails the run and
    reopens row 7. A single interval below 55.0 is an immediate performance
    failure regardless of later recovery.
+
+   A front-end interval with full-speed VPS but sub-threshold visible FPS is a
+   presentation failure; a combat interval with FPS and VPS both slow is an
+   emulation-speed failure. Diagnose and reverse them independently. Neither
+   may be averaged with the other or with a warmed idle/static screen.
 4. Work each candidate through three gates before spending another complete
    route on it:
    - **Mechanism:** connect the exact slow phase to measured code or resource
@@ -2145,6 +2163,10 @@ screen in active Fountain combat, with 20.2 FPS / 19.8 VPS in matching
 diagnostics and growing DMA underruns. This is the control workload for the
 next performance reversal; the later lighter one-CPU 47.7 FPS diagnostic does
 not supersede it.
+The latest cold normal touch-driven route also fell to 49.1-51.0 FPS with
+underruns rising 10 -> 41 during front-end transitions, and later presented
+52.6 FPS while VPS remained 60.0. That is an additional phase failure, not a
+new lower combat control; both classes must pass independently.
 Until a matched candidate directly reverses that phase and then passes two
 complete cold routes plus the manual product route, describe the Simulator
 build as **unplayable in the failing workload**, never as playable, stable-60,

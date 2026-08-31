@@ -5025,3 +5025,25 @@ Append-only execution ledger. Claims are limited to observed evidence.
   workload. Easier rosters may classify a mechanism but cannot qualify a
   candidate for a full route or reopen physical-iPad promotion.
 - Row 7 remains failed and physical-iPad promotion remains closed.
+
+## 2026-08-31 — PERF-246 cold front-end failure added to the loop
+
+- Run the installed control through the normal visible touch path from opening
+  and title into the menus and character select, with no savestate or private
+  pipe-input mode.
+- Retain front-end intervals at 51.0/51.1 and 49.1/57.6 FPS/VPS while DMA
+  underruns rise 10 -> 41, plus a later 52.6/60.0 presentation interval that
+  raises underruns to 54 before the static screen recovers.
+- Do not overclaim the route: it did not reach a valid matched Fountain setup,
+  so the user's visible 21.9 FPS Fountain run remains the combat control.
+- Refine row 7 so moving opening/attract content, menu transitions,
+  selection/loading, and combat each fail independently from the first moving
+  game content. Distinguish presentation-only FPS loss from FPS+VPS emulation
+  loss and never average either into a warmed screen.
+- Stop the app, remove `SSBMPAD_EXTERNAL_PIPE_INPUT` from the Simulator launch
+  environment, and restore all private configuration.
+- Evidence:
+  `docs/artifacts/2026-08-31/g8-ios-normal-launch-menu-failure.md`.
+- Next: make state-gated normal-route automation reliable enough to reproduce
+  the same visible workload, then collect address-translation and discarded-
+  sampling counters on the exact slowest phase before another module build.

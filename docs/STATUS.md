@@ -23,6 +23,18 @@ failure vetoes faster diagnostic evidence until a same-path reversal explains
 and removes it. See
 `docs/artifacts/2026-08-31/g8-ios-fountain-20fps-retraction.md`.
 
+PERF-246 extends that correction to the cold front end. A normal installed-app
+launch driven through the visible touch overlay, with no savestate or private
+pipe mode, fell through 51.0 and 49.1 FPS while DMA underruns rose 10 -> 41;
+a later transition presented 52.6 FPS and added 12 more underruns before the
+stable screen recovered. The run did not reach a valid matched Fountain setup,
+so the user's 21.9 FPS combat route remains the controlling combat workload.
+The loop now fails animated opening/menu, selection/loading, and combat phases
+independently from the first moving game content onward. Full-speed VPS paired
+with slow visible FPS is retained as a presentation failure rather than
+averaged into the sustained emulation failure. See
+`docs/artifacts/2026-08-31/g8-ios-normal-launch-menu-failure.md`.
+
 PERF-240 makes that correction operational rather than rhetorical. The lower
 of the visible FPS label and runtime diagnostics is authoritative, so the
 user's 21.9 FPS frame fails the whole route. Each optimization must now pass a
