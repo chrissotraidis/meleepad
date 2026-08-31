@@ -1,0 +1,53 @@
+SsbmPad iPad Simulator combined host + game-module PGO summary
+Date: 2026-08-30
+Platform: iPad Pro 13-inch (M5), iOS 26.5 Simulator, arm64
+
+Private exact-source combat profile:
+  functions: 6,537
+  maximum function count: 8,144,749,424
+  chassis_dispatch count: 513,652,565
+  profdata SHA-256: bffe1834e3bd94446447775012575b1518f399daf8779b0e3ad4d116961af074
+
+Selective strict-use module:
+  generated chunks and observed helpers: profile use
+  unobserved interpreter fallback files: ordinary profile-free optimization
+  strict profile-instr-out-of-date: pass across all 237 chunks
+  size: 83,490,248 bytes
+  SHA-256: 3b6f7bca149f49a17cf7d9d180a29bfe7f70677f5a100d17fc921c7fefceb50d
+
+Cold process telemetry:
+  fps   vps   CPU-GPU%  DMA underruns  note
+  59.9  59.9     60.0         22       light scene
+  32.5  30.3     70.1         60       stage/intro transition
+  51.2  50.7     76.1        115       stage/intro transition
+  33.4  33.5     88.7        167       stage/intro transition
+  59.9  59.9     76.9        169       recovery
+  59.9  59.9     56.5        174       four-character combat begins
+  53.4  53.3     93.6        201       shader/resource-heavy
+  50.9  60.4     96.2        219       presentation behind VPS
+  38.9  56.7     60.7        220       presentation behind VPS
+  50.4  50.7     98.6        253       shader/resource-heavy
+  37.9  38.2     99.2        280       shader/resource-heavy
+  54.6  54.6     96.0        310       transition out
+
+Warm in-process repeat:
+  Long intervals held 59.8-60.0 FPS. The demanding transition still included
+  36.5 FPS / 50.1 VPS, followed by 60.0 and 59.2 FPS. DMA underruns rose only
+  321 -> 340 over that final 30-second window, materially better than cold but
+  not continuous.
+
+Ten-second warmed residual sample (6,625 CPU-GPU-thread samples):
+  StaticRecompCore::Run inclusive: 4,616 (69.7%)
+  chassis_dispatch below Run:     4,034 (60.9%)
+  VertexLoader::RunVertices:        194 (2.9%)
+  Async shader workers were mostly waiting, with one sampled Metal pipeline
+  creation. Texture/EFB-copy work remained visible but secondary.
+
+Runtime-log SHA-256:
+  507dad81cf35fb288168fbb911086cbe98f7817b32cd4d57d5ff18bcfcc1f0b7
+Residual-sample SHA-256:
+  37d528e88977ef7f115e90c6084eaa988ffdc3f38b2c771f72d7ec6ffae859a4
+
+Verdict: material improvement, not a row-7 pass. Cold Metal shader/resource
+creation is a major independent source of stalls. Warm execution still sits
+near the generated static-recompiler ceiling and retains isolated underruns.

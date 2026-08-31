@@ -201,6 +201,18 @@ DMA underruns accumulated. Row 7 remains open. Next combine this private host
 profile with the retained exact-source game-module PGO on a fixed path. See
 `docs/artifacts/2026-08-30/g8-ios-host-runtime-pgo-direction.md`.
 
+PERF-232 completes that combined reversal without closing row 7. A fresh dense
+exact-source profile was selectively applied to all 237 generated chunks and
+observed module helpers while three unobserved interpreter fallback files stayed
+normally optimized. The combined host+module-PGO candidate sustained long
+59.8-60.0 FPS combat intervals, but cold shader/resource creation still produced
+32-54 FPS windows and raised DMA underruns; a warmed repeat still contained a
+36.5 presentation-FPS transition and a 59.2 FPS heavy interval. A warmed sample
+keeps 69.7% of CPU-GPU samples under `StaticRecompCore::Run` and 60.9% below
+`chassis_dispatch`. Next isolate a Metal pipeline/resource persistence or
+prewarm mechanism, then return to the residual generated-dispatch ceiling. See
+`docs/artifacts/2026-08-30/g8-ios-combined-pgo-reversal.md`.
+
 PERF-214 reconciles every current G5 failure class against the retained
 mechanism history. Warm CPU overruns are rare and distributed across already
 closed/profiled families; the largest Fountain tails are proven

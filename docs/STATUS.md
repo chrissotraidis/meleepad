@@ -6,6 +6,15 @@ Last updated: 2026-08-30
 
 **G8 — Test matrix green: IN PROGRESS UNDER USER-AUTHORIZED G5 DEFERRAL**
 
+PERF-232 combines the independently useful host and exact-source game-module
+profiles. The non-instrumented candidate holds long 59.8-60.0 FPS stretches,
+including visible four-character combat, but is not stable: cold shader/resource
+creation produced 32-54 FPS windows and DMA underruns, while the warmed repeat
+still contained a 36.5 presentation-FPS transition and a 59.2 FPS heavy
+interval. The warm residual remains 69.7% inside `StaticRecompCore::Run` and
+60.9% below generated `chassis_dispatch`. Row 7 remains open. See
+`docs/artifacts/2026-08-30/g8-ios-combined-pgo-reversal.md`.
+
 PERF-231 proves iOS host-runtime PGO is materially useful but does not yet
 close row 7. A platform-specific sample overturned only the old macOS coverage
 bound: iPad host-only work is 14.48%, not 2.68%. Strict host profile use shrank

@@ -4706,3 +4706,24 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Cleanup: terminate the app and shut down the only Simulator.
 - Evidence:
   `docs/artifacts/2026-08-30/g8-ios-host-runtime-pgo-direction.md`.
+
+## 2026-08-30 — PERF-232 combined iOS host + module PGO reversal
+
+- Capture a fresh exact-source module corpus across 6,537 functions and more
+  than 513 million `chassis_dispatch` calls.
+- Keep three unobserved interpreter fallback units profile-free; strict-use all
+  237 generated chunks and observed runtime helpers without a stale-profile
+  error.
+- Pair the resulting 83,490,248-byte module with the host-runtime-PGO app.
+- Cold live result: multiple 59.9 FPS intervals, followed by 32-54 FPS
+  shader/resource windows and DMA underruns rising 174 -> 310.
+- Warm repeat: long 59.8-60.0 FPS stretches and much slower underrun growth,
+  but one 36.5 presentation-FPS transition plus a 59.2 FPS heavy interval.
+- Warm sample: 69.7% of CPU-GPU samples in `StaticRecompCore::Run`, 60.9%
+  below `chassis_dispatch`, and only 2.9% in `VertexLoader::RunVertices`.
+- Decision: material combined gain, not row-7 acceptance. Isolate cold Metal
+  pipeline/resource persistence before another generated-dispatch experiment.
+- Preserve the visible camera/geometry defect as a separate open correctness
+  issue. Terminate the app and shut down the only Simulator.
+- Evidence:
+  `docs/artifacts/2026-08-30/g8-ios-combined-pgo-reversal.md`.
