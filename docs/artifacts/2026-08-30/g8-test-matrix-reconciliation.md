@@ -19,7 +19,7 @@ a completed row.
 | 7 | Audio continuity | Pass | The earlier dual-core acceptance was retracted after a 139.4-second malformed-FIFO crash in the Video thread. The retained cache-direct exact-PGO app is single-core with three shader workers. It survived 22 minutes 44 seconds across combat, menus, results, and lifecycle; callbacks continued, the final interval was 59.9 FPS/VPS at queue 14/15, underruns had long flat runs, and no FIFO/desync/fatal/crash match occurred. This satisfies no sustained underrun, not locked-60 or physical-device performance. See the 2026-08-31 single-core artifact. |
 | 8 | Save/memory card | Pass | Live `CODM` (macOS) and `CODX` (iPad Simulator) names were visibly recovered after clean process relaunches. SsbmPad settings were also read back after relaunch on both targets. See the row artifact. |
 | 9 | Touch overlay drives gameplay | Pass | The visible overlay moved the stage cursor and P1, selected Onett, paused/resumed, produced separate X/Y jumps, and exercised A/B/Z/L/R, C-right/C-up, and all four D-pad directions during a retained match. Accessibility actions use the same touch handlers; no FIFO menu script drove the row. Prior G7 evidence proves layout edit/reset. |
-| 10 | Menu system parity | Partial | G7 proves live resolution/aspect/FPS/layout/mapping/game-data/report surfaces; every action's full behavior, including import/removal boundaries, remains a G8 row. |
+| 10 | Menu system parity | Pass | G7 live-proves resolution, aspect, FPS, touch settings/reset, mapping, and diagnostics. Row 13 proves document-picker/folder import and reimport. A live destructive run subsequently stopped the runtime, removed only GameData, preserved the separate memory-card path, showed legal setup, reimported the exact pinned hash from the SsbmPad folder, extracted 1,209 files, left zero staging directories, and visibly rebooted. Experimental Performance was toggled on/off with its restart explanation and restored off. |
 | 11 | Controller connect/disconnect | Partial | A fail-first regression removed the Simulator-only visibility exemption. The exact rebuilt app hides the overlay for its assigned MFi Gamepad and restores it when the setting is disabled; background/foreground retains P1 with no stuck input. Slot removal, reclaim, held-input clearing, and visibility refresh pass focused tests. An actual live disconnect/reconnect still needs observation. |
 | 12 | Diagnostics export | Pass | iPad export/privacy scan pass. The rebuilt macOS launcher now exposes Export Diagnostics; its compiled exporter produced a real runner-log report with required breadcrumbs and zero private-path, game-data, disc-image, memory-card, or save matches. |
 | 13 | Game data import flow | Pass | Exact GALE01 validation, 1,209-file extraction, atomic activation, visible boot, normal relaunch, and same-filename Files-folder reimport passed. See the row artifact. |
@@ -28,9 +28,9 @@ a completed row.
 
 ## Next execution order
 
-1. Close the remaining iPad interaction cluster while keeping exactly one
-   Simulator booted: actual controller disconnect/reconnect and the destructive
-   Game Data remove/reimport boundary. Touch and save persistence pass.
+1. Close the last iPad interaction boundary while keeping exactly one
+   Simulator booted: an actual controller disconnect/reconnect with overlay
+   show, P1 reclaim, and no stuck input. Touch, menu parity, and saves pass.
 2. Continue presentation polish separately from row 7: test bounded Metal
    binary-archive/pipeline persistence against cold creation and the remaining
    Simulator presentation dips. Cache-direct exact PGO plus single-core and
@@ -85,3 +85,7 @@ malformed-FIFO crash. Row 7 is safely re-closed by the 22-minute-44-second
 single-core reversal, and row 9 is closed by retained every-control live play.
 Row 11 remains partial. See
 `docs/artifacts/2026-08-31/g8-ios-single-core-stability-and-touch-input.md`.
+
+Row 10 was subsequently closed by a recoverable live remove/reimport run plus
+the retained G7/import/diagnostics evidence. See
+`docs/artifacts/2026-08-31/g8-menu-system-remove-reimport.md`.

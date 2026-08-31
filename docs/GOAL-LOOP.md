@@ -1938,6 +1938,18 @@ actual live disconnect/reconnect is observed. Continue G8 with rows 10 and 11;
 do not re-enable Dolphin dual-core. See
 `docs/artifacts/2026-08-31/g8-ios-single-core-stability-and-touch-input.md`.
 
+MENU-237 passes G8 row 10. A verified private backup made the destructive
+boundary recoverable; the live `Remove Stored Game Data` confirmation stopped
+the runtime, removed only `GameData`, preserved the separate memory-card path,
+and exposed the legal first-run chooser. `Import from SsbmPad Folder` then
+validated, copied, extracted exactly 1,209 files, atomically activated the
+pinned image, and visibly rebooted with zero staging leftovers. The temporary
+Files source was removed, the private backup remains outside Git, and the
+restart-required performance toggle was exercised on/off and restored to off.
+Together with G7, import, and diagnostics evidence, every menu entry now
+functions. Row 11 is the sole non-waived partial row. See
+`docs/artifacts/2026-08-31/g8-menu-system-remove-reimport.md`.
+
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).
 - **Per goal claim:** full evidence per PRD Section 11 before marking a goal met in STATUS.md.
 - **Per session:** before ending, run the ported regression scripts (sunpad `tests/` equivalents) plus a boot check on the highest working target, so the journal's last entry states a known-good state.

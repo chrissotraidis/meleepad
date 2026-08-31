@@ -4816,3 +4816,26 @@ Append-only execution ledger. Claims are limited to observed evidence.
   `docs/artifacts/2026-08-31/g8-ios-single-core-stability-and-touch-input.md`.
 - Next: close row 10's remove/reimport boundary and row 11's actual controller
   disconnect/reconnect before starting G9.
+
+## 2026-08-31 — MENU-237 Game Data removal/reimport and row-10 closure
+
+- APFS-clone the active retained image to a private temporary backup before the
+  destructive path. Verify 1,459,978,240 bytes and pinned GALE01 revision-zero
+  SHA-256. Keep all private data outside Git.
+- Through the live menu, select `Remove Stored Game Data`, inspect its scoped
+  confirmation, and confirm. The runtime logs stop requested then stored data
+  removed; `GameData` is absent, the legal first-run chooser is visible, and
+  the separate memory-card GCI remains present.
+- Clone the verified backup into the Files-visible SsbmPad folder and select
+  `Import from SsbmPad Folder`. Observe validation/extraction progress and
+  visible reboot. Verify the activated image's exact size/hash, exactly 1,209
+  files, zero staging directories, and the activation breadcrumb.
+- Remove only the temporary Files-folder duplicate after matching its hash;
+  retain the private recovery backup. Exercise Experimental Performance on/off,
+  observe the restart-required warning, and restore its final value to off.
+- Decision: combined G7, import, diagnostics, and current destructive evidence
+  closes row 10. Row 11 is the sole non-waived partial row.
+- Evidence:
+  `docs/artifacts/2026-08-31/g8-menu-system-remove-reimport.md`.
+- Next: directly observe a controller disconnect/reconnect with overlay show,
+  P1 reclaim, and no stuck input before starting G9.
