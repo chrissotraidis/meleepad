@@ -68,6 +68,18 @@ cache/fetch versus branch/discard events on a visually confirmed control
 Fountain phase before naming another source candidate. See
 `docs/artifacts/2026-08-31/g8-ios-mixed-lto-rejection.md`.
 
+PERF-245 confirms the next narrower mechanism on literal Fountain without
+authorizing a candidate. A guarded private-pipe product route visibly reaches
+P1 Yoshi versus level-1 CPU Zelda on Fountain at 47.7 FPS. The process-selected
+SsbmPad PID 88916 counter summary assigns 41.74% to instruction-delivery
+latency and 7.35% to delivery bandwidth over 5.882B cycles. The two-character
+route is diagnostic-only; it cannot replace the four-character manual failure
+or pass row 7. Do not build another module until matched process-filtered
+instruction-address-translation and discarded-sampling windows identify the
+latency source. The app is stopped and the private-pipe environment is unset.
+See
+`docs/artifacts/2026-08-31/g8-ios-fountain-instruction-delivery-latency.md`.
+
 PERF-239 further splits that route into independently judged opening, menu,
 selection, loading, Fountain, results, and return phases. An unchanged-process
 comparison reached 60.0 FPS/VPS with measurable timer slack immediately after

@@ -2016,6 +2016,19 @@ with available cache/fetch and branch/discard counters on visually confirmed
 four-character Fountain. See
 `docs/artifacts/2026-08-31/g8-ios-mixed-lto-rejection.md`.
 
+PERF-245 provides a literal-Fountain process-filtered split without promoting
+a new binary. A guarded private-pipe route visibly reaches P1 Yoshi versus
+level-1 CPU Zelda on Fountain at 47.7 FPS. A rolling 4-second Instruments Run
+2 filtered to SsbmPad PID 88916 reports 41.74% instruction-delivery latency
+versus 7.35% delivery bandwidth across 5,881,669,124 cycles. This confirms
+latency-dominated instruction delivery on a lighter stage-matched workload,
+not four-character acceptance. The unguarded automation attempt is discarded
+because the normal 60 Hz publisher overwrote its pipe commands; private pipe
+routes must set `SSBMPAD_EXTERNAL_PIPE_INPUT=1` before launch and restore it
+afterward. Before another module build, repeat matched Fountain windows with
+instruction-address-translation and discarded-sampling modes. See
+`docs/artifacts/2026-08-31/g8-ios-fountain-instruction-delivery-latency.md`.
+
 ## G8 row-7 and iPad promotion acceptance protocol
 
 This protocol prevents a fast idle/menu tail or final interval from hiding a

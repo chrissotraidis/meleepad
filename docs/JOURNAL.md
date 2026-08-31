@@ -4992,3 +4992,23 @@ Append-only execution ledger. Claims are limited to observed evidence.
   and stop the app. Next split instruction delivery into available cache/fetch
   versus branch/discard events on a visually confirmed control Fountain phase
   before another source or module candidate.
+
+## 2026-08-31 — PERF-245 literal-Fountain delivery-latency split
+
+- Correct the private automation precondition: without
+  `SSBMPAD_EXTERNAL_PIPE_INPUT=1`, the product's normal 60 Hz publisher
+  overwrites scripted pipe commands with neutral snapshots. Discard the
+  unguarded cursor probes and replay from a cold guarded process.
+- Visibly verify P1 Yoshi versus level-1 CPU Zelda, the literal `Fountain of
+  Dreams` highlight, and coherent live combat at 47.7 FPS. This lighter route
+  remains an absolute product failure and is diagnostic-only.
+- Retain a rolling 4-second `Instruction Delivery Bottlenecks` Run 2 and
+  explicitly filter/select SsbmPad PID 88916. The process summary reports
+  5,881,669,124 cycles, 41.74% instruction-delivery latency, and 7.35%
+  delivery bandwidth.
+- Interpret this as stage-matched latency dominance, not cache attribution,
+  four-character acceptance, or permission to build. PERF-244 still refutes
+  broad footprint-only compaction.
+- Stop the app and unset the private-pipe environment. Next collect matched
+  process-filtered instruction-address-translation and discarded-sampling
+  Fountain windows before naming a source candidate.
