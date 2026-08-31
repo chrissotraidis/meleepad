@@ -17,17 +17,20 @@ for contract in \
   '-ssbmpadExperimentalPerformance95' \
   '-ssbmpadExperimentalPerformanceQoSOnly' \
   'QOS_CLASS_USER_INITIATED' \
-  'experimental-dual-core-90' \
-  'experimental-dual-core-95' \
+  'experimental-single-core-90' \
+  'experimental-single-core-95' \
   'experimental-qos-only-100' \
-  'cpuVideoSplit=1' \
+  'cpuVideoSplit=0' \
   'shaderCompilerThreads=3' \
   'runtime render scale=%ld source=live' \
   'runtime aspect mode=%@ source=%@'; do
   grep -Fq -- "$contract" "$HOST"
 done
-grep -Fq 'Config::SetBase(Config::MAIN_CPU_THREAD, true);' \
-  "$ROOT/ref/ModernGekko/src/runtime/dolphin_runtime.cpp"
+if grep -Fq 'Config::SetBase(Config::MAIN_CPU_THREAD, true);' \
+  "$ROOT/ref/ModernGekko/src/runtime/dolphin_runtime.cpp"; then
+  echo "iOS CPU/video split must remain disabled after the FIFO desync regression" >&2
+  exit 1
+fi
 grep -Fq 'Config::SetBase(Config::GFX_SHADER_COMPILER_THREADS, 3);' \
   "$ROOT/ref/ModernGekko/src/runtime/dolphin_runtime.cpp"
 grep -Fq 'SsbmPadExperimentalPerformanceMode' "$SETTINGS"

@@ -4785,3 +4785,34 @@ Append-only execution ledger. Claims are limited to observed evidence.
   bounded Metal binary-archive reversal as the next presentation experiment.
 - Evidence:
   `docs/artifacts/2026-08-30/g8-ios-cache-direct-dual-core-audio.md`.
+
+## 2026-08-31 — STABILITY-236 single-core reversal and touch acceptance
+
+- Reopen PERF-235 after its source-integrated dual-core app crashes at 139.4
+  seconds with malformed FIFO `0x84000000`, `SIGTRAP`, and faulting Video thread
+  frame `OpcodeDecoder::RunFifo<false>`.
+- Replace canonical ModernGekko patch 0011 with shader-workers-only behavior;
+  require `cpuVideoSplit=0 shaderCompilerThreads=3` in the focused source
+  regression. Retain cache-direct exact module PGO and host PGO.
+- Run the exact single-core candidate continuously for 22 minutes 44 seconds
+  through attract combat, two 1v1s, results, menus, control settings, and a
+  background/foreground cycle. Record 135 performance rows, continued audio
+  callbacks, final 59.9 FPS/VPS at DMA 14/15, long flat-underrun runs, and zero
+  FIFO/desync/fatal/crash matches.
+- Add digital pipe short-tap latching. Fail first on a duplicate already-seen
+  hold, then prove queued press/release yields exactly one observed press while
+  analog axes remain unlatched. Live 20 ms and overlay Start taps now register.
+- Add accessible direct-handler actions for both sticks and every button. Use
+  the visible overlay to select Onett and exercise Move, Start, A/B/X/Y/Z/L/R,
+  C-right/C-up, and four D-pad directions during retained live play. Row 9
+  passes with the prior layout edit/reset evidence.
+- Find and remove the Simulator-only controller-visibility exemption. The
+  rebuilt app hides the overlay for its assigned MFi Gamepad and restores it
+  when requested; focused disconnect/P1-reclaim/held-state tests pass. Keep row
+  11 partial until a live disconnect/reconnect is directly observed.
+- Build the exact Release candidate and run `scripts/check-repository.sh`:
+  pass. Preserve user-owned untracked netplay and phase-summary files.
+- Evidence:
+  `docs/artifacts/2026-08-31/g8-ios-single-core-stability-and-touch-input.md`.
+- Next: close row 10's remove/reimport boundary and row 11's actual controller
+  disconnect/reconnect before starting G9.

@@ -27,4 +27,17 @@ for contract in \
   '[_overlay refreshControllerVisibility]'; do
   grep -Fq "$contract" "$CONTROLLER"
 done
+
+OVERLAY="$ROOT/apple/ios/SsbmPadGameOverlay.mm"
+visibility_block="$(sed -n '/^- (void)applyControllerVisibility {/,/^- (void)refreshControllerVisibility {/p' "$OVERLAY")"
+if grep -Fq '#if !TARGET_OS_SIMULATOR' <<<"$visibility_block"; then
+  echo "Simulator controllers must participate in touch-overlay visibility" >&2
+  exit 1
+fi
+for contract in \
+  'for (GCController *controller in GCController.controllers)' \
+  '[SsbmPadSettings sharedSettings].hideTouchControlsWhenControllerConnected' \
+  '[self clearTouchInput]'; do
+  grep -Fq "$contract" <<<"$visibility_block"
+done
 echo "Controller reconciliation source checks passed"

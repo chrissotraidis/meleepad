@@ -16,11 +16,11 @@ a completed row.
 | 4 | Fountain of Dreams 1v1 | Pass | Multiple visually verified complete macOS matches and CPU/GPU/presentation profiles are retained; timing failures are recorded honestly. |
 | 5 | 4-player item match, Battlefield | Pass | A controlled macOS run explicitly selected Battlefield with P1 plus three level-1 CPUs, visibly showed an item in live combat, and reached natural Time Battle results without a crash. The retained bracket records an honest approximately 36.2 effective game FPS despite near-59.94 host presentation. |
 | 6 | Classic mode, 3 stages | Pass | A retained macOS run naturally cleared Brinstar, cleared the following team battle, completed the target bonus stage by timeout, and advanced into the Bowser fight. Generated-code-derived pointer chains matched live fighter percentages. The known visual-warping defect remains separate. |
-| 7 | Audio continuity | Pass | The source-integrated cache-direct exact-PGO app runs separate CPU/video workers plus bounded async shader workers. After a cold resource-creation burst, CoreAudio callbacks continued, the DMA queue recovered to target, and underruns stayed flat through sustained heavy work; warm 686-705-draw combat held 59.9 FPS/VPS with only three isolated transition underruns. This satisfies the PRD's no-*sustained*-underrun boundary, not a zero lifetime counter or an iPad presentation-locked-60 claim. See the cache-direct/dual-core artifact. |
+| 7 | Audio continuity | Pass | The earlier dual-core acceptance was retracted after a 139.4-second malformed-FIFO crash in the Video thread. The retained cache-direct exact-PGO app is single-core with three shader workers. It survived 22 minutes 44 seconds across combat, menus, results, and lifecycle; callbacks continued, the final interval was 59.9 FPS/VPS at queue 14/15, underruns had long flat runs, and no FIFO/desync/fatal/crash match occurred. This satisfies no sustained underrun, not locked-60 or physical-device performance. See the 2026-08-31 single-core artifact. |
 | 8 | Save/memory card | Pass | Live `CODM` (macOS) and `CODX` (iPad Simulator) names were visibly recovered after clean process relaunches. SsbmPad settings were also read back after relaunch on both targets. See the row artifact. |
-| 9 | Touch overlay drives gameplay | Partial | Stick/A/X/Start and layout edit/reset are live-proven. L/R now have matching compact geometry and digital-plus-trigger semantics, with a focused regression and live visual proof; every remaining control still must be verified in-match. |
+| 9 | Touch overlay drives gameplay | Pass | The visible overlay moved the stage cursor and P1, selected Onett, paused/resumed, produced separate X/Y jumps, and exercised A/B/Z/L/R, C-right/C-up, and all four D-pad directions during a retained match. Accessibility actions use the same touch handlers; no FIFO menu script drove the row. Prior G7 evidence proves layout edit/reset. |
 | 10 | Menu system parity | Partial | G7 proves live resolution/aspect/FPS/layout/mapping/game-data/report surfaces; every action's full behavior, including import/removal boundaries, remains a G8 row. |
-| 11 | Controller connect/disconnect | Partial | Slot retention, P1 reclaim, and held-input clearing pass focused tests; live overlay hide/show and reconnect need evidence. |
+| 11 | Controller connect/disconnect | Partial | A fail-first regression removed the Simulator-only visibility exemption. The exact rebuilt app hides the overlay for its assigned MFi Gamepad and restores it when the setting is disabled; background/foreground retains P1 with no stuck input. Slot removal, reclaim, held-input clearing, and visibility refresh pass focused tests. An actual live disconnect/reconnect still needs observation. |
 | 12 | Diagnostics export | Pass | iPad export/privacy scan pass. The rebuilt macOS launcher now exposes Export Diagnostics; its compiled exporter produced a real runner-log report with required breadcrumbs and zero private-path, game-data, disc-image, memory-card, or save matches. |
 | 13 | Game data import flow | Pass | Exact GALE01 validation, 1,209-file extraction, atomic activation, visible boot, normal relaunch, and same-filename Files-folder reimport passed. See the row artifact. |
 | 14 | Regression suite | Pass | All existing G5 tools plus the ported input, controller, diagnostics, performance, frame-mode, touch-layout, and game-data tests pass. |
@@ -29,12 +29,12 @@ a completed row.
 ## Next execution order
 
 1. Close the remaining iPad interaction cluster while keeping exactly one
-   Simulator booted: every touch control, controller lifecycle, and import
-   rollback/removal hardening. Save persistence is already passed.
+   Simulator booted: actual controller disconnect/reconnect and the destructive
+   Game Data remove/reimport boundary. Touch and save persistence pass.
 2. Continue presentation polish separately from row 7: test bounded Metal
    binary-archive/pipeline persistence against cold creation and the remaining
-   Simulator presentation dips. Cache-direct exact PGO plus dual-core and
-   bounded shader workers is the new comparison floor.
+   Simulator presentation dips. Cache-direct exact PGO plus single-core and
+   bounded shader workers is the safe comparison floor.
 3. Repeat the provisionally accepted row 3 on 59.94 Hz/VRR hardware during
    later device validation; a failure reopens it.
 
@@ -79,3 +79,9 @@ by the source-integrated cache-direct, dual-core, and shader-worker run. The
 separate Simulator presentation hitch remains open and is not a 60 FPS claim.
 See
 `docs/artifacts/2026-08-30/g8-ios-cache-direct-dual-core-audio.md`.
+
+That dual-core acceptance was subsequently retracted after a 139.4-second
+malformed-FIFO crash. Row 7 is safely re-closed by the 22-minute-44-second
+single-core reversal, and row 9 is closed by retained every-control live play.
+Row 11 remains partial. See
+`docs/artifacts/2026-08-31/g8-ios-single-core-stability-and-touch-input.md`.

@@ -14,6 +14,7 @@
 @property(nonatomic, copy) void (^valueChanged)(float x, float y);
 @property(nonatomic, readonly) BOOL active;
 - (void)applyBaseColor:(UIColor *)baseColor thumbColor:(UIColor *)thumbColor;
+- (void)configureAccessibilityWithLabel:(NSString *)label;
 - (void)reset;
 @end
 
@@ -69,9 +70,72 @@
     _thumb.backgroundColor = thumbColor;
 }
 
+- (void)configureAccessibilityWithLabel:(NSString *)label {
+    self.isAccessibilityElement = YES;
+    self.accessibilityLabel = label;
+    self.accessibilityValue = @"Centered";
+    self.accessibilityTraits = UIAccessibilityTraitAdjustable |
+                               UIAccessibilityTraitAllowsDirectInteraction;
+    self.accessibilityCustomActions = @[
+        [[UIAccessibilityCustomAction alloc] initWithName:@"Up"
+                                                   target:self
+                                                 selector:@selector(accessibilityMoveUp:)],
+        [[UIAccessibilityCustomAction alloc] initWithName:@"Down"
+                                                   target:self
+                                                 selector:@selector(accessibilityMoveDown:)],
+        [[UIAccessibilityCustomAction alloc] initWithName:@"Left"
+                                                   target:self
+                                                 selector:@selector(accessibilityMoveLeft:)],
+        [[UIAccessibilityCustomAction alloc] initWithName:@"Right"
+                                                   target:self
+                                                 selector:@selector(accessibilityMoveRight:)],
+    ];
+}
+
+- (void)pulseAccessibilityX:(float)x y:(float)y value:(NSString *)value {
+    _active = YES;
+    _valueX = x;
+    _valueY = -y;
+    self.accessibilityValue = value;
+    [self updateThumbCenter];
+    if (self.valueChanged)
+        self.valueChanged(x, y);
+
+    __weak SsbmPadStickView *weakSelf = self;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.18 * NSEC_PER_SEC)),
+                   dispatch_get_main_queue(), ^{
+        [weakSelf reset];
+    });
+}
+
+- (BOOL)accessibilityMoveUp:(UIAccessibilityCustomAction *)action {
+    (void)action;
+    [self pulseAccessibilityX:0.0f y:1.0f value:@"Up"];
+    return YES;
+}
+
+- (BOOL)accessibilityMoveDown:(UIAccessibilityCustomAction *)action {
+    (void)action;
+    [self pulseAccessibilityX:0.0f y:-1.0f value:@"Down"];
+    return YES;
+}
+
+- (BOOL)accessibilityMoveLeft:(UIAccessibilityCustomAction *)action {
+    (void)action;
+    [self pulseAccessibilityX:-1.0f y:0.0f value:@"Left"];
+    return YES;
+}
+
+- (BOOL)accessibilityMoveRight:(UIAccessibilityCustomAction *)action {
+    (void)action;
+    [self pulseAccessibilityX:1.0f y:0.0f value:@"Right"];
+    return YES;
+}
+
 - (void)reset {
     _active = NO;
     _valueX = _valueY = 0.0f;
+    self.accessibilityValue = @"Centered";
     [self updateThumbCenter];
     if (self.valueChanged)
         self.valueChanged(0.0f, 0.0f);
@@ -120,9 +184,23 @@
 
 @interface SsbmPadGameButton : UIButton
 @property(nonatomic, assign) uint16_t inputMask;
+@property(nonatomic, copy) void (^accessibilityPressHandler)(SsbmPadGameButton *button);
 @end
 
 @implementation SsbmPadGameButton
+
+- (BOOL)accessibilityActivate {
+    if (self.accessibilityPressHandler == nil)
+        return [super accessibilityActivate];
+    self.accessibilityPressHandler(self);
+    return YES;
+}
+
+- (BOOL)accessibilityPress:(UIAccessibilityCustomAction *)action {
+    (void)action;
+    return [self accessibilityActivate];
+}
+
 @end
 
 static CGFloat const SsbmPadTriggerDetentEnter = 0.75;
@@ -703,9 +781,9 @@ static CGFloat SsbmPadDefaultSizeScaleForControl(UIView *view, NSString *identif
 
     _moveStick = [self makeStick];
     _cStick = [self makeStick];
-    _moveStick.accessibilityLabel = @"Move stick";
+    [_moveStick configureAccessibilityWithLabel:@"Move stick"];
     _moveStick.accessibilityIdentifier = @"move";
-    _cStick.accessibilityLabel = @"Camera stick";
+    [_cStick configureAccessibilityWithLabel:@"C stick"];
     _cStick.accessibilityIdentifier = @"c";
     [_moveStick applyBaseColor:[UIColor colorWithWhite:0.13 alpha:0.86]
                     thumbColor:[UIColor colorWithWhite:0.58 alpha:0.94]];
@@ -788,6 +866,22 @@ static CGFloat SsbmPadDefaultSizeScaleForControl(UIView *view, NSString *identif
     button.accessibilityLabel = label;
     button.inputMask = mask;
     button.accessibilityIdentifier = [self identifierForMask:mask];
+    __weak SsbmPadGameOverlay *weakSelf = self;
+    button.accessibilityPressHandler = ^(SsbmPadGameButton *pressedButton) {
+        SsbmPadGameOverlay *strongSelf = weakSelf;
+        if (strongSelf == nil)
+            return;
+        [strongSelf buttonDown:pressedButton];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.12 * NSEC_PER_SEC)),
+                       dispatch_get_main_queue(), ^{
+            [weakSelf buttonUp:pressedButton];
+        });
+    };
+    button.accessibilityCustomActions = @[
+        [[UIAccessibilityCustomAction alloc] initWithName:@"Press"
+                                                   target:button
+                                                 selector:@selector(accessibilityPress:)],
+    ];
     [button addTarget:self action:@selector(buttonDown:)
      forControlEvents:UIControlEventTouchDown];
     [button addTarget:self action:@selector(buttonUp:)
@@ -1643,16 +1737,14 @@ static CGFloat SsbmPadDefaultSizeScaleForControl(UIView *view, NSString *identif
 
 - (void)applyControllerVisibility {
     BOOL controllerConnected = NO;
-#if !TARGET_OS_SIMULATOR
-    // Only real hardware controllers hide the touch controls; the Simulator
-    // can report virtual controllers that would hide them during testing.
+    // Simulator-forwarded controllers exercise the same visibility and input
+    // clearing behavior as controllers connected to a physical device.
     for (GCController *controller in GCController.controllers) {
         if (controller.extendedGamepad != nil) {
             controllerConnected = YES;
             break;
         }
     }
-#endif
     BOOL shouldHide = !_editingLayout && controllerConnected &&
         [SsbmPadSettings sharedSettings].hideTouchControlsWhenControllerConnected;
     [self setTouchControlsHidden:shouldHide animated:YES];

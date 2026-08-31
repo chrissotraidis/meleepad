@@ -16,6 +16,7 @@ python3 scripts/test_analyze_triggered_native_pcs.py
 python3 scripts/test_lightweight_frame_timing_patch.py
 python3 scripts/test_triggered_thread_sampler.py
 tests/test-input-pipe-encoder.sh
+tests/test-pipe-short-tap-latching.sh
 tests/test-controller-mapping.sh
 tests/test-controller-slots.sh
 tests/test-diagnostics.sh
@@ -24,6 +25,7 @@ tests/test-macos-keyboard-profile.sh
 tests/test-experimental-performance-config.sh
 tests/test-native-frame-mode.sh
 tests/test-iphone-touch-layout-defaults.sh
+tests/test-touch-stick-accessibility.sh
 tests/test-game-data-setup.sh
 tests/test-ios-audio-diagnostics.sh
 

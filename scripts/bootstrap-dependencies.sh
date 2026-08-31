@@ -128,7 +128,7 @@ app_bundle_sys_patch="$ROOT/patches/moderngekko/0007-macos-app-bundle-sys.patch"
 pgo_cache_patch="$ROOT/patches/moderngekko/0008-private-pgo-cache-identity.patch"
 metal_sync_config_patch="$ROOT/patches/moderngekko/0009-macos-metal-display-sync.patch"
 macos_diagnostics_patch="$ROOT/patches/moderngekko/0010-macos-diagnostics-export.patch"
-ios_performance_defaults_patch="$ROOT/patches/moderngekko/0011-ios-dual-core-shader-workers.patch"
+ios_performance_defaults_patch="$ROOT/patches/moderngekko/0011-ios-shader-workers.patch"
 render_log_patch="$ROOT/patches/moderngekko-dolphin/0002-buffer-render-time-logging.patch"
 idle_patch="$ROOT/patches/moderngekko-dolphin/0003-gale01r0-staticrecomp-idle.patch"
 memory_watcher_patch="$ROOT/patches/moderngekko-dolphin/0004-static-recomp-memory-watcher.patch"
@@ -159,6 +159,7 @@ lightweight_frame_index_activation_patch="$ROOT/patches/moderngekko-dolphin/0025
 ios_metal_display_sync_availability_patch="$ROOT/patches/moderngekko-dolphin/0026-ios-metal-display-sync-availability.patch"
 ios_simulator_framebuffer_fetch_patch="$ROOT/patches/moderngekko-dolphin/0027-ios-simulator-disable-framebuffer-fetch.patch"
 ios_audio_diagnostics_patch="$ROOT/patches/moderngekko-dolphin/0028-ios-audio-continuity-diagnostics.patch"
+pipe_short_tap_patch="$ROOT/patches/moderngekko-dolphin/0029-pipe-short-tap-latching.patch"
 apply_patch_once_or_marker "$MG" "$mg_patch" \
   include/moderngekko/runtime.hpp 'struct RuntimeDiagnosticsSnapshot'
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$dolphin_patch" \
@@ -204,7 +205,7 @@ apply_patch_once_or_marker "$MG" "$macos_diagnostics_patch" \
   tools/moderngekko_launcher.cpp 'ImGui::Button("Export Diagnostics")'
 apply_patch_once_or_marker "$MG" "$ios_performance_defaults_patch" \
   src/runtime/dolphin_runtime.cpp \
-  'Config::SetBase(Config::MAIN_CPU_THREAD, true);'
+  'Config::SetBase(Config::GFX_SHADER_COMPILER_THREADS, 3);'
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$emulated_frame_patch" \
   Source/Core/Common/FramePhaseTiming.h s_emulated_frame_index
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$gxruntime_fma_test_patch" \
@@ -235,6 +236,7 @@ apply_patch_once_or_marker "$MG/vendor/dolphin" "$ios_simulator_framebuffer_fetc
   Source/Core/VideoBackends/Metal/MTLUtil.mm 'The Simulator reports an Apple GPU family'
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$ios_audio_diagnostics_patch" \
   Source/Core/AudioCommon/Mixer.h GetDMAUnderrunCount
+apply_patch_once "$MG/vendor/dolphin" "$pipe_short_tap_patch"
 verify_patch_scope "$MG" "$mg_patch" vendor/dolphin tools/moderngekko_launcher.cpp \
   tools/moderngekko_port.cpp tests/frontend_config_test.cpp \
   tools/frontend_config.cpp tools/frontend_config.hpp tools/moderngekko_run.cpp \
@@ -280,5 +282,8 @@ verify_patch_scope "$MG/vendor/dolphin" "$dolphin_patch" \
   GXRuntime/tests/runtime_tests.c
 verify_patch_scope "$MG/vendor/dolphin/DolRecomp" "$dolrecomp_scalar_patch" \
   src/backend/emitter.c src/cpu/cpu.c src/cpu/cpu.h
+verify_patch_scope "$MG/vendor/dolphin" "$pipe_short_tap_patch" \
+  Source/Core/InputCommon/ControllerInterface/Pipes/Pipes.cpp \
+  Source/Core/InputCommon/ControllerInterface/Pipes/Pipes.h
 
 echo "ssbmpad dependencies are pinned and patched."

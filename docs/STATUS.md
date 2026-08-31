@@ -1,22 +1,31 @@
 # ssbmpad status
 
-Last updated: 2026-08-30
+Last updated: 2026-08-31
 
 ## Current goal
 
 **G8 — Test matrix green: IN PROGRESS UNDER USER-AUTHORIZED G5 DEFERRAL**
 
-PERF-235 closes G8 row 7 at its explicit no-sustained-underrun boundary. A
-fresh 6,556-function cache-direct profile strict-built all 237 generated
-chunks and was combined with retained host PGO. Cache-direct PGO alone still
-failed at 37-55 FPS with sustained underruns. The retained iOS runtime instead
-separates CPU and video work and uses three shader compiler workers; a clean
-source-integrated launch with both private INI overrides removed created the
-expected workers. After one cold creation burst, underruns stayed flat through
-sustained heavy work; warm 686-705-draw combat held 59.9 FPS/VPS with only
-three isolated transition underruns. Row 7 passes, while separate Simulator
-presentation hitches remain open and are not called locked 60 FPS. See
-`docs/artifacts/2026-08-30/g8-ios-cache-direct-dual-core-audio.md`.
+STABILITY-236 reopens and then safely re-closes G8 row 7. PERF-235's iOS
+CPU/video split crashed after 139.4 seconds with a malformed FIFO command and
+`SIGTRAP` in `OpcodeDecoder::RunFifo<false>` on the Video thread. The retained
+runtime removes only that split, keeps three shader compiler workers, and logs
+`cpuVideoSplit=0 shaderCompilerThreads=3`. The exact single-core candidate then
+ran for 22 minutes 44 seconds through combat, transitions, results, menus, and
+a background/foreground cycle: callbacks continued, the final interval was
+59.9 FPS/VPS at DMA queue 14/15, underruns had long flat runs, and no FIFO,
+desync, fatal, or crash match occurred. Isolated presentation-only dips remain
+and are not called locked-60. See
+`docs/artifacts/2026-08-31/g8-ios-single-core-stability-and-touch-input.md`.
+
+INPUT-236 closes row 9. The visible touch overlay moved the stage cursor,
+selected Onett, moved P1, paused/resumed, produced separate X/Y jumps, and
+exercised A/B/Z/L/R, both C-stick directions, and every D-pad direction during
+a retained live match. A pipe-level short-tap latch fixes press/release edges
+that previously vanished before the emulated pad sampled them. Simulator
+controllers now participate in overlay visibility, and the rebuilt app hid
+the controls for its assigned MFi `Gamepad`; row 11 remains partial pending an
+actual live disconnect/reconnect. The full repository gate passes.
 
 PERF-234 verifies the independent audit's broad A1 claim but refutes its narrow
 `mtspr` E3 priority. The combined-PGO route executes 132.1 million live hook
@@ -1373,7 +1382,7 @@ not add work to every dispatch. See
 | G5 macOS 60 fps | Deferred, not passed | DECISION-215 permits mobile sequencing while unavailable external 59.94 Hz/VRR verification is deferred; D2 remains unchanged |
 | G6 Simulator core boots | Pass | `docs/artifacts/2026-08-30/g6-ios-simulator-core-and-gameplay.md` |
 | G7 Shell ported | Pass | `docs/artifacts/2026-08-30/g7-shell-parity-and-diagnostics.md` |
-| G8 Test matrix green | In progress | `docs/artifacts/2026-08-30/g8-test-matrix-reconciliation.md`; rows 1, 2, 4-8, and 12-15 pass; row 3 is provisionally accepted; rows 9-11 remain partial |
+| G8 Test matrix green | In progress | `docs/artifacts/2026-08-30/g8-test-matrix-reconciliation.md`; rows 1, 2, 4-9, and 12-15 pass; row 3 is provisionally accepted; rows 10-11 remain partial |
 | G9 Netplay working | Not started | G8 first; requires a synchronized completed match with an iPadOS endpoint |
 
 ## Pinned inputs and dependencies
@@ -1394,8 +1403,8 @@ not add work to every dispatch. See
 ## Test matrix
 
 The authoritative row-by-row reconciliation is
-`docs/artifacts/2026-08-30/g8-test-matrix-reconciliation.md`. Rows 1, 2, 4-8,
-and 12-15 pass. Rows 9, 10, and 11 are partial. Row 3 is provisionally accepted by the user's
+`docs/artifacts/2026-08-30/g8-test-matrix-reconciliation.md`. Rows 1, 2, 4-9,
+and 12-15 pass. Rows 10 and 11 are partial. Row 3 is provisionally accepted by the user's
 explicit external-display waiver and must be replayed later on suitable
 hardware.
 
@@ -1404,8 +1413,8 @@ sun icon with an original controller-free charcoal/silver/crimson SsbmPad
 arena-impact emblem. The touch R shoulder now uses the same compact standard
 button and width as L, with matching digital-plus-255/0 trigger semantics. The
 focused layout regression, a fresh Release build, and a live iPad Simulator
-visual check pass. G8 row 9 remains partial until every control is exercised in
-live gameplay. See
+visual check pass. INPUT-236 subsequently exercised every control in live
+gameplay and closes row 9. See
 `docs/artifacts/2026-08-30/g8-public-presentation-and-compact-r.md`.
 
 PERF-226 rejects exact-profile iOS `-O3` at the structural gate. Relative to
@@ -1442,6 +1451,18 @@ remains separately open. See
 `docs/artifacts/2026-08-30/g8-macos-classic-three-stage-progression.md`.
 
 ## Open defects and decisions
+
+- **IOS-FIFO-001 (fixed):** The previously accepted iOS CPU/video split
+  crashed in `OpcodeDecoder::RunFifo<false>` after 139.4 seconds. The product
+  is single-core again; three asynchronous shader workers remain. A 22-minute
+  44-second reversal survives combat and lifecycle with no FIFO/desync match.
+- **INPUT-004 (fixed):** Pipe `PRESS` plus `RELEASE` could both queue before a
+  guest sample and disappear. Digital `PipeInput` now latches one observed
+  press edge; duplicate already-observed holds and analog axes do not latch.
+- **CONTROLLER-002 (partial):** Simulator-forwarded controllers now hide the
+  overlay and clear touch state exactly like device controllers. Focused
+  disconnect/reclaim tests pass and foreground retention is live-proven, but
+  row 11 still needs an actual live disconnect/reconnect observation.
 
 - **INPUT-001:** Supplied disc is GALE01 revision 0 rather than the PRD's
   preferred revision 2. Proceed per PRD Section 5.1 and keep module identity

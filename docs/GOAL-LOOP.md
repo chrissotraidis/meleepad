@@ -1923,6 +1923,21 @@ archive/pipeline-persistence reversal, while G8 execution moves to partial
 rows 9-11. See
 `docs/artifacts/2026-08-30/g8-ios-cache-direct-dual-core-audio.md`.
 
+STABILITY-236 retracts PERF-235's unsafe dual-core acceptance and re-closes
+row 7 on the single-core product path. The dual-core app crashed after 139.4
+seconds with a malformed FIFO command and `SIGTRAP` in the Video thread's
+`OpcodeDecoder::RunFifo<false>`. Removing only `MAIN_CPU_THREAD` while retaining
+three shader workers produced a 22-minute-44-second run across combat, menus,
+results, and lifecycle: 135 performance rows, continuing audio callbacks,
+59.9 FPS/VPS at the final interval, long flat-underrun runs, and zero FIFO,
+desync, fatal, or crash matches. Short digital presses are now latched until
+the emulated pad samples them. The visible overlay drove every Melee control in
+a live Onett match, so row 9 passes. Simulator-forwarded controllers now hide
+the overlay instead of being compiled out, but row 11 remains partial until an
+actual live disconnect/reconnect is observed. Continue G8 with rows 10 and 11;
+do not re-enable Dolphin dual-core. See
+`docs/artifacts/2026-08-31/g8-ios-single-core-stability-and-touch-input.md`.
+
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).
 - **Per goal claim:** full evidence per PRD Section 11 before marking a goal met in STATUS.md.
 - **Per session:** before ending, run the ported regression scripts (sunpad `tests/` equivalents) plus a boot check on the highest working target, so the journal's last entry states a known-good state.

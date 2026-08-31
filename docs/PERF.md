@@ -757,3 +757,26 @@ Required next work:
   necessary, not sufficient. G5 remains unpassed and G6 blocked.
 - Evidence:
   `docs/artifacts/2026-08-30/g5-remaining-mechanism-and-capability-boundary.md`.
+
+## 2026-08-31 — PERF-236 dual-core crash and single-core reversal
+
+- The previously accepted iOS CPU/video split launched at 01:00:14.9399 and
+  crashed at 01:02:34.3586: 139.4 seconds. The report records
+  `EXC_BREAKPOINT` / `SIGTRAP`, faulting Video thread 13, and top frame
+  `OpcodeDecoder::RunFifo<false>` +1444. The preceding runtime warning reported
+  malformed FIFO command `0x84000000` with fewer than 16 bytes available.
+- Retained configuration: cache-direct exact-PGO module, host PGO, single
+  CPU/GPU worker, three shader compiler workers. Runtime identity:
+  `cpuVideoSplit=0 shaderCompilerThreads=3`.
+- Reversal window: 06:22:30Z..06:45:14Z, 135 ten-second rows over 22:44.
+  Final interval 59.9 FPS / 59.9 VPS, DMA 14/15. Underruns 1 -> 71 across cold
+  creation, multiple transitions/matches, UI work, and lifecycle; 107 intervals
+  were flat and the longest consecutive flat run was 15 intervals.
+- The minimum reported presentation FPS was 3.7 while VPS remained 59.9 and
+  speed 1.0; keep the presentation hitch separate from emulation/audio
+  continuity. Zero FIFO/desync/fatal/crash matches occurred.
+- Decision: reject and forbid iOS Dolphin dual-core. Row 7 passes its
+  no-sustained-underrun boundary on the single-core product path, not as a
+  locked-60 or physical-device claim.
+- Evidence:
+  `docs/artifacts/2026-08-31/g8-ios-single-core-stability-and-touch-input.md`.
