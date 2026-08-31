@@ -1950,6 +1950,49 @@ Together with G7, import, and diagnostics evidence, every menu entry now
 functions. Row 11 is the sole non-waived partial row. See
 `docs/artifacts/2026-08-31/g8-menu-system-remove-reimport.md`.
 
+PERF-238 reopens G8 row 7 and retracts the physical-iPad-candidate
+interpretation of STABILITY-236. The user's first manual Simulator run visibly
+showed Fountain gameplay at 21.9 FPS. The matching runtime intervals fell from
+42.2/42.3 FPS/VPS through 34.0/33.7 to 20.2/19.8, then the sampled interval
+held only 21.5-24.1 FPS/VPS while DMA underruns rose from 913 to 1,240. This is
+a sustained emulation-speed failure, not an isolated presentation hitch. The
+eight-second sample places 1,756/2,604 CPU-GPU-thread samples in
+`StaticRecompCore::Run` and 1,648 below `chassis_dispatch`; a final 59.9
+interval from a long mixed-scene run cannot override this exact failure.
+Simulator gameplay is not currently playable and the build is not ready for
+physical-iPad promotion. See
+`docs/artifacts/2026-08-31/g8-ios-fountain-20fps-retraction.md`.
+
+## G8 row-7 and iPad promotion acceptance protocol
+
+This protocol prevents a fast idle/menu tail or final interval from hiding a
+slow first-run gameplay path.
+
+1. Test the exact product build and default product settings from a fresh app
+   process. Record the complete visible route from boot/title through normal
+   menu navigation into a full 1v1 Fountain of Dreams match with music and
+   SFX. Do not substitute attract mode, a savestate-only interior window, or a
+   warmed scene for this route.
+2. Retain scene markers, a visible screenshot or video, and every 10-second
+   runtime performance row for the route. Report the minimum and the complete
+   interval distribution; never use only the mean, best, final, or selected
+   flat-underrun windows.
+3. After the first visible game frame, every non-paused interval must report
+   both FPS and VPS at least 59.0, `speedRatio` at least 0.98, continuing audio
+   callbacks, and no sustained DMA-underrun growth. Any interval below 59.0,
+   or any two consecutive intervals that add underruns, fails the run and
+   reopens row 7. A single interval below 55.0 is an immediate performance
+   failure regardless of later recovery.
+4. Repeat the same route in a fresh second process. Both runs must pass. A
+   performance experiment is accepted only by a fixed-route control/candidate/
+   control reversal or equivalent fresh-process comparison, with semantic and
+   crash checks retained.
+5. Only after both Simulator runs pass may the same build be called a
+   physical-iPad test candidate. Physical-device readiness then requires its
+   own signed-device replay covering the same match, touch latency, audio,
+   lifecycle, controller reconnect, and a 15-minute thermal soak. Simulator
+   or generic-device compilation is never device acceptance.
+
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).
 - **Per goal claim:** full evidence per PRD Section 11 before marking a goal met in STATUS.md.
 - **Per session:** before ending, run the ported regression scripts (sunpad `tests/` equivalents) plus a boot check on the highest working target, so the journal's last entry states a known-good state.

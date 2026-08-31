@@ -1,8 +1,15 @@
 # G8 iPad Simulator single-core stability and touch input
 
+> **Superseded performance conclusion (PERF-238):** This artifact remains
+> authoritative for rejecting unsafe dual-core execution, short-tap input,
+> touch coverage, and the bounded lifecycle run. It no longer passes G8 row 7
+> or supports physical-iPad promotion. A later manual Fountain run visibly
+> held 20-24 FPS/VPS with sustained DMA underruns; see
+> `g8-ios-fountain-20fps-retraction.md`.
+
 Date: 2026-08-31
 
-Status: **row 7 pass retained on single-core; row 9 pass; row 11 still partial**
+Status: **row 7 conclusion superseded; row 9 pass; row 11 still partial**
 
 ## Why the prior row-7 acceptance was reopened
 

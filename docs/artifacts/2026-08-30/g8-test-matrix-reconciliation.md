@@ -16,7 +16,7 @@ a completed row.
 | 4 | Fountain of Dreams 1v1 | Pass | Multiple visually verified complete macOS matches and CPU/GPU/presentation profiles are retained; timing failures are recorded honestly. |
 | 5 | 4-player item match, Battlefield | Pass | A controlled macOS run explicitly selected Battlefield with P1 plus three level-1 CPUs, visibly showed an item in live combat, and reached natural Time Battle results without a crash. The retained bracket records an honest approximately 36.2 effective game FPS despite near-59.94 host presentation. |
 | 6 | Classic mode, 3 stages | Pass | A retained macOS run naturally cleared Brinstar, cleared the following team battle, completed the target bonus stage by timeout, and advanced into the Bowser fight. Generated-code-derived pointer chains matched live fighter percentages. The known visual-warping defect remains separate. |
-| 7 | Audio continuity | Pass | The earlier dual-core acceptance was retracted after a 139.4-second malformed-FIFO crash in the Video thread. The retained cache-direct exact-PGO app is single-core with three shader workers. It survived 22 minutes 44 seconds across combat, menus, results, and lifecycle; callbacks continued, the final interval was 59.9 FPS/VPS at queue 14/15, underruns had long flat runs, and no FIFO/desync/fatal/crash match occurred. This satisfies no sustained underrun, not locked-60 or physical-device performance. See the 2026-08-31 single-core artifact. |
+| 7 | Audio continuity | **Fail** | PERF-238 supersedes the mixed-scene single-core pass. The user's first manual Fountain run visibly showed 21.9 FPS; matching rows fell to 20.2 FPS / 19.8 VPS and the sampled span held 21.5-24.1 FPS/VPS while underruns rose 913 -> 1,240. This is sustained emulation/audio starvation, not a presentation-only hitch. See the 2026-08-31 Fountain retraction artifact. |
 | 8 | Save/memory card | Pass | Live `CODM` (macOS) and `CODX` (iPad Simulator) names were visibly recovered after clean process relaunches. SsbmPad settings were also read back after relaunch on both targets. See the row artifact. |
 | 9 | Touch overlay drives gameplay | Pass | The visible overlay moved the stage cursor and P1, selected Onett, paused/resumed, produced separate X/Y jumps, and exercised A/B/Z/L/R, C-right/C-up, and all four D-pad directions during a retained match. Accessibility actions use the same touch handlers; no FIFO menu script drove the row. Prior G7 evidence proves layout edit/reset. |
 | 10 | Menu system parity | Pass | G7 live-proves resolution, aspect, FPS, touch settings/reset, mapping, and diagnostics. Row 13 proves document-picker/folder import and reimport. A live destructive run subsequently stopped the runtime, removed only GameData, preserved the separate memory-card path, showed legal setup, reimported the exact pinned hash from the SsbmPad folder, extracted 1,209 files, left zero staging directories, and visibly rebooted. Experimental Performance was toggled on/off with its restart explanation and restored off. |
@@ -28,13 +28,11 @@ a completed row.
 
 ## Next execution order
 
-1. Close the last iPad interaction boundary while keeping exactly one
-   Simulator booted: an actual controller disconnect/reconnect with overlay
-   show, P1 reclaim, and no stuck input. Touch, menu parity, and saves pass.
-2. Continue presentation polish separately from row 7: test bounded Metal
-   binary-archive/pipeline persistence against cold creation and the remaining
-   Simulator presentation dips. Cache-direct exact PGO plus single-core and
-   bounded shader workers is the safe comparison floor.
+1. Re-close row 7 first. Attribute the exact 20-24 FPS Fountain sample, change
+   one measured mechanism, and replay the complete fresh-process boot-to-
+   Fountain route under the acceptance protocol in `docs/GOAL-LOOP.md`.
+2. Then close the remaining iPad interaction boundary: an actual controller
+   disconnect/reconnect with overlay show, P1 reclaim, and no stuck input.
 3. Repeat the provisionally accepted row 3 on 59.94 Hz/VRR hardware during
    later device validation; a failure reopens it.
 
@@ -89,3 +87,8 @@ Row 11 remains partial. See
 Row 10 was subsequently closed by a recoverable live remove/reimport run plus
 the retained G7/import/diagnostics evidence. See
 `docs/artifacts/2026-08-31/g8-menu-system-remove-reimport.md`.
+
+PERF-238 subsequently reopens row 7. The manual first-run Fountain path held
+only about 20-24 FPS/VPS with sustained underrun growth. A final 59.9 interval
+from the earlier mixed-scene soak does not prove the full route. See
+`docs/artifacts/2026-08-31/g8-ios-fountain-20fps-retraction.md`.

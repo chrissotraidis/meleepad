@@ -4839,3 +4839,26 @@ Append-only execution ledger. Claims are limited to observed evidence.
   `docs/artifacts/2026-08-31/g8-menu-system-remove-reimport.md`.
 - Next: directly observe a controller disconnect/reconnect with overlay show,
   P1 reclaim, and no stuck input before starting G9.
+
+## 2026-08-31 — PERF-238 manual Fountain failure and loop correction
+
+- Reconcile the user's first manual iPad Simulator run rather than relying on
+  the prior mixed-scene soak: visible Fountain gameplay reports 21.9 FPS.
+- Match the screenshot to runtime rows at 26.9/26.8, 22.7/22.3, 21.5/21.5,
+  and 24.0/24.1 FPS/VPS while DMA underruns rise 1,071 -> 1,240. This is a
+  sustained producer/audio failure, not a presentation-only dip.
+- Sample the exact 21.5-24.1 interval: 1,756/2,604 CPU-GPU-thread samples are
+  in `StaticRecompCore::Run` and 1,648 are below `chassis_dispatch`; the cost
+  is broad rather than a narrow shader or vertex-loader spike.
+- Decision: reopen G8 row 7, retract physical-iPad-candidate language, and
+  supersede STABILITY-236 only for its performance conclusion. Its dual-core
+  rejection, input, touch, and lifecycle evidence remain valid.
+- Refine the loop: require two complete fresh-process boot-to-Fountain runs,
+  retain every interval, judge the minimum FPS/VPS/speed and underrun sequence,
+  and forbid final/best/mean-only promotion. Any interval below 59.0 fails;
+  below 55.0 fails immediately.
+- Evidence:
+  `docs/artifacts/2026-08-31/g8-ios-fountain-20fps-retraction.md`.
+- Next: compare the exact low-FPS sample to a same-build 59.9 interval and
+  select only a new source mechanism with at least five-percent differential
+  coverage before another full replay.

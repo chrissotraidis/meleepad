@@ -6,7 +6,20 @@ Last updated: 2026-08-31
 
 **G8 — Test matrix green: IN PROGRESS UNDER USER-AUTHORIZED G5 DEFERRAL**
 
-STABILITY-236 reopens and then safely re-closes G8 row 7. PERF-235's iOS
+PERF-238 reopens row 7 and retracts the prior physical-iPad-candidate
+interpretation. The user's first manual Simulator run visibly showed Fountain
+gameplay at 21.9 FPS. Matching runtime rows fell as low as 20.2 FPS / 19.8 VPS,
+and the exact sampled span held 21.5-24.1 FPS/VPS while DMA underruns rose
+913 -> 1,240. This is sustained emulation slowdown, not a presentation-only
+hitch. The captured sample puts 1,756/2,604 CPU-GPU-thread samples in
+`StaticRecompCore::Run` and 1,648 below `chassis_dispatch`. The build is not
+currently playable in Simulator and is not ready for physical-iPad promotion.
+The refined loop now requires two fresh-process boot-to-Fountain routes with
+all intervals retained and FPS/VPS >=59.0 before promotion. See
+`docs/artifacts/2026-08-31/g8-ios-fountain-20fps-retraction.md`.
+
+STABILITY-236 previously reopened and then appeared to re-close G8 row 7.
+PERF-235's iOS
 CPU/video split crashed after 139.4 seconds with a malformed FIFO command and
 `SIGTRAP` in `OpcodeDecoder::RunFifo<false>` on the Video thread. The retained
 runtime removes only that split, keeps three shader compiler workers, and logs
@@ -14,8 +27,10 @@ runtime removes only that split, keeps three shader compiler workers, and logs
 ran for 22 minutes 44 seconds through combat, transitions, results, menus, and
 a background/foreground cycle: callbacks continued, the final interval was
 59.9 FPS/VPS at DMA queue 14/15, underruns had long flat runs, and no FIFO,
-desync, fatal, or crash match occurred. Isolated presentation-only dips remain
-and are not called locked-60. See
+desync, fatal, or crash match occurred. That evidence remains valid for
+removal of the unsafe dual-core crash, input, and bounded lifecycle stability,
+but PERF-238 supersedes its row-7 pass because the mixed route omitted the
+minimum/distribution needed to detect the manual Fountain failure. See
 `docs/artifacts/2026-08-31/g8-ios-single-core-stability-and-touch-input.md`.
 
 INPUT-236 closes row 9. The visible touch overlay moved the stage cursor,
@@ -34,7 +49,7 @@ backup was then imported through `Import from SsbmPad Folder`; the app retained
 the exact pinned hash, extracted 1,209 files, left no staging directory, and
 visibly rebooted. The restart-required performance action was toggled on/off
 and restored to off. Combined with G7, import, and diagnostics evidence, every
-menu entry functions. Row 11 is the sole non-waived partial row. See
+menu entry functions. Row 7 is failed and row 11 remains partial. See
 `docs/artifacts/2026-08-31/g8-menu-system-remove-reimport.md`.
 
 PERF-234 verifies the independent audit's broad A1 claim but refutes its narrow
@@ -1392,7 +1407,7 @@ not add work to every dispatch. See
 | G5 macOS 60 fps | Deferred, not passed | DECISION-215 permits mobile sequencing while unavailable external 59.94 Hz/VRR verification is deferred; D2 remains unchanged |
 | G6 Simulator core boots | Pass | `docs/artifacts/2026-08-30/g6-ios-simulator-core-and-gameplay.md` |
 | G7 Shell ported | Pass | `docs/artifacts/2026-08-30/g7-shell-parity-and-diagnostics.md` |
-| G8 Test matrix green | In progress | `docs/artifacts/2026-08-30/g8-test-matrix-reconciliation.md`; rows 1, 2, 4-10, and 12-15 pass; row 3 is provisionally accepted; row 11 remains partial |
+| G8 Test matrix green | In progress | `docs/artifacts/2026-08-30/g8-test-matrix-reconciliation.md`; row 7 fails on sustained 20-24 FPS Fountain gameplay, row 11 remains partial, and row 3 is provisionally accepted |
 | G9 Netplay working | Not started | G8 first; requires a synchronized completed match with an iPadOS endpoint |
 
 ## Pinned inputs and dependencies
@@ -1413,10 +1428,10 @@ not add work to every dispatch. See
 ## Test matrix
 
 The authoritative row-by-row reconciliation is
-`docs/artifacts/2026-08-30/g8-test-matrix-reconciliation.md`. Rows 1, 2, 4-10,
-and 12-15 pass. Row 11 is partial. Row 3 is provisionally accepted by the user's
-explicit external-display waiver and must be replayed later on suitable
-hardware.
+`docs/artifacts/2026-08-30/g8-test-matrix-reconciliation.md`. Rows 1, 2, 4-6,
+8-10, and 12-15 pass. Row 7 fails, row 11 is partial, and row 3 is
+provisionally accepted by the user's explicit external-display waiver and must
+be replayed later on suitable hardware.
 
 POLISH-225 adds a first-class ROM-safe root README and replaces the inherited
 sun icon with an original controller-free charcoal/silver/crimson SsbmPad
@@ -1473,6 +1488,10 @@ remains separately open. See
   overlay and clear touch state exactly like device controllers. Focused
   disconnect/reclaim tests pass and foreground retention is live-proven, but
   row 11 still needs an actual live disconnect/reconnect observation.
+- **PERF-238 (open):** The first manual iPad Simulator Fountain run visibly
+  held about 20-24 FPS/VPS with sustained DMA underruns. This supersedes the
+  prior row-7 pass and blocks physical-iPad promotion. Acceptance now requires
+  two fresh-process boot-to-Fountain routes with every interval retained.
 
 - **INPUT-001:** Supplied disc is GALE01 revision 0 rather than the PRD's
   preferred revision 2. Proceed per PRD Section 5.1 and keep module identity
