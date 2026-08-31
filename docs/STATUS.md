@@ -56,6 +56,18 @@ shrinks the named functions and whole module before another fixed Fountain
 reversal. See
 `docs/artifacts/2026-08-31/g8-ios-fountain-profile-rejection-and-front-end-attribution.md`.
 
+PERF-244 rejects the mixed-LTO follow-up. Strict-profile native generated
+objects shrink whole-module text 25.967% and the three named function spans
+2.28-24.35% while preserving ABI, signing, minimum OS, and a bounded runtime
+smoke. Live performance collapses anyway: the first ten intervals average
+20.570 FPS with a 10.4 minimum, mean speed ratio 0.340, and +425 underruns;
+visible four-character Fountain reports 23.3 FPS. This is about 57% worse than
+the bounded control mean. Exact control `af1364e6...` is restored and the app
+is stopped. Do not retry footprint-only generated-code variants. Next collect
+cache/fetch versus branch/discard events on a visually confirmed control
+Fountain phase before naming another source candidate. See
+`docs/artifacts/2026-08-31/g8-ios-mixed-lto-rejection.md`.
+
 PERF-239 further splits that route into independently judged opening, menu,
 selection, loading, Fountain, results, and return phases. An unchanged-process
 comparison reached 60.0 FPS/VPS with measurable timer slack immediately after
@@ -1551,6 +1563,9 @@ remains separately open. See
 - **PERF-243 (attributed):** A valid UI CPU-counter trace of separate 31.1 FPS
   four-character combat assigns 42.22% to instruction delivery. This supports
   a mixed-LTO structural preflight, not a stable-60 or literal-Fountain claim.
+- **PERF-244 (rejected):** Mixed-LTO generated chunks shrink text 25.967% but
+  collapse the first ten live intervals to 20.570 mean / 10.4 minimum FPS.
+  Footprint-only optimization is refuted; exact control is restored.
 
 - **INPUT-001:** Supplied disc is GALE01 revision 0 rather than the PRD's
   preferred revision 2. Proceed per PRD Section 5.1 and keep module identity

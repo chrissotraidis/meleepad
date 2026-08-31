@@ -2002,6 +2002,20 @@ for small runtime helpers; require structural shrinkage before a fixed
 Fountain reversal. See
 `docs/artifacts/2026-08-31/g8-ios-fountain-profile-rejection-and-front-end-attribution.md`.
 
+PERF-244 rejects the mixed-LTO follow-up despite a decisive structural pass.
+Compiling all 237 strict-profile generated chunks as native non-LTO objects
+shrinks module text 25.967% and the three named function spans 2.28-24.35%,
+while preserving ABI, minimum OS, signing, and bounded runtime integrity. The
+first ten live intervals nevertheless collapse to 20.570 mean / 10.4 minimum
+FPS, 0.340 mean speed ratio, and +425 underruns; visible four-character
+Fountain reports 23.3 FPS. The candidate is about 57% worse than the bounded
+control mean and does not earn a full route. Restore control `af1364e6...`.
+Instruction-delivery pressure remains measured, but footprint reduction alone
+is refuted. Before another module build, split the control's delivery class
+with available cache/fetch and branch/discard counters on visually confirmed
+four-character Fountain. See
+`docs/artifacts/2026-08-31/g8-ios-mixed-lto-rejection.md`.
+
 ## G8 row-7 and iPad promotion acceptance protocol
 
 This protocol prevents a fast idle/menu tail or final interval from hiding a

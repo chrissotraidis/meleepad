@@ -4972,3 +4972,23 @@ Append-only execution ledger. Claims are limited to observed evidence.
   objects while keeping small runtime helpers ThinLTO. Require a distinct
   signed module, no profile mismatch, no named-function growth, and whole-text
   shrinkage before any fixed Fountain control/candidate/control reversal.
+
+## 2026-08-31 — PERF-244 mixed-LTO candidate rejected
+
+- Compile all 237 exact-source strict-profile generated chunks to native
+  non-LTO Mach-O objects while retaining ThinLTO for the small runtime helper
+  layer. All chunks compile with no profile mismatch.
+- The signed arm64 Simulator candidate passes ABI/minimum-OS/profile-section
+  checks and shrinks module `__text` 25.967%; the three named slow-phase
+  function spans shrink 2.28-24.35%. The structural mechanism is real.
+- A bounded runtime smoke reaches coherent title and attract gameplay with no
+  crash/desync/fatal match. Performance rejects it immediately: first-ten FPS
+  mean/minimum 20.570/10.4, speed-ratio mean/minimum 0.340/0.165, and underruns
+  +425. Visible four-character Fountain reports 23.3 FPS.
+- Reject before the exact Fox/CPU-DK route. Code compaction without the full
+  generated ThinLTO pipeline is approximately 57% worse than the bounded
+  control mean. Do not retry non-LTO chunks or footprint-only variants.
+- Restore exact control `af1364e6...`, unset the private input/trace variables,
+  and stop the app. Next split instruction delivery into available cache/fetch
+  versus branch/discard events on a visually confirmed control Fountain phase
+  before another source or module candidate.
