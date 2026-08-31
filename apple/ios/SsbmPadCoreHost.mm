@@ -231,12 +231,12 @@ static void SsbmPadRuntimeLogCallback(
             performanceSource = @"launch argument";
             useExperimentalQoS = YES;
         } else if (launchArgumentPerformance95) {
-            performanceProfile = @"experimental-single-core-95";
+            performanceProfile = @"experimental-dual-core-95";
             performanceSource = @"launch argument";
             emulatedCPUClock = 0.95f;
             useExperimentalQoS = YES;
         } else if (launchArgumentPerformance90 || menuPreferencePerformance) {
-            performanceProfile = @"experimental-single-core-90";
+            performanceProfile = @"experimental-dual-core-90";
             performanceSource = launchArgumentPerformance90 ?
                 @"launch argument" : @"menu preference";
             emulatedCPUClock = 0.90f;
@@ -249,10 +249,10 @@ static void SsbmPadRuntimeLogCallback(
         if (useExperimentalQoS)
             qosResult = pthread_set_qos_class_self_np(QOS_CLASS_USER_INITIATED, 0);
         if (useExperimentalQoS) {
-            SsbmPadLog(@"runtime performance profile=%@ cpuVideoSplit=0 emulatedCPUClock=%.2f gameThreadQoS=userInitiated qosResult=%d source=%@",
+            SsbmPadLog(@"runtime performance profile=%@ cpuVideoSplit=1 shaderCompilerThreads=3 emulatedCPUClock=%.2f gameThreadQoS=userInitiated qosResult=%d source=%@",
                       performanceProfile, emulatedCPUClock, qosResult, performanceSource);
         } else {
-            SsbmPadLog(@"runtime performance profile=stable cpuVideoSplit=0 emulatedCPUClock=1.00 gameThreadQoS=inherited source=default");
+            SsbmPadLog(@"runtime performance profile=stable cpuVideoSplit=1 shaderCompilerThreads=3 emulatedCPUClock=1.00 gameThreadQoS=inherited source=default");
         }
         @synchronized (self) {
             _activePerformanceProfile = performanceProfile;

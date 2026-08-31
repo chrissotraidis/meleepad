@@ -17,13 +17,19 @@ for contract in \
   '-ssbmpadExperimentalPerformance95' \
   '-ssbmpadExperimentalPerformanceQoSOnly' \
   'QOS_CLASS_USER_INITIATED' \
-  'experimental-single-core-90' \
-  'experimental-single-core-95' \
+  'experimental-dual-core-90' \
+  'experimental-dual-core-95' \
   'experimental-qos-only-100' \
+  'cpuVideoSplit=1' \
+  'shaderCompilerThreads=3' \
   'runtime render scale=%ld source=live' \
   'runtime aspect mode=%@ source=%@'; do
   grep -Fq -- "$contract" "$HOST"
 done
+grep -Fq 'Config::SetBase(Config::MAIN_CPU_THREAD, true);' \
+  "$ROOT/ref/ModernGekko/src/runtime/dolphin_runtime.cpp"
+grep -Fq 'Config::SetBase(Config::GFX_SHADER_COMPILER_THREADS, 3);' \
+  "$ROOT/ref/ModernGekko/src/runtime/dolphin_runtime.cpp"
 grep -Fq 'SsbmPadExperimentalPerformanceMode' "$SETTINGS"
 grep -Fq 'Experimental Performance Mode (Restart Required)' "$OVERLAY"
 echo "Experimental performance configuration checks passed"

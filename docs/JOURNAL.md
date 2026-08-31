@@ -4755,3 +4755,33 @@ Append-only execution ledger. Claims are limited to observed evidence.
   legacy profile or specialize `mtspr` first.
 - Cleanup: terminate the app and shut down the sole Simulator. Evidence:
   `docs/artifacts/2026-08-30/g8-ios-fallback-counter-cache-source-reversal.md`.
+
+## 2026-08-30 — PERF-235 source-integrated iOS audio-continuity closure
+
+- Train the regenerated cache-direct source in live combat. The completed raw
+  dump merges to a 6,556-function profile with 239,673,165 dispatch calls; all
+  237 generated chunks pass strict profile use.
+- Reject cache-direct exact PGO alone: its single-threaded cold path falls to
+  37-55 FPS and raises DMA underruns 3 -> 117; the warm path still falls to
+  45-51 FPS and reaches 241 underruns.
+- Reverse Dolphin CPU-thread mode and three shader compiler workers. Live
+  samples show separate CPU/video workers and async compiler workers. The
+  mechanism changes from sustained emulation/audio starvation to bounded cold
+  creation plus separate presentation hitches.
+- Integrate those two iOS defaults through canonical ModernGekko patch 0011,
+  update the host diagnostic identity, and add a focused source contract. The
+  complete ModernGekko patch chain applies cleanly in a disposable worktree.
+- Rebuild the product with retained host PGO and the strict cache-direct
+  module. Remove both private INI overrides before launch. The app still logs
+  `cpuVideoSplit=1 shaderCompilerThreads=3` and creates the expected workers,
+  proving the result is source-integrated.
+- Live result: one cold resource-creation burst raises underruns 2 -> 68, then
+  the counter stays flat through sustained heavy work and recovery. Warm
+  686-705-draw combat holds 59.9 FPS/VPS at the target DMA depth; only three
+  isolated transition underruns are added. CoreAudio callbacks continue.
+- Decision: G8 row 7 passes its written no-sustained-underrun boundary. Keep
+  the independent Simulator presentation hitch open; this is not an iPad
+  locked-60 claim. Continue G8 with partial interaction rows 9-11, and use a
+  bounded Metal binary-archive reversal as the next presentation experiment.
+- Evidence:
+  `docs/artifacts/2026-08-30/g8-ios-cache-direct-dual-core-audio.md`.

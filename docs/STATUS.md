@@ -6,6 +6,18 @@ Last updated: 2026-08-30
 
 **G8 — Test matrix green: IN PROGRESS UNDER USER-AUTHORIZED G5 DEFERRAL**
 
+PERF-235 closes G8 row 7 at its explicit no-sustained-underrun boundary. A
+fresh 6,556-function cache-direct profile strict-built all 237 generated
+chunks and was combined with retained host PGO. Cache-direct PGO alone still
+failed at 37-55 FPS with sustained underruns. The retained iOS runtime instead
+separates CPU and video work and uses three shader compiler workers; a clean
+source-integrated launch with both private INI overrides removed created the
+expected workers. After one cold creation burst, underruns stayed flat through
+sustained heavy work; warm 686-705-draw combat held 59.9 FPS/VPS with only
+three isolated transition underruns. Row 7 passes, while separate Simulator
+presentation hitches remain open and are not called locked 60 FPS. See
+`docs/artifacts/2026-08-30/g8-ios-cache-direct-dual-core-audio.md`.
+
 PERF-234 verifies the independent audit's broad A1 claim but refutes its narrow
 `mtspr` E3 priority. The combined-PGO route executes 132.1 million live hook
 fallbacks: 130.9 million cache operations, only 1.19 million `mtspr`, and zero
@@ -1361,7 +1373,7 @@ not add work to every dispatch. See
 | G5 macOS 60 fps | Deferred, not passed | DECISION-215 permits mobile sequencing while unavailable external 59.94 Hz/VRR verification is deferred; D2 remains unchanged |
 | G6 Simulator core boots | Pass | `docs/artifacts/2026-08-30/g6-ios-simulator-core-and-gameplay.md` |
 | G7 Shell ported | Pass | `docs/artifacts/2026-08-30/g7-shell-parity-and-diagnostics.md` |
-| G8 Test matrix green | In progress | `docs/artifacts/2026-08-30/g8-test-matrix-reconciliation.md`; rows 1, 2, 4, 5, 6, 8, 12, 13, 14, and 15 pass; row 3 is provisionally accepted; others partial/failed |
+| G8 Test matrix green | In progress | `docs/artifacts/2026-08-30/g8-test-matrix-reconciliation.md`; rows 1, 2, 4-8, and 12-15 pass; row 3 is provisionally accepted; rows 9-11 remain partial |
 | G9 Netplay working | Not started | G8 first; requires a synchronized completed match with an iPadOS endpoint |
 
 ## Pinned inputs and dependencies
@@ -1382,9 +1394,8 @@ not add work to every dispatch. See
 ## Test matrix
 
 The authoritative row-by-row reconciliation is
-`docs/artifacts/2026-08-30/g8-test-matrix-reconciliation.md`. Rows 1, 2, 4, 5,
-6, 8, 12, 13, 14, and 15 pass. Rows 9, 10, and 11 are partial; row 7 is failed
-and attributed. Row 3 is provisionally accepted by the user's
+`docs/artifacts/2026-08-30/g8-test-matrix-reconciliation.md`. Rows 1, 2, 4-8,
+and 12-15 pass. Rows 9, 10, and 11 are partial. Row 3 is provisionally accepted by the user's
 explicit external-display waiver and must be replayed later on suitable
 hardware.
 

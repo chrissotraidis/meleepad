@@ -1,0 +1,35 @@
+G8 iPad Simulator source-integrated cache-direct/dual-core summary
+Date: 2026-08-30
+
+Private INI overrides removed before launch:
+  CPUThread: absent
+  ShaderCompilerThreads: absent
+
+Compiled runtime identity:
+  performance profile=stable
+  cpuVideoSplit=1
+  shaderCompilerThreads=3
+  moduleBytes=81006192
+
+Live process sample:
+  distinct CPU thread
+  distinct Video thread
+  async shader compiler workers present
+
+Cold cycle:
+  light/intro: 59.9-60.0 FPS / approximately 60 VPS
+  transition presentation: as low as 50.7 FPS
+  DMA underruns: 2 -> 68 during creation, then flat through recovery
+
+Warm cycle:
+  686 draws: 59.9 FPS / 59.9 VPS, underruns 68
+  705 draws: 59.9 FPS / 59.9 VPS, underruns 68
+  later transition: underruns 71
+  DMA queue: 14-15 against target 15
+
+Conclusion:
+  no sustained combat underrun; row 7 criterion passes
+  isolated transition underruns and Simulator presentation hitches remain
+
+Screenshot SHA-256:
+  f8ffb03025266ecc89f87e4f392e9647ae30c108ddb92c5987b282f171746ca1

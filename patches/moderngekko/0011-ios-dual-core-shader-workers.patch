@@ -1,0 +1,27 @@
+diff --git a/src/runtime/dolphin_runtime.cpp b/src/runtime/dolphin_runtime.cpp
+index 0cedfdb..697954f 100644
+--- a/src/runtime/dolphin_runtime.cpp
++++ b/src/runtime/dolphin_runtime.cpp
+@@ -485,6 +485,12 @@ bool ConfigureDolphin(Runtime::Impl* impl)
+   SetDolphinLogCallback(impl->config.log_callback, impl->config.log_user_data);
+ 
+   Config::SetBase(Config::MAIN_CPU_CORE, PowerPC::CPUCore::StaticRecomp);
++#ifdef MODERNGEKKO_HAVE_IOS
++  // Melee's static-recompiler and Metal work saturate one host core when they
++  // share Dolphin's default non-Android thread. Keep guest execution and
++  // video submission on separate workers on iOS.
++  Config::SetBase(Config::MAIN_CPU_THREAD, true);
++#endif
+   if (impl->config.emulated_cpu_clock_scale)
+   {
+     Config::SetBase(Config::MAIN_OVERCLOCK_ENABLE, true);
+@@ -502,6 +508,9 @@ bool ConfigureDolphin(Runtime::Impl* impl)
+                   ShaderCompilationMode::AsynchronousUberShaders);
+   Config::SetBase(Config::GFX_WAIT_FOR_SHADERS_BEFORE_STARTING, true);
+ #ifdef MODERNGEKKO_HAVE_IOS
++  // Compile newly encountered specialized pipelines on otherwise idle cores
++  // so the ubershader fallback remains brief during stage transitions.
++  Config::SetBase(Config::GFX_SHADER_COMPILER_THREADS, 3);
+   // Dolphin's ARM64 vertex loader generates executable host code. iOS forbids
+   // that JIT path, so use the portable software vertex loader.
+   Config::SetBase(Config::GFX_VERTEX_LOADER_TYPE, VertexLoaderType::Software);

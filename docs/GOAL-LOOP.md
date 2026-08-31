@@ -1906,6 +1906,23 @@ profile or specialize `mtspr` first. Row 7 remains open. See
 `docs/artifacts/2026-08-30/g8-ios-cache-prewarm-rejection.md` and
 `docs/artifacts/2026-08-30/g8-ios-fallback-counter-cache-source-reversal.md`.
 
+PERF-235 closes row 7 without weakening its written boundary. A fresh
+cache-direct corpus profiles 6,556 functions and 239.7 million dispatches;
+strict-use compilation passes all 237 generated chunks. The resulting module
+paired with retained host PGO still fails when CPU and video share one worker,
+so cache-direct PGO alone is rejected. An iOS-only CPU/video split plus three
+shader compiler workers changes the live mechanism: after a bounded cold
+creation burst, callbacks continue, the DMA queue recovers, and underruns stay
+flat through sustained heavy work. A clean rebuilt app with both private INI
+overrides removed proves the settings are source-integrated; warm 686-705-draw
+combat holds 59.9 FPS/VPS with only three isolated transition underruns. This
+satisfies PRD row 7's no-*sustained*-underrun requirement, not a zero lifetime
+counter or an iPad locked-60 claim. Keep the remaining Simulator presentation
+hitch open; next use the new comparison floor for a bounded Metal binary-
+archive/pipeline-persistence reversal, while G8 execution moves to partial
+rows 9-11. See
+`docs/artifacts/2026-08-30/g8-ios-cache-direct-dual-core-audio.md`.
+
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).
 - **Per goal claim:** full evidence per PRD Section 11 before marking a goal met in STATUS.md.
 - **Per session:** before ending, run the ported regression scripts (sunpad `tests/` equivalents) plus a boot check on the highest working target, so the journal's last entry states a known-good state.
