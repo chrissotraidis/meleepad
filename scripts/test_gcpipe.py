@@ -60,6 +60,26 @@ class MemoryWatcherClientTests(unittest.TestCase):
         )
         self.assertEqual(locations, "80477D68\n")
 
+    def test_pointer_chain_location_is_preserved_in_payload_and_file(self) -> None:
+        self.client.close()
+        chain = "0x80453134 0x2c 0xb0"
+        self.client = gcpipe.MemoryWatcherClient(self.user_dir, {chain})
+        locations = (self.user_dir / "MemoryWatcher/Locations.txt").read_text(
+            encoding="ascii"
+        )
+        self.assertEqual(locations, "80453134 2C B0\n")
+
+        sock = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
+        try:
+            sock.sendto(
+                b"80453134 2C B0\n41200000\n\0",
+                str(self.client.socket_path),
+            )
+        finally:
+            sock.close()
+        value = self.client.wait_value(chain, 0xFFFFFFFF, 0x41200000, 1.0)
+        self.assertEqual(value, 0x41200000)
+
     def test_wait_value_not_rejects_boot_zero(self) -> None:
         thread = self.send_values([0, 0x13])
         value = self.client.wait_value_not(self.address, 0xFFFFFFFF, 0, 1.0)
@@ -129,7 +149,19 @@ class SequenceTests(unittest.TestCase):
             },
         ]
         self.assertEqual(
-            gcpipe.sequence_addresses(sequence), {0x80477D68, 0x804D5324}
+            gcpipe.sequence_addresses(sequence), {"80477D68", "804D5324"}
+        )
+
+    def test_collects_pointer_chain_memory_location(self) -> None:
+        sequence = [
+            {
+                "action": "wait_memory",
+                "address": "0x80453134 0x2c 0xb0",
+                "equals": "0x00000000",
+            }
+        ]
+        self.assertEqual(
+            gcpipe.sequence_addresses(sequence), {"80453134 2C B0"}
         )
 
     def test_wait_counter_sequence_action_uses_watcher(self) -> None:
@@ -138,10 +170,10 @@ class SequenceTests(unittest.TestCase):
 
         class FakeWatcher:
             def __init__(self) -> None:
-                self.calls: list[tuple[int, int, float]] = []
+                self.calls: list[tuple[int | str, int, float]] = []
 
             def wait_counter(
-                self, address: int, increments: int, timeout_s: float
+                self, address: int | str, increments: int, timeout_s: float
             ) -> int:
                 self.calls.append((address, increments, timeout_s))
                 return 123
@@ -159,7 +191,7 @@ class SequenceTests(unittest.TestCase):
             ],
             watcher,
         )
-        self.assertEqual(watcher.calls, [(0x804D5324, 6, 2.5)])
+        self.assertEqual(watcher.calls, [("804D5324", 6, 2.5)])
 
     def test_wait_counter_rejects_non_positive_increment_count(self) -> None:
         class FakeWriter:
@@ -167,7 +199,7 @@ class SequenceTests(unittest.TestCase):
 
         class FakeWatcher:
             def wait_counter(
-                self, address: int, increments: int, timeout_s: float
+                self, address: int | str, increments: int, timeout_s: float
             ) -> int:
                 raise AssertionError("invalid action must fail before watcher call")
 

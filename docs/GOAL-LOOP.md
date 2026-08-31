@@ -180,6 +180,18 @@ profile. Computer Use taps do not enter Quartz's held-key API, so final
 physical-key gameplay confirmation remains pending and is not overclaimed. See
 `docs/artifacts/2026-08-30/macos-default-keyboard-controls.md`.
 
+CLASSIC-230 passes G8 row 6. A corrected live player-table address derived
+from the generated GALE01 code, plus newly supported MemoryWatcher pointer
+chains, exposed fighter object pointers and exact percent values during a
+macOS Classic run. The values matched the screen (Samus 60 -> 74 percent and
+Pikachu 28 percent). From the retained checkpoint, Pikachu naturally cleared
+Brinstar, cleared the following three-opponent team battle after one failed
+attempt and retry, completed the target bonus stage by timeout, and advanced
+into the Bowser fight. The title remained 59.9-60.0 FPS throughout the retained
+screens. This proves no three-stage progression blocker; it does not close the
+separately tracked geometry/character-warping defect. See
+`docs/artifacts/2026-08-30/g8-macos-classic-three-stage-progression.md`.
+
 PERF-214 reconciles every current G5 failure class against the retained
 mechanism history. Warm CPU overruns are rare and distributed across already
 closed/profiled families; the largest Fountain tails are proven

@@ -4669,3 +4669,23 @@ Append-only execution ledger. Claims are limited to observed evidence.
   Simulator remains.
 - Evidence:
   `docs/artifacts/2026-08-30/macos-default-keyboard-controls.md`.
+
+## 2026-08-30 — CLASSIC-230 macOS three-stage progression
+
+- Goal: close G8 row 6 with three consecutive macOS Classic stages and no
+  progression blocker.
+- Harness correction: reject stale `0x80453080`; generated GALE01 instructions
+  derive the actual slot table at `0x804510C0`, stride `0xE90`, with the live
+  fighter object at slot `+0xB0`. Extend `gcpipe.py` to preserve complete
+  MemoryWatcher pointer chains and cover them with focused tests.
+- Live validation: chained fighter percent reads matched Samus 60 -> 74 and
+  Pikachu 28 on screen.
+- Progression: natural Brinstar clear; one rejected team-battle failure;
+  successful team-battle retry; target bonus resolved by its timer; visible
+  advance into the Bowser fight. Retained titles report 59.9-60.0 FPS.
+- Decision: G8 row 6 PASS. Keep the known malformed geometry/character warp as
+  a separate open visual defect; do not promote row 7 or iPad performance.
+- Cleanup: close the isolated runner normally; retain no private game, module,
+  save, profile, or savestate in Git.
+- Evidence:
+  `docs/artifacts/2026-08-30/g8-macos-classic-three-stage-progression.md`.

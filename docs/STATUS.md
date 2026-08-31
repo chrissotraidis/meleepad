@@ -6,6 +6,15 @@ Last updated: 2026-08-30
 
 **G8 — Test matrix green: IN PROGRESS UNDER USER-AUTHORIZED G5 DEFERRAL**
 
+CLASSIC-230 passes G8 row 6. Generated GALE01 instructions corrected the live
+player table from a stale external address to `0x804510C0`; the new pointer-
+chain harness then read fighter percentages that matched the screen. The
+retained macOS run cleared Brinstar, cleared the next team battle, allowed the
+target bonus stage to resolve, and visibly advanced into the Bowser fight at
+59.9-60.0 FPS. The known warped geometry/character presentation remains a
+separate open defect and is not hidden by this progression pass. See
+`docs/artifacts/2026-08-30/g8-macos-classic-three-stage-progression.md`.
+
 KEYBOARD-229 repairs a macOS playability regression. The default WASD profile
 was present in the app, but prior automation left both persistent controller
 selectors on `Pipe/0/ssbmpad`, so a normal launch had no keyboard controls.
@@ -1313,7 +1322,7 @@ not add work to every dispatch. See
 | G5 macOS 60 fps | Deferred, not passed | DECISION-215 permits mobile sequencing while unavailable external 59.94 Hz/VRR verification is deferred; D2 remains unchanged |
 | G6 Simulator core boots | Pass | `docs/artifacts/2026-08-30/g6-ios-simulator-core-and-gameplay.md` |
 | G7 Shell ported | Pass | `docs/artifacts/2026-08-30/g7-shell-parity-and-diagnostics.md` |
-| G8 Test matrix green | In progress | `docs/artifacts/2026-08-30/g8-test-matrix-reconciliation.md`; rows 1, 2, 4, 5, 8, 12, 13, 14, and 15 pass; row 3 is provisionally accepted; others partial/open/failed |
+| G8 Test matrix green | In progress | `docs/artifacts/2026-08-30/g8-test-matrix-reconciliation.md`; rows 1, 2, 4, 5, 6, 8, 12, 13, 14, and 15 pass; row 3 is provisionally accepted; others partial/failed |
 | G9 Netplay working | Not started | G8 first; requires a synchronized completed match with an iPadOS endpoint |
 
 ## Pinned inputs and dependencies
@@ -1335,8 +1344,8 @@ not add work to every dispatch. See
 
 The authoritative row-by-row reconciliation is
 `docs/artifacts/2026-08-30/g8-test-matrix-reconciliation.md`. Rows 1, 2, 4, 5,
-8, 12, 13, 14, and 15 pass. Rows 9, 10, and 11 are partial; row 7 is failed and
-attributed. Row 6 is open. Row 3 is provisionally accepted by the user's
+6, 8, 12, 13, 14, and 15 pass. Rows 9, 10, and 11 are partial; row 7 is failed
+and attributed. Row 3 is provisionally accepted by the user's
 explicit external-display waiver and must be replayed later on suitable
 hardware.
 
@@ -1373,6 +1382,14 @@ crash but takes 198.890 host seconds for a two-minute game timer, approximately
 5 target miss, not a 60 FPS claim, and strengthens the existing static-core
 producer attribution. See
 `docs/artifacts/2026-08-30/g8-macos-battlefield-four-player-item-match.md`.
+
+CLASSIC-230 closes G8 row 6. A macOS Classic run visibly cleared Brinstar and
+the following team battle, completed the target bonus stage without a
+progression block, and advanced into the Bowser fight. Generated-code-derived
+MemoryWatcher chains matched live fighter percentages and removed the blind-
+macro ambiguity. Retained screens report 59.9-60.0 FPS; visible geometry warp
+remains separately open. See
+`docs/artifacts/2026-08-30/g8-macos-classic-three-stage-progression.md`.
 
 ## Open defects and decisions
 

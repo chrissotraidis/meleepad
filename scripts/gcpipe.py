@@ -29,17 +29,34 @@ def parse_int(value: int | str) -> int:
     return int(value, 0)
 
 
+def memory_location(value: int | str) -> str:
+    """Normalize a Dolphin MemoryWatcher address or pointer chain."""
+    if isinstance(value, int):
+        return f"{value:08X}"
+    tokens = value.split()
+    if not tokens:
+        raise ValueError("memory location cannot be empty")
+    parsed = [
+        int(token, 0) if token.lower().startswith("0x") else int(token, 16)
+        for token in tokens
+    ]
+    return " ".join(
+        f"{address:08X}" if index == 0 else f"{address:X}"
+        for index, address in enumerate(parsed)
+    )
+
+
 class MemoryWatcherClient:
     """Receive Dolphin MemoryWatcher values from an isolated user directory."""
 
     def __init__(
-        self, user_dir: Path, addresses: set[int], trace: bool = False
+        self, user_dir: Path, addresses: set[int | str], trace: bool = False
     ):
         watcher_dir = user_dir / "MemoryWatcher"
         watcher_dir.mkdir(parents=True, exist_ok=True)
+        locations = sorted({memory_location(address) for address in addresses})
         (watcher_dir / "Locations.txt").write_text(
-            "".join(f"{address:08X}\n" for address in sorted(addresses)),
-            encoding="ascii",
+            "".join(f"{location}\n" for location in locations), encoding="ascii"
         )
 
         self.socket_path = watcher_dir / "MemoryWatcher"
@@ -48,17 +65,17 @@ class MemoryWatcherClient:
         self.socket_path.unlink(missing_ok=True)
         self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
         self.socket.bind(str(self.socket_path))
-        self.values: dict[int, int] = {}
+        self.values: dict[str, int] = {}
         self.trace = trace
 
     def _process_payload(self, payload: bytes) -> None:
         lines = payload.rstrip(b"\0").decode("ascii").splitlines()
         for index in range(0, len(lines) - 1, 2):
-            address = int(lines[index].split()[0], 16)
+            location = memory_location(lines[index])
             value = int(lines[index + 1], 16)
-            self.values[address] = value
+            self.values[location] = value
             if self.trace:
-                print(f"[memory] {address:08X}={value:08X}", flush=True)
+                print(f"[memory] {location}={value:08X}", flush=True)
 
     def _receive(self, deadline: float) -> None:
         remaining = deadline - time.monotonic()
@@ -81,43 +98,46 @@ class MemoryWatcherClient:
                 return
 
     def wait_value(
-        self, address: int, mask: int, expected: int, timeout_s: float
+        self, address: int | str, mask: int, expected: int, timeout_s: float
     ) -> int:
+        location = memory_location(address)
         deadline = time.monotonic() + timeout_s
         while True:
-            value = self.values.get(address)
+            value = self.values.get(location)
             if value is not None and value & mask == expected:
                 return value
             self._receive(deadline)
 
     def wait_value_not(
-        self, address: int, mask: int, rejected: int, timeout_s: float
+        self, address: int | str, mask: int, rejected: int, timeout_s: float
     ) -> int:
+        location = memory_location(address)
         deadline = time.monotonic() + timeout_s
         while True:
-            value = self.values.get(address)
+            value = self.values.get(location)
             if value is not None and value & mask != rejected:
                 return value
             self._receive(deadline)
 
     def wait_counter(
-        self, address: int, increments: int, timeout_s: float
+        self, address: int | str, increments: int, timeout_s: float
     ) -> int:
         """Wait for a watched unsigned 32-bit counter to advance."""
         if increments < 1:
             raise ValueError("increments must be at least 1")
 
+        location = memory_location(address)
         deadline = time.monotonic() + timeout_s
         self._drain()
-        baseline = self.values.get(address)
-        while self.values.get(address) == baseline:
+        baseline = self.values.get(location)
+        while self.values.get(location) == baseline:
             self._receive(deadline)
 
-        previous = self.values[address]
+        previous = self.values[location]
         remaining = increments
         while True:
             self._receive(deadline)
-            current = self.values[address]
+            current = self.values[location]
             delta = (current - previous) & 0xFFFFFFFF
             if delta == 0:
                 continue
@@ -174,12 +194,12 @@ class PadWriter:
             self.fd = None
 
 
-def sequence_addresses(sequence: list[dict]) -> set[int]:
-    addresses: set[int] = set()
+def sequence_addresses(sequence: list[dict]) -> set[str]:
+    addresses: set[str] = set()
     for step in sequence:
         action = step.get("action", "tap")
         if action in {"wait_memory", "wait_counter"}:
-            addresses.add(parse_int(step["address"]))
+            addresses.add(memory_location(step["address"]))
     return addresses
 
 
@@ -219,7 +239,7 @@ def run_sequence(
         elif action == "wait_memory":
             if watcher is None:
                 raise ValueError("wait_memory requires --memory-user-dir")
-            address = parse_int(step["address"])
+            address = memory_location(step["address"])
             mask = parse_int(step.get("mask", "0xffffffff"))
             timeout_s = float(step.get("timeout", 60.0))
             if "not_equals" in step:
@@ -237,7 +257,7 @@ def run_sequence(
             if increments < 1:
                 raise ValueError("increments must be at least 1")
             watcher.wait_counter(
-                parse_int(step["address"]),
+                memory_location(step["address"]),
                 increments,
                 float(step.get("timeout", 60.0)),
             )
