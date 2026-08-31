@@ -35,6 +35,17 @@ with slow visible FPS is retained as a presentation failure rather than
 averaged into the sustained emulation failure. See
 `docs/artifacts/2026-08-31/g8-ios-normal-launch-menu-failure.md`.
 
+PERF-247 makes the next same-route measurement practical. The iOS core already
+contained MemoryWatcher; its real 232-byte Simulator socket destination was
+silently truncated beyond Darwin's 104-byte limit, so the timing-blind pipe
+script could never receive state. A Simulator-only override now accepts only a
+short symlink that resolves to the exact normal app directory and whose socket
+path fits. The Release build passes and a live client received guest state in
+0.57 seconds. This is a diagnostic harness repair, not an FPS improvement or
+row-7 pass. Next use it to prove the exact normal roster/stage route before
+recording matched address-translation and discarded-sampling windows. See
+`docs/artifacts/2026-08-31/g8-ios-memorywatcher-short-path.md`.
+
 PERF-240 makes that correction operational rather than rhetorical. The lower
 of the visible FPS label and runtime diagnostics is authoritative, so the
 user's 21.9 FPS frame fails the whole route. Each optimization must now pass a

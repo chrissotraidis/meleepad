@@ -2040,6 +2040,17 @@ control. It proves that moving opening/menu content must be judged separately
 from combat and that warmed CSS/idle recovery cannot pass the route. See
 `docs/artifacts/2026-08-31/g8-ios-normal-launch-menu-failure.md`.
 
+PERF-247 repairs the state-gated Simulator harness without changing product
+performance. The iOS core already compiled MemoryWatcher, but its 232-byte
+socket path exceeded Darwin's 104-byte `sockaddr_un.sun_path` and was silently
+truncated to a directory. A Simulator-only explicit user-directory override
+now accepts only a short symlink resolving to the exact normal app directory
+and only when the resulting socket fits. A live client received
+`80477D68=00000000` and cleared its first predicate in 0.57 seconds. Normal
+launches do not set the override. This enables exact route calibration but is
+diagnostic evidence only; it changes neither row 7 nor the FPS baseline. See
+`docs/artifacts/2026-08-31/g8-ios-memorywatcher-short-path.md`.
+
 ## G8 row-7 and iPad promotion acceptance protocol
 
 This protocol prevents a fast idle/menu tail or final interval from hiding a

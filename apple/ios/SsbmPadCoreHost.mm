@@ -7,6 +7,7 @@
 #import <fcntl.h>
 #import <pthread.h>
 #import <sys/stat.h>
+#import <sys/un.h>
 
 #include <atomic>
 #include <cerrno>
@@ -43,6 +44,33 @@ static void SsbmPadRuntimeLogCallback(
             category != nullptr ? @(category) : @"runtime",
             message != nullptr ? @(message) : @"unknown runtime event");
     }
+}
+
+static NSString *SsbmPadRuntimeUserDirectory(NSString *userDirectory) {
+#if TARGET_OS_SIMULATOR
+    NSString *override =
+        NSProcessInfo.processInfo.environment[@"SSBMPAD_RUNTIME_USER_DIRECTORY"];
+    if (override.length == 0)
+        return userDirectory;
+
+    NSString *resolvedUser =
+        userDirectory.stringByStandardizingPath.stringByResolvingSymlinksInPath;
+    NSString *resolvedOverride =
+        override.stringByStandardizingPath.stringByResolvingSymlinksInPath;
+    NSString *watcherSocket = [override
+        stringByAppendingPathComponent:@"MemoryWatcher/MemoryWatcher"];
+    BOOL sameDirectory = [resolvedOverride isEqualToString:resolvedUser];
+    BOOL socketFits = strlen(watcherSocket.fileSystemRepresentation) <
+        sizeof(((struct sockaddr_un *)0)->sun_path);
+    if (sameDirectory && socketFits) {
+        SsbmPadLog(@"runtime user-directory override enabled source=simulator-diagnostic");
+        return override;
+    }
+
+    SsbmPadLog(@"runtime user-directory override rejected sameDirectory=%d socketFits=%d",
+              sameDirectory, socketFits);
+#endif
+    return userDirectory;
 }
 
 @interface SsbmPadCoreHost ()
@@ -200,11 +228,12 @@ static void SsbmPadRuntimeLogCallback(
               userDirectory:(NSString *)userDirectory {
     std::string errorMessage;
     @autoreleasepool {
+        NSString *runtimeUserDirectory = SsbmPadRuntimeUserDirectory(userDirectory);
         moderngekko::RuntimeConfig config;
         config.game_root = gameRoot.fileSystemRepresentation;
         if (discImagePath.length > 0)
             config.disc_image = discImagePath.fileSystemRepresentation;
-        config.user_directory = userDirectory.fileSystemRepresentation;
+        config.user_directory = runtimeUserDirectory.fileSystemRepresentation;
         config.graphics.backend = "Metal";
         config.headless = false;
         config.show_fps_in_title = false;

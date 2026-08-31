@@ -5047,3 +5047,24 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Next: make state-gated normal-route automation reliable enough to reproduce
   the same visible workload, then collect address-translation and discarded-
   sampling counters on the exact slowest phase before another module build.
+
+## 2026-08-31 — PERF-247 Simulator MemoryWatcher short-path repair
+
+- Verify generated iOS core compile commands contain `USE_MEMORYWATCHER=1` and
+  `USE_PIPES=1`; reject the proposed core-flag rebuild as unnecessary.
+- Trace the no-packet failure to Dolphin copying a 232-byte Simulator socket
+  path into Darwin's 104-byte `sockaddr_un.sun_path`, truncating the target to
+  a directory.
+- Add an explicit Simulator-only runtime user-directory override. Accept it
+  only if it resolves to the exact normal app directory and its watcher socket
+  fits; otherwise keep the normal path. Normal launches remain unchanged.
+- Pass the focused source regression and arm64 Release Simulator build. A live
+  pre-bound client receives `80477D68=00000000` and clears its first predicate
+  in 0.57 seconds.
+- Stop the app, unset both diagnostic variables, and remove the temporary
+  symlink/directory. This is harness proof, not a performance change.
+- Evidence:
+  `docs/artifacts/2026-08-31/g8-ios-memorywatcher-short-path.md`.
+- Next: calibrate the exact normal Fountain route with guest-state barriers,
+  then collect matched address-translation and discarded-sampling counters on
+  the visually verified slow phase before another module build.
