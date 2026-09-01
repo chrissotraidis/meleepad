@@ -139,6 +139,17 @@ old installs to the stable profile, and restores direct diagnostic sharing.
 See
 `docs/artifacts/2026-09-01/g8-progressive-fountain-collapse-and-menu-cleanup.md`.
 
+PERF-258 narrows the correctness screen to the menu-to-Fountain boundary. The
+first reports exposed a verifier defect: dedicated `dcbi`/`dcbf` hooks mutated
+cache state without marking their blocks unreplayable. Patch 0032 now skips
+only those diagnostic blocks, and the exact bounded route completes without
+the four cache-loop false reports. Twenty-one distinct differences remain; the
+earliest is `0x80358ABC -> 0x80358AE8`. Do not call it a product bug yet. First
+minimize that interval and separate a journal blind spot from a true generated
+semantic mismatch. This is diagnostic integrity work, not an FPS improvement;
+the 21.9 FPS floor and no-iPad-promotion rule remain unchanged. See
+`docs/artifacts/2026-09-01/g8-transition-lockstep-cache-filter.md`.
+
 DECISION-215 originally recorded a user-authorized sequencing exception after
 PERF-214. On 30 Aug 2026 the user explicitly broadened that direction: assume
 the unavailable external-display check passes and repeat it later once the

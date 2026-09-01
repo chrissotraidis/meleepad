@@ -175,6 +175,7 @@ ios_audio_diagnostics_patch="$ROOT/patches/moderngekko-dolphin/0028-ios-audio-co
 pipe_short_tap_patch="$ROOT/patches/moderngekko-dolphin/0029-pipe-short-tap-latching.patch"
 static_recomp_loop_hoists_patch="$ROOT/patches/moderngekko-dolphin/0030-static-recomp-loop-hoists.patch"
 frame_workload_attribution_patch="$ROOT/patches/moderngekko-dolphin/0031-frame-workload-attribution.patch"
+lockstep_cache_side_effect_patch="$ROOT/patches/moderngekko-dolphin/0032-lockstep-skip-cache-side-effects.patch"
 apply_patch_once_or_marker "$MG" "$mg_patch" \
   include/moderngekko/runtime.hpp 'struct RuntimeDiagnosticsSnapshot'
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$dolphin_patch" \
@@ -257,6 +258,9 @@ apply_patch_once_or_marker "$MG/vendor/dolphin" "$static_recomp_loop_hoists_patc
   STATICRECOMP_DISPATCH_SAMPLE
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$frame_workload_attribution_patch" \
   Source/Core/Common/FramePhaseTiming.h s_metal_pipeline_creates
+apply_patch_once_or_marker "$MG/vendor/dolphin" "$lockstep_cache_side_effect_patch" \
+  Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Hooks.cpp \
+  'Cache-control hooks mutate cache state that the lockstep journal cannot replay.'
 verify_patch_scope "$MG" "$mg_patch" "$ROOT"/patches/moderngekko/*.patch -- \
   vendor/dolphin
 verify_patch_scope "$MG/vendor/dolphin" "$dolphin_patch" "$mg_patch" \

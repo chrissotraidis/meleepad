@@ -2,6 +2,16 @@
 
 G5 is active. G4 passed with a clean controlled 1v1 on 2026-08-24.
 
+PERF-258 repairs the bounded transition correctness screen before another
+throughput candidate. The first exact-combat reports were cache-control false
+positives: generated `dcbi`/`dcbf` hooks changed cache state that lockstep could
+not replay but did not mark the block unsafe. Patch 0032 adds that diagnostic
+guard. The corrected route removes those four entries but retains 21 distinct
+reports, beginning at `0x80358ABC -> 0x80358AE8`. Minimize that interval before
+classifying it as a journal blind spot or generated semantic mismatch. This is
+not an FPS gain; row 7 remains failed. See
+`docs/artifacts/2026-09-01/g8-transition-lockstep-cache-filter.md`.
+
 PERF-257 rejects two broad explanations for the iPad row-7 failure. Exact
 frame attribution finds sustained 27-35 ms frames with no Metal pipeline or
 shader creation, while tail native dispatches and guest cycles rise 2.79x and

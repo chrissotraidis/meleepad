@@ -48,9 +48,20 @@ restores direct privacy-reviewed diagnostic sharing. No further performance
 candidate is allowed without a measured semantic mechanism and at least five
 percent predicted benefit or removal of the visible corruption.
 
+PERF-258 locates the exact transition at approximately 880.8 million native
+dispatches and repairs one diagnostic false-positive class. Cache-control
+blocks now use the same unreplayable-side-effect guard as instruction fallback,
+so the `dcbi`/`dcbf` loop reports disappear. The corrected exact route still
+has 21 distinct reports, beginning at `0x80358ABC -> 0x80358AE8`. That interval
+must be minimized before deciding whether it is an unjournaled side effect or
+a real static-recompiler semantic error. No product speed claim follows from
+this observer-heavy run; row 7 and physical-iPad promotion remain closed. See
+`docs/artifacts/2026-09-01/g8-transition-lockstep-cache-filter.md`.
+
 See
 `docs/artifacts/2026-09-01/g8-r0-cold-host-profile-and-loop-hoist-reversal.md`,
 `docs/artifacts/2026-09-01/g8-progressive-fountain-collapse-and-menu-cleanup.md`,
+`docs/artifacts/2026-09-01/g8-transition-lockstep-cache-filter.md`,
 `docs/artifacts/2026-08-31/g8-r0-exact-combat-dispatch-subtraction.md` and
 `docs/artifacts/2026-08-31/g8-r0-rules-normalization-and-pc-store-preflight.md`.
 

@@ -1,0 +1,14 @@
+diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Hooks.cpp b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Hooks.cpp
+--- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Hooks.cpp
++++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Hooks.cpp
+@@ -340,6 +340,11 @@ void StaticRecompCore::HookCacheControl(CPUState* cpu, u8 operation, u32 ea, u32
+ {
+   auto* core = static_cast<StaticRecompCore*>(cpu->external_user_data);
++  // Cache-control hooks mutate cache state that the lockstep journal cannot replay.
++  // Treat the containing native block like an instruction-fallback block so the
++  // verifier does not compare it against a shadow execution with different cache state.
++  if (core->m_lockstep_verifier->m_ls_journaling)
++    core->m_lockstep_verifier->m_ls_fallback_seen = true;
+   if (Common::FramePhaseTiming::IsEnabled())
+     Common::FramePhaseTiming::AddStaticRecompCacheControl(operation);
+   core->PropagateGuestMSR();

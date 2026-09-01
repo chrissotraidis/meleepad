@@ -5265,3 +5265,23 @@ Append-only execution ledger. Claims are limited to observed evidence.
   apps, modules, and game data remain untracked.
 - Evidence:
   `docs/artifacts/2026-09-01/g8-progressive-fountain-collapse-and-menu-cleanup.md`.
+
+## 2026-09-01 — PERF-258 transition lockstep cache filter
+
+- Locate the exact Fountain workload transition at phase frame 2,442, after
+  approximately 880.8 million native dispatches, and bound lockstep to
+  878,000,000..886,000,000 on the state-verified exact route.
+- Reject the first `dcbi`/`dcbf` differences as a verifier defect: dedicated
+  cache hooks changed unreplayable cache state without setting the existing
+  unsafe-block latch. Add canonical patch 0032 and a fail-before focused test.
+- Pass focused regression, canonical bootstrap, incremental iOS core build,
+  Release link/install, and the exact route. The four cache-loop reports are
+  gone; 21 distinct reports remain, beginning at
+  `0x80358ABC -> 0x80358AE8`.
+- Do not classify the remaining interval yet. Next minimize it around internal
+  calls and distinguish an unjournaled side effect from a true generated
+  semantic mismatch. This diagnostic run makes no product FPS claim.
+- Keep row 7 hard failed, retain the ordinary 21.9 FPS floor, and keep physical
+  iPad promotion and G9 netplay queued.
+- Evidence:
+  `docs/artifacts/2026-09-01/g8-transition-lockstep-cache-filter.md`.
