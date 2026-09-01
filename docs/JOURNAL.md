@@ -5190,3 +5190,26 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Next: retain the existing one-in-4,096 dispatch distribution on exact combat
   and select a new mechanism only if the current workload has a bounded,
   unclosed concentration.
+
+## 2026-08-31 — PERF-255 reality/mechanism split and dispatch rejection
+
+- Refine the row-7 loop around the user's ordinary visible 21.9 FPS first run.
+  A cold product route is a fresh process with normal settings, no savestate,
+  pipe-input override, diagnostic environment, or profiler. Retain one
+  continuous path from the first moving frame through combat and report phase
+  minima, frame-time tails, longest sub-59 interval, and underrun deltas.
+- Separate reality evidence from mechanism evidence. Automation and profiling
+  can rank or reject a cause but cannot raise a failed normal product result.
+- Gracefully retain matched short and long exact-route dispatch histograms.
+  Their 261,221,282 native-dispatch delta predicts 63,774.727 sampled rows and
+  the observed delta is 63,775, validating the subtraction arithmetic.
+- Reject a new guest-region candidate: no PC exceeds 5.49%, no 16 KiB region
+  exceeds 13.14%, and the top interrupt, DVD/timing, and HSD/GX/matrix families
+  are already closed by prior measured experiments.
+- Stop the app, unset all diagnostic Simulator variables, move private traces
+  to Trash, and leave exactly one iPad Simulator booted.
+- Next: collect a fresh exact-workload host profile and screen the remaining
+  per-dispatch ladder as one batch. Build only if measured removable cost can
+  clear five percent without weakening correctness.
+- Evidence:
+  `docs/artifacts/2026-08-31/g8-r0-exact-combat-dispatch-subtraction.md`.

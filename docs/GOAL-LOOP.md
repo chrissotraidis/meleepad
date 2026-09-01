@@ -30,18 +30,30 @@ replace that result. Animated opening/menu slowdowns also fail independently.
 
 Until this hard stop is cleared, the loop order is:
 
-1. start each optimization cycle with the normal installed app, default product
-   settings, no savestate, no private pipe input, and no profiler; retain the
-   first moving content, menu/CSS/load, and first combat minute;
-2. reproduce the exact Samus/level-1-CPU-Kirby, Stock/04/05:00 Fountain route
-   with guest-state feedback and retain the lower of visible FPS and runtime
-   FPS/VPS for every phase;
-3. measure one narrower mechanism inside the exact slow combat phase;
+1. run the **reality lane** first: terminate the prior process, use the normal
+   installed app and product defaults, leave savestates, private pipe input,
+   diagnostic environment variables, and profilers off, then retain one
+   continuous recording from the first moving frame through the first combat
+   minute. A warm relaunch or an already-running match is not a cold result;
+2. retain opening/attract, menu, CSS, loading, and exact Samus/level-1-CPU-
+   Kirby Stock/04/05:00 Fountain combat as separate phases. For each phase,
+   record visible minimum FPS, runtime minimum FPS/VPS and speed, p95/p99 frame
+   time when available, the longest continuous sub-59 interval, and the audio
+   underrun delta. Use the worse synchronized value;
+3. use the **mechanism lane** only to explain that failure: reproduce the exact
+   route with guest-state feedback and measure one narrower cause inside the
+   slow phase. Automation, private input, counters, profiles, and warm runs can
+   reject or rank mechanisms, but cannot qualify the product;
 4. make no product build change unless that evidence predicts a falsifiable
-   improvement of at least five percent without weakening correctness;
-5. reverse control/candidate/control on the same route and reject regressions;
-6. only after two complete cold routes and the unchanged-build manual route
-   meet the protocol below may physical-device testing begin.
+   improvement of at least five percent without weakening exception, fallback,
+   SMC, input, rendering, lifecycle, audio, diagnostic, or future-netplay
+   correctness;
+5. reverse control/candidate/control on the same route. Reject any candidate
+   that improves the mean while retaining a sub-59 phase, a frame-time tail,
+   new underruns, visual warping, or input/lifecycle regression;
+6. only after two complete fresh-process cold routes and the unchanged-build
+   ordinary manual route meet the protocol below may physical-device testing
+   begin.
 
 ### Row-7 truth and acceptance protocol
 
@@ -54,18 +66,23 @@ Use this evidence order for every performance claim:
 4. focused profiles, counters, microbenchmarks, and binary-size preflights.
 
 Lower-ranked evidence may explain or reject a mechanism, but it cannot raise a
-failed higher-ranked result. The user's 21.9 FPS screenshot and its matching
-20.2 FPS / 19.8 VPS runtime interval therefore remain the sticky product floor.
-This floor is cleared only by a newer ordinary manual run of the same installed
-candidate and route—not by a warm scene, attract/demo playback, idle screen,
-easier roster, average, best interval, or profiler-only capture.
+failed higher-ranked result. The user's visible **21.9 FPS** first-run frame and
+its matching **20.2 FPS / 19.8 VPS** runtime interval therefore form a sticky
+regression anchor, not an outlier to average away. This anchor is cleared only
+by a newer ordinary manual run of the same installed candidate and exact route
+that records the complete moving path—not by a warm scene, attract/demo
+playback, idle screen, easier roster, average, best interval, or profiler-only
+capture. If the normal first run is slow while a scripted warm run is fast, the
+product still fails and the discrepancy itself becomes the next mechanism to
+explain.
 
 Judge these phases independently: moving opening/attract content, menu and CSS,
 match loading, the first combat minute, continued five-minute combat, results,
 and return to menu. Any moving phase below 59.0 FPS, any emulation phase below
-59.0 VPS, sustained speed below real time, sustained/new audio underruns, lost
-callbacks, visual corruption, or input failure fails the whole route. Do not
-average a failed phase into a later 60 FPS screen.
+59.0 VPS, p95 or p99 frame time above 16.7 ms, sustained speed below real time,
+sustained/new audio underruns, lost callbacks, visual corruption, or input
+failure fails the whole route. Report the minimum and tail, not just the mean;
+do not average a failed phase or visible stutter into a later 60 FPS screen.
 
 A candidate can change row 7 from FAIL only after all of the following pass:
 
@@ -81,18 +98,27 @@ is not currently playable at target speed. Do not call it stable 60 FPS,
 nearly ready, physical-iPad-ready, or promoted. G9 netplay remains queued
 behind this gate.
 
-The address-translation/discarded-instruction split and guest-PC-store
-preflight are now complete. TLB/branch events are too small and distributed to
-explain the 21.9-to-60 FPS gap alone. Removing all surviving PC stores looks
-material in static mini-links but is semantically unsafe; the safe subset is
-only 3.77%, below the five-percent build gate, and the earlier broader live
-candidate regressed. The route harness now forces a visible value change before
-accepting Stock/04/05:00 and passes two fresh exact routes, but those routes
-visibly reach only 49.1 and 41.6 FPS. The immediate active step is the built-in
-one-in-4,096 exact-route guest-dispatch distribution. Select a product
-experiment only if it exposes a bounded, unclosed concentration. Do not build
-another module, call the app playable, or promote it before that preflight
-passes.
+The address-translation/discarded-instruction split, guest-PC-store preflight,
+and exact-route one-in-4,096 dispatch distribution are complete. TLB/branch
+events are too small and distributed to explain the 21.9-to-60 FPS gap alone.
+Removing all surviving PC stores looks material in static mini-links but is
+semantically unsafe; the safe subset is only 3.77%, below the five-percent
+build gate, and the earlier broader live candidate regressed. The corrected
+route reaches the exact match but only 49.1 and 41.6 FPS with visible geometry
+distortion. A matched long-minus-short combat distribution accounts for 63,775
+samples, but no PC exceeds 5.49% and no 16 KiB region exceeds 13.14%; the top
+families are the already-rejected interrupt, DVD/timing, and HSD/GX/matrix
+paths. That rejects another guest-region specialization before a build.
+
+The immediate active step is therefore a fresh exact-workload host-side profile
+and a no-build materiality screen of the remaining per-dispatch ladder as one
+batch. Attribute time among dispatch lookup/checking, state synchronization,
+exception/fallback handling, sampling/diagnostics, and slice bookkeeping. Only
+split out a source candidate if measured removable cost can clear five percent;
+otherwise reject the batch and re-profile at the next outer boundary. Do not
+reopen interrupt-leaf coalescing, fast-disc/DVD shortcuts, direct HSD/GX calls,
+matrix-copy specialization, narrow `mtspr`, dual-core FIFO, buffer growth,
+vertex-loader work, stale PGO, or footprint-only generated-code variants.
 
 DECISION-215 originally recorded a user-authorized sequencing exception after
 PERF-214. On 30 Aug 2026 the user explicitly broadened that direction: assume

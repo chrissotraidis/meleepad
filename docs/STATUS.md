@@ -24,12 +24,18 @@ shrink 13.34%; the semantics-safe representative subset shrinks only 3.77%,
 below the five-percent gate, and the earlier broad live candidate regressed.
 The corrected rules route forces visible normalization and passes two fresh
 exact traversals, but combat is only 49.1 and 41.6 FPS with geometry
-distortion. The immediate next step is the existing low-overhead exact-route
-guest-dispatch distribution. No module candidate is allowed unless it exposes
-a bounded, unclosed concentration and preserves precise exception, fallback,
-hook, SMC, diagnostic, and future netplay state.
+distortion. PERF-255 then rejects another guest-region rewrite: a coherent
+long-minus-short exact-combat distribution accounts for 63,775 samples, but
+no PC exceeds 5.49%, no 16 KiB region exceeds 13.14%, and the leaders belong
+to already-rejected interrupt, DVD/timing, and HSD/GX/matrix families. The
+loop now has separate reality and mechanism lanes. The next step is a fresh
+exact-workload host profile and no-build materiality screen of the remaining
+per-dispatch ladder as a batch. No module candidate is allowed unless measured
+removable cost clears five percent and preserves precise exception, fallback,
+hook, SMC, input, rendering, audio, diagnostic, and future-netplay state.
 
 See
+`docs/artifacts/2026-08-31/g8-r0-exact-combat-dispatch-subtraction.md` and
 `docs/artifacts/2026-08-31/g8-r0-rules-normalization-and-pc-store-preflight.md`.
 
 PERF-251 also makes the manual floor sticky. A profiler or private-pipe run can
