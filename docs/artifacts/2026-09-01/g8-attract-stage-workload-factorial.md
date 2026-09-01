@@ -111,3 +111,13 @@ Do not repeat an unbounded random attract wait. The next capture should monitor
 the exact Big Blue projection hash and immediately retain a screenshot, phase
 range, burst range, and savestate through the existing default-off signal
 harness. That converts a randomized demo into a replayable performance corpus.
+
+## Controlled stage-only follow-up
+
+PERF-275 replaces passive waiting with a deterministic unlocked Stage Select
+route. P1 Pikachu versus CPU Peach on visibly labeled Big Blue holds 59.9 FPS
+live and 59.9-60.0 after savestate replay on exact hash
+`002a81fb84e3f68f`. Big Blue geometry alone is refuted. Combined with the
+passing four-player Hyrule control, the remaining factorial is Big Blue plus
+four-player roster/AI plus attract first-use state. See
+`docs/artifacts/2026-09-01/g8-controlled-big-blue-factorial.md`.

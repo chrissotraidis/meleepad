@@ -5595,3 +5595,25 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Keep row 7, physical-iPad promotion, and G9 closed.
 - Evidence:
   `docs/artifacts/2026-09-01/g8-ios-simulator-savestate-trigger-boundary.md`.
+
+## 2026-09-01 — PERF-275 controlled Big Blue factorial
+
+- End a second bounded exact-hash no-recorder watcher after ten minutes without
+  Big Blue. Retain several 59.8-60.1 FPS moving demos; stop passive waiting.
+- Use the existing external-pipe diagnostic mode so the touch publisher does
+  not neutralize analog input. Visibly reach VS CSS and Stage Select.
+- Back up the ordinary Simulator GCI, temporarily install the prior isolated
+  ROM-safe unlock GCI, and visibly verify the game labels
+  `F-Zero Grand Prix` and `Big Blue` before selection.
+- Run P1 Pikachu versus CPU Peach. Exact Big Blue hash
+  `002a81fb84e3f68f` holds 59.9 FPS live. Save the state, load it in a fresh
+  phase/burst diagnostic process, and retain 59.9-60.0 FPS/VPS after one load
+  row at 57.4/56.4. Underruns rise 0 -> 1 at load and remain flat.
+- Refute Big Blue stage geometry alone. Four players alone was already refuted
+  by Hyrule; next activate CPU slots 2-4 on the same controlled Big Blue route
+  to separate fighter/AI scaling from attract cold state.
+- Stop the app, clear all diagnostic variables, and restore the original GCI
+  byte-for-byte at SHA-256
+  `0a361d3471289f6c4ea1f4c0254b1f197b44fb8466e408b71240418f01ad0e70`.
+- Keep row 7, physical-iPad promotion, and G9 closed.
+- Evidence: `docs/artifacts/2026-09-01/g8-controlled-big-blue-factorial.md`.

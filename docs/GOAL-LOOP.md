@@ -2582,6 +2582,16 @@ unbounded attract wait. Replay that state before choosing a mechanism. A warmed
 8.11-million-cycle saturated replay earns the representative register-resident
 generated-C corpus. This infrastructure does not alter row 7.
 
+PERF-275 then deterministically selects the visibly labeled Big Blue tile with
+an isolated unlock GCI and refutes stage geometry alone: P1 Pikachu versus CPU
+Peach holds 59.9 FPS on exact hash `002a81fb84e3f68f`, and a saved-state replay
+holds 59.9-60.0 after one load row. The original GCI is restored byte-for-byte.
+Four players alone was already refuted by Hyrule, so the current causal unit is
+the interaction among Big Blue, four-player roster/AI, and attract first-use
+state. The next loop iteration must activate CPU slots 2-4 on the same unlocked
+route and retain/replay that state. Do not optimize from the passing one-on-one
+trace or return to passive attract waiting.
+
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).
 - **Per goal claim:** full evidence per PRD Section 11 before marking a goal met in STATUS.md.
 - **Per session:** before ending, run the ported regression scripts (sunpad `tests/` equivalents) plus a boot check on the highest working target, so the journal's last entry states a known-good state.

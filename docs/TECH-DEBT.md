@@ -27,9 +27,13 @@ another isolated five-percent tweak.
 Visual extraction narrows this further. Four-player Hyrule Temple holds
 59.9 FPS under the same HEVC recorder, while Brinstar falls to 49.3 and Big
 Blue to 27.5-35.3. Recording alone and four fighters alone are refuted. The
-remaining factorial is Big Blue stage/roster work versus first-use state. Run
-a present-aligned, no-recorder Big Blue phase before declaring a universal
-static-CPU ceiling or building from the passing Hyrule distribution. See
+remaining factorial was Big Blue stage/roster work versus first-use state. A
+deterministic one-on-one Pikachu/CPU-Peach Big Blue match now holds 59.9 FPS
+live and after savestate replay, on the exact retained projection hash. Stage
+geometry alone is therefore also refuted. The controlling unit is now the
+interaction of Big Blue, four-player roster/AI, and attract first-use state.
+Run controlled four-player Big Blue before declaring a universal static-CPU
+ceiling or building from either passing distribution. See
 `docs/artifacts/2026-09-01/g8-attract-stage-workload-factorial.md`.
 
 An eight-minute present-aligned no-recorder search did not encounter Big
@@ -41,8 +45,9 @@ iOS or product defaults. Arm it with phase/burst logging for the first Big Blue
 appearance, then use that replayable corpus for the architecture decision. See
 `docs/artifacts/2026-09-01/g8-ios-simulator-savestate-trigger-boundary.md`.
 
-If Big Blue reproduces on-core saturation without recording and after replay,
-the only credible in-scope route is broad register-resident generated C:
+If controlled four-player Big Blue reproduces on-core saturation without
+recording and after replay, the only credible in-scope route is broad
+register-resident generated C:
 single-entry regions keep guest GPR/FPR/paired state live across internal
 control flow while the canonical arbitrary-entry path remains available for
 uncommon entries, helpers, exceptions, cycle exits, and SMC invalidation. The
@@ -64,11 +69,18 @@ at 35% local gain, seven 16 KiB regions cover only 70.39% and project 24.64%
 whole-frame gain; eight cover 75.99% and project 26.60%. Treat this as an
 optimistic selection bound, not proof that entire chunks can be optimized.
 
-If the captured state instead replays at 60 FPS after caches/resources are
-warm, reject the broad rewrite for this failure and bisect first-use resource
-creation and cache persistence. Do not conflate these outcomes: the former
-requires roughly two-times static CPU throughput; the latter is a cold-state
-repair. This replay fork is the current highest-priority decision.
+If the four-player captured state instead replays at 60 FPS after
+caches/resources are warm, reject the broad rewrite for this failure and
+bisect first-use resource creation and cache persistence. Do not conflate
+these outcomes: the former requires roughly two-times static CPU throughput;
+the latter is a cold-state repair. This replay fork is the current
+highest-priority decision.
+
+The passing one-on-one Big Blue state and aligned trace are a control corpus,
+not optimization input. The next smallest factorial activates CPU slots 2-4
+on the same unlocked route and saves the state. Only that result can separate
+fighter/AI scaling from attract-only cold state. See
+`docs/artifacts/2026-09-01/g8-controlled-big-blue-factorial.md`.
 
 ### 2. Complete the exact ordinary acceptance route
 

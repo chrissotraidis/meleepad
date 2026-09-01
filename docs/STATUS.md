@@ -1,5 +1,21 @@
 # ssbmpad status
 
+## 2026-09-01 — Controlled Big Blue holds 60; stage alone refuted
+
+A deterministic diagnostic route used the already-retained isolated unlock
+GCI, visibly selected the game-labeled Big Blue tile, and ran P1 Pikachu versus
+CPU Peach. The exact retained hash `002a81fb84e3f68f` held 59.9 FPS live. A
+saved-state replay with aligned phase/burst logs held 59.9-60.0 after one
+57.4/56.4 load row. The original Simulator GCI was restored byte-for-byte and
+all diagnostic environment was cleared.
+
+Big Blue geometry alone is refuted, just as four players alone was refuted by
+the passing Hyrule match. The remaining failure is the Big Blue plus
+four-player roster/AI plus attract first-use interaction. Next activate three
+CPU slots on the same controlled route and retain/replay that state. Row 7,
+physical-iPad promotion, and G9 remain closed. See
+`docs/artifacts/2026-09-01/g8-controlled-big-blue-factorial.md`.
+
 ## 2026-09-01 — Exact Big Blue capture boundary passes
 
 The prior claim that an existing signal harness could capture an iOS Simulator
