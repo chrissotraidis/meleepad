@@ -24,30 +24,16 @@ roughly twice the allowed host time. Target speed remains possible in
 principle, but requires a roughly 50% or greater CPU-thread reduction, not
 another isolated five-percent tweak.
 
-Visual extraction narrows this further. Four-player Hyrule Temple holds
-59.9 FPS under the same HEVC recorder, while Brinstar falls to 49.3 and Big
-Blue to 27.5-35.3. Recording alone and four fighters alone are refuted. The
-remaining factorial was Big Blue stage/roster work versus first-use state. A
-deterministic one-on-one Pikachu/CPU-Peach Big Blue match now holds 59.9 FPS
-live and after savestate replay, on the exact retained projection hash. Stage
-geometry alone is therefore also refuted. The controlling unit is now the
-interaction of Big Blue, four-player roster/AI, and attract first-use state.
-Run controlled four-player Big Blue before declaring a universal static-CPU
-ceiling or building from either passing distribution. See
-`docs/artifacts/2026-09-01/g8-attract-stage-workload-factorial.md`.
+Visual extraction and controlled factorials narrow this further. Four-player
+Hyrule Temple holds 59.9 FPS under the same HEVC recorder. Controlled
+one-on-one Big Blue holds 59.9 FPS, generic four-player Big Blue sustains
+55.6-57.8 FPS, and the exact Ness/Peach/Ice Climbers/Bowser Big Blue match
+again holds 59.9 FPS without loggers. Recording, stage geometry, four players,
+and the exact roster/AI together are all insufficient causes. The residual is
+attract/demo state itself. See
+`docs/artifacts/2026-09-01/g8-attract-only-dispatch-delta.md`.
 
-An eight-minute present-aligned no-recorder search did not encounter Big
-Blue's exact projection hash. Random waiting is closed. The missing Simulator
-capture boundary now passes live: the default-off signal harness creates and
-loads a real state on iOS Simulator, and the exact-hash trigger captures a
-screenshot, matching runtime row, and updated state without affecting physical
-iOS or product defaults. Arm it with phase/burst logging for the first Big Blue
-appearance, then use that replayable corpus for the architecture decision. See
-`docs/artifacts/2026-09-01/g8-ios-simulator-savestate-trigger-boundary.md`.
-
-If controlled four-player Big Blue reproduces on-core saturation without
-recording and after replay, the only credible in-scope route is broad
-register-resident generated C:
+The remaining credible in-scope route is region-resident generated C:
 single-entry regions keep guest GPR/FPR/paired state live across internal
 control flow while the canonical arbitrary-entry path remains available for
 uncommon entries, helpers, exceptions, cycle exits, and SMC invalidation. The
@@ -57,39 +43,33 @@ and one-function register-cache candidates cannot supply the gap.
 
 Before another product module, build a representative data-free region-state
 corpus. It must pass full state/RAM/cycle/exception equivalence, improve the
-selected work by at least 35%, cover enough of the attract frame to project at
-least 25% whole-frame CPU gain in its first tranche, and retain a credible path
-to the roughly 50% total reduction. If it cannot, record that this no-JIT
-static-C architecture cannot guarantee worst-case 60 FPS on the M1 Simulator
-host instead of cycling compiler flags. See
-`docs/artifacts/2026-09-01/g8-ordinary-four-fighter-attract-collapse.md`.
+selected work by at least 35%, project at least 25% whole-frame CPU gain from
+measured host time, remain neutral on the passing controlled route, and retain
+a credible path to the roughly 50% total reduction. If it cannot, record that
+this no-JIT static-C architecture cannot guarantee worst-case 60 FPS on the M1
+Simulator host instead of cycling compiler flags.
 
-The retained slow-attract distribution makes the provisional first-tranche breadth concrete:
-at 35% local gain, seven 16 KiB regions cover only 70.39% and project 24.64%
-whole-frame gain; eight cover 75.99% and project 26.60%. Treat this as an
-optimistic selection bound, not proof that entire chunks can be optimized.
+The matched attract-minus-controlled distribution replaces the old universal
+eight-region breadth estimate. Five 16 KiB regions account for 98.1% of the
+incremental dispatch samples. The first three cover the repeated DVD,
+interrupt, and load-state loop; the last two cover HSD erase and game-mode
+work. Begin with the first three, then extend to all five only if the host-time
+gate needs it. Dispatch coverage selects a corpus but cannot project host-time
+gain by itself.
 
-If the four-player captured state instead replays at 60 FPS after
-caches/resources are warm, reject the broad rewrite for this failure and
-bisect first-use resource creation and cache persistence. Do not conflate
-these outcomes: the former requires roughly two-times static CPU throughput;
-the latter is a cold-state repair. This replay fork is the current
-highest-priority decision.
+Do not treat the exact-roster pass as evidence that only cold resources remain:
+the ordinary attract interval is sustained, executes the full 8.11-million-
+cycle budget, and carries a repeatable 2.24x sampled-dispatch rate. The current
+decision is whether the five attract-excess regions can be made region-
+resident with sufficient measured host-time gain.
 
-The passing one-on-one Big Blue state and aligned trace are a control corpus,
-not optimization input. The next smallest factorial activates CPU slots 2-4
-on the same unlocked route and saves the state. Only that result can separate
-fighter/AI scaling from attract-only cold state. See
-`docs/artifacts/2026-09-01/g8-controlled-big-blue-factorial.md`.
-
-That four-player factorial now exists. Its no-logger live arm sustains
-55.6-57.8 FPS; its observer-heavy replay sustains 46.8-51.8 FPS with about
-6.13 million guest cycles and 221,700 dispatches per row. The failing attract
-arm carries about 8.11 million cycles and 416,000 dispatches: 32% more guest
-work and 88% more dispatches. Recreate its exact Ness/Peach/Ice Climbers/Bowser
-roster on deterministic Big Blue next. If that state reaches the same work
-class, use it as the broad generated-C corpus; if it does not, the residual is
-attract-specific state rather than stage or player count.
+The exact roster factorial is complete. Its no-logger live arm holds 59.9 FPS;
+its matched diagnostic arm averages 5.81 million cycles and 177,500
+dispatches. The attract arm's roughly 8.11 million cycles and 416,000
+dispatches are therefore attract-specific. Five regions account for 52.50 of
+the 53.53 extra one-in-4,096 samples per frame. The immediate debt is a
+semantics-complete region-resident preflight for those paths, not another UI
+factorial or passive attract search.
 
 ### 2. Complete the exact ordinary acceptance route
 

@@ -5640,3 +5640,26 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Stop the app, clear all diagnostic variables, and restore the ordinary GCI
   byte-for-byte. Row 7, device promotion, and G9 remain closed.
 - Evidence: `docs/artifacts/2026-09-01/g8-controlled-big-blue-factorial.md`.
+
+## 2026-09-01 — PERF-277 exact-roster attract differential
+
+- Visibly recreate Ness plus CPU Peach, Ice Climbers, and Bowser on the
+  game-labeled Big Blue stage with the isolated unlock GCI.
+- The no-logger live arm holds 59.9 FPS through early and late combat. Save the
+  state and load it in fresh phase/burst and matched one-in-4,096 dispatch
+  processes.
+- Across 3,000 active matched-sampler rows measure 16.690 ms total, 14.025 ms
+  CPU-thread, 5.809 million guest cycles, and 177,545 dispatches on average.
+- Compare 96.85 attract samples/frame with 43.32 exact-roster samples/frame.
+  Five 16 KiB regions account for 52.50 of the 53.53 incremental samples, or
+  98.1%. The leaders map to repeated DVD/load, interrupt, HSD erase, and
+  game-mode paths.
+- Refute exact roster, four-player AI, and Big Blue together as a sufficient
+  cause. Defer the provisional eight-region universal rewrite. Next build a
+  data-free region-resident preflight for the first three attract-excess
+  regions and judge measured host-time gain, not dispatch count alone.
+- Stop the app, clear every diagnostic environment variable, and restore the
+  ordinary GCI at SHA-256
+  `0a361d3471289f6c4ea1f4c0254b1f197b44fb8466e408b71240418f01ad0e70`.
+  Row 7, device promotion, and G9 remain closed.
+- Evidence: `docs/artifacts/2026-09-01/g8-attract-only-dispatch-delta.md`.

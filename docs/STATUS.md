@@ -1,5 +1,22 @@
 # ssbmpad status
 
+## 2026-09-01 — Exact roster passes; attract-only regions isolated
+
+The deterministic Big Blue route now visibly recreates Ness plus CPU Peach,
+Ice Climbers, and Bowser. The no-logger match holds 59.9 FPS through combat.
+A matched diagnostic replay averages about 5.81 million guest cycles and
+177,500 dispatches, versus the failed attract arm's 8.11 million and 416,000.
+The collapse is therefore attract/demo-specific, not caused by the M1 host,
+Big Blue, four fighters, or the exact roster alone.
+
+The matched one-in-4,096 distributions reveal a narrow incremental corpus:
+five 16 KiB regions account for about 98.1% of the extra attract samples. The
+next step is a semantics-complete region-resident preflight over the repeated
+DVD/interrupt/load path, judged by host time rather than dispatch removal.
+The previous eight-region universal rewrite is deferred. Row 7, physical-iPad
+promotion, and G9 remain closed. See
+`docs/artifacts/2026-09-01/g8-attract-only-dispatch-delta.md`.
+
 ## 2026-09-01 — Four-player Big Blue isolates the extra attract work
 
 The controlled unlocked route now runs Pikachu plus CPU Bowser/Link/Link on

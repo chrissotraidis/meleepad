@@ -2603,6 +2603,21 @@ route, then save/replay it. If it reaches the attract work class, it is the
 representative generated-C architecture corpus; otherwise isolate the
 remaining attract-only state. Do not optimize the passing one-on-one trace.
 
+PERF-277 completes the exact-roster factorial and changes the architecture
+selection. Ness plus CPU Peach/Ice Climbers/Bowser holds 59.9 FPS on controlled
+Big Blue. Its matched diagnostic arm averages about 5.81 million cycles and
+177,500 dispatches, versus 8.11 million and 416,000 in attract. The residual is
+therefore attract/demo state, not roster, player count, or stage geometry.
+Matched one-in-4,096 samples show five 16 KiB regions account for 98.1% of the
+incremental attract dispatch stream. Build the next data-free region-resident
+preflight from the first three repeated DVD/interrupt/load regions, extending
+to the HSD-erase and game-mode regions only if required. Do not begin the prior
+eight-region universal rewrite and do not project speed from dispatch count
+alone. Require semantics, at least 35% selected-path host-time gain, at least
+25% measured whole-frame projection, and a neutral controlled route before a
+product module. See
+`docs/artifacts/2026-09-01/g8-attract-only-dispatch-delta.md`.
+
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).
 - **Per goal claim:** full evidence per PRD Section 11 before marking a goal met in STATUS.md.
 - **Per session:** before ending, run the ported regression scripts (sunpad `tests/` equivalents) plus a boot check on the highest working target, so the journal's last entry states a known-good state.
