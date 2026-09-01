@@ -5371,3 +5371,24 @@ Append-only execution ledger. Claims are limited to observed evidence.
   variable.
 - Evidence:
   `docs/artifacts/2026-09-01/g8-synchronized-dual-core-exact-fountain.md`.
+
+## 2026-09-01 — PERF-263 synchronized pipeline-persistence replay
+
+- Start a fresh process on the unchanged synchronized executable after the
+  prior exact match populated Dolphin's normal `GALE01.uidcache`.
+- Complete the same state-verified Samus/level-1-CPU-Kirby Stock/04/05:00
+  Fountain route. The prior 91.782 ms first-use pipeline hitch does not recur;
+  active emulated frames 3500-9800 contain no frame above 50 ms.
+- Retain 6,301 consecutive frames at 16.707134 ms mean, 17.593500 ms p95,
+  19.172209 ms p99, and 36.328459 ms worst. This validates persistence but
+  still fails the row-7 tail and every-moving-phase boundary.
+- Keep cold/front-end, match/results presentation, and malformed rendering as
+  independent failures. Do not add another performance toggle or treat a warm
+  user-data replay as a first-install pass.
+- Keep synchronized dual-core unmerged. Next audit a ROM-safe, versioned,
+  deterministic first-install UID seed and separately attribute the residual
+  CPU-heavy combat/transition clusters before repairing rendering correctness.
+- Stop the app and clear every diagnostic environment variable. Row 7,
+  physical-iPad promotion, and G9 remain closed.
+- Evidence:
+  `docs/artifacts/2026-09-01/g8-synchronized-pipeline-persistence-replay.md`.
