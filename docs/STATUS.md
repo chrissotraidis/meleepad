@@ -1,5 +1,26 @@
 # ssbmpad status
 
+## 2026-09-01 — Ordinary full-load attract reopens CPU architecture
+
+The unchanged published iPad Simulator product is not stable at 60 FPS. A
+clean hands-off cold launch reaches a coherent four-fighter attract match but
+falls to sustained 31.8-32.3 FPS and one 21.1 FPS interval. The CPU thread is
+96-99.7% busy and DMA underruns rise 0 -> 447. A sparse visible observation
+reports 31.6 FPS in the shell and about 24.9 FPS in the game counter.
+
+PERF-271 attributes the failure to full-load static CPU execution: about 8.11
+million guest cycles and 416,000 native dispatches per row take roughly 29-41
+ms, while Metal present is about 0.05 ms. The one-on-one route's 60 FPS result
+therefore proves a half-load case, not sufficient worst-case ceiling. Row 7,
+physical-iPad promotion, and G9 remain closed.
+
+The active experiment is now representative register-resident generated C,
+not another PGO, LLVM, shader, interrupt-helper, or isolated guest-PC build.
+The first architecture tranche must project at least 25% whole-frame CPU gain
+and have a credible route to the roughly 50% total reduction required for 60
+FPS. See
+`docs/artifacts/2026-09-01/g8-ordinary-four-fighter-attract-collapse.md`.
+
 Last updated: 2026-09-01
 
 ## Current goal

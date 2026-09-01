@@ -7,57 +7,49 @@ not a substitute for `GOAL-LOOP.md` or evidence in `docs/artifacts/`.
 
 ## P0 — G8 row 7: prove the complete iPad route honestly at 60 FPS
 
-### 1. Clear the exact cold load failure
+### 1. Cross the full-load static-CPU ceiling
 
-The synchronized CPU/video candidate plus iOS duplicate-XFB presentation now
-has enough measured ceiling. The formerly frozen moving transition advances,
-and the exact Fountain combat screen reports 59.9 FPS. Its final ten seconds
-measure 16.684733 ms mean, 17.150292 ms p95, 18.065917 ms p99, and 20.715625 ms
-worst.
+The ordinary cold product now supplies the controlling failure that the exact
+one-on-one route did not. A hands-off four-fighter attract match falls from
+59.9-60.0 FPS to sustained 31.8-32.3 FPS, reaches 21.1 FPS, drives the CPU
+thread to 96-99.7%, and raises DMA underruns from 0 to 447. The visible labels
+show 31.6 and about 24.9 FPS. This supersedes the stale conclusion that only
+ordinary acceptance remained.
 
-The follow-up minute holds 3,597 frames at 16.683199 ms mean (59.9405 FPS).
-That is sufficient evidence that another speculative static-code rewrite is
-not the next step. The remaining proof is product-facing, not a missing 2.7x
-optimization.
+Minimal follow-up attribution measures about 8.11 million guest cycles and
+416,000 native dispatches per presented attract row. CPU work is roughly
+29-41 ms while Metal present is about 0.05 ms. The workload is the full
+486 MHz / 60 Hz GameCube frame budget; the current static core therefore needs
+roughly twice the allowed host time. Target speed remains possible in
+principle, but requires a roughly 50% or greater CPU-thread reduction, not
+another isolated five-percent tweak.
 
-The first post-fix ordinary installed-app route directly reverses the former
-49-52 FPS XFB freeze, but one moving interval still reaches 55.6 FPS / 55.3
-VPS / 0.863 speed. Raising the bounded SyncGPU lead from 200,000 to 1,000,000
-guest ticks then removes three matched 57-59 FPS control windows and reduces
-transition underruns from 11 to 2 without a crash or visual regression.
+The only credible in-scope route is broad register-resident generated C:
+single-entry regions keep guest GPR/FPR/paired state live across internal
+control flow while the canonical arbitrary-entry path remains available for
+uncommon entries, helpers, exceptions, cycle exits, and SMC invalidation. The
+stock LLVM backend is closed: its exact equivalent slice is 6.12 times larger
+and 4.84-4.93 times slower than C. Small interrupt, direct-call, PGO, layout,
+and one-function register-cache candidates cannot supply the gap.
 
-The unchanged exact cold route still reports 57.5 then 53.5 FPS/VPS during
-load. The first ten seconds create 93 pipelines (80.735 ms total) while the CPU
-thread averages 9.199 ms. The following 591-frame interval creates only 16
-pipelines (13.107 ms), but CPU-thread execution rises to 16.224 ms with 8.11
-million guest cycles and 523,000 native dispatches per frame; Metal present is
-only 0.122 ms. Profile exactly emulated frames 3,124-3,714 and rank guest PCs
-and host call paths. Change code only if one safe path predicts at least a
-five-percent interval reduction. Do not conflate this on-core load with the
-preceding pipeline burst or resume broad recompiler work.
+Before another product module, build a representative data-free region-state
+corpus. It must pass full state/RAM/cycle/exception equivalence, improve the
+selected work by at least 35%, cover enough of the attract frame to project at
+least 25% whole-frame CPU gain in its first tranche, and retain a credible path
+to the roughly 50% total reduction. If it cannot, record that this no-JIT
+static-C architecture cannot guarantee worst-case 60 FPS on the M1 Simulator
+host instead of cycling compiler flags. See
+`docs/artifacts/2026-09-01/g8-ordinary-four-fighter-attract-collapse.md`.
 
-A dispatch-sampled repeat does not reproduce the deficit: it holds
-59.9-60.0 FPS/VPS and the same numeric phase range falls from 16.224 to 12.197
-ms CPU-thread time, 8.11 to 4.43 million static cycles, 523,000 to 206,000
-dispatches, and 3,925 to 1,502 Mach syscalls per row. Its PCs form a broad
-DVD/state/resource cluster and none exceeds 5.75%. Before profiling another
-function, reproduce the failed state twice from fresh processes without
-deleting game data or saves and align by state-driven route event plus host
-time. Treat the controlling variable as cold process/cache state until that
-reversal identifies it; do not infer a permanent gameplay ceiling from the
-failed run or a permanent fix from the warm run.
-
-A sampler-free exact repeat after rebooting the same Simulator also holds
-59.7-60.0 FPS / 59.8-60.0 VPS. The formerly expensive range remains near
-11.37 ms CPU-thread time, 4.16 million static cycles, and 181,000 dispatches
-per row. Simulator service state alone is not the trigger. Do not make another
-performance-code change without a fresh ordinary failure. The active P0 task
-is two ordinary cold installed-app routes on the unchanged build, followed by
-the manual five-minute Fountain gate if both pass.
+The retained attract distribution makes the first-tranche breadth concrete:
+at 35% local gain, seven 16 KiB regions cover only 70.39% and project 24.64%
+whole-frame gain; eight cover 75.99% and project 26.60%. Treat this as an
+optimistic selection bound, not proof that entire chunks can be optimized.
 
 ### 2. Complete the exact ordinary acceptance route
 
-Run two complete cold routes and one unchanged-build ordinary manual five-minute
+After the architecture gate produces a viable product candidate, run two
+complete cold routes and one unchanged-build ordinary manual five-minute
 Samus/CPU-Kirby Fountain route. Retain opening, menu/CSS, load, combat, results,
 return, controls, FPS/VPS, audio, lifecycle, and FIFO diagnostics. The visible
 Classic route proves touch controls and gameplay can hold 59.9 FPS, but it does

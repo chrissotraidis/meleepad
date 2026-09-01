@@ -5512,3 +5512,32 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Stop the app, clear all diagnostic variables, and remove the short symlink.
 - Evidence:
   `docs/artifacts/2026-09-01/g8-simulator-reboot-cold-reversal.md`.
+
+## 2026-09-01 — PERF-271 ordinary four-fighter attract collapse
+
+- Cold-launch the ordinary installed app with product defaults, no diagnostic
+  environment, private input, savestate, phase logger, dispatch logger, or
+  profiler, and leave it hands-off for 130 seconds under one HEVC recording.
+- Retain a coherent four-fighter attract match visibly reporting 31.6/about
+  24.9 FPS. Runtime falls from 59.9-60.0 to sustained 31.8-32.3 FPS and one
+  21.1 FPS interval; CPU-thread use reaches 96-99.7% and underruns rise 0 ->
+  447. This is the controlling product failure.
+- Repeat with phase and one-in-4,096 dispatch logging only for attribution.
+  Treat diagnostic FPS as observer-contaminated, but retain the distribution:
+  about 8.11 million guest cycles, 416,000 native dispatches, 29-41 ms CPU
+  work, and about 0.05 ms Metal present per attract row.
+- Correct `0x80345738/0x80345760` to OSDisableInterrupts/OSRestoreInterrupts
+  from generated semantics. Their roughly 15% combined sample share is broad
+  interrupt/DVD-sized work, not a single safe 50% hotspot.
+- Reorient row 7 to a generated-code architecture gate. Stock LLVM is already
+  rejected at 4.84-4.93 times slower; small direct-call, interrupt, PGO, and
+  register-cache candidates cannot close a roughly 2x CPU gap. Next build a
+  representative register-resident C-region semantic/timing corpus before any
+  product module.
+- Add a generic region-coverage screen. At 35% local gain, the top seven
+  16 KiB regions cover 70.39% and miss the 25% whole-frame projection; the top
+  eight cover 75.99% and project 26.60%. This establishes the minimum breadth
+  of the first architecture tranche without treating sample coverage as gain.
+- Keep row 7 hard failed, physical-iPad promotion closed, and G9 queued.
+- Evidence:
+  `docs/artifacts/2026-09-01/g8-ordinary-four-fighter-attract-collapse.md`.

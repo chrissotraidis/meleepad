@@ -15,6 +15,7 @@ python3 scripts/test_classify_g5_intervals.py
 python3 scripts/test_analyze_triggered_native_pcs.py
 python3 scripts/test_lightweight_frame_timing_patch.py
 python3 scripts/test_triggered_thread_sampler.py
+python3 scripts/test_analyze_region_coverage.py
 tests/test-input-pipe-encoder.sh
 tests/test-pipe-short-tap-latching.sh
 tests/test-controller-mapping.sh

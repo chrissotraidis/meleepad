@@ -100,6 +100,27 @@ is not currently playable at target speed. Do not call it stable 60 FPS,
 nearly ready, physical-iPad-ready, or promoted. G9 netplay remains queued
 behind this gate.
 
+PERF-271 supplies the controlling post-fix ordinary failure. A hands-off cold
+installed-app run enters a four-fighter attract match and falls from
+59.9-60.0 FPS to sustained 31.8-32.3 FPS, with a 21.1 FPS interval, CPU-thread
+saturation, and 447 DMA underruns. Minimal follow-up attribution measures the
+normal full 8.11-million guest cycles but roughly 29-41 ms of CPU work per
+presented row; Metal present is about 0.05 ms. The current static core fits the
+roughly half-load one-on-one route at 60 FPS but not this full-load route.
+
+Reorient the mechanism lane accordingly. The required improvement is roughly
+50% CPU-thread time, so isolated five-percent candidates may compose but cannot
+be mistaken for closure. Do not retry stock LLVM output: its equivalent hot
+slice was 6.12 times larger and 4.84-4.93 times slower than generated C. The
+next falsifiable step is a representative, data-free register-resident C-region
+preflight preserving the canonical arbitrary-entry fallback. It must pass full
+state/RAM/cycle/exception semantics, show at least 35% local gain, cover enough
+measured attract work to project at least 25% whole-frame gain in a first
+tranche, and retain a credible route to the roughly 50% total reduction. If it
+cannot, record the static architecture ceiling honestly rather than returning
+to compiler flags or small hotspots. See
+`docs/artifacts/2026-09-01/g8-ordinary-four-fighter-attract-collapse.md`.
+
 The address-translation/discarded-instruction split, guest-PC-store preflight,
 and exact-route one-in-4,096 dispatch distribution are complete. TLB/branch
 events are too small and distributed to explain the 21.9-to-60 FPS gap alone.
