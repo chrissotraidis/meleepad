@@ -48,9 +48,11 @@ Until this hard stop is cleared, the loop order is:
    improvement of at least five percent without weakening exception, fallback,
    SMC, input, rendering, lifecycle, audio, diagnostic, or future-netplay
    correctness;
-5. reverse control/candidate/control on the same route. Reject any candidate
-   that improves the mean while retaining a sub-59 phase, a frame-time tail,
-   new underruns, visual warping, or input/lifecycle regression;
+5. reverse control/candidate/control on the same route. A low-risk partial
+   candidate may remain for composition only when its tail improvement repeats
+   and it introduces no semantic, underrun, visual, input, or lifecycle
+   regression. It cannot pass row 7, trigger full acceptance, or supersede the
+   ordinary product floor while any phase remains below 59 FPS/VPS;
 6. only after two complete fresh-process cold routes and the unchanged-build
    ordinary manual route meet the protocol below may physical-device testing
    begin.
@@ -110,15 +112,27 @@ samples, but no PC exceeds 5.49% and no 16 KiB region exceeds 13.14%; the top
 families are the already-rejected interrupt, DVD/timing, and HSD/GX/matrix
 paths. That rejects another guest-region specialization before a build.
 
-The immediate active step is therefore a fresh exact-workload host-side profile
-and a no-build materiality screen of the remaining per-dispatch ladder as one
-batch. Attribute time among dispatch lookup/checking, state synchronization,
-exception/fallback handling, sampling/diagnostics, and slice bookkeeping. Only
-split out a source candidate if measured removable cost can clear five percent;
-otherwise reject the batch and re-profile at the next outer boundary. Do not
+PERF-256 completes that host-side profile and the first bounded host-loop
+candidate. Cold first-combat samples put `StaticRecompCore::Run` self plus the
+disabled lockstep check at 8.164% of the CPU-GPU thread, clearing the structural
+screen. Patch 0030 caches loop invariants and makes dispatch/freeze diagnostics
+default-off while preserving explicit gates. In an A/C/A exact-route reversal,
+the candidate repeats a two-second bad tail instead of the control's five and
+raises the minimum from 11.7 to 20.2-21.1 FPS, but mean gain is only 3.5-3.7%
+and both candidates still collapse to roughly 20 FPS. Retain it only as a
+partial building block; row 7 remains a hard fail.
+
+The immediate active step is now a frame-aligned outer-boundary attribution of
+that repeatable cold transition spike. Begin with the reality lane, then on a
+separate exact diagnostic run correlate total/CPU/present time with native
+dispatches, draw/primitive deltas, shader/pipeline creation, and DMA underruns.
+Build only when one aligned mechanism predicts at least five percent removable
+time. Do not assume shader prewarming is sufficient: compiler workers were
+concurrent, but the CPU-GPU thread did not materially block on them. Do not
 reopen interrupt-leaf coalescing, fast-disc/DVD shortcuts, direct HSD/GX calls,
 matrix-copy specialization, narrow `mtspr`, dual-core FIFO, buffer growth,
-vertex-loader work, stale PGO, or footprint-only generated-code variants.
+vertex-loader work, stale PGO, or footprint-only generated-code variants. See
+`docs/artifacts/2026-09-01/g8-r0-cold-host-profile-and-loop-hoist-reversal.md`.
 
 DECISION-215 originally recorded a user-authorized sequencing exception after
 PERF-214. On 30 Aug 2026 the user explicitly broadened that direction: assume

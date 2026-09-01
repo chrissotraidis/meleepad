@@ -5213,3 +5213,28 @@ Append-only execution ledger. Claims are limited to observed evidence.
   clear five percent without weakening correctness.
 - Evidence:
   `docs/artifacts/2026-08-31/g8-r0-exact-combat-dispatch-subtraction.md`.
+
+## 2026-09-01 — PERF-256 cold host ladder and partial loop hoists
+
+- Keep the user's ordinary visible 21.9 FPS Fountain run as the controlling
+  product floor. Profiles and private-input routes remain mechanism evidence.
+- Attribute cold first combat: `StaticRecompCore::Run` self plus the disabled
+  lockstep check accounts for 1,008 / 12,347 CPU-GPU-thread samples (8.164%),
+  clearing a bounded structural screen. Shader compiler workers run
+  concurrently, but the CPU-GPU thread does not materially wait on them.
+- Retain patch 0030 as partial groundwork. It caches loop-invariant state and
+  makes dispatch/freeze diagnostics default-off with explicit opt-in gates.
+  Its focused regression, canonical reverse-apply check, Release build, and
+  full repository gate pass.
+- Complete an A/C/A exact-route reversal. Candidate A1 averages 57.79 FPS with
+  a 21.1 minimum and two-second bad tail; control averages 55.74 with an 11.7
+  minimum and five-second bad tail; candidate A2 averages 57.69 with a 20.2
+  minimum, two-second bad tail, and one underrun. The repeated tail reduction
+  is useful, but the 3.5-3.7% mean gain misses the live target and both
+  candidates remain near 20 FPS.
+- Keep row 7 hard-failed and physical-iPad promotion closed. Next run the
+  reality lane, then align frame-level CPU/present/native-dispatch work with
+  draw, primitive, shader/pipeline creation, and underrun deltas around the
+  repeatable cold transition spike. Do not reopen rejected guest regions.
+- Evidence:
+  `docs/artifacts/2026-09-01/g8-r0-cold-host-profile-and-loop-hoist-reversal.md`.

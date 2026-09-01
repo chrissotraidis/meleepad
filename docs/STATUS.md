@@ -1,6 +1,6 @@
 # ssbmpad status
 
-Last updated: 2026-08-31
+Last updated: 2026-09-01
 
 ## Current goal
 
@@ -28,13 +28,22 @@ distortion. PERF-255 then rejects another guest-region rewrite: a coherent
 long-minus-short exact-combat distribution accounts for 63,775 samples, but
 no PC exceeds 5.49%, no 16 KiB region exceeds 13.14%, and the leaders belong
 to already-rejected interrupt, DVD/timing, and HSD/GX/matrix families. The
-loop now has separate reality and mechanism lanes. The next step is a fresh
-exact-workload host profile and no-build materiality screen of the remaining
-per-dispatch ladder as a batch. No module candidate is allowed unless measured
-removable cost clears five percent and preserves precise exception, fallback,
-hook, SMC, input, rendering, audio, diagnostic, and future-netplay state.
+loop now has separate reality and mechanism lanes. PERF-256 completes the
+fresh host profile and a bounded loop-hoist reversal. Cold first-combat samples
+put `StaticRecompCore::Run` self plus the disabled lockstep check at 8.164% of
+the CPU-GPU thread. The retained default-off diagnostic and loop-invariant
+hoists reduce the exact-route control's five-second bad run to two seconds in
+both candidate runs, but still fall to 21.1 and 20.2 FPS and improve mean FPS
+only 3.5-3.7%. This is partial groundwork, not a pass. The next step is a
+frame-aligned attribution of the repeatable cold transition spike at the next
+outer boundary: correlate CPU/present time and native dispatches with
+draw/primitive, shader/pipeline-creation, and DMA-underrun deltas. No further
+candidate is allowed unless that aligned window identifies at least five
+percent removable cost while preserving precise exception, fallback, hook,
+SMC, input, rendering, audio, diagnostic, and future-netplay state.
 
 See
+`docs/artifacts/2026-09-01/g8-r0-cold-host-profile-and-loop-hoist-reversal.md`,
 `docs/artifacts/2026-08-31/g8-r0-exact-combat-dispatch-subtraction.md` and
 `docs/artifacts/2026-08-31/g8-r0-rules-normalization-and-pc-store-preflight.md`.
 

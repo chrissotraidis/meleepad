@@ -1,0 +1,70 @@
+diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
+--- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
++++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
+@@ -14,6 +14,7 @@
+ #include "Common/FramePhaseTiming.h"
+ 
+ #include <cstdio>
++#include <cstdlib>
+ #include <ctime>
+ 
+ namespace
+@@ -61,6 +62,12 @@ void StaticRecompCore::Run()
+   auto& memory = m_system.GetMemory();
+   const CPU::State* state_ptr = m_system.GetCPU().GetStatePtr();
+   const bool log_phase = Common::FramePhaseTiming::IsEnabled();
++  const bool lockstep_enabled = m_lockstep_verifier->IsEnabled();
++  const bool sample_dispatches = !m_dispatch_frame_log_path.empty() ||
++                                 std::getenv("STATICRECOMP_DISPATCH_SAMPLE") != nullptr;
++  const bool freeze_trace = std::getenv("STATICRECOMP_FREEZE_TRACE") != nullptr;
++  const bool has_rel_modules = m_module && m_module->num_rel_modules != 0;
++  const u32 idle_pc = m_idle_pc;
+ 
+   m_guest.ram = memory.GetRAM();
+   m_guest.ram_size = memory.GetRamSizeReal();
+@@ -102,17 +109,18 @@ void StaticRecompCore::Run()
+         ++m_bursts;
+         do
+         {
+-          if (m_guest.pc == 0x80191ee8u || m_guest.pc == 0x80191f00u ||
+-              m_guest.pc == 0x80191858u)
++          if (freeze_trace &&
++              (m_guest.pc == 0x80191ee8u || m_guest.pc == 0x80191f00u ||
++               m_guest.pc == 0x80191858u))
+             std::fprintf(stderr, "[freeze-trace] pc=%08x r3=%08x r4=%08x lr=%08x\n",
+                          m_guest.pc, m_guest.gpr[3], m_guest.gpr[4], m_guest.lr);
+-          const bool do_ls = m_lockstep_verifier->ShouldCheck(m_guest.pc);
++          const bool do_ls = lockstep_enabled && m_lockstep_verifier->ShouldCheck(m_guest.pc);
+           if (do_ls)
+           {
+             m_lockstep_verifier->Prepare(m_guest);
+           }
+ 
+-          if ((m_native_dispatches & 4095u) == 0)
++          if (sample_dispatches && (m_native_dispatches & 4095u) == 0)
+           {
+             ++m_dispatch_samples[m_guest.pc];
+             if (!m_dispatch_frame_log_path.empty())
+@@ -121,11 +129,11 @@ void StaticRecompCore::Run()
+           }
+           const u32 runtime_dispatch_address = m_guest.pc;
+           u32 linked_dispatch_address = runtime_dispatch_address;
+-          if (m_module->num_rel_modules != 0)
++          if (has_rel_modules)
+             ResolveNativeAddress(runtime_dispatch_address, &linked_dispatch_address, nullptr);
+           m_guest.pc = linked_dispatch_address;
+           m_module->dispatch(&m_guest, linked_dispatch_address);
+-          if (m_module->num_rel_modules != 0)
++          if (has_rel_modules)
+             m_guest.pc = TranslateRelAddress(m_guest.pc);
+           ++m_native_dispatches;
+ 
+@@ -151,7 +159,7 @@ void StaticRecompCore::Run()
+           m_guest.timebase = m_burst_tb_base + m_burst_tb_cycles / SystemTimers::TIMER_RATIO;
+ 
+           // Idle loop skipping for configured target loops (e.g. Wii Menu OSIdleThread)
+-          if (m_guest.pc == m_idle_pc && m_idle_pc != 0)
++          if (idle_pc != 0 && m_guest.pc == idle_pc)
+           {
+             const TimePoint idle_start = log_phase ? Clock::now() : TimePoint{};
+             m_system.GetCoreTiming().Idle();

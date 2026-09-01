@@ -160,6 +160,7 @@ ios_metal_display_sync_availability_patch="$ROOT/patches/moderngekko-dolphin/002
 ios_simulator_framebuffer_fetch_patch="$ROOT/patches/moderngekko-dolphin/0027-ios-simulator-disable-framebuffer-fetch.patch"
 ios_audio_diagnostics_patch="$ROOT/patches/moderngekko-dolphin/0028-ios-audio-continuity-diagnostics.patch"
 pipe_short_tap_patch="$ROOT/patches/moderngekko-dolphin/0029-pipe-short-tap-latching.patch"
+static_recomp_loop_hoists_patch="$ROOT/patches/moderngekko-dolphin/0030-static-recomp-loop-hoists.patch"
 apply_patch_once_or_marker "$MG" "$mg_patch" \
   include/moderngekko/runtime.hpp 'struct RuntimeDiagnosticsSnapshot'
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$dolphin_patch" \
@@ -237,6 +238,9 @@ apply_patch_once_or_marker "$MG/vendor/dolphin" "$ios_simulator_framebuffer_fetc
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$ios_audio_diagnostics_patch" \
   Source/Core/AudioCommon/Mixer.h GetDMAUnderrunCount
 apply_patch_once "$MG/vendor/dolphin" "$pipe_short_tap_patch"
+apply_patch_once_or_marker "$MG/vendor/dolphin" "$static_recomp_loop_hoists_patch" \
+  Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp \
+  STATICRECOMP_DISPATCH_SAMPLE
 verify_patch_scope "$MG" "$mg_patch" vendor/dolphin tools/moderngekko_launcher.cpp \
   tools/moderngekko_port.cpp tests/frontend_config_test.cpp \
   tools/frontend_config.cpp tools/frontend_config.hpp tools/moderngekko_run.cpp \
@@ -285,5 +289,7 @@ verify_patch_scope "$MG/vendor/dolphin/DolRecomp" "$dolrecomp_scalar_patch" \
 verify_patch_scope "$MG/vendor/dolphin" "$pipe_short_tap_patch" \
   Source/Core/InputCommon/ControllerInterface/Pipes/Pipes.cpp \
   Source/Core/InputCommon/ControllerInterface/Pipes/Pipes.h
+verify_patch_scope "$MG/vendor/dolphin" "$static_recomp_loop_hoists_patch" \
+  Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
 
 echo "ssbmpad dependencies are pinned and patched."
