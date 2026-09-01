@@ -5121,3 +5121,27 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Next: collect matched process-filtered instruction-address-translation and
   discarded-instruction evidence inside exact Samus/CPU-Kirby Fountain combat.
   Do not build another module until that split identifies a narrower mechanism.
+
+## 2026-08-31 — PERF-251 exact counter split and reality-first loop
+
+- Repair the last exact-route race: tap Start until revision-1.00 guest state
+  reports CSS instead of waiting for a transient title-pointer edge that a late
+  watcher can miss. Keep all roster/rules/stage/combat predicates. Focused
+  tests pass 27/27.
+- Retain valid process-filtered exact-combat counter windows. IAT reports
+  1.603B cycles, 13.789M L1I demand misses, 6.314M L1I TLB misses, 3.172M L2
+  TLB misses, and 3.225M instruction-fetch walks. Discarded Sampling reports
+  1.674B cycles, 7.755M branch mispredictions, and 253,939 unpredicted memory
+  dependencies.
+- Reject translation misses and branch misses as standalone explanations for
+  the 21.9-to-60 FPS gap. Branch samples are distributed; one trace crossing
+  combat into results was discarded rather than blended into the valid run.
+- Make the ordinary 21.9 FPS manual floor sticky. Automation/profiling can add
+  a lower failure but cannot raise it; only a normal same-path manual reversal
+  on the unchanged candidate can.
+- Next: do not build. Count surviving post-optimization guest-PC stores in the
+  sampled hot chunks and classify precise-state boundaries. Proceed to an
+  extracted semantic differential only if the projected reduction is at least
+  5%; otherwise reject the direction.
+- Evidence:
+  `docs/artifacts/2026-08-31/g8-r0-instruction-front-end-counter-split.md`.

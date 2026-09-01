@@ -39,10 +39,16 @@ Until this hard stop is cleared, the loop order is:
 5. only after two complete cold routes and the unchanged-build manual route
    meet the protocol below may physical-device testing begin.
 
-The immediate active step is process-filtered instruction-address-translation
-and discarded-instruction sampling in exact Samus/Kirby Fountain combat. Do
-not build another module, call the app playable, or promote it while collecting
-that diagnostic evidence.
+The address-translation/discarded-instruction split is now complete. It rejects
+TLB misses and branch misses as standalone explanations for a 21.9-to-60 FPS
+gap: both are measurable, but neither has the required materiality and the
+discarded samples are distributed rather than concentrated in one branch or
+function. The immediate active step is a no-build, post-optimization census of
+guest-PC state stores in the exact hot generated chunks. A product experiment
+is allowed only if that census proves surviving stores and predicts at least a
+five-percent reduction without weakening precise exception, hook, SMC, or
+netplay semantics. Do not build another module, call the app playable, or
+promote it before that preflight passes.
 
 DECISION-215 originally recorded a user-authorized sequencing exception after
 PERF-214. On 30 Aug 2026 the user explicitly broadened that direction: assume
@@ -2101,6 +2107,22 @@ and discarded-sampling evidence from this exact combat interval; do not build
 another module or promote the app first. See
 `docs/artifacts/2026-08-31/g8-r0-exact-route-reproduction.md`.
 
+PERF-251 completes the requested counter split and refines the loop around the
+visible failure. On the exact state-verified Samus/level-1-CPU-Kirby,
+Stock/04/05:00 Fountain route, a process-filtered instruction-address-
+translation sample reports 1.603 billion cycles, 13.789 million L1I demand
+misses, 6.314 million L1I TLB misses, 3.172 million L2 TLB misses, and 3.225
+million instruction-fetch walks. A separate valid discarded-sampling run
+reports 1.674 billion cycles, 7.755 million incorrectly predicted branches,
+and 253,939 unpredicted memory dependencies. The branch samples are spread
+across generated functions, `chassis_dispatch`, `RunFifo`, and framework code;
+there is no dominant branch patch. These diagnostic windows do not replace the
+ordinary 21.9 FPS baseline, and profiler-attached FPS is observer-contaminated.
+The next bounded preflight is to count post-optimization guest-PC stores in
+the named hot chunks and prove an exception-safe elimination opportunity before
+building. See
+`docs/artifacts/2026-08-31/g8-r0-instruction-front-end-counter-split.md`.
+
 ## G8 row-7 and iPad promotion acceptance protocol
 
 This protocol prevents a fast idle/menu tail or final interval from hiding a
@@ -2130,6 +2152,14 @@ by preserving both observations, confirming build/module/config identities,
 and reproducing the failed visible phase; never discard the lower result as
 "an outlier" without a demonstrated cause and a successful same-path
 reversal.
+
+The ordinary manual baseline is sticky across iterations. Automation or a
+profiler run may add a lower failure, but it may not raise the baseline. The
+21.9 FPS result remains authoritative until the same installed product path,
+started normally by a person, is visibly reversed on an unchanged candidate.
+Profiler-attached FPS, private-pipe FPS, and post-results/static-screen 60 FPS
+must be labelled diagnostic and cannot be cited as evidence that the ordinary
+route improved.
 
 0. Begin every row-7 optimization cycle with a cold, ordinary product launch
    and a visible manual sanity route. Do not preload a savestate, preserve a
@@ -2182,6 +2212,10 @@ reversal.
    - **Mechanism:** connect the exact slow phase to measured code or resource
      work and state the predicted effect. Do not optimize a broad suspect just
      because it is present in a profile.
+     A counter family must also clear a materiality bound. A measured event is
+     not automatically causal: translation and branch events that can explain
+     only a small fraction of the 21.9-to-60 gap are recorded as secondary and
+     may not justify a broad product rewrite.
    - **Integrity:** pass focused semantics, build, crash, and ROM-boundary
      checks. A faster corrupt, unstable, or timing-inaccurate build is rejected.
    - **Matched phase reversal:** replay the same roster, stage, process state,

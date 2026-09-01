@@ -464,6 +464,11 @@ class SequenceTests(unittest.TestCase):
             / "input-sequences/g8-r0-samus-kirby-rules.json"
         )
         sequence = json.loads(sequence_path.read_text(encoding="utf-8"))
+        title_transition = sequence[0]
+        self.assertEqual(title_transition["action"], "tap_until_memory")
+        self.assertEqual(title_transition["button"], "START")
+        self.assertEqual(title_transition["address"], "0x80477D68")
+        self.assertEqual(title_transition["equals"], "0x01000000")
         addresses = gcpipe.sequence_addresses(sequence)
         self.assertIn("8049EA88 C", addresses)
         self.assertIn("804D1D60 1848", addresses)

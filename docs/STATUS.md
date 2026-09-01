@@ -10,10 +10,25 @@ The current loop cannot advance past performance. The controlling result is
 the user's ordinary first-run 21.9 FPS Samus/CPU-Kirby, Stock/04/05:00 Fountain
 combat frame, supported by 20.2 FPS / 19.8 VPS runtime evidence and increasing
 DMA underruns. Faster automation, an idle 60 FPS value, or an observer-heavy
-profile cannot supersede it. The immediate next step is matched, process-
-filtered instruction-address-translation and discarded-instruction evidence
-from the exact state-verified combat route; no new module candidate is allowed
-before that split names a narrower mechanism.
+profile cannot supersede it. PERF-251 completes the exact-route address-
+translation and discarded-instruction split: both event families are
+measurable but too small and too distributed to explain the 21.9-to-60 gap
+alone. The immediate next step is a no-build post-optimization census of
+guest-PC stores in the sampled hot generated chunks. No module candidate is
+allowed unless surviving stores project at least a five-percent reduction and
+precise exception/hook/SMC/netplay state can be preserved.
+
+PERF-251 also makes the manual floor sticky. A profiler or private-pipe run can
+add a lower failure but cannot raise the 21.9 FPS baseline. Only a same-path,
+normal installed-app manual reversal on the unchanged candidate can do that.
+The valid process-filtered IAT sample reports 1.603B cycles, 13.789M L1I demand
+misses, 6.314M L1I TLB misses, 3.172M L2 TLB misses, and 3.225M fetch walks.
+The valid discarded sample reports 1.674B cycles, 7.755M branch
+mispredictions, and 253,939 unpredicted memory dependencies; displayed misses
+are distributed across generated functions, dispatch/FIFO work, and framework
+code. The route harness's transient title-pointer race is repaired and focused
+tests pass 27/27. See
+`docs/artifacts/2026-08-31/g8-r0-instruction-front-end-counter-split.md`.
 
 PERF-238 reopens row 7 and retracts the prior physical-iPad-candidate
 interpretation. The user's first manual Simulator run visibly showed Fountain
