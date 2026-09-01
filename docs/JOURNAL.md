@@ -5165,3 +5165,28 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Next: finish the no-build guest-PC-store preflight, reject it if the safe
   reduction is below five percent, then measure the exact-route dispatch
   distribution before selecting another product change.
+
+## 2026-08-31 — PERF-254 exact rules normalization and PC-store rejection
+
+- Expose a false exact-route assumption: a zero-mask opener could return
+  without sending A, and a cached target value could disagree with the first
+  rendered rules label.
+- Force one visible change before state-gated convergence for mode, stock
+  count, and stock time limit; retain final Stock/04/05:00 predicates as vetoes.
+  Focused tests pass 27/27.
+- Complete two fresh-process exact routes with exit status zero. Guest state
+  proves Samus, level-1 CPU Kirby, Stock/04/05:00, Fountain slot 8, and combat;
+  Computer Use shows the same match at only 49.1 and 41.6 FPS with geometry
+  distortion. Row 7 remains failed and the 21.9 FPS floor remains sticky.
+- Recompute exact strict-PGO mini-links. Unsafe all-drop PC removal reduces
+  five hot chunks 449,753 -> 389,773 AArch64 instructions (13.34%). A
+  semantics-safe representative subset reduces 105,962 -> 101,966 (3.77%),
+  below the five-percent build gate.
+- Reject the direction before a product build. The older broad live candidate
+  had already regressed 52.585 -> 49.629 FPS despite semantic success and a
+  1.475 MB text reduction; do not repeat it.
+- Evidence:
+  `docs/artifacts/2026-08-31/g8-r0-rules-normalization-and-pc-store-preflight.md`.
+- Next: retain the existing one-in-4,096 dispatch distribution on exact combat
+  and select a new mechanism only if the current workload has a bounded,
+  unclosed concentration.

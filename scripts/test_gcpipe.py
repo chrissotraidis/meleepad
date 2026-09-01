@@ -503,6 +503,25 @@ class SequenceTests(unittest.TestCase):
         self.assertEqual(stage_steer["y_address"].split().count("0x8"), 22)
         self.assertEqual((stage_steer["target_x"], stage_steer["target_y"]), (7.4, 14.1))
 
+        for address, expected in (
+            ("0x804D1D60 0x1848", "0x00000100"),
+            ("0x804D1D60 0x184C", "0x04000000"),
+            ("0x804D1D60 0x1850", "0x05000000"),
+        ):
+            setter_index = next(
+                index
+                for index, step in enumerate(sequence)
+                if step.get("action") == "tap_until_memory"
+                and step.get("address") == address
+                and step.get("equals") == expected
+            )
+            normalization = next(
+                step
+                for step in reversed(sequence[:setter_index])
+                if step.get("action") == "tap"
+            )
+            self.assertEqual(normalization["button"], "D_RIGHT")
+
 
 if __name__ == "__main__":
     unittest.main()

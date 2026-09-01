@@ -81,16 +81,18 @@ is not currently playable at target speed. Do not call it stable 60 FPS,
 nearly ready, physical-iPad-ready, or promoted. G9 netplay remains queued
 behind this gate.
 
-The address-translation/discarded-instruction split is now complete. It rejects
-TLB misses and branch misses as standalone explanations for a 21.9-to-60 FPS
-gap: both are measurable, but neither has the required materiality and the
-discarded samples are distributed rather than concentrated in one branch or
-function. The immediate active step is a no-build, post-optimization census of
-guest-PC state stores in the exact hot generated chunks. A product experiment
-is allowed only if that census proves surviving stores and predicts at least a
-five-percent reduction without weakening precise exception, hook, SMC, or
-netplay semantics. Do not build another module, call the app playable, or
-promote it before that preflight passes.
+The address-translation/discarded-instruction split and guest-PC-store
+preflight are now complete. TLB/branch events are too small and distributed to
+explain the 21.9-to-60 FPS gap alone. Removing all surviving PC stores looks
+material in static mini-links but is semantically unsafe; the safe subset is
+only 3.77%, below the five-percent build gate, and the earlier broader live
+candidate regressed. The route harness now forces a visible value change before
+accepting Stock/04/05:00 and passes two fresh exact routes, but those routes
+visibly reach only 49.1 and 41.6 FPS. The immediate active step is the built-in
+one-in-4,096 exact-route guest-dispatch distribution. Select a product
+experiment only if it exposes a bounded, unclosed concentration. Do not build
+another module, call the app playable, or promote it before that preflight
+passes.
 
 DECISION-215 originally recorded a user-authorized sequencing exception after
 PERF-214. On 30 Aug 2026 the user explicitly broadened that direction: assume
@@ -2164,6 +2166,18 @@ The next bounded preflight is to count post-optimization guest-PC stores in
 the named hot chunks and prove an exception-safe elimination opportunity before
 building. See
 `docs/artifacts/2026-08-31/g8-r0-instruction-front-end-counter-split.md`.
+
+PERF-254 repairs the exact rules route and rejects the guest-PC-store direction
+before a product build. Each editable rules field now receives a forced visible
+change before state-gated convergence, and final active rules remain a veto.
+Two fresh processes prove the exact Samus/CPU-Kirby, Stock/04/05:00 Fountain
+route, but visible combat is only 49.1 and 41.6 FPS with geometry distortion.
+Strict-PGO all-drop mini-links shrink 13.34% but are unsafe; a semantics-safe
+representative subset shrinks only 3.77%, below the five-percent gate. The
+older broad live PC-elision candidate also regressed 52.585 to 49.629 FPS. Do
+not build this candidate. Next retain the exact-route one-in-4,096 dispatch
+distribution and require a new bounded concentration. See
+`docs/artifacts/2026-08-31/g8-r0-rules-normalization-and-pc-store-preflight.md`.
 
 ## G8 row-7 and iPad promotion acceptance protocol
 

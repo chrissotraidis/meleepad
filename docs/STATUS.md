@@ -16,13 +16,21 @@ opening, menu/CSS/load, first-minute combat, continued combat, results, and
 return independently. One failed moving phase fails the route; later recovery
 cannot be averaged over it. Only two clean cold exact routes followed by an
 unchanged-build ordinary manual five-minute run can reopen physical-iPad
-candidacy. PERF-251 completes the exact-route address-
-translation and discarded-instruction split: both event families are
-measurable but too small and too distributed to explain the 21.9-to-60 gap
-alone. The immediate next step is a no-build post-optimization census of
-guest-PC stores in the sampled hot generated chunks. No module candidate is
-allowed unless surviving stores project at least a five-percent reduction and
-precise exception/hook/SMC/netplay state can be preserved.
+candidacy. PERF-251 completes the exact-route address-translation and
+discarded-instruction split: both event families are measurable but too small
+and too distributed to explain the 21.9-to-60 gap alone. PERF-254 then rejects
+guest-PC-store removal before a product build. Unsafe all-drop mini-links
+shrink 13.34%; the semantics-safe representative subset shrinks only 3.77%,
+below the five-percent gate, and the earlier broad live candidate regressed.
+The corrected rules route forces visible normalization and passes two fresh
+exact traversals, but combat is only 49.1 and 41.6 FPS with geometry
+distortion. The immediate next step is the existing low-overhead exact-route
+guest-dispatch distribution. No module candidate is allowed unless it exposes
+a bounded, unclosed concentration and preserves precise exception, fallback,
+hook, SMC, diagnostic, and future netplay state.
+
+See
+`docs/artifacts/2026-08-31/g8-r0-rules-normalization-and-pc-store-preflight.md`.
 
 PERF-251 also makes the manual floor sticky. A profiler or private-pipe run can
 add a lower failure but cannot raise the 21.9 FPS baseline. Only a same-path,
