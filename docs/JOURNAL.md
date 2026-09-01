@@ -5089,3 +5089,19 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Next: calibrate the exact normal Fountain route with guest-state barriers,
   then collect matched address-translation and discarded-sampling counters on
   the visually verified slow phase before another module build.
+
+## 2026-08-31 — PERF-249 exact revision-1.00 route reproduced
+
+- Derive revision-1.00 P1/P2 cursor, character, active-rules, stage-hover, and
+  scene fields from the pinned source and verify each against live state.
+- Add feedback-driven character/rule actions and a guarded exact-route sequence.
+  Focused harness tests pass 26/26.
+- Complete two fresh-process routes to P1 Samus versus level-1 CPU Kirby,
+  Stock/04/05:00, on stage slot 8 (`St_Kind_Izumi`, Fountain of Dreams).
+- Visible active combat is still only 45.2 and 36.4 FPS. Keep row 7 failed and
+  retain the user's lower ordinary-route 21.9 FPS as the controlling floor.
+- Reject and remove a simplified two-step stage motion that stopped at slot 14;
+  it is a harness calibration failure, not a game crash.
+- Next: collect process-filtered instruction-address-translation and discarded-
+  sampling evidence on this exact slow combat phase before another module build.
+- Evidence: `docs/artifacts/2026-08-31/g8-r0-exact-route-reproduction.md`.

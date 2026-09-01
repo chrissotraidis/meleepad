@@ -59,6 +59,17 @@ exact-route traversals. The next performance evidence is matched instruction-
 address-translation and discarded-sampling on that visible slow phase. See
 `docs/artifacts/2026-08-31/g8-exact-route-state-calibration.md`.
 
+PERF-249 completes the revision-1.00 route prerequisite without changing the
+performance verdict. Guest-state feedback now proves Samus, level-1 CPU Kirby,
+Stock/04/05:00, stage-select slot 8 (`St_Kind_Izumi`, Fountain), and active
+combat. Two fresh processes reached that exact rendered match. Their visible
+combat labels were only 45.2 and 36.4 FPS, so row 7 remains failed and the
+user's lower ordinary-route 21.9 FPS remains the controlling floor. A proposed
+two-step stage shortcut failed calibration and was removed; it is not a game
+crash. Next collect matched instruction-address-translation and discarded-
+sampling evidence inside this exact combat before building another module.
+See `docs/artifacts/2026-08-31/g8-r0-exact-route-reproduction.md`.
+
 PERF-240 makes that correction operational rather than rhetorical. The lower
 of the visible FPS label and runtime diagnostics is authoritative, so the
 user's 21.9 FPS frame fails the whole route. Each optimization must now pass a

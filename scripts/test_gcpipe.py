@@ -107,6 +107,150 @@ class MemoryWatcherClientTests(unittest.TestCase):
 
 
 class SequenceTests(unittest.TestCase):
+    def test_decodes_memorywatcher_guest_float(self) -> None:
+        self.assertAlmostEqual(gcpipe.u32_to_be_f32(0xC1F80000), -31.0)
+
+    def test_collects_steering_pointer_chains(self) -> None:
+        sequence = [
+            {
+                "action": "steer_memory_f32",
+                "x_address": "0x8049EA88 0xC",
+                "y_address": "0x8049EA88 0x10",
+                "target_x": 10,
+                "target_y": 15.5,
+            }
+        ]
+        self.assertEqual(
+            gcpipe.sequence_addresses(sequence),
+            {"8049EA88 C", "8049EA88 10"},
+        )
+
+    def test_collects_dynamic_steering_target_chains(self) -> None:
+        sequence = [
+            {
+                "action": "steer_memory_f32",
+                "x_address": "0x8049EA88 0xC",
+                "y_address": "0x8049EA88 0x10",
+                "target_x_address": "0x8049EA9C 0x8",
+                "target_y_address": "0x8049EA9C 0xC",
+            }
+        ]
+        self.assertEqual(
+            gcpipe.sequence_addresses(sequence),
+            {"8049EA88 C", "8049EA88 10", "8049EA9C 8", "8049EA9C C"},
+        )
+
+    def test_state_driven_steering_converges_and_releases(self) -> None:
+        class FakeWriter:
+            def __init__(self) -> None:
+                self.sticks: list[tuple[str, float, float]] = []
+
+            def set_stick(self, axis: str, x: float, y: float) -> None:
+                self.sticks.append((axis, x, y))
+
+        class FakeWatcher:
+            def __init__(self) -> None:
+                self.x_values = iter([-31.0, -20.0, -9.0, 1.0, 9.5])
+
+            def wait_f32(self, address: int | str, timeout_s: float) -> float:
+                if address == "8049EA88 C":
+                    return next(self.x_values)
+                return 15.5
+
+        writer = FakeWriter()
+        gcpipe.steer_memory_f32(
+            writer,
+            FakeWatcher(),
+            {
+                "x_address": "0x8049EA88 0xC",
+                "y_address": "0x8049EA88 0x10",
+                "target_x": 10,
+                "target_y": 15.5,
+                "pulse": 0.01,
+                "settle": 0,
+            },
+            lambda seconds: None,
+        )
+        self.assertIn(("MAIN", 0.7, 0.0), writer.sticks)
+        self.assertEqual(writer.sticks[-1], ("MAIN", 0.0, 0.0))
+
+    def test_dynamic_steering_applies_target_offsets(self) -> None:
+        class FakeWriter:
+            def __init__(self) -> None:
+                self.sticks: list[tuple[str, float, float]] = []
+
+            def set_stick(self, axis: str, x: float, y: float) -> None:
+                self.sticks.append((axis, x, y))
+
+        class FakeWatcher:
+            def wait_f32(self, address: int | str, timeout_s: float) -> float:
+                values = {
+                    "8049EA88 C": 6.2,
+                    "8049EA88 10": 12.6,
+                    "8049EA9C 8": 10.0,
+                    "8049EA9C C": 10.0,
+                }
+                return values[address]
+
+        writer = FakeWriter()
+        gcpipe.steer_memory_f32(
+            writer,
+            FakeWatcher(),
+            {
+                "x_address": "0x8049EA88 0xC",
+                "y_address": "0x8049EA88 0x10",
+                "target_x_address": "0x8049EA9C 0x8",
+                "target_y_address": "0x8049EA9C 0xC",
+                "target_x_offset": -3.8,
+                "target_y_offset": 2.6,
+                "tolerance": 0.1,
+            },
+            lambda seconds: None,
+        )
+        self.assertEqual(writer.sticks, [("MAIN", 0.0, 0.0)] * 2)
+
+    def test_tap_until_memory_stops_on_masked_target(self) -> None:
+        class FakeWriter:
+            def __init__(self) -> None:
+                self.commands: list[str] = []
+
+            def send(self, command: str) -> None:
+                self.commands.append(command)
+
+        class FakeWatcher:
+            def __init__(self) -> None:
+                self.values = iter([0x00340002, 0x00340102])
+
+            def wait_current(self, address: int | str, timeout_s: float) -> int:
+                return next(self.values)
+
+        writer = FakeWriter()
+        gcpipe.tap_until_memory(
+            writer,
+            FakeWatcher(),
+            {
+                "address": "0x804D1D60 0x1848",
+                "mask": "0x0000ff00",
+                "equals": "0x00000100",
+                "button": "D_RIGHT",
+            },
+            lambda seconds: None,
+        )
+        self.assertEqual(writer.commands, ["PRESS D_RIGHT", "RELEASE D_RIGHT"])
+
+    def test_collects_tap_until_memory_address(self) -> None:
+        self.assertEqual(
+            gcpipe.sequence_addresses(
+                [
+                    {
+                        "action": "tap_until_memory",
+                        "address": "0x804D1D60 0x1848",
+                    }
+                ]
+            ),
+            {"804D1D60 1848"},
+        )
+
     def test_memory_aware_sequence_pumps_watcher_during_delays(self) -> None:
         class FakeWriter:
             def tap(self, button: str, hold_s: float = 0.12) -> None:
@@ -298,6 +442,36 @@ class SequenceTests(unittest.TestCase):
             lockout_predicates,
             [("not_equals", "0x00000000"), ("equals", "0x00000000")],
             "must observe title initialization before accepting its final zero",
+        )
+
+    def test_g8_exact_setup_is_revision_zero_and_state_gated(self) -> None:
+        sequence_path = (
+            Path(__file__).parent
+            / "input-sequences/g8-r0-samus-kirby-rules.json"
+        )
+        sequence = json.loads(sequence_path.read_text(encoding="utf-8"))
+        addresses = gcpipe.sequence_addresses(sequence)
+        self.assertIn("8049EA88 C", addresses)
+        self.assertIn("804D1D60 1848", addresses)
+        self.assertIn("804D4B30 70", addresses)
+        self.assertIn("804D4B30 94", addresses)
+
+        predicates = {
+            (step.get("address"), step.get("mask"), step.get("equals"))
+            for step in sequence
+            if step.get("action") in {"wait_memory", "tap_until_memory"}
+        }
+        self.assertIn(
+            ("0x804D4B30 0x70", "0xFF000000", "0x10000000"), predicates
+        )
+        self.assertIn(
+            ("0x804D4B30 0x94", "0xFFFF0000", "0x04010000"), predicates
+        )
+        self.assertIn(
+            ("0x804D1D60 0x184C", "0xFF000000", "0x04000000"), predicates
+        )
+        self.assertIn(
+            ("0x804D1D60 0x1850", "0xFF000000", "0x05000000"), predicates
         )
 
 

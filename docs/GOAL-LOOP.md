@@ -2066,6 +2066,16 @@ exact-route traversals. Only then collect address-translation and discarded-
 sampling counters on the visible slow phase. See
 `docs/artifacts/2026-08-31/g8-exact-route-state-calibration.md`.
 
+PERF-249 satisfies that calibration prerequisite but does not improve row 7.
+Revision-1.00 guest-state feedback verifies Samus, level-1 CPU Kirby,
+Stock/04/05:00, literal Fountain slot 8, and combat entry. Two fresh processes
+rendered the exact match at only 45.2 and 36.4 visible FPS. Preserve both as
+fresh failures and retain the user's lower ordinary-route 21.9 FPS as the
+control floor. The next loop step is matched instruction-address-translation
+and discarded-sampling evidence from this exact combat interval; do not build
+another module or promote the app first. See
+`docs/artifacts/2026-08-31/g8-r0-exact-route-reproduction.md`.
+
 ## G8 row-7 and iPad promotion acceptance protocol
 
 This protocol prevents a fast idle/menu tail or final interval from hiding a

@@ -7,6 +7,7 @@ import argparse
 import json
 import os
 import socket
+import struct
 import sys
 import time
 from pathlib import Path
@@ -44,6 +45,11 @@ def memory_location(value: int | str) -> str:
         f"{address:08X}" if index == 0 else f"{address:X}"
         for index, address in enumerate(parsed)
     )
+
+
+def u32_to_be_f32(value: int) -> float:
+    """Decode the big-endian float representation published by MemoryWatcher."""
+    return struct.unpack(">f", value.to_bytes(4, "big"))[0]
 
 
 class MemoryWatcherClient:
@@ -107,6 +113,22 @@ class MemoryWatcherClient:
             if value is not None and value & mask == expected:
                 return value
             self._receive(deadline)
+
+    def wait_f32(self, address: int | str, timeout_s: float) -> float:
+        """Wait for an initial value and decode it as a guest big-endian float."""
+        location = memory_location(address)
+        deadline = time.monotonic() + timeout_s
+        while location not in self.values:
+            self._receive(deadline)
+        return u32_to_be_f32(self.values[location])
+
+    def wait_current(self, address: int | str, timeout_s: float) -> int:
+        """Wait until a watched location has published its initial value."""
+        location = memory_location(address)
+        deadline = time.monotonic() + timeout_s
+        while location not in self.values:
+            self._receive(deadline)
+        return self.values[location]
 
     def wait_value_not(
         self, address: int | str, mask: int, rejected: int, timeout_s: float
@@ -198,9 +220,135 @@ def sequence_addresses(sequence: list[dict]) -> set[str]:
     addresses: set[str] = set()
     for step in sequence:
         action = step.get("action", "tap")
-        if action in {"wait_memory", "wait_counter"}:
+        if action in {"wait_memory", "wait_counter", "tap_until_memory"}:
             addresses.add(memory_location(step["address"]))
+        elif action == "steer_memory_f32":
+            addresses.add(memory_location(step["x_address"]))
+            addresses.add(memory_location(step["y_address"]))
+            if "target_x_address" in step:
+                addresses.add(memory_location(step["target_x_address"]))
+            if "target_y_address" in step:
+                addresses.add(memory_location(step["target_y_address"]))
     return addresses
+
+
+def steer_memory_f32(
+    writer: PadWriter,
+    watcher: MemoryWatcherClient,
+    step: dict,
+    pause,
+) -> None:
+    """Pulse one stick axis at a time until watched cursor coordinates converge."""
+    x_address = memory_location(step["x_address"])
+    y_address = memory_location(step["y_address"])
+    target_x_address = (
+        memory_location(step["target_x_address"])
+        if "target_x_address" in step
+        else None
+    )
+    target_y_address = (
+        memory_location(step["target_y_address"])
+        if "target_y_address" in step
+        else None
+    )
+    if target_x_address is None and "target_x" not in step:
+        raise ValueError("steer_memory_f32 requires target_x or target_x_address")
+    if target_y_address is None and "target_y" not in step:
+        raise ValueError("steer_memory_f32 requires target_y or target_y_address")
+    fixed_target_x = float(step["target_x"]) if target_x_address is None else None
+    fixed_target_y = float(step["target_y"]) if target_y_address is None else None
+    target_x_offset = float(step.get("target_x_offset", 0.0))
+    target_y_offset = float(step.get("target_y_offset", 0.0))
+    tolerance = float(step.get("tolerance", 1.5))
+    magnitude = float(step.get("magnitude", 0.7))
+    pulse_s = float(step.get("pulse", 0.04))
+    settle_s = float(step.get("settle", 0.04))
+    timeout_s = float(step.get("timeout", 20.0))
+    axis = step.get("axis", "MAIN")
+
+    if tolerance <= 0:
+        raise ValueError("steer_memory_f32 tolerance must be positive")
+    if not 0 < magnitude <= 1:
+        raise ValueError("steer_memory_f32 magnitude must be in (0, 1]")
+    if pulse_s <= 0 or settle_s < 0 or timeout_s <= 0:
+        raise ValueError("steer_memory_f32 timing values must be positive")
+
+    deadline = time.monotonic() + timeout_s
+    writer.set_stick(axis, 0.0, 0.0)
+    try:
+        while True:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise TimeoutError(
+                    f"cursor did not reach its target within {timeout_s}s"
+                )
+            x = watcher.wait_f32(x_address, remaining)
+            y = watcher.wait_f32(y_address, remaining)
+            target_x = (
+                watcher.wait_f32(target_x_address, remaining)
+                if target_x_address is not None
+                else fixed_target_x
+            )
+            target_y = (
+                watcher.wait_f32(target_y_address, remaining)
+                if target_y_address is not None
+                else fixed_target_y
+            )
+            assert target_x is not None and target_y is not None
+            target_x += target_x_offset
+            target_y += target_y_offset
+            dx = target_x - x
+            dy = target_y - y
+            if abs(dx) <= tolerance and abs(dy) <= tolerance:
+                return
+
+            if abs(dx) >= abs(dy):
+                stick_x, stick_y = (magnitude if dx > 0 else -magnitude), 0.0
+            else:
+                stick_x, stick_y = 0.0, (magnitude if dy > 0 else -magnitude)
+            writer.set_stick(axis, stick_x, stick_y)
+            pause(min(pulse_s, max(0.0, deadline - time.monotonic())))
+            writer.set_stick(axis, 0.0, 0.0)
+            if settle_s:
+                pause(min(settle_s, max(0.0, deadline - time.monotonic())))
+    finally:
+        writer.set_stick(axis, 0.0, 0.0)
+
+
+def tap_until_memory(
+    writer: PadWriter,
+    watcher: MemoryWatcherClient,
+    step: dict,
+    pause,
+) -> None:
+    """Repeat a button tap until a watched masked value reaches its target."""
+    address = memory_location(step["address"])
+    mask = parse_int(step.get("mask", "0xffffffff"))
+    expected = parse_int(step["equals"])
+    hold_s = float(step.get("hold", 0.12))
+    interval_s = float(step.get("interval", 0.2))
+    timeout_s = float(step.get("timeout", 10.0))
+    max_taps = parse_int(step.get("max_taps", 32))
+    if hold_s <= 0 or interval_s < 0 or timeout_s <= 0 or max_taps < 1:
+        raise ValueError("tap_until_memory timing and tap limits must be positive")
+
+    deadline = time.monotonic() + timeout_s
+    for _ in range(max_taps):
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            break
+        if watcher.wait_current(address, remaining) & mask == expected:
+            return
+        writer.send(f"PRESS {step['button']}")
+        pause(min(hold_s, max(0.0, deadline - time.monotonic())))
+        writer.send(f"RELEASE {step['button']}")
+        if interval_s:
+            pause(min(interval_s, max(0.0, deadline - time.monotonic())))
+    value = watcher.wait_current(address, max(0.001, deadline - time.monotonic()))
+    if value & mask != expected:
+        raise TimeoutError(
+            f"{address} did not reach 0x{expected:08X} under mask 0x{mask:08X}"
+        )
 
 
 def run_sequence(
@@ -261,6 +409,14 @@ def run_sequence(
                 increments,
                 float(step.get("timeout", 60.0)),
             )
+        elif action == "steer_memory_f32":
+            if watcher is None:
+                raise ValueError("steer_memory_f32 requires --memory-user-dir")
+            steer_memory_f32(writer, watcher, step, pause)
+        elif action == "tap_until_memory":
+            if watcher is None:
+                raise ValueError("tap_until_memory requires --memory-user-dir")
+            tap_until_memory(writer, watcher, step, pause)
         else:
             raise ValueError(f"unknown action: {action}")
         print(f"[{time.monotonic() - started:7.2f}s] {json.dumps(step)}", flush=True)
