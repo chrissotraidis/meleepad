@@ -86,3 +86,28 @@ earned; isolate cold resource/cache state instead. If it reproduces 21-35 FPS
 with roughly 8.11 million guest cycles and CPU saturation, Big Blue becomes
 the representative architecture corpus. Physical-iPad promotion and G9 remain
 closed either way.
+
+## Bounded no-recorder search
+
+The present-aligned patch then ran with phase and burst logging, no recorder,
+and no input for about eight minutes. Forty-nine ten-second runtime rows cover
+several moving demos. Big Blue's retained projection hash
+`002a81fb84e3f68f` never appears. Most moving rows hold 59.9-60.0 FPS/VPS,
+including scenes reaching about 98% CPU-thread and 74% video-thread use.
+
+Two rows fall below 59 FPS: 57.7/57.8 and 50.7/51.7. Both use transition hash
+`5e607868e547e521` with one draw and zero primitives, so neither is Big Blue or
+evidence for its generated-code mechanism. Underruns rise from 0 to 18 across
+the diagnostic run. Private evidence:
+
+- phase CSV:
+  `a45c8419347a31acc3d00ec5d3f783f4ad8612b5b878b9a05a8d40bdc9449f1f`;
+- present/emulated burst CSV:
+  `7d0dba560e87c306a0ce547c4afc4b0685a08646975f5744a0aea331409cb1bb`;
+- runtime:
+  `629adae3b605b55a69edf6c3fbdec5824472a202652a81748c771dfe68223c42`.
+
+Do not repeat an unbounded random attract wait. The next capture should monitor
+the exact Big Blue projection hash and immediately retain a screenshot, phase
+range, burst range, and savestate through the existing default-off signal
+harness. That converts a randomized demo into a replayable performance corpus.

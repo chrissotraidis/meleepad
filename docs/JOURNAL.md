@@ -5561,3 +5561,16 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Keep row 7, physical-iPad promotion, and G9 closed.
 - Evidence:
   `docs/artifacts/2026-09-01/g8-attract-stage-workload-factorial.md`.
+
+## 2026-09-01 — PERF-273 bounded Big Blue nonappearance
+
+- Run the latest present/emulated-frame burst tracer plus phase logging for
+  about eight minutes with no recorder and no input.
+- Retain 49 ten-second runtime rows and several moving heavy demos, most at
+  59.9-60.0 FPS/VPS. Big Blue hash `002a81fb84e3f68f` never appears.
+- Classify 57.7/57.8 and 50.7/51.7 rows as a separate nearly static transition
+  hash with one draw and zero primitives; do not use them as Big Blue evidence.
+- Stop the app and clear both diagnostic environment variables. Next trigger
+  on the exact Big Blue hash and immediately retain screenshot, phase/burst
+  range, and savestate rather than waiting randomly.
+- Keep row 7, physical-iPad promotion, and G9 closed.

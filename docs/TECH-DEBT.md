@@ -32,6 +32,11 @@ a present-aligned, no-recorder Big Blue phase before declaring a universal
 static-CPU ceiling or building from the passing Hyrule distribution. See
 `docs/artifacts/2026-09-01/g8-attract-stage-workload-factorial.md`.
 
+An eight-minute present-aligned no-recorder search did not encounter Big
+Blue's exact projection hash. Do not keep waiting randomly. Monitor the hash
+and capture a savestate plus aligned phase/burst evidence on first appearance;
+use that replayable corpus for the architecture decision.
+
 If Big Blue reproduces on-core saturation without recording, the only credible
 in-scope route is broad register-resident generated C:
 single-entry regions keep guest GPR/FPR/paired state live across internal
