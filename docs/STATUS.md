@@ -2558,3 +2558,12 @@ remains separately open. See
   8.11 million guest cycles, and 523,000 native dispatches per frame; Metal
   present is 0.122 ms. Next profile only emulated frames 3,124-3,714. Evidence:
   `docs/artifacts/2026-09-01/g8-bounded-syncgpu-distance-reversal.md`.
+- **PERF-269 (warm exact dispatch non-reproduction):** The unchanged candidate
+  repeats the exact route with default-off one-in-4,096 dispatch sampling and
+  holds 59.9-60.0 FPS/VPS. The previously failed numeric range now uses 12.197
+  ms CPU-thread time, 4.43 million static cycles, 206,000 dispatches, and 1,502
+  Mach syscalls per row, versus 16.224 ms, 8.11 million, 523,000, and 3,925 in
+  the cold failure. No sampled PC exceeds 5.75%; the cluster is chiefly
+  DVD/state/resource work. No product change is justified. Next reproduce and
+  align cold versus recovered state without deleting user data. Evidence:
+  `docs/artifacts/2026-09-01/g8-warm-exact-dispatch-nonreproduction.md`.

@@ -36,6 +36,17 @@ and host call paths. Change code only if one safe path predicts at least a
 five-percent interval reduction. Do not conflate this on-core load with the
 preceding pipeline burst or resume broad recompiler work.
 
+A dispatch-sampled repeat does not reproduce the deficit: it holds
+59.9-60.0 FPS/VPS and the same numeric phase range falls from 16.224 to 12.197
+ms CPU-thread time, 8.11 to 4.43 million static cycles, 523,000 to 206,000
+dispatches, and 3,925 to 1,502 Mach syscalls per row. Its PCs form a broad
+DVD/state/resource cluster and none exceeds 5.75%. Before profiling another
+function, reproduce the failed state twice from fresh processes without
+deleting game data or saves and align by state-driven route event plus host
+time. Treat the controlling variable as cold process/cache state until that
+reversal identifies it; do not infer a permanent gameplay ceiling from the
+failed run or a permanent fix from the warm run.
+
 ### 2. Complete the exact ordinary acceptance route
 
 Run two complete cold routes and one unchanged-build ordinary manual five-minute

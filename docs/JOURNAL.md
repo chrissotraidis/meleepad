@@ -5472,3 +5472,25 @@ Append-only execution ledger. Claims are limited to observed evidence.
   Physical iPad and G9 remain closed.
 - Evidence:
   `docs/artifacts/2026-09-01/g8-bounded-syncgpu-distance-reversal.md`.
+
+## 2026-09-01 — PERF-269 warm exact dispatch non-reproduction
+
+- Repeat the exact Fountain route on the unchanged published candidate with
+  only default-off phase and one-in-4,096 dispatch-frame diagnostics.
+- The 57.5/53.5 FPS/VPS sequence does not reproduce; runtime remains
+  59.9-60.0 FPS/VPS and underruns reach three.
+- In emulated frames 3,124-3,714, CPU-thread mean falls from 16.224 to 12.197
+  ms, static cycles from 8.11 to 4.43 million, native dispatches from 523,000
+  to 206,000, and Mach syscalls from 3,925 to 1,502 per row. This is a
+  materially different scheduled workload, not the same workload running
+  slightly faster.
+- Retain 29,652 dispatch samples. No PC exceeds 5.75%; CPU-heavy rows form a
+  broad DVD/state/resource family rather than one proven safe hotspot.
+- Make no product change. Next reproduce the cold state twice without deleting
+  user data or saves, align by route event and host time, and identify the
+  state that predicts the 8.11-million-cycle interval. Row 7, physical iPad,
+  and G9 remain closed.
+- Stop the app, clear all diagnostic Simulator variables, and remove the short
+  symlink. Preserve only private hashed evidence.
+- Evidence:
+  `docs/artifacts/2026-09-01/g8-warm-exact-dispatch-nonreproduction.md`.

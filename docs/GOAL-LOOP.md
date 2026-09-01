@@ -275,6 +275,17 @@ dispatches per frame. Retain the bounded candidate, keep row 7 failed, and
 profile only exact emulated frames 3,124-3,714 before another code change. See
 `docs/artifacts/2026-09-01/g8-bounded-syncgpu-distance-reversal.md`.
 
+PERF-269 refuses to optimize a non-reproduced warm trace. The unchanged exact
+route holds 59.9-60.0 FPS/VPS with the default-off dispatch sampler enabled.
+In the formerly failed emulated-frame range, CPU-thread work falls from 16.224
+to 12.197 ms, guest cycles from 8.11 to 4.43 million, dispatches from 523,000
+to 206,000, and Mach syscalls from 3,925 to 1,502 per row. No individual
+sampled PC exceeds 5.75%; the cluster is primarily DVD/state/resource work.
+This establishes cache/process-state sensitivity, not a safe hot function.
+Next reproduce the cold state without deleting user data, align by route event
+and host time, and compare failed versus recovered work before building. See
+`docs/artifacts/2026-09-01/g8-warm-exact-dispatch-nonreproduction.md`.
+
 DECISION-215 originally recorded a user-authorized sequencing exception after
 PERF-214. On 30 Aug 2026 the user explicitly broadened that direction: assume
 the unavailable external-display check passes and repeat it later once the
