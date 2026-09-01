@@ -5708,3 +5708,60 @@ Append-only execution ledger. Claims are limited to observed evidence.
   Row 7, physical-device promotion, and G9 remain closed.
 - Evidence:
   `docs/artifacts/2026-09-01/g8-dispatch-phase-alias-and-live-context.md`.
+
+## 2026-09-01 — PERF-280 caller-qualified controller-wait yield
+
+- Retain phase plus consecutive burst evidence from a live visible four-player
+  interval averaging 27.807 ms total, 26.609 ms CPU-thread, 7.689 million guest
+  cycles, and 434,437 dispatches per frame.
+- Map its dominant 23-entry cycle to Melee's raw-controller queue. The caller
+  repeatedly services callbacks while a periodic alarm supplies the next pad
+  sample; rendering and Metal presentation are not the limiting work.
+- Add canonical patch 0038. It fast-forwards through `CoreTiming::Idle()` only
+  when PC/LR exactly match `80019550/801A4064`; the LR guard protects other
+  callers of the shared service. Add ordinary static-recompiler config values,
+  focused regression, bootstrap/reverse-apply coverage, and the iOS GALE01
+  product setting. Do not add a UI toggle.
+- In matched emulated frames 7,500-9,500, candidate/control measures
+  9.529/13.600 ms CPU-thread, 107,535/380,751 dispatches, and 3.116M/6.346M
+  charged cycles. Candidate reduction is 29.9% CPU, 71.8% dispatch, and 50.9%
+  eliminated busy-loop work while the same sequence advances at target cadence.
+- Rebuild the core/module and Release Simulator product. Repository checks and
+  build pass. With no diagnostic caller-idle environment, the default product
+  retains 15,021 active rows at 16.714 ms mean, 19.148 ms p95, and 20.220 ms
+  p99; every runtime interval reports 59.6-60.2 FPS/VPS and no strict-slow
+  cluster exceeds two frames. Speaker audio remains active; underruns rise 0 ->
+  10 during cold/high-work transitions, then stay flat.
+- Decision: retain the product fix and reorient G8 row 7 from architecture
+  research to acceptance. Row 7 remains PARTIAL—not stable-complete—until two
+  complete fresh-process routes and the unchanged-build manual five-minute
+  Fountain route pass controls, combat, results/return, audio, lifecycle, and
+  coherent rendering. Physical iPad promotion and G9 remain closed.
+- Evidence:
+  `docs/artifacts/2026-09-01/g8-caller-qualified-controller-wait-yield.md`.
+
+## 2026-09-01 — PERF-281 first exact post-yield Fountain route
+
+- Launch a fresh Release Simulator process with the guarded short diagnostic
+  user directory, pre-bound MemoryWatcher, external pipe, and phase recorder.
+  State gates prove P1 Samus, level-1 CPU Kirby, Stock/04, 05:00, Fountain,
+  and match state `02020102`.
+- Run movement, jumps, and A/B attacks for more than five minutes. Visibly
+  reach the Kirby-win results screen at 59.9 FPS and return to Character Select
+  with Samus/Kirby preserved at 60.0 FPS.
+- The final six minutes retain 21,600 consecutive rows at 16.683 ms mean,
+  18.031 ms p95, 18.881 ms p99, 8.023 ms mean CPU-thread time, and zero strict
+  CPU-heavy slow rows. DMA underruns rise 3 -> 8 over the long route.
+- Background/resume logs the full lifecycle sequence and reactivates speaker
+  audio. The resumed CSS remains coherent at 60.0 FPS.
+- Keep the complete route partial: one earlier interval reports 59.5 FPS / 56.7
+  VPS. Two responsible rows are 136/391 ms wall but only 13/18 ms CPU, with no
+  pipeline creation and negligible Metal present. This is an off-core/idle or
+  diagnostic-host stall, not the controller busy loop.
+- Stop the app, remove the short symlink, keep one Simulator booted, and restore
+  the pre-test GCI at `0a361d3471289f6c4ea1f4c0254b1f197b44fb8466e408b71240418f01ad0e70`.
+- Decision: retain patch 0038; row 7 remains PARTIAL. Next run an ordinary
+  observer-free fresh route. A repeated visible dip earns host-wait attribution;
+  otherwise proceed to the manual product route.
+- Evidence:
+  `docs/artifacts/2026-09-01/g8-first-post-yield-fountain-acceptance.md`.

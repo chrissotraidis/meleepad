@@ -2684,3 +2684,28 @@ remains separately open. See
   justified. Next run two ordinary cold installed-app routes, then the manual
   five-minute Fountain gate if both pass. Evidence:
   `docs/artifacts/2026-09-01/g8-simulator-reboot-cold-reversal.md`.
+- **PERF-280 (caller-qualified controller-wait yield):** Consecutive dispatch
+  edges from a live 27.807/26.609 ms total/CPU interval prove that the dominant
+  work is Melee's raw-controller queue spinning until a periodic alarm. Patch
+  0038 fast-forwards only the exact `80019550/801A4064` PC/LR boundary through
+  `CoreTiming::Idle()`. A same-sequence candidate/control reduces CPU-thread
+  time 29.9%, dispatches 71.8%, and busy-loop charged cycles 50.9%. The rebuilt
+  default Release Simulator product then retains 15,021 active rows at 16.714
+  ms mean, reports 59.6-60.2 FPS/VPS, and has no strict-slow cluster longer
+  than two frames. Runtime audio remains active; cold/high-work transitions add
+  ten underruns before the counter flattens. The primary architecture blocker
+  is reversed, but G8 row 7 remains **PARTIAL** until two complete fresh-process
+  routes and the manual five-minute Fountain route pass controls, results/
+  return, audio, lifecycle, and coherent rendering. Physical iPad promotion
+  and G9 remain closed. Evidence:
+  `docs/artifacts/2026-09-01/g8-caller-qualified-controller-wait-yield.md`.
+- **PERF-281 (first exact post-yield Fountain route):** A fresh state-gated
+  process proves P1 Samus, level-1 CPU Kirby, Stock/04, 05:00, and Fountain.
+  Over five minutes of active input completes to results, returns to Character
+  Select, and survives background/resume with speaker audio reactivated. The
+  final 21,600 rows average 16.683 ms with 18.031 ms p95 and zero CPU-heavy
+  slow rows; live combat/results remain 59.9-60.0 FPS. One earlier ten-second
+  interval reports 56.7 VPS from isolated 136/391 ms off-core wall stalls with
+  only 13/18 ms CPU time. Row 7 remains PARTIAL pending an observer-free fresh
+  route and the manual product route. Evidence:
+  `docs/artifacts/2026-09-01/g8-first-post-yield-fountain-acceptance.md`.

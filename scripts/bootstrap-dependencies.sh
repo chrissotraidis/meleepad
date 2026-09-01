@@ -182,6 +182,7 @@ lockstep_repeat_set_patch="$ROOT/patches/moderngekko-dolphin/0034-lockstep-repea
 xfb_boundary_attribution_patch="$ROOT/patches/moderngekko-dolphin/0035-xfb-boundary-attribution.patch"
 static_recomp_dispatch_burst_patch="$ROOT/patches/moderngekko-dolphin/0036-static-recomp-dispatch-burst-trace.patch"
 dispatch_sample_phase_patch="$ROOT/patches/moderngekko-dolphin/0037-dispatch-sample-phase-control.patch"
+caller_idle_preflight_patch="$ROOT/patches/moderngekko-dolphin/0038-caller-qualified-idle-preflight.patch"
 apply_patch_once_or_marker "$MG" "$mg_patch" \
   include/moderngekko/runtime.hpp 'struct RuntimeDiagnosticsSnapshot'
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$dolphin_patch" \
@@ -284,6 +285,9 @@ apply_patch_once_or_marker "$MG/vendor/dolphin" "$static_recomp_dispatch_burst_p
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$dispatch_sample_phase_patch" \
   Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp \
   STATICRECOMP_DISPATCH_SAMPLE_INTERVAL
+apply_patch_once_or_marker "$MG/vendor/dolphin" "$caller_idle_preflight_patch" \
+  Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp \
+  STATICRECOMP_CALLER_IDLE_PC
 verify_patch_scope "$MG" "$mg_patch" "$ROOT"/patches/moderngekko/*.patch -- \
   vendor/dolphin
 verify_patch_scope "$MG/vendor/dolphin" "$dolphin_patch" "$mg_patch" \

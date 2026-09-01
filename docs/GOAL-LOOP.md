@@ -2639,6 +2639,41 @@ cycle-preserving fast-forward is eligible only after that semantic proof and a
 `0x80349494` scheduler-idle candidates. See
 `docs/artifacts/2026-09-01/g8-dispatch-phase-alias-and-live-context.md`.
 
+PERF-280 closes the architecture-attribution branch without a broad generated-
+code rewrite. A live CPU-saturated interval's consecutive edges identify the
+dominant work as Melee's raw-controller queue waiting for a periodic alarm.
+The safe boundary is the exact PC/LR pair `80019550/801A4064`; PC alone is
+invalid because the callback service is shared. Patch 0038 invokes Dolphin's
+existing `CoreTiming::Idle()` only at that caller-qualified boundary. The iOS
+GALE01 product enables the pair through ordinary config, with no player-facing
+performance toggle.
+
+In the deterministic stressed range, the same-binary candidate reduces CPU
+time 13.600 -> 9.529 ms, dispatches 380,751 -> 107,535, and busy-loop charged
+cycles 6.346M -> 3.116M while preserving cadence and advancing visuals. The
+rebuilt default product, with diagnostic overrides absent, retains 15,021
+active rows at 16.714 ms mean, reports 59.6-60.2 FPS/VPS, and has no strict-
+slow cluster longer than two frames. Reorient row 7 from architecture research
+to acceptance. Next run two complete fresh-process routes and the unchanged-
+build manual five-minute Fountain route with controls, combat, results/return,
+audio, lifecycle, and coherent rendering. A fresh different sustained CPU-
+heavy failure may reopen attribution; otherwise do not retry fixed-phase
+regions, compiler sweeps, M1 blame, or a performance mode. Physical-device
+promotion and G9 remain gated on full row-7 acceptance. See
+`docs/artifacts/2026-09-01/g8-caller-qualified-controller-wait-yield.md`.
+
+PERF-281 completes the first exact post-yield Fountain route but keeps row 7
+partial. State gates prove P1 Samus, level-1 CPU Kirby, Stock/04, 05:00, and
+Fountain. More than five minutes of active input, results, Character Select
+return, background/resume, and audio reactivation remain coherent at visible
+59.9-60.0 FPS. The final six minutes contain 21,600 rows at 16.683 ms mean,
+18.031 ms p95, and zero CPU-heavy slow rows. One earlier interval reports 56.7
+VPS from isolated 136/391 ms off-core wall stalls with only 13/18 ms CPU time;
+it is not recurrence of the controller spin. Next run an ordinary fresh process
+with phase, MemoryWatcher, and external pipe disabled. If the dip repeats,
+attribute the host wait; if not, proceed to the manual product route. See
+`docs/artifacts/2026-09-01/g8-first-post-yield-fountain-acceptance.md`.
+
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).
 - **Per goal claim:** full evidence per PRD Section 11 before marking a goal met in STATUS.md.
 - **Per session:** before ending, run the ported regression scripts (sunpad `tests/` equivalents) plus a boot check on the highest working target, so the journal's last entry states a known-good state.

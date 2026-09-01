@@ -308,7 +308,12 @@ static NSString *SsbmPadRuntimeUserDirectory(NSString *userDirectory) {
         // ModernGekko's existing idle seam advances to the next emulated event
         // instead of burning the host CPU on the polling loop.
         Config::SetBase(Config::MAIN_STATICRECOMP_IDLE_PC, 0x80348814u);
-        SsbmPadLog(@"runtime scheduler idle skip=enabled pc=80348814");
+        // Melee's raw-controller queue also waits for a periodic alarm. The
+        // return address guard prevents other callers of the shared service
+        // routine from being treated as idle.
+        Config::SetBase(Config::MAIN_STATICRECOMP_CALLER_IDLE_PC, 0x80019550u);
+        Config::SetBase(Config::MAIN_STATICRECOMP_CALLER_IDLE_LR, 0x801A4064u);
+        SsbmPadLog(@"runtime scheduler idle skip=enabled pc=80348814 caller=80019550/801A4064");
         {
             std::scoped_lock lock(*_runtimeMutex);
             _runtime = created.runtime.get();

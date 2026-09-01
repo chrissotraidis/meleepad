@@ -7,82 +7,52 @@ not a substitute for `GOAL-LOOP.md` or evidence in `docs/artifacts/`.
 
 ## P0 — G8 row 7: prove the complete iPad route honestly at 60 FPS
 
-### 1. Cross the Big Blue full-load ceiling
+### 1. Close acceptance after the controller-wait reversal
 
-The ordinary cold product now supplies the controlling failure that the exact
-one-on-one route did not. A hands-off four-fighter Big Blue attract match falls from
-59.9-60.0 FPS to sustained 31.8-32.3 FPS, reaches 21.1 FPS, drives the CPU
-thread to 96-99.7%, and raises DMA underruns from 0 to 447. The visible labels
-show 31.6 and about 24.9 FPS. This supersedes the stale conclusion that only
-ordinary acceptance remained.
+The primary iPad Simulator CPU collapse now has a measured cause and retained
+product fix. A live 27.807 ms / 26.609 ms total/CPU interval spends about
+434,000 native dispatches per frame in a deterministic raw-controller queue
+wait. Melee repeatedly services callbacks while waiting for its periodic pad
+alarm. This is host-busy waiting for emulated time, not Metal, fighter AI, DVD
+throughput, generic M1 weakness, or a need to lower resolution.
 
-Minimal follow-up attribution measures about 8.11 million guest cycles and
-416,000 native dispatches per presented attract row. CPU work is roughly
-29-41 ms while Metal present is about 0.05 ms. The workload is the full
-486 MHz / 60 Hz GameCube frame budget; the current static core therefore needs
-roughly twice the allowed host time. Target speed remains possible in
-principle, but requires a roughly 50% or greater CPU-thread reduction, not
-another isolated five-percent tweak.
+Patch 0038 uses Dolphin's existing `CoreTiming::Idle()` only at the exact
+caller-qualified boundary PC/LR `80019550/801A4064`. The LR guard matters
+because the service routine is shared. The iOS GALE01 host enables the pair as
+ordinary runtime configuration; there is no player-facing performance mode.
 
-Visual extraction and controlled factorials narrow this further. Four-player
-Hyrule Temple holds 59.9 FPS under the same HEVC recorder. Controlled
-one-on-one Big Blue holds 59.9 FPS, generic four-player Big Blue sustains
-55.6-57.8 FPS, and the exact Ness/Peach/Ice Climbers/Bowser Big Blue match
-again holds 59.9 FPS without loggers. Recording, stage geometry, four players,
-and the exact roster/AI together are all insufficient causes. The residual is
-attract/demo state itself. See
-`docs/artifacts/2026-09-01/g8-attract-only-dispatch-delta.md`.
+The same-sequence candidate/control reversal at emulated frames 7,500-9,500
+reduces CPU-thread time 13.600 -> 9.529 ms (29.9%), native dispatches
+380,751 -> 107,535 (71.8%), and charged busy-loop cycles 6.346M -> 3.116M
+(50.9%) while maintaining target cadence and progressing visuals. The rebuilt
+default product, with no diagnostic environment, measures 16.714 ms mean over
+15,021 active rows, reports 59.6-60.2 FPS/VPS, and has no strict-slow cluster
+longer than two frames. See
+`docs/artifacts/2026-09-01/g8-caller-qualified-controller-wait-yield.md`.
 
-The remaining credible in-scope route is region-resident generated C:
-single-entry regions keep guest GPR/FPR/paired state live across internal
-control flow while the canonical arbitrary-entry path remains available for
-uncommon entries, helpers, exceptions, cycle exits, and SMC invalidation. The
-stock LLVM backend is closed: its exact equivalent slice is 6.12 times larger
-and 4.84-4.93 times slower than C. Small interrupt, direct-call, PGO, layout,
-and one-function register-cache candidates cannot supply the gap.
+The architecture question is therefore no longer the immediate P0. Do not
+return to the phase-aliased five-region corpus, a broad resident-C rewrite,
+compiler-flag sweeps, or host blame unless a fresh accepted product route
+reproduces a different sustained CPU-heavy failure.
 
-Before another product module, build a representative data-free region-state
-corpus. It must pass full state/RAM/cycle/exception equivalence, improve the
-selected work by at least 35%, project at least 25% whole-frame CPU gain from
-measured host time, remain neutral on the passing controlled route, and retain
-a credible path to the roughly 50% total reduction. If it cannot, record that
-this no-JIT static-C architecture cannot guarantee worst-case 60 FPS on the M1
-Simulator host instead of cycling compiler flags.
+The remaining P0 is honest acceptance: run two complete fresh-process routes
+and the unchanged-build manual five-minute Samus/CPU-Kirby Fountain route.
+Retain moving opening, menus/CSS, load, active input, combat, results, return,
+audio, lifecycle, coherent geometry, and 59.9-60.0 FPS/VPS. The current attract
+soak proves the mechanism and target cadence, but does not substitute for the
+manual control/results/lifecycle row.
 
-The fixed-phase attract-minus-controlled corpus is rejected. Identical
-interval-4,093 state replays at offsets zero and 137 match cycles and dispatches
-within 0.01%, yet their normalized 16 KiB distributions differ by 6.2% total
-variation. Individual regions move by 1.2-2.4 percentage points. Do not select
-generated regions from PERF-277's apparent 98.1% concentration.
+The first post-yield exact route now clears the hardest parts: state-verified
+Samus/level-1-Kirby Fountain, over five minutes of input, results, CSS return,
+and background/resume all remain coherent at 59.9-60.0 FPS. Its final six
+minutes contain zero CPU-heavy slow rows. One earlier ten-second interval still
+reports 56.7 VPS because of isolated 136/391 ms off-core wall stalls with only
+13/18 ms CPU time. Next repeat the ordinary product route without phase,
+MemoryWatcher, or external-pipe observers. Do not tune the static core for this
+single host-wait event unless it reproduces visibly. See
+`docs/artifacts/2026-09-01/g8-first-post-yield-fountain-acceptance.md`.
 
-Do not treat the exact-roster pass as evidence that only cold resources remain:
-the ordinary attract interval is sustained, executes the full 8.11-million-
-cycle budget, and carries a repeatable 2.24x sampled-dispatch rate. The current
-decision is whether live sequence-only DVD/load and interrupt work is a
-cycle-preserving event poll that can be fast-forwarded safely. Only if that is
-refuted should a multi-offset aggregate select region-resident code.
-
-The exact roster factorial is complete. Its no-logger live arm holds 59.9 FPS;
-its matched diagnostic arm averages 5.81 million cycles and 177,500
-dispatches. The attract arm's roughly 8.11 million cycles and 416,000
-dispatches are therefore attract-specific. A later live attract battle reaches
-36.2 FPS with 33.389 ms mean CPU time across 587 rows at or above 30 ms; p95
-work reaches 8.121 million cycles and 421,882 dispatches. The same saved state
-replays near 58-60 FPS with only 5.883 million cycles and 227,800 dispatches.
-The immediate debt is a present-aligned consecutive-edge trace of the live
-slow interval, proving the repeated load/status value and external exit event
-before any cycle-preserving polling fast-forward.
-
-### 2. Complete the exact ordinary acceptance route
-
-After the architecture gate produces a viable product candidate, run two
-complete cold routes and one unchanged-build ordinary manual five-minute
-Samus/CPU-Kirby Fountain route. Retain opening, menu/CSS, load, combat, results,
-return, controls, FPS/VPS, audio, lifecycle, and FIFO diagnostics. The visible
-Classic route proves touch controls and gameplay can hold 59.9 FPS, but it does
-not clear the exact manual anchor.
-
-### 3. Cold-transition and resume audio
+### 2. Cold-transition and resume audio
 
 Sustained visible Classic combat holds the DMA-underrun counter flat while
 running 59.9-60.0 FPS/VPS. Load adds one isolated underrun; background/resume
@@ -91,7 +61,7 @@ adds five before another flat twenty-second interval. Preserve the current
 producer loss before changing permanent latency; do not repeat the rejected
 larger-reserve experiment.
 
-### 4. Residual frame tails
+### 3. Residual frame tails
 
 The minute-long combat mean is the 59.94 Hz cadence, but p95/p99 remain
 17.437/18.697 ms and one 71.070 ms wall outlier occurs. That outlier contains
@@ -101,7 +71,7 @@ Optimize only repeatable CPU-heavy clusters that produce visible/VPS loss; do
 not chase compensated host-scheduler jitter while rendered cadence remains
 59.9-60.0 FPS.
 
-### 5. Bound and regression-test CPU/video separation
+### 4. Bound and regression-test CPU/video separation
 
 iOS now uses synchronized CPU/video threads with a 1,000,000-tick maximum
 distance, about 2.06 ms of guest time. Preserve that explicit bound, its source
@@ -110,7 +80,7 @@ cold control/candidate/control, changes deterministic results, increases
 underruns, or revives the old FIFO/crash behavior. Unconstrained dual-core
 remains closed.
 
-### 6. Visual and duplicate-XFB regression coverage
+### 5. Visual and duplicate-XFB regression coverage
 
 The product correction is iOS-only
 `GFX_HACK_SKIP_DUPLICATE_XFBS=false`. Default-off boundary counters proved the
