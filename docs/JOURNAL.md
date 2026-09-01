@@ -5494,3 +5494,21 @@ Append-only execution ledger. Claims are limited to observed evidence.
   symlink. Preserve only private hashed evidence.
 - Evidence:
   `docs/artifacts/2026-09-01/g8-warm-exact-dispatch-nonreproduction.md`.
+
+## 2026-09-01 — PERF-270 Simulator-reboot cold reversal
+
+- Reboot the same single Simulator while preserving the installed app, game
+  data, and saves. Repeat the exact route without dispatch sampling.
+- Runtime holds 59.7-60.0 FPS and 59.8-60.0 VPS through verified Fountain
+  combat. Ten-second phase bins average 16.672-16.694 ms around load/combat.
+- The formerly expensive range again uses only about 11.37 ms CPU-thread time,
+  4.16 million static cycles, and 181,000 dispatches per row. Simulator service
+  state alone does not reproduce the 53.5 FPS collapse.
+- Record one 59.7/59.8 interval and underruns rising from one to three. This is
+  not the ordinary or audio acceptance gate.
+- Make no code change. Next run two ordinary cold installed-app routes on the
+  unchanged candidate, then the manual five-minute Fountain route if both pass.
+  Keep row 7, physical iPad, and G9 closed.
+- Stop the app, clear all diagnostic variables, and remove the short symlink.
+- Evidence:
+  `docs/artifacts/2026-09-01/g8-simulator-reboot-cold-reversal.md`.

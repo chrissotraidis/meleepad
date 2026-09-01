@@ -47,6 +47,14 @@ time. Treat the controlling variable as cold process/cache state until that
 reversal identifies it; do not infer a permanent gameplay ceiling from the
 failed run or a permanent fix from the warm run.
 
+A sampler-free exact repeat after rebooting the same Simulator also holds
+59.7-60.0 FPS / 59.8-60.0 VPS. The formerly expensive range remains near
+11.37 ms CPU-thread time, 4.16 million static cycles, and 181,000 dispatches
+per row. Simulator service state alone is not the trigger. Do not make another
+performance-code change without a fresh ordinary failure. The active P0 task
+is two ordinary cold installed-app routes on the unchanged build, followed by
+the manual five-minute Fountain gate if both pass.
+
 ### 2. Complete the exact ordinary acceptance route
 
 Run two complete cold routes and one unchanged-build ordinary manual five-minute

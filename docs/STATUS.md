@@ -2567,3 +2567,11 @@ remains separately open. See
   DVD/state/resource work. No product change is justified. Next reproduce and
   align cold versus recovered state without deleting user data. Evidence:
   `docs/artifacts/2026-09-01/g8-warm-exact-dispatch-nonreproduction.md`.
+- **PERF-270 (Simulator-reboot cold reversal):** Rebooting the same Simulator
+  without deleting app data does not recreate the 53.5 FPS exact-route
+  failure. The unchanged candidate holds 59.7-60.0 FPS / 59.8-60.0 VPS and the
+  formerly expensive range stays near 11.37 ms CPU-thread time, 4.16 million
+  static cycles, and 181,000 dispatches per row. No new code change is
+  justified. Next run two ordinary cold installed-app routes, then the manual
+  five-minute Fountain gate if both pass. Evidence:
+  `docs/artifacts/2026-09-01/g8-simulator-reboot-cold-reversal.md`.

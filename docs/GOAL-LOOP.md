@@ -286,6 +286,16 @@ Next reproduce the cold state without deleting user data, align by route event
 and host time, and compare failed versus recovered work before building. See
 `docs/artifacts/2026-09-01/g8-warm-exact-dispatch-nonreproduction.md`.
 
+PERF-270 repeats the exact route after rebooting the same Simulator while
+preserving the installed app and user data. It again holds 59.7-60.0 FPS and
+59.8-60.0 VPS; the formerly expensive region uses about 11.37 ms CPU-thread
+time, 4.16 million static cycles, and 181,000 dispatches per row. Simulator
+service state alone does not recreate the 53.5 FPS failure. Stop changing
+performance code. Run two ordinary cold installed-app routes next; only a
+reproduced ordinary failure may reopen mechanism work, while two passes advance
+to the unchanged-build manual five-minute Fountain gate. See
+`docs/artifacts/2026-09-01/g8-simulator-reboot-cold-reversal.md`.
+
 DECISION-215 originally recorded a user-authorized sequencing exception after
 PERF-214. On 30 Aug 2026 the user explicitly broadened that direction: assume
 the unavailable external-display check passes and repeat it later once the
