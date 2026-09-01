@@ -5809,3 +5809,24 @@ Append-only execution ledger. Claims are limited to observed evidence.
   `0a361d3471289f6c4ea1f4c0254b1f197b44fb8466e408b71240418f01ad0e70`.
 - Evidence:
   `docs/artifacts/2026-09-01/g8-ordinary-manual-fountain-reality-route.md`.
+
+## 2026-09-01 — PERF-284 HEVC no-UI observer-tail reversal
+
+- Run two fresh state-gated exact Samus/level-1-CPU-Kirby Stock/04/05:00
+  Fountain routes. Start HEVC only after active-match proof, keep controller
+  output quiet, and perform no Computer Use state read, screenshot, profiler,
+  phase logging, or runtime-log read inside either live window.
+- The movement route retains 33 total and nine full-work combat reports; every
+  FPS/VPS value is 59.9-60.0. It reaches a coherent result after 1:46.
+- A held-shoulder route extends combat to 3:19. All 36 total reports and all 20
+  full-work reports remain at or above 59.9 FPS/VPS; underruns rise only 1 -> 3
+  and the coherent result visibly reads 59.9 FPS.
+- Decision: HEVC and exact Fountain work are insufficient causes of PERF-283's
+  isolated tails. Classify them as observer-contingent, make no product change,
+  and leave row 7 PARTIAL only for one ordinary human-controlled uninterrupted
+  five-minute exact match without Computer Use polling during combat.
+- Stop the app, remove the temporary short symlink, keep one Simulator booted,
+  and restore ordinary GCI SHA-256
+  `0a361d3471289f6c4ea1f4c0254b1f197b44fb8466e408b71240418f01ad0e70`.
+- Evidence:
+  `docs/artifacts/2026-09-01/g8-hevc-no-ui-observer-tail-reversal.md`.

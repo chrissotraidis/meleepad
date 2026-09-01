@@ -2731,3 +2731,14 @@ remains separately open. See
   The sustained 20-36 FPS architecture failure is reversed, but stable-60,
   physical-iPad promotion, and G9 remain closed. Evidence:
   `docs/artifacts/2026-09-01/g8-ordinary-manual-fountain-reality-route.md`.
+- **PERF-284 (HEVC no-UI observer-tail reversal):** Two fresh state-gated exact
+  Fountain routes retain HEVC but remove Computer Use state/screenshot polling
+  from the live window. All 69 reports and all 29 full-work combat reports stay
+  at or above 59.9 FPS/VPS; the longer held-shoulder route preserves 3:19 of
+  combat, adds only two underruns, and reaches a coherent result at 59.9 FPS.
+  HEVC and exact workload are insufficient causes of PERF-283's isolated
+  tails. This diagnostic reversal makes no manual acceptance claim. Row 7
+  remains PARTIAL only pending an uninterrupted human-controlled five-minute
+  exact match with short HEVC and no Computer Use polling. No product change,
+  physical-iPad promotion, or G9 work is justified yet. Evidence:
+  `docs/artifacts/2026-09-01/g8-hevc-no-ui-observer-tail-reversal.md`.

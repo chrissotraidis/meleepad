@@ -60,6 +60,18 @@ rewrite: reopen architecture work only for a sustained, on-core, CPU-heavy
 failure distinct from the corrected controller wait. See
 `docs/artifacts/2026-09-01/g8-ordinary-manual-fountain-reality-route.md`.
 
+Two follow-up exact-Fountain reversals isolate that tail from product
+performance. With HEVC retained but Computer Use state/screenshot polling
+absent, 69 combined reports and 29 full-work combat reports all remain at or
+above 59.9 FPS/VPS. The longer held-shoulder run retains 3:19 of combat with
+59.9 minimum FPS/VPS and only two additional underruns. HEVC alone and the
+exact workload are therefore insufficient causes of PERF-283's three dips.
+Treat them as observer-contingent unless a short-recorded human route repeats
+one visibly; do not optimize the core for them. The remaining P0 is one
+ordinary human-controlled uninterrupted five-minute exact match without
+Computer Use polling during combat. See
+`docs/artifacts/2026-09-01/g8-hevc-no-ui-observer-tail-reversal.md`.
+
 ### 1. Close acceptance after the controller-wait reversal
 
 The primary iPad Simulator CPU collapse now has a measured cause and retained

@@ -2700,6 +2700,19 @@ visibly repeated sub-59 host-wait interval. Do not reopen architecture work,
 promote to physical iPad, or call stable 60 FPS from this partial result. See
 `docs/artifacts/2026-09-01/g8-ordinary-manual-fountain-reality-route.md`.
 
+PERF-284 rejects HEVC and exact Fountain work as sufficient causes of
+PERF-283's isolated tails. Two fresh state-gated exact routes retain HEVC while
+removing Computer Use state/screenshot polling from the live window. Across 69
+combined reports and 29 full-work combat reports, every FPS/VPS value is at
+least 59.9. The longer held-shoulder route retains 3:19 of combat at 59.9
+minimum FPS/VPS and reaches a coherent result with only two new underruns.
+This is diagnostic, not manual acceptance, and it does not prove screenshots
+are the sole cause; it proves the tails are observer-contingent rather than a
+repeatable product workload limit. Make no product change. Next retain one
+human-controlled uninterrupted five-minute exact match under short HEVC with
+no Computer Use polling. See
+`docs/artifacts/2026-09-01/g8-hevc-no-ui-observer-tail-reversal.md`.
+
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).
 - **Per goal claim:** full evidence per PRD Section 11 before marking a goal met in STATUS.md.
 - **Per session:** before ending, run the ported regression scripts (sunpad `tests/` equivalents) plus a boot check on the highest working target, so the journal's last entry states a known-good state.
