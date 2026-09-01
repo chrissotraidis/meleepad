@@ -5663,3 +5663,20 @@ Append-only execution ledger. Claims are limited to observed evidence.
   `0a361d3471289f6c4ea1f4c0254b1f197b44fb8466e408b71240418f01ad0e70`.
   Row 7, device promotion, and G9 remain closed.
 - Evidence: `docs/artifacts/2026-09-01/g8-attract-only-dispatch-delta.md`.
+
+## 2026-09-01 — PERF-278 dispatch-sample alias guard
+
+- Audit the raw one-in-4,096 rows before using PERF-277 to choose generated
+  regions. A near-identical 23-PC motif repeats within and across frames, so a
+  periodic guest path may phase-lock to the power-of-two sampling stride.
+- Add default-off patch 0037. Diagnostics may now set
+  `STATICRECOMP_DISPATCH_SAMPLE_INTERVAL` and
+  `STATICRECOMP_DISPATCH_SAMPLE_OFFSET`; product/default behavior remains
+  interval 4,096, offset zero.
+- Focused source regression, canonical reverse-apply validation, and the full
+  iOS core/module provisioning build pass.
+- Reclassify the five-region 98.1% result as provisional. Next repeat the same
+  attract/control workload at interval 4,093 with at least two offsets before
+  selecting a region-resident preflight corpus.
+- This improves diagnostic integrity only. It changes no product path and
+  makes no FPS claim; row 7, device promotion, and G9 remain closed.

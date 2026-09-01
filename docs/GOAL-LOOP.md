@@ -2608,14 +2608,17 @@ selection. Ness plus CPU Peach/Ice Climbers/Bowser holds 59.9 FPS on controlled
 Big Blue. Its matched diagnostic arm averages about 5.81 million cycles and
 177,500 dispatches, versus 8.11 million and 416,000 in attract. The residual is
 therefore attract/demo state, not roster, player count, or stage geometry.
-Matched one-in-4,096 samples show five 16 KiB regions account for 98.1% of the
-incremental attract dispatch stream. Build the next data-free region-resident
-preflight from the first three repeated DVD/interrupt/load regions, extending
-to the HSD-erase and game-mode regions only if required. Do not begin the prior
-eight-region universal rewrite and do not project speed from dispatch count
-alone. Require semantics, at least 35% selected-path host-time gain, at least
-25% measured whole-frame projection, and a neutral controlled route before a
-product module. See
+Matched one-in-4,096 samples provisionally put 98.1% of the incremental
+attract stream in five 16 KiB regions, but the raw sample repeats a 23-PC motif.
+The power-of-two stride may be phase-locked to periodic execution. PERF-278
+therefore inserts a de-aliasing gate: repeat the same attract/control workload
+at coprime interval 4,093 and at least two offsets, retaining only regions with
+stable normalized excess. Patch 0037 provides those default-off controls.
+Then build the data-free region-resident preflight from the surviving paths.
+Do not begin the prior eight-region universal rewrite and do not project speed
+from dispatch count alone. Require semantics, at least 35% selected-path
+host-time gain, at least 25% measured whole-frame projection, and a neutral
+controlled route before a product module. See
 `docs/artifacts/2026-09-01/g8-attract-only-dispatch-delta.md`.
 
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).

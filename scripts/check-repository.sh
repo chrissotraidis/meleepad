@@ -17,6 +17,7 @@ python3 scripts/test_lightweight_frame_timing_patch.py
 python3 scripts/test_triggered_thread_sampler.py
 python3 scripts/test_analyze_region_coverage.py
 python3 scripts/test_analyze_dispatch_delta.py
+python3 scripts/test_dispatch_sample_phase_patch.py
 python3 scripts/test_analyze_dispatch_edge_traces.py
 tests/test-input-pipe-encoder.sh
 tests/test-pipe-short-tap-latching.sh

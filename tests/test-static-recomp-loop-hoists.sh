@@ -11,7 +11,8 @@ for contract in \
   'const bool has_rel_modules = m_module && m_module->num_rel_modules != 0;' \
   'const u32 idle_pc = m_idle_pc;' \
   'lockstep_enabled && m_lockstep_verifier->ShouldCheck(m_guest.pc)' \
-  'sample_dispatches && (m_native_dispatches & 4095u) == 0' \
+  'sample_dispatches &&' \
+  'm_native_dispatches % m_dispatch_sample_interval == m_dispatch_sample_offset' \
   'if (has_rel_modules)' \
   'if (idle_pc != 0 && m_guest.pc == idle_pc)'; do
   grep -Fq -- "$contract" "$RUN"

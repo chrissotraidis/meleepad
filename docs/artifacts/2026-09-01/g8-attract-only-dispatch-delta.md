@@ -2,7 +2,7 @@
 
 Date: 2026-09-01
 
-Status: **EXACT ROSTER PASSES; ATTRACT-ONLY PATH IS NOW THE OPTIMIZATION CORPUS**
+Status: **EXACT ROSTER PASSES; ATTRACT DELTA IS PROVISIONAL PENDING SAMPLE DE-ALIASING**
 
 ## Question
 
@@ -62,6 +62,13 @@ ranking from the two retained CSV windows; its focused regression is part of
 | `0x80374000-0x80377FFF` | 6.955 | 0.447 | 6.508 |
 | `0x801A4000-0x801A7FFF` | 4.387 | 0.008 | 4.379 |
 
+This ranking is **provisional**. Raw rows repeat a nearly identical 23-PC
+motif within and across frames. Because the observer selected every 4,096th
+native dispatch, a periodic guest path can phase-lock to that power-of-two
+stride and exaggerate a subset of PCs. The normalized dispatch-count delta is
+real, but the five-region concentration is not safe architecture-selection
+evidence until it repeats with a coprime interval and multiple offsets.
+
 The largest PC deltas are `0x80345760` and `0x80345738`, each adding about
 7.4 samples per frame and appearing roughly 200-250 times more often than in
 the controlled match. Generated-code inspection identifies these as the
@@ -80,9 +87,15 @@ control.
 ## Reoriented decision
 
 Do not optimize the controlled roster and do not begin an eight-region
-whole-game rewrite. The next falsifiable step is a data-free region-resident
-preflight over the five attract-excess regions, beginning with the repeated
-DVD/interrupt loop spanning `0x80018000`, `0x80338000`, and `0x80344000`.
+whole-game rewrite. First repeat the same attract/control comparison at the
+coprime interval 4,093 with at least two offsets. Accept a region into the
+corpus only when its normalized excess repeats across phases. Patch 0037 adds
+default-off interval and offset controls while preserving the product's
+4,096/0 diagnostic default.
+
+Only after that de-aliasing gate, build a data-free region-resident preflight
+over the surviving attract-excess regions, beginning with the repeated
+DVD/interrupt loop if it remains dominant.
 Preserve arbitrary entry, exception, cycle, SMC, helper, and state/RAM
 semantics. Compare the canonical path and region-resident path on exact traces
 from both attract and controlled windows.

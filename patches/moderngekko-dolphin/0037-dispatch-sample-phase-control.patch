@@ -1,0 +1,61 @@
+diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp
+--- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp
++++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp
+@@ -52,6 +52,16 @@ bool AddressIsCovered(const StaticRecompRange* ranges, u32 count, u32 address)
+   return false;
+ }
+ 
++u64 ReadDispatchSampleValue(const char* name, u64 fallback)
++{
++  const char* text = std::getenv(name);
++  if (!text || text[0] == '\0')
++    return fallback;
++  char* end = nullptr;
++  const unsigned long long value = std::strtoull(text, &end, 0);
++  return end && *end == '\0' ? static_cast<u64>(value) : fallback;
++}
++
+ bool ChunksTileCode(const StaticRecompModuleDesc& desc)
+ {
+   if (!RangesAreSorted(desc.chunk_ranges, desc.num_chunk_ranges) || !desc.chunk_hashes)
+@@ -181,6 +192,15 @@ StaticRecompCore::StaticRecompCore(Core::System& system)
+   {
+     m_dispatch_frame_log_path = path;
+     m_dispatch_frame_samples.reserve(262144);
++    m_dispatch_sample_interval =
++        std::clamp<u64>(ReadDispatchSampleValue("STATICRECOMP_DISPATCH_SAMPLE_INTERVAL", 4096),
++                        2, 1u << 20);
++    m_dispatch_sample_offset =
++        ReadDispatchSampleValue("STATICRECOMP_DISPATCH_SAMPLE_OFFSET", 0) %
++        m_dispatch_sample_interval;
++    std::fprintf(stderr, "[staticrecomp] dispatch sample interval=%llu offset=%llu\n",
++                 static_cast<unsigned long long>(m_dispatch_sample_interval),
++                 static_cast<unsigned long long>(m_dispatch_sample_offset));
+   }
+ 
+   if (const char* path = std::getenv("STATICRECOMP_DISPATCH_BURST_LOG"); path && path[0] != '\0')
+diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h
+--- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h
++++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h
+@@ -183,6 +183,8 @@ private:
+   std::vector<DispatchFrameSample> m_dispatch_frame_samples;
+   bool m_dispatch_frame_log_started = false;
+   u64 m_dispatch_frame_samples_written = 0;
++  u64 m_dispatch_sample_interval = 4096;
++  u64 m_dispatch_sample_offset = 0;
+   struct DispatchBurstSample
+   {
+     u64 present_frame;
+diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
+--- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
++++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
+@@ -121,7 +121,8 @@ void StaticRecompCore::Run()
+             m_lockstep_verifier->Prepare(m_guest);
+           }
+ 
+-          if (sample_dispatches && (m_native_dispatches & 4095u) == 0)
++          if (sample_dispatches &&
++              m_native_dispatches % m_dispatch_sample_interval == m_dispatch_sample_offset)
+           {
+             ++m_dispatch_samples[m_guest.pc];
+             if (!m_dispatch_frame_log_path.empty())

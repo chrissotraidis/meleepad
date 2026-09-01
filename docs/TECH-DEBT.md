@@ -49,27 +49,29 @@ a credible path to the roughly 50% total reduction. If it cannot, record that
 this no-JIT static-C architecture cannot guarantee worst-case 60 FPS on the M1
 Simulator host instead of cycling compiler flags.
 
-The matched attract-minus-controlled distribution replaces the old universal
-eight-region breadth estimate. Five 16 KiB regions account for 98.1% of the
-incremental dispatch samples. The first three cover the repeated DVD,
-interrupt, and load-state loop; the last two cover HSD erase and game-mode
-work. Begin with the first three, then extend to all five only if the host-time
-gate needs it. Dispatch coverage selects a corpus but cannot project host-time
-gain by itself.
+The matched attract-minus-controlled distribution provisionally concentrates
+98.1% of incremental samples in five 16 KiB regions. Raw samples repeat a
+near-identical 23-PC motif, however, so the fixed one-in-4,096 power-of-two
+stride may be phase-locked to a periodic guest path. Patch 0037 makes the
+diagnostic interval and offset controllable without changing product defaults.
+Repeat the same comparison at coprime interval 4,093 with at least two offsets;
+only stable normalized excess regions earn the region-resident corpus.
 
 Do not treat the exact-roster pass as evidence that only cold resources remain:
 the ordinary attract interval is sustained, executes the full 8.11-million-
 cycle budget, and carries a repeatable 2.24x sampled-dispatch rate. The current
-decision is whether the five attract-excess regions can be made region-
-resident with sufficient measured host-time gain.
+decision is first whether the apparent attract-excess regions survive
+de-aliased sampling, then whether they can be made region-resident with
+sufficient measured host-time gain.
 
 The exact roster factorial is complete. Its no-logger live arm holds 59.9 FPS;
 its matched diagnostic arm averages 5.81 million cycles and 177,500
 dispatches. The attract arm's roughly 8.11 million cycles and 416,000
-dispatches are therefore attract-specific. Five regions account for 52.50 of
-the 53.53 extra one-in-4,096 samples per frame. The immediate debt is a
-semantics-complete region-resident preflight for those paths, not another UI
-factorial or passive attract search.
+dispatches are therefore attract-specific. The fixed-stride sample attributes
+52.50 of 53.53 extra samples per frame to five regions, but that concentration
+is provisional because of the repeated motif. The immediate debt is a
+same-workload 4,093-stride, multiple-offset audit followed by a
+semantics-complete region-resident preflight only for the stable paths.
 
 ### 2. Complete the exact ordinary acceptance route
 

@@ -1,6 +1,6 @@
 # ssbmpad status
 
-## 2026-09-01 — Exact roster passes; attract-only regions isolated
+## 2026-09-01 — Exact roster passes; dispatch corpus needs de-aliasing
 
 The deterministic Big Blue route now visibly recreates Ness plus CPU Peach,
 Ice Climbers, and Bowser. The no-logger match holds 59.9 FPS through combat.
@@ -9,12 +9,13 @@ A matched diagnostic replay averages about 5.81 million guest cycles and
 The collapse is therefore attract/demo-specific, not caused by the M1 host,
 Big Blue, four fighters, or the exact roster alone.
 
-The matched one-in-4,096 distributions reveal a narrow incremental corpus:
-five 16 KiB regions account for about 98.1% of the extra attract samples. The
-next step is a semantics-complete region-resident preflight over the repeated
-DVD/interrupt/load path, judged by host time rather than dispatch removal.
-The previous eight-region universal rewrite is deferred. Row 7, physical-iPad
-promotion, and G9 remain closed. See
+The matched one-in-4,096 distributions provisionally put 98.1% of the extra
+attract samples in five 16 KiB regions, but raw rows repeat a 23-PC motif. The
+power-of-two sampler may therefore be phase-locked to periodic execution.
+Patch 0037 compiles and adds default-off interval/offset controls. Repeat the
+same attract/control comparison at coprime interval 4,093 and multiple offsets
+before selecting a region-resident corpus. The previous eight-region universal
+rewrite remains deferred. Row 7, physical-iPad promotion, and G9 remain closed. See
 `docs/artifacts/2026-09-01/g8-attract-only-dispatch-delta.md`.
 
 ## 2026-09-01 — Four-player Big Blue isolates the extra attract work
