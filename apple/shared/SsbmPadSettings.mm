@@ -15,8 +15,13 @@
 
 - (instancetype)init {
     if ((self = [super init])) {
-        NSDictionary *saved = [[NSUserDefaults standardUserDefaults]
-            dictionaryForKey:@"SsbmPadControlSizeScales"];
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        // The former user-facing 90% CPU-clock mode was removed because it
+        // changes game timing without making the failing workload playable.
+        // Clear its old preference so existing installs always return to the
+        // stable product profile.
+        [defaults removeObjectForKey:@"SsbmPadExperimentalPerformanceMode"];
+        NSDictionary *saved = [defaults dictionaryForKey:@"SsbmPadControlSizeScales"];
         _controlSizeScales = saved ? [saved mutableCopy] : [NSMutableDictionary dictionary];
     }
     return self;
@@ -68,16 +73,6 @@
 - (void)setShowFPSCounter:(BOOL)showFPSCounter {
     [[NSUserDefaults standardUserDefaults] setBool:showFPSCounter
                                             forKey:@"SsbmPadShowFPSCounter"];
-}
-
-- (BOOL)experimentalPerformanceMode {
-    return [[NSUserDefaults standardUserDefaults]
-        boolForKey:@"SsbmPadExperimentalPerformanceMode"];
-}
-
-- (void)setExperimentalPerformanceMode:(BOOL)experimentalPerformanceMode {
-    [[NSUserDefaults standardUserDefaults] setBool:experimentalPerformanceMode
-                                            forKey:@"SsbmPadExperimentalPerformanceMode"];
 }
 
 - (BOOL)hideTouchControlsWhenControllerConnected {

@@ -99,7 +99,7 @@ and locally recompiled modules are ignored and must not be committed.
 SsbmPad never downloads or bundles game data.
 
 1. Launch SsbmPad and open the **•••** menu.
-2. Choose **Game Data & Saves → Change or Reimport**.
+2. Choose **Game Data & Saves → Import or Reimport Game Data**.
 3. Select your supported raw ISO/GCM image in Files.
 4. Leave the app open while it validates, extracts, and atomically activates
    the private game data.

@@ -34,16 +34,23 @@ put `StaticRecompCore::Run` self plus the disabled lockstep check at 8.164% of
 the CPU-GPU thread. The retained default-off diagnostic and loop-invariant
 hoists reduce the exact-route control's five-second bad run to two seconds in
 both candidate runs, but still fall to 21.1 and 20.2 FPS and improve mean FPS
-only 3.5-3.7%. This is partial groundwork, not a pass. The next step is a
-frame-aligned attribution of the repeatable cold transition spike at the next
-outer boundary: correlate CPU/present time and native dispatches with
-draw/primitive, shader/pipeline-creation, and DMA-underrun deltas. No further
-candidate is allowed unless that aligned window identifies at least five
-percent removable cost while preserving precise exception, fallback, hook,
-SMC, input, rendering, audio, diagnostic, and future-netplay state.
+only 3.5-3.7%. This is partial groundwork, not a pass. PERF-257 then rejects
+shader/pipeline creation as the sustained cause and host PGO as a standalone
+fix. A strict-compatible nine-unit host-PGO app still decays through 28.7,
+20.4, and 10.3 FPS/VPS while underruns reach 547. The retained frame shows
+stretched/fragmented Samus and the known smeared lower reflection with no SMC,
+FIFO, desync, thermal, or memory warning. The loop is now correctness-first:
+join the first coherent and first morphed Fountain frames to guest CPU/FPU
+state and exact generated work, find the earliest silent divergence, and do
+not optimize the corrupted late state. The product menu independently removes
+Experimental Performance Mode, migrates its old preference to stable, and
+restores direct privacy-reviewed diagnostic sharing. No further performance
+candidate is allowed without a measured semantic mechanism and at least five
+percent predicted benefit or removal of the visible corruption.
 
 See
 `docs/artifacts/2026-09-01/g8-r0-cold-host-profile-and-loop-hoist-reversal.md`,
+`docs/artifacts/2026-09-01/g8-progressive-fountain-collapse-and-menu-cleanup.md`,
 `docs/artifacts/2026-08-31/g8-r0-exact-combat-dispatch-subtraction.md` and
 `docs/artifacts/2026-08-31/g8-r0-rules-normalization-and-pc-store-preflight.md`.
 

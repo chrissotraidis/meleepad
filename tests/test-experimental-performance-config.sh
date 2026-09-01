@@ -11,6 +11,7 @@ clang++ -std=c++23 -I "$ROOT/ref/ModernGekko/include" \
 
 HOST="$ROOT/apple/ios/SsbmPadCoreHost.mm"
 SETTINGS="$ROOT/apple/shared/SsbmPadSettings.mm"
+SETTINGS_HEADER="$ROOT/apple/shared/SsbmPadSettings.h"
 OVERLAY="$ROOT/apple/ios/SsbmPadGameOverlay.mm"
 for contract in \
   '-ssbmpadExperimentalPerformanceMode' \
@@ -33,6 +34,35 @@ if grep -Fq 'Config::SetBase(Config::MAIN_CPU_THREAD, true);' \
 fi
 grep -Fq 'Config::SetBase(Config::GFX_SHADER_COMPILER_THREADS, 3);' \
   "$ROOT/ref/ModernGekko/src/runtime/dolphin_runtime.cpp"
-grep -Fq 'SsbmPadExperimentalPerformanceMode' "$SETTINGS"
-grep -Fq 'Experimental Performance Mode (Restart Required)' "$OVERLAY"
-echo "Experimental performance configuration checks passed"
+
+# Experimental clock/QoS variants remain explicit developer launch arguments,
+# never a user-facing product mode. Remove the old persisted preference during
+# settings initialization so an existing install cannot remain at 90% clock.
+grep -Fq 'removeObjectForKey:@"SsbmPadExperimentalPerformanceMode"' "$SETTINGS"
+if grep -Fq 'experimentalPerformanceMode' "$SETTINGS_HEADER" "$SETTINGS" "$HOST" "$OVERLAY"; then
+  echo "experimental performance preference remains in product code" >&2
+  exit 1
+fi
+if grep -Fq 'Experimental Performance Mode' "$OVERLAY"; then
+  echo "experimental performance mode remains in the three-dot menu" >&2
+  exit 1
+fi
+if grep -Fq 'menuPreferencePerformance' "$HOST"; then
+  echo "runtime still accepts the removed menu preference" >&2
+  exit 1
+fi
+
+for menu_contract in \
+  'Render Resolution' \
+  'Aspect Ratio' \
+  'Show FPS Counter' \
+  'Controller Button Mapping…' \
+  'Touch Control Settings…' \
+  'Game Data & Saves' \
+  'Share Diagnostic Log…' \
+  'Report a Problem…'; do
+  grep -Fq -- "$menu_contract" "$OVERLAY"
+done
+grep -Fq -- '- (void)shareDiagnosticLog' "$OVERLAY"
+
+echo "Performance launch-argument and three-dot menu checks passed"

@@ -248,9 +248,6 @@ static NSString *SsbmPadRuntimeUserDirectory(NSString *userDirectory) {
             containsObject:@"-ssbmpadExperimentalPerformance95"];
         BOOL launchArgumentPerformanceQoSOnly = [arguments
             containsObject:@"-ssbmpadExperimentalPerformanceQoSOnly"];
-        BOOL menuPreferencePerformance =
-            [SsbmPadSettings sharedSettings].experimentalPerformanceMode;
-
         NSString *performanceProfile = @"stable";
         NSString *performanceSource = @"default";
         float emulatedCPUClock = 1.00f;
@@ -264,10 +261,9 @@ static NSString *SsbmPadRuntimeUserDirectory(NSString *userDirectory) {
             performanceSource = @"launch argument";
             emulatedCPUClock = 0.95f;
             useExperimentalQoS = YES;
-        } else if (launchArgumentPerformance90 || menuPreferencePerformance) {
+        } else if (launchArgumentPerformance90) {
             performanceProfile = @"experimental-single-core-90";
-            performanceSource = launchArgumentPerformance90 ?
-                @"launch argument" : @"menu preference";
+            performanceSource = @"launch argument";
             emulatedCPUClock = 0.90f;
             useExperimentalQoS = YES;
         }

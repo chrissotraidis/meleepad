@@ -2,6 +2,17 @@
 
 G5 is active. G4 passed with a clean controlled 1v1 on 2026-08-24.
 
+PERF-257 rejects two broad explanations for the iPad row-7 failure. Exact
+frame attribution finds sustained 27-35 ms frames with no Metal pipeline or
+shader creation, while tail native dispatches and guest cycles rise 2.79x and
+2.03x. A strict-compatible current-source host-PGO app then decays to 10.3 FPS
+/ 10.6 VPS and 373 underruns in exact Fountain combat; underruns reach 547.
+The retained frame also shows stretched/fragmented Samus and reflection smear
+without an SMC, FIFO, desync, thermal, or memory warning. Treat the next step
+as silent correctness/state-divergence attribution, not another compiler or
+late-state throughput experiment. See
+`docs/artifacts/2026-09-01/g8-progressive-fountain-collapse-and-menu-cleanup.md`.
+
 PERF-206 retains a signed-development-only external ARM64 PC ring and exact
 start-to-start analyzer after `xctrace` CLI counters failed. A 120-second warm
 Fountain ring retains 78,744 error-free samples and joins 48 samples to four

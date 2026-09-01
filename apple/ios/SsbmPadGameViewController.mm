@@ -1075,7 +1075,7 @@ static NSUInteger SsbmPadRegularFileCount(NSString *directory) {
         @"appVersion=%@ build=%@\n"
          @"platform=%@ os=%@\n"
          @"screen=%@ native=%@ drawable=%@\n"
-         @"settings renderScale=%ld aspect=%ld experimentalPerformance=%d frameMode=native-60-fps\n"
+         @"settings renderScale=%ld aspect=%ld frameMode=native-60-fps\n"
          @"controllers count=%lu names=%@\n"
          @"recentScreenshot=%@\n"
          @"performance %@\n%@",
@@ -1087,7 +1087,6 @@ static NSUInteger SsbmPadRegularFileCount(NSString *directory) {
         NSStringFromCGRect(UIScreen.mainScreen.nativeBounds),
         NSStringFromCGSize(((CAMetalLayer *)_gameView.layer).drawableSize),
         (long)settings.renderScale, (long)settings.aspectRatioMode,
-        settings.experimentalPerformanceMode,
         (unsigned long)controllers.count,
         controllers.count > 0 ? [controllers componentsJoinedByString:@", "] : @"none",
         screenshot, performance, [_coreHost diagnosticSummary]];

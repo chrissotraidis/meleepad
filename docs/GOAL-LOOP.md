@@ -122,17 +122,22 @@ raises the minimum from 11.7 to 20.2-21.1 FPS, but mean gain is only 3.5-3.7%
 and both candidates still collapse to roughly 20 FPS. Retain it only as a
 partial building block; row 7 remains a hard fail.
 
-The immediate active step is now a frame-aligned outer-boundary attribution of
-that repeatable cold transition spike. Begin with the reality lane, then on a
-separate exact diagnostic run correlate total/CPU/present time with native
-dispatches, draw/primitive deltas, shader/pipeline creation, and DMA underruns.
-Build only when one aligned mechanism predicts at least five percent removable
-time. Do not assume shader prewarming is sufficient: compiler workers were
-concurrent, but the CPU-GPU thread did not materially block on them. Do not
-reopen interrupt-leaf coalescing, fast-disc/DVD shortcuts, direct HSD/GX calls,
-matrix-copy specialization, narrow `mtspr`, dual-core FIFO, buffer growth,
-vertex-loader work, stale PGO, or footprint-only generated-code variants. See
-`docs/artifacts/2026-09-01/g8-r0-cold-host-profile-and-loop-hoist-reversal.md`.
+PERF-257 completes that outer-boundary attribution and rejects two broad
+routes. Sustained 27-35 ms frames create no Metal pipeline or shader, while
+tail dispatches and guest cycles rise materially. A strict-compatible
+current-source nine-unit host-PGO app still decays to 10.3 FPS / 10.6 VPS and
+hundreds of underruns. Its retained frame shows stretched/fragmented Samus and
+the smeared lower reflection without a logged SMC, FIFO, desync, thermal, or
+memory fault. The immediate active step is therefore correctness-first: retain
+an early coherent and first morphed exact-Fountain checkpoint, compare guest
+CPU/FPU/paired-single and SMC state plus exact generated work, and locate the
+earliest silent divergence. Do not optimize the corrupted late state or retry
+compiler, shader-prewarm, interrupt-leaf, DVD, direct-call, matrix, `mtspr`,
+dual-core, buffer, vertex-loader, stale-PGO, or footprint-only routes. The
+three-dot menu independently removes Experimental Performance Mode, migrates
+old installs to the stable profile, and restores direct diagnostic sharing.
+See
+`docs/artifacts/2026-09-01/g8-progressive-fountain-collapse-and-menu-cleanup.md`.
 
 DECISION-215 originally recorded a user-authorized sequencing exception after
 PERF-214. On 30 Aug 2026 the user explicitly broadened that direction: assume

@@ -63,10 +63,23 @@ apply_patch_once_or_marker() {
 }
 
 verify_patch_scope() {
-  local checkout=$1 patch=$2
-  shift 2
+  local checkout=$1
+  shift
+  local patches=()
+  while (( $# )) && [[ "$1" != -- ]]; do
+    patches+=("$1")
+    shift
+  done
+  if (( $# )) && [[ "$1" == -- ]]; then
+    shift
+  fi
   local allowed changed
-  allowed=$(awk '/^diff --git / {sub(/^b\//, "", $4); print $4}' "$patch")
+  allowed=$(awk '/^diff --git / {sub(/^b\//, "", $4); print $4}' "${patches[@]}")
+  # One historical patch is rooted at ModernGekko and names its Dolphin files
+  # as vendor/dolphin/*. The nested checkout reports those same files without
+  # that prefix, so accept both canonical spellings.
+  allowed+=$'\n'
+  allowed+=$(sed -n 's#^vendor/dolphin/##p' <<<"$allowed")
   while IFS= read -r changed; do
     [[ -z "$changed" ]] && continue
     local extra match=false
@@ -161,6 +174,7 @@ ios_simulator_framebuffer_fetch_patch="$ROOT/patches/moderngekko-dolphin/0027-io
 ios_audio_diagnostics_patch="$ROOT/patches/moderngekko-dolphin/0028-ios-audio-continuity-diagnostics.patch"
 pipe_short_tap_patch="$ROOT/patches/moderngekko-dolphin/0029-pipe-short-tap-latching.patch"
 static_recomp_loop_hoists_patch="$ROOT/patches/moderngekko-dolphin/0030-static-recomp-loop-hoists.patch"
+frame_workload_attribution_patch="$ROOT/patches/moderngekko-dolphin/0031-frame-workload-attribution.patch"
 apply_patch_once_or_marker "$MG" "$mg_patch" \
   include/moderngekko/runtime.hpp 'struct RuntimeDiagnosticsSnapshot'
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$dolphin_patch" \
@@ -241,55 +255,13 @@ apply_patch_once "$MG/vendor/dolphin" "$pipe_short_tap_patch"
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$static_recomp_loop_hoists_patch" \
   Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp \
   STATICRECOMP_DISPATCH_SAMPLE
-verify_patch_scope "$MG" "$mg_patch" vendor/dolphin tools/moderngekko_launcher.cpp \
-  tools/moderngekko_port.cpp tests/frontend_config_test.cpp \
-  tools/frontend_config.cpp tools/frontend_config.hpp tools/moderngekko_run.cpp \
-  CMakeLists.txt tests/memory_watcher_utils_test.cpp \
-  src/runtime/dolphin_runtime.cpp src/runtime/game.cpp \
-  include/moderngekko/game.hpp tests/game_inspect_test.cpp
-verify_patch_scope "$MG" "$ios_performance_defaults_patch" \
-  src/runtime/dolphin_runtime.cpp
-verify_patch_scope "$MG/vendor/dolphin" "$dolphin_patch" \
-  DolRecomp \
-  Source/Core/VideoCommon/PerformanceTracker.cpp \
-  Data/Sys/GameSettings/GALE01r0.ini \
-  Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp \
-  Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h \
-  Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp \
-  Source/Core/Common/FramePhaseTiming.h \
-  Source/Core/Common/Timer.cpp \
-  Source/Core/Common/Timer.h \
-  Source/Core/Core/CoreTiming.h \
-  Source/Core/Core/HW/VideoInterface.cpp \
-  Source/Core/Core/CoreTiming.cpp \
-  Source/Core/AudioCommon/Mixer.cpp \
-  Source/Core/VideoBackends/Metal/MTLGfx.mm \
-  Source/Core/VideoBackends/Metal/MTLUtil.mm \
-  Source/Core/VideoCommon/CMakeLists.txt \
-  Source/Core/VideoCommon/Present.cpp \
-  Source/Core/VideoCommon/LightweightFrameTimingRecorder.cpp \
-  Source/Core/VideoCommon/LightweightFrameTimingRecorder.h \
-  Source/Core/VideoCommon/PerformanceTracker.h \
-  Source/Core/VideoCommon/ShaderCache.cpp \
-  Source/Core/DolphinNoGUI/Platform.cpp \
-  Source/Core/Core/Cheats/MemoryWatcher.cpp \
-  Source/Core/Core/Cheats/MemoryWatcher.h \
-  Source/Core/Core/Cheats/MemoryWatcherUtils.h \
-  Source/UnitTests/Core/CMakeLists.txt \
-  Source/UnitTests/Core/Cheats/MemoryWatcherUtilsTest.cpp \
-  module-template/CMakeLists.txt \
-  module-template/module.exports \
-  module-template/module_export.c \
-  GXRuntime/src/core/cpu.c \
-  GXRuntime/include/core/cpu.h \
-  GXRuntime/src/core/cpu_interpreter_float.c \
-  GXRuntime/tests/runtime_tests.c
-verify_patch_scope "$MG/vendor/dolphin/DolRecomp" "$dolrecomp_scalar_patch" \
-  src/backend/emitter.c src/cpu/cpu.c src/cpu/cpu.h
-verify_patch_scope "$MG/vendor/dolphin" "$pipe_short_tap_patch" \
-  Source/Core/InputCommon/ControllerInterface/Pipes/Pipes.cpp \
-  Source/Core/InputCommon/ControllerInterface/Pipes/Pipes.h
-verify_patch_scope "$MG/vendor/dolphin" "$static_recomp_loop_hoists_patch" \
-  Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
+apply_patch_once_or_marker "$MG/vendor/dolphin" "$frame_workload_attribution_patch" \
+  Source/Core/Common/FramePhaseTiming.h s_metal_pipeline_creates
+verify_patch_scope "$MG" "$mg_patch" "$ROOT"/patches/moderngekko/*.patch -- \
+  vendor/dolphin
+verify_patch_scope "$MG/vendor/dolphin" "$dolphin_patch" "$mg_patch" \
+  "$ROOT"/patches/moderngekko-dolphin/*.patch -- DolRecomp
+verify_patch_scope "$MG/vendor/dolphin/DolRecomp" \
+  "$ROOT"/patches/dolrecomp/*.patch --
 
 echo "ssbmpad dependencies are pinned and patched."

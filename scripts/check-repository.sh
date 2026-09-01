@@ -30,6 +30,7 @@ tests/test-game-data-setup.sh
 tests/test-ios-audio-diagnostics.sh
 tests/test-ios-external-pipe-input.sh
 tests/test-static-recomp-loop-hoists.sh
+tests/test-frame-workload-attribution.sh
 
 prohibited=$(git ls-files | grep -E \
   '(^|/)(ref|DerivedData|Provisioned|build[^/]*)/|\.(iso|gcm|rvz|wia|wbfs|gcz|dylib|ipa|xcarchive|mobileprovision|p12|pem|key|gci|sav|raw|profraw|profdata)$' || true)

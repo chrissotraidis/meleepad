@@ -5238,3 +5238,30 @@ Append-only execution ledger. Claims are limited to observed evidence.
   repeatable cold transition spike. Do not reopen rejected guest regions.
 - Evidence:
   `docs/artifacts/2026-09-01/g8-r0-cold-host-profile-and-loop-hoist-reversal.md`.
+
+## 2026-09-01 — PERF-257 progressive collapse and product-menu cleanup
+
+- Run a normal visible installed-app reality route. Across 215 one-second
+  samples it reaches 6.3 FPS minimum with 49 samples below 59; this adds a
+  product failure and does not supersede the ordinary 21.9 FPS Fountain floor.
+- Retain canonical patch 0031 for default-off frame workload attribution.
+  Exact combat ties slow frames to CPU/native-dispatch/guest-cycle work and
+  rejects Metal pipeline or shader creation as the sustained primary cause.
+- Strict-use the retained host profile across all nine current runtime units,
+  verify the linked code is profile-shaped and non-instrumented, then run the
+  exact Samus/CPU-Kirby Stock/04/05:00 Fountain route. Performance decays to
+  10.3 FPS / 10.6 VPS; underruns reach 547. Host PGO is not the standalone fix.
+- Retain a visibly stretched/fragmented Samus frame and reflection smear. The
+  matching log has no SMC, FIFO, desync, fatal, thermal, or memory warning.
+  Reorient to the earliest silent guest CPU/FPU/state divergence rather than
+  optimize the corrupted late state.
+- Remove Experimental Performance Mode from the three-dot menu and migrate its
+  old preference to stable. Keep launch-argument experiments developer-only.
+  Restore Share Diagnostic Log; its live share sheet and privacy-reviewed
+  export pass. Release build, focused fail-before regression, and full repo
+  gate pass.
+- Decision: row 7 remains hard failed and physical-iPad promotion remains
+  closed. Menu cleanup and patch 0031 are retained; private profiles, traces,
+  apps, modules, and game data remain untracked.
+- Evidence:
+  `docs/artifacts/2026-09-01/g8-progressive-fountain-collapse-and-menu-cleanup.md`.

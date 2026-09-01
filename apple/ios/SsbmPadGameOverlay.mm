@@ -539,37 +539,13 @@ static CGFloat SsbmPadDefaultSizeScaleForControl(UIView *view, NSString *identif
     }];
     fpsAction.state = settings.showFPSCounter ? UIMenuElementStateOn : UIMenuElementStateOff;
 
-    UIAction *performanceAction =
-        [UIAction actionWithTitle:@"Experimental Performance Mode (Restart Required)"
-                            image:[UIImage systemImageNamed:@"gauge.with.dots.needle.67percent"]
+    UIAction *shareDiagnosticAction =
+        [UIAction actionWithTitle:@"Share Diagnostic Log…"
+                            image:[UIImage systemImageNamed:@"square.and.arrow.up"]
                        identifier:nil handler:^(__kindof UIAction *action) {
         (void)action;
-        SsbmPadSettings *currentSettings = [SsbmPadSettings sharedSettings];
-        currentSettings.experimentalPerformanceMode =
-            !currentSettings.experimentalPerformanceMode;
-        [currentSettings synchronize];
-        [[[UISelectionFeedbackGenerator alloc] init] selectionChanged];
-        [weakSelf refreshMenuButton];
-
-        NSString *nextMode = currentSettings.experimentalPerformanceMode ?
-            @"experimental performance mode" : @"the stable performance mode";
-        NSString *warning = currentSettings.experimentalPerformanceMode ?
-            @"This mode keeps Melee synchronized but reduces the emulated CPU clock to 90%. It may improve performance on some devices, but can affect game timing, audio, physics, or rendering. Severe visual corruption has been reported at 4×; use 1× or 2× while this interaction is investigated. If you encounter a problem, reproduce it and use Report a Problem from this menu. " : @"";
-        UIAlertController *alert =
-            [UIAlertController alertControllerWithTitle:@"Restart Required"
-                                                message:[NSString stringWithFormat:
-                @"%@This change applies the next time SsbmPad launches. Close and reopen the app to use %@.",
-                warning, nextMode]
-                                         preferredStyle:UIAlertControllerStyleAlert];
-        [alert addAction:[UIAlertAction actionWithTitle:@"OK"
-                                                  style:UIAlertActionStyleDefault
-                                                handler:nil]];
-        [weakSelf.window.rootViewController presentViewController:alert
-                                                         animated:YES
-                                                       completion:nil];
+        [weakSelf shareDiagnosticLog];
     }];
-    performanceAction.state = settings.experimentalPerformanceMode ?
-        UIMenuElementStateOn : UIMenuElementStateOff;
 
     UIAction *reportProblemAction =
         [UIAction actionWithTitle:@"Report a Problem…"
@@ -583,7 +559,6 @@ static CGFloat SsbmPadDefaultSizeScaleForControl(UIView *view, NSString *identif
         renderMenu,
         aspectMenu,
         fpsAction,
-        performanceAction,
         [UIAction actionWithTitle:@"Controller Button Mapping…"
                             image:[UIImage systemImageNamed:@"gamecontroller"]
                        identifier:nil handler:^(__kindof UIAction *action) {
@@ -597,8 +572,42 @@ static CGFloat SsbmPadDefaultSizeScaleForControl(UIView *view, NSString *identif
             [weakSelf toggleSettingsPanel];
         }],
         dataMenu,
+        shareDiagnosticAction,
         reportProblemAction,
     ]];
+}
+
+- (void)shareDiagnosticLog {
+    NSString *reportID = [NSString stringWithFormat:@"SP-%@",
+        [[[NSUUID UUID] UUIDString] substringToIndex:8]];
+    NSString *technicalContext = [self.delegate gameOverlayDiagnosticContext:self];
+    NSError *error = nil;
+    NSURL *reportURL = SsbmPadDiagnosticsReportURL(
+        reportID,
+        @{@"problem": @"", @"context": @"", @"frequency": @""},
+        technicalContext,
+        &error);
+    UIViewController *presenter = self.window.rootViewController;
+    if (reportURL == nil) {
+        UIAlertController *alert =
+            [UIAlertController alertControllerWithTitle:@"Diagnostic Log Unavailable"
+                                                message:error.localizedDescription
+                                         preferredStyle:UIAlertControllerStyleAlert];
+        [alert addAction:[UIAlertAction actionWithTitle:@"OK"
+                                                  style:UIAlertActionStyleDefault
+                                                handler:nil]];
+        [presenter presentViewController:alert animated:YES completion:nil];
+        return;
+    }
+
+    SsbmPadLog(@"diagnostic log requested id=%@ destination=share-sheet", reportID);
+    UIActivityViewController *share =
+        [[UIActivityViewController alloc] initWithActivityItems:@[reportURL]
+                                         applicationActivities:nil];
+    UIPopoverPresentationController *popover = share.popoverPresentationController;
+    popover.sourceView = _menuButton;
+    popover.sourceRect = _menuButton.bounds;
+    [presenter presentViewController:share animated:YES completion:nil];
 }
 
 - (void)reportProblem {

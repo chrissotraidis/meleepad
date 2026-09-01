@@ -14,7 +14,7 @@ Order of delivery:
 
 1. Melee running natively on **macOS** (Apple Silicon), playable, sustained 60 fps.
 2. The same core running in the **iPadOS and iOS Simulators** (no JIT, interpreter fallback for uncovered code, software vertex loader).
-3. **SunPad's touch controls and menu system ported over** as the ssbmpad shell: touch overlay, three-dot menu, settings, game data import, diagnostics logging, experimental-mode framework.
+3. **SunPad's touch controls and menu system ported over** as the ssbmpad shell: touch overlay, three-dot menu, settings, game data import, and diagnostics logging.
 4. **End-to-end testing** per Section 10, with dated evidence for every claim.
 
 60 fps is a hard requirement, not a gate with a fallback. If the frame budget is missed, the response is profiling and optimization, iterated until it is met. Do not propose substitute titles or reduced targets.
@@ -168,9 +168,9 @@ Port the shell from `ref/sunpad/apple/`, renaming SunPad → SsbmPad/ssbmpad thr
 - `apple/shared/`: `SunPadSettings`, `SunPadInputState`, `SunPadInputMixer`, `SunPadControllerMapping`, `SunPadInputPipeEncoder`, `SunPadDiagnostics`. These are platform-neutral; port nearly as-is. Input reaches Dolphin via the pipe-input bridge (Dolphin Pipes device).
 - `apple/ios/`: `SunPadGameOverlay` (touch overlay: main stick, C-stick, A/B/X/Y/Z/Start/L/R, D-pad), `SunPadGameViewController`, `SunPadCoreHost`, `SunPadDiscExtractor`, app delegate, Info.plist, PrivacyInfo.
 - Melee-specific layout work, the only real design task: Melee's control demands differ from Sunshine's (C-stick smashes, L/R analog shielding with digital click, wavedash-era timing). Start from the sunpad landscape layout (left: movement stick, D-pad, L; right: C-stick, A/B/X/Y diamond, Z, R, Start) and adjust for Melee; keep the R pressure slider concept for analog shield, and add the same for L. Keep Move-mode drag customization, opacity/size settings, reset, and auto-hide on physical controller connect.
-- Three-dot menu, feature parity with sunpad: render scale 1x-4x (live via `Config::GFX_EFB_SCALE`), aspect (original 4:3 default; 16:9 and Fill as experimental), touch layout edit/reset, Game Data & Saves (import/reimport/remove via Files), Share Diagnostic Log, Report a Problem, experimental toggles.
+- Three-dot menu: render scale 1x-4x (live via `Config::GFX_EFB_SCALE`), aspect (original 4:3 default; 16:9 and Fill as experimental), FPS counter, controller mapping, touch layout edit/reset, Game Data & Saves (import/reimport/remove via Files), Share Diagnostic Log, and Report a Problem. Do not expose performance experiments as product settings.
 - Logging: replicate sunpad's diagnostics wholesale. Breadcrumbs (boot, display, controller, lifecycle, memory warnings, input-pipe, runtime warnings/errors, screenshot markers, runtime exit) to the unified log and `Library/Application Support/SsbmPad/Logs/runtime.log`; privacy-bounded export that excludes game images, extracted data, and saves.
-- Experimental-mode framework: port the mechanism (default-off toggles, restart where required, logged mode identity like sunpad's `experimental-single-core-90` vs `stable`). Note the semantics flip: sunpad's "Experimental 60 FPS" toggle exists because Sunshine is a 30 fps title. Melee is natively 60; 60 is the default, not an experiment. Reuse the framework for whatever ssbmpad's own experiments are (e.g. underclock mode, perf scheduling), not the specific Sunshine toggles.
+- Developer-only performance experiments may use explicit launch arguments and must log their active identity. Melee is natively 60 FPS; normal launches always use the stable 100% clock profile, and experimental clock or scheduling policies must not appear in the product menu.
 - GameController framework support with sunpad's slot semantics (slot retention, player-1 reclaim, held-input clearing on removal, touch auto-hide). Melee is a 4-player game: preserve sunpad's multi-slot handling and verify at least 2 physical/virtual controllers map to P1/P2.
 
 ## 10. Phase 5: test matrix
