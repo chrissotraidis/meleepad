@@ -199,16 +199,16 @@ slow Metal pipeline, then classify moving front-end intervals and repair visual
 correctness before any full acceptance sequence. See
 `docs/artifacts/2026-09-01/g8-synchronized-dual-core-exact-fountain.md`.
 
-PERF-263 proves that Dolphin's existing per-game pipeline UID persistence
-removes the prior 91.782 ms first-use combat hitch on a fresh process with
-warm user data. The unchanged exact Fountain replay has no active-combat frame
-above 50 ms across emulated frames 3500-9800, but still fails at 17.594 ms p95,
-19.172 ms p99, and 36.328 ms worst. Cold/front-end and results presentation
-remain far below 59 FPS, and rendering remains malformed. Do not expose a
-performance toggle or call a warm-cache replay a cold product pass. Next audit
-a ROM-safe, versioned, deterministic first-install UID seed; independently
-attribute the remaining CPU-heavy combat cluster and moving transition deficits,
-then repair rendering correctness. Keep synchronized dual-core unmerged, row 7
+PERF-263 initially appeared to show pipeline-UID persistence removing the
+91.782 ms hitch, but format validation refutes that attribution. The presumed
+151,552-byte seed is not 8 plus an integral number of the pinned 579-byte
+serialized entries; Dolphin rejects such a file. The replay still records no
+active-combat frame above 50 ms across emulated frames 3500-9800, while failing
+at 17.594 ms p95, 19.172 ms p99, and 36.328 ms worst, but the disappearance may
+be variance or an external Metal cache. Do not implement or ship a seed yet.
+Next reverse a structurally valid UID file against an empty isolated user root,
+then independently attribute the CPU-heavy combat and moving transition
+deficits and repair rendering. Keep synchronized dual-core unmerged, row 7
 failed, physical-iPad promotion closed, and G9 queued. See
 `docs/artifacts/2026-09-01/g8-synchronized-pipeline-persistence-replay.md`.
 

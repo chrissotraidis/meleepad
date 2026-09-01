@@ -2,20 +2,19 @@
 
 Date: 2026-09-01
 
-Status: **known-pipeline persistence reverses the prior combat hitch; route still fails**
+Status: **persistence attribution refuted by format validation; route still fails**
 
 ## Question
 
 PERF-262 found a 91.782 ms active-combat frame containing a first-use Metal
-pipeline creation. Does Dolphin's existing per-game pipeline UID cache remove
-that class on a fresh process using the unchanged synchronized CPU/video
-candidate and the same installed user data?
+pipeline creation. A fresh-process replay did not reproduce that frame. Did a
+valid Dolphin per-game pipeline UID cache cause the reversal?
 
 ## Reversal
 
 The unchanged Release executable SHA-256 was
 `5d0965325ebaed5749d44cba790f5b8089ebab6c5d6dec6bf18c748e6d29bcec`.
-Before launch, the normal user directory contained the persisted
+Before launch, the normal user directory appeared to contain a persisted
 `Cache/GALE01.uidcache` written during the preceding exact match. The app then
 started as a fresh process and completed the same state-verified P1 Samus,
 level-1 CPU Kirby, Stock/04/05:00 Fountain route.
@@ -31,27 +30,36 @@ consecutive emulated frames 3500 through 9800:
 - 78.114585% met the 16.95 ms diagnostic budget.
 
 Runtime intervals mostly reported 59.8-60.0 FPS/VPS at approximately real-time
-speed. This reverses the prior first-use pipeline hitch but does not meet the
-row-7 p95, p99, or every-moving-phase boundary. A later 82.636 ms frame had
-zero pipeline creation and occurred in the match/results presentation class,
-not the prior active-combat pipeline class.
+speed. The observation does not meet the row-7 p95, p99, or every-moving-phase
+boundary. A later 82.636 ms frame had zero pipeline creation and occurred in
+the match/results presentation class, not the prior active-combat pipeline
+class.
 
-## What this changes
+## Attribution correction
 
-The Metal backend does not expose durable driver pipeline-cache data on this
-path. Dolphin instead persists serialized game-specific GX pipeline UIDs,
-loads them on the next process, queues every known missing pipeline, and—under
-the current product defaults—waits for those known pipelines before starting.
-The replay therefore demonstrates that the existing UID persistence mechanism
-works. It also explains why it cannot protect the very first route from a UID
-that has never yet been observed.
+Post-run source and binary-format validation refutes the initial persistence
+attribution. The pinned `SerializedGXPipelineUid` is a packed, compiler/platform
+independent 579-byte record. A valid file is therefore exactly 8 header bytes
+plus an integral number of 579-byte entries. The presumed seed was 151,552
+bytes: its 151,544-byte payload leaves a 425-byte remainder. The current
+4,096-byte file similarly leaves a 35-byte remainder. Dolphin's loader rejects
+and truncates such files; it cannot have loaded the presumed seed.
+
+The non-recurrence may instead be run-to-run variance or an external Metal
+compiler/driver cache. It is not evidence that Dolphin UID persistence caused
+the improvement. This correction supersedes the earlier conclusion in this
+artifact and the same-day loop/status/journal wording.
+
+The source still establishes a viable mechanism to test: valid UID files use
+magic `PUID`, version 8, compiler/platform-independent entries, queue all known
+pipelines, and—under current defaults—wait before starting. That mechanism now
+requires a valid-cache versus no-cache reversal on isolated user roots.
 
 Do not add another player-facing performance mode. Before considering a seed,
-prove that the UID data is ROM-safe, version-gated by
-`GX_PIPELINE_UID_VERSION`, deterministic for the pinned graphics configuration,
-and invalidated safely. A seed candidate must improve a clean user directory,
-not merely a warm replay, and must not package the ROM, module, saves, profiles,
-or private paths.
+first prove that a valid UID file causes a cold-route improvement. Any later
+seed must also be ROM-safe, version-gated by `GX_PIPELINE_UID_VERSION`,
+deterministic for the pinned graphics configuration, and invalidated safely.
+It must not package the ROM, module, saves, profiles, or private paths.
 
 ## Independent failures retained
 
@@ -73,12 +81,12 @@ Private evidence hashes:
 
 ## Decision
 
-Keep synchronized dual-core unmerged. Pipeline UID persistence is a validated
-part of the solution, not a complete solution. Next audit a safe deterministic
-first-install seed path and, independently, attribute the 36 ms CPU-heavy
-combat cluster and the moving front-end/results deficits. Rendering corruption
-must be repaired before any acceptance run. Row 7 remains failed, physical-iPad
-promotion remains closed, and G9 netplay remains queued.
+Keep synchronized dual-core unmerged. Do not implement or ship a seed yet.
+Next reverse one structurally valid pipeline UID cache against an empty cache
+on isolated user roots and the same exact route. Independently attribute the
+36 ms CPU-heavy combat cluster and the moving front-end/results deficits.
+Rendering corruption must be repaired before any acceptance run. Row 7 remains
+failed, physical-iPad promotion remains closed, and G9 netplay remains queued.
 
 The app was stopped, the single Simulator remained booted, and every diagnostic
 environment variable was cleared. Private caches and all game data remain

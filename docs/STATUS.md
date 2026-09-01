@@ -101,16 +101,17 @@ cold persistence/prewarm reversal before front-end classification and visual
 repair. Row 7, physical-iPad promotion, and G9 remain closed. See
 `docs/artifacts/2026-09-01/g8-synchronized-dual-core-exact-fountain.md`.
 
-PERF-263 replays that unchanged binary from a fresh process after the preceding
-match populated Dolphin's per-game pipeline UID cache. The prior 91.782 ms
-first-use pipeline hitch does not recur: emulated frames 3500-9800 contain no
-active-combat frame above 50 ms. This validates pipeline persistence but still
-does not pass. The 6,301-frame window measures 16.707134 ms mean, 17.593500 ms
-p95, 19.172209 ms p99, and 36.328459 ms worst; cold/front-end and results
-presentation still fall far below 59 FPS and rendering remains malformed. Next
-audit a ROM-safe/versioned first-install pipeline-UID seed and separately
-attribute the remaining CPU-heavy combat and transition clusters. The candidate
-stays unmerged; row 7, physical-iPad promotion, and G9 stay closed. See
+PERF-263 replays that unchanged binary from a fresh process and does not
+reproduce the prior 91.782 ms active-combat hitch, but subsequent format
+validation refutes the initial pipeline-persistence attribution. The presumed
+151,552-byte cache is invalid for the pinned 8-byte header plus packed 579-byte
+entry format and would be rejected. The 6,301-frame observation remains useful
+at 16.707134 ms mean, 17.593500 ms p95, 19.172209 ms p99, and 36.328459 ms
+worst, but the hitch disappearance may be variance or an external Metal cache.
+Do not ship a seed. Next reverse a structurally valid UID file against an empty
+isolated user root and separately attribute the CPU-heavy combat/transition
+clusters. The candidate stays unmerged; row 7, physical-iPad promotion, and G9
+stay closed. See
 `docs/artifacts/2026-09-01/g8-synchronized-pipeline-persistence-replay.md`.
 
 See
