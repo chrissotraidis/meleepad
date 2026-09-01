@@ -78,6 +78,16 @@ ordinary 21.9 FPS floor, animated-menu failure, visible corruption, row-7 hard
 fail, or physical-iPad prohibition. See
 `docs/artifacts/2026-09-01/g8-lockstep-repeat-set-screen.md`.
 
+PERF-261 zooms back out to the only measured architecture with enough
+performance ceiling. A developer-only synchronized dual-core candidate combines
+the CPU/video split with Dolphin's guest-cycle `SyncGPU` bound. It survives a
+505.552-second attract/title screen without the prior malformed-FIFO crash and
+mostly reports 59.9-60.0 FPS/VPS, but a visible title transition still falls to
+47.4 FPS and the exact Fountain harness does not complete. The candidate stays
+unmerged; this is a promising mechanism screen, not playability evidence. Row
+7, physical-iPad promotion, and G9 netplay remain closed. See
+`docs/artifacts/2026-09-01/g8-synchronized-dual-core-screen.md`.
+
 See
 `docs/artifacts/2026-09-01/g8-r0-cold-host-profile-and-loop-hoist-reversal.md`,
 `docs/artifacts/2026-09-01/g8-progressive-fountain-collapse-and-menu-cleanup.md`,

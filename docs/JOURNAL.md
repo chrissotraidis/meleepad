@@ -5325,3 +5325,24 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Stop the app and unset every diagnostic Simulator environment variable.
 - Evidence:
   `docs/artifacts/2026-09-01/g8-lockstep-repeat-set-screen.md`.
+
+## 2026-09-01 — PERF-261 synchronized dual-core screen
+
+- Reorient from incremental single-thread work after fallback elimination,
+  PGO, and broad code-size candidates failed the ordinary 21.9 FPS control.
+- Build a developer-only iOS candidate that combines the CPU/video split with
+  Dolphin's existing guest-cycle `SyncGPU` bound. Keep the player-facing menu
+  free of performance experiments and update the loop's stale toggle rule.
+- Pass focused menu/config, bootstrap, iOS core/module, and Release app gates.
+  The candidate runs 505.552 seconds without the previous malformed-XF FIFO
+  crash and mostly reports 59.9-60.0 FPS/VPS with separate CPU/video threads.
+- Do not promote the result: a visible title transition reaches 47.4 FPS, and
+  three timeboxed exact-route harness attempts fail to deliver the first
+  MemoryWatcher state predicate. Attract-mode stability is not Fountain combat.
+- Leave the synchronized candidate unmerged. Next repair only the cold-route
+  state/input bracket and judge the unchanged binary on the exact control;
+  reject on FIFO/visual failure, any sub-55 interval, or less than 5% gain.
+- Keep row 7 hard failed, physical-iPad promotion closed, and G9 netplay queued.
+  Stop the app and clear every diagnostic Simulator environment variable.
+- Evidence:
+  `docs/artifacts/2026-09-01/g8-synchronized-dual-core-screen.md`.

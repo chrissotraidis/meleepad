@@ -133,7 +133,7 @@ an early coherent and first morphed exact-Fountain checkpoint, compare guest
 CPU/FPU/paired-single and SMC state plus exact generated work, and locate the
 earliest silent divergence. Do not optimize the corrupted late state or retry
 compiler, shader-prewarm, interrupt-leaf, DVD, direct-call, matrix, `mtspr`,
-dual-core, buffer, vertex-loader, stale-PGO, or footprint-only routes. The
+unconstrained dual-core, buffer, vertex-loader, stale-PGO, or footprint-only routes. The
 three-dot menu independently removes Experimental Performance Mode, migrates
 old installs to the stable profile, and restores direct diagnostic sharing.
 See
@@ -172,6 +172,18 @@ memory or MMIO difference. Trace that interval next; do not classify it from
 the broad report alone. This diagnostic improvement changes no product default
 and makes no FPS claim. Row 7 and physical-iPad promotion remain closed. See
 `docs/artifacts/2026-09-01/g8-lockstep-repeat-set-screen.md`.
+
+PERF-261 reopens only a distinct synchronized form of the architectural
+CPU/video split. `MAIN_SYNC_GPU` bounds the dual-core lead in guest cycles; an
+unmerged Release candidate survives 505.552 seconds without the earlier FIFO
+crash and mostly reports 59.9-60.0 FPS/VPS. It does not pass: a visible title
+transition reaches only 47.4 FPS, and the state-verified exact Fountain route
+does not complete because the diagnostic harness waits on its first
+MemoryWatcher predicate. Repair that bracket before another product judgment.
+Keep the candidate developer-only and unmerged; reject it on any FIFO/visual
+fault, sub-55 interval, or less than five-percent matched gain. Row 7 and iPad
+promotion remain closed. See
+`docs/artifacts/2026-09-01/g8-synchronized-dual-core-screen.md`.
 
 DECISION-215 originally recorded a user-authorized sequencing exception after
 PERF-214. On 30 Aug 2026 the user explicitly broadened that direction: assume
@@ -2423,7 +2435,10 @@ nearly ready, or device-ready.
 ## Using the SunPad machinery (not just its code)
 
 - **Logging:** wire the runtime.log breadcrumb system in early (G6/G7), then rely on it: boot, display, controller, lifecycle, input-pipe, runtime-error, screenshot-marker breadcrumbs are your primary debugging instrument on Simulator targets, and Share Diagnostic Log is how test evidence gets exported.
-- **Experimental-mode framework:** every risky performance experiment (underclock, scheduling, codegen flags) ships as a default-off experimental toggle with a logged mode identity, sunpad-style, never as a silent change to the stable path.
+- **Performance-experiment isolation:** risky underclock, scheduling, and codegen
+  experiments use explicit developer-only build or launch identities and never
+  silently change the stable path. Do not expose failed or diagnostic-only
+  performance variants in the player-facing three-dot menu.
 - **Scripts as templates:** bootstrap-dependencies.sh (pin + patch), prepare-game.sh (validate + extract + module), ios-build-core.sh (Simulator module build), package-macos-app.sh, stage1-run.sh / sunpad-capture.py (automated run + capture). Port them to ssbmpad names rather than inventing new mechanisms; the build must reproduce from a clean clone via scripts alone (matrix row 15).
 
 ## Session start checklist
