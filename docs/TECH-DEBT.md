@@ -49,29 +49,29 @@ a credible path to the roughly 50% total reduction. If it cannot, record that
 this no-JIT static-C architecture cannot guarantee worst-case 60 FPS on the M1
 Simulator host instead of cycling compiler flags.
 
-The matched attract-minus-controlled distribution provisionally concentrates
-98.1% of incremental samples in five 16 KiB regions. Raw samples repeat a
-near-identical 23-PC motif, however, so the fixed one-in-4,096 power-of-two
-stride may be phase-locked to a periodic guest path. Patch 0037 makes the
-diagnostic interval and offset controllable without changing product defaults.
-Repeat the same comparison at coprime interval 4,093 with at least two offsets;
-only stable normalized excess regions earn the region-resident corpus.
+The fixed-phase attract-minus-controlled corpus is rejected. Identical
+interval-4,093 state replays at offsets zero and 137 match cycles and dispatches
+within 0.01%, yet their normalized 16 KiB distributions differ by 6.2% total
+variation. Individual regions move by 1.2-2.4 percentage points. Do not select
+generated regions from PERF-277's apparent 98.1% concentration.
 
 Do not treat the exact-roster pass as evidence that only cold resources remain:
 the ordinary attract interval is sustained, executes the full 8.11-million-
 cycle budget, and carries a repeatable 2.24x sampled-dispatch rate. The current
-decision is first whether the apparent attract-excess regions survive
-de-aliased sampling, then whether they can be made region-resident with
-sufficient measured host-time gain.
+decision is whether live sequence-only DVD/load and interrupt work is a
+cycle-preserving event poll that can be fast-forwarded safely. Only if that is
+refuted should a multi-offset aggregate select region-resident code.
 
 The exact roster factorial is complete. Its no-logger live arm holds 59.9 FPS;
 its matched diagnostic arm averages 5.81 million cycles and 177,500
 dispatches. The attract arm's roughly 8.11 million cycles and 416,000
-dispatches are therefore attract-specific. The fixed-stride sample attributes
-52.50 of 53.53 extra samples per frame to five regions, but that concentration
-is provisional because of the repeated motif. The immediate debt is a
-same-workload 4,093-stride, multiple-offset audit followed by a
-semantics-complete region-resident preflight only for the stable paths.
+dispatches are therefore attract-specific. A later live attract battle reaches
+36.2 FPS with 33.389 ms mean CPU time across 587 rows at or above 30 ms; p95
+work reaches 8.121 million cycles and 421,882 dispatches. The same saved state
+replays near 58-60 FPS with only 5.883 million cycles and 227,800 dispatches.
+The immediate debt is a present-aligned consecutive-edge trace of the live
+slow interval, proving the repeated load/status value and external exit event
+before any cycle-preserving polling fast-forward.
 
 ### 2. Complete the exact ordinary acceptance route
 

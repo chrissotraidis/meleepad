@@ -1,6 +1,6 @@
 # ssbmpad status
 
-## 2026-09-01 — Exact roster passes; dispatch corpus needs de-aliasing
+## 2026-09-01 — Fixed-phase corpus rejected; live attract context controls
 
 The deterministic Big Blue route now visibly recreates Ness plus CPU Peach,
 Ice Climbers, and Bowser. The no-logger match holds 59.9 FPS through combat.
@@ -9,14 +9,20 @@ A matched diagnostic replay averages about 5.81 million guest cycles and
 The collapse is therefore attract/demo-specific, not caused by the M1 host,
 Big Blue, four fighters, or the exact roster alone.
 
-The matched one-in-4,096 distributions provisionally put 98.1% of the extra
-attract samples in five 16 KiB regions, but raw rows repeat a 23-PC motif. The
-power-of-two sampler may therefore be phase-locked to periodic execution.
-Patch 0037 compiles and adds default-off interval/offset controls. Repeat the
-same attract/control comparison at coprime interval 4,093 and multiple offsets
-before selecting a region-resident corpus. The previous eight-region universal
-rewrite remains deferred. Row 7, physical-iPad promotion, and G9 remain closed. See
-`docs/artifacts/2026-09-01/g8-attract-only-dispatch-delta.md`.
+The phase reversal is complete. Identical interval-4,093 state replays at
+offsets 0 and 137 retain the same 5.883 million cycles and 227,800 dispatches
+per active row, but their normalized region distributions differ by 6.2% total
+variation. PERF-277's five-region 98.1% concentration is therefore rejected as
+architecture-selection evidence.
+
+A separate live opening/attract battle visibly reaches 36.2 FPS and sustains
+CPU-heavy 30-49 ms rows, but the saved state replays around 58-60 FPS and then
+exits the battle. The missing cost is live sequence/asynchronous loader or
+first-pass context, not universally slow combat state. Next capture consecutive
+dispatch edges inside the live slow interval and prove or reject an event-
+driven DVD/load polling loop before any generated-code rewrite. Row 7,
+physical-iPad promotion, and G9 remain closed. See
+`docs/artifacts/2026-09-01/g8-dispatch-phase-alias-and-live-context.md`.
 
 ## 2026-09-01 — Four-player Big Blue isolates the extra attract work
 

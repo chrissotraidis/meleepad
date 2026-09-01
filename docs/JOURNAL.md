@@ -5680,3 +5680,31 @@ Append-only execution ledger. Claims are limited to observed evidence.
   selecting a region-resident preflight corpus.
 - This improves diagnostic integrity only. It changes no product path and
   makes no FPS claim; row 7, device promotion, and G9 remain closed.
+
+## 2026-09-01 — PERF-279 phase reversal and live-context split
+
+- Rebuild and install the Release Simulator app with patch 0037. The focused
+  regression, repository checks, and iOS core/module provisioning build pass.
+- Reject another ten-minute passive exact-hash wait. Replace the camera hash
+  with a semantic stage watcher and keep all temporary per-game patch state
+  outside Git.
+- Retain a visible live four-player Fourside failure at 36.2 FPS. Across 587
+  active rows at or above 30 ms, total/CPU-thread means are 36.622/33.389 ms;
+  p95 reaches 8.121 million cycles and 421,882 dispatches while Metal present
+  remains negligible.
+- Save the state and replay it in fresh interval-4,093 offset-zero and
+  offset-137 processes. Both 946-row active windows match at about 5.883
+  million cycles and 227,800 dispatches, but the state replays around 58-60
+  FPS and exits the battle after about ten seconds.
+- The two normalized 16 KiB distributions differ by 6.208% total variation,
+  with individual region shares moving 1.2-2.4 percentage points. Reject
+  PERF-277's fixed-phase five-region corpus for architecture selection.
+- Reorient to the live-only extra work. Next retain consecutive dispatch edges
+  inside a CPU-saturated interval and prove or reject an event-driven DVD/load
+  polling loop before any cycle-preserving fast-forward or resident-C module.
+- Stop the app; remove the temporary cheat and diagnostic state from the app;
+  restore Dolphin.ini byte-for-byte; retain ordinary GCI SHA-256
+  `0a361d3471289f6c4ea1f4c0254b1f197b44fb8466e408b71240418f01ad0e70`.
+  Row 7, physical-device promotion, and G9 remain closed.
+- Evidence:
+  `docs/artifacts/2026-09-01/g8-dispatch-phase-alias-and-live-context.md`.

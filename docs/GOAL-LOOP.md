@@ -2621,6 +2621,24 @@ host-time gain, at least 25% measured whole-frame projection, and a neutral
 controlled route before a product module. See
 `docs/artifacts/2026-09-01/g8-attract-only-dispatch-delta.md`.
 
+PERF-279 completes the phase audit and rejects that fixed-phase corpus.
+Identical interval-4,093 state replays at offsets zero and 137 match at about
+5.883 million cycles and 227,800 dispatches per active row, but their
+normalized 16 KiB distributions differ by 6.2% total variation. Do not use
+PERF-277's five-region concentration to select a rewrite.
+
+The same run exposes the new controlling split. A live four-player opening/
+attract battle visibly reaches 36.2 FPS and sustains CPU-heavy 30-49 ms rows;
+its p95 work reaches 8.121 million cycles and 421,882 dispatches. The saved
+state replays around 58-60 FPS and loses that extra work. Reorient the next
+mechanism step to live asynchronous sequence context: capture present-aligned
+consecutive dispatch bursts inside the slow interval and prove or reject a
+DVD/load status poll whose only exit is a scheduled event or interrupt. A
+cycle-preserving fast-forward is eligible only after that semantic proof and a
+25% whole-frame projection. This is not permission to retry the closed
+`0x80349494` scheduler-idle candidates. See
+`docs/artifacts/2026-09-01/g8-dispatch-phase-alias-and-live-context.md`.
+
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).
 - **Per goal claim:** full evidence per PRD Section 11 before marking a goal met in STATUS.md.
 - **Per session:** before ending, run the ported regression scripts (sunpad `tests/` equivalents) plus a boot check on the highest working target, so the journal's last entry states a known-good state.
