@@ -102,7 +102,10 @@
         self.valueChanged(x, y);
 
     __weak SsbmPadStickView *weakSelf = self;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.18 * NSEC_PER_SEC)),
+    // A full-stick VoiceOver action should move one deliberate UI step. The
+    // old 180 ms pulse crossed multiple CSS icons and player slots at 60 Hz;
+    // three frames is fine enough to reach narrow CSS selectors.
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.05 * NSEC_PER_SEC)),
                    dispatch_get_main_queue(), ^{
         [weakSelf reset];
     });

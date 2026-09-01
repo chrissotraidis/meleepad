@@ -7,6 +7,59 @@ not a substitute for `GOAL-LOOP.md` or evidence in `docs/artifacts/`.
 
 ## P0 — G8 row 7: prove the complete iPad route honestly at 60 FPS
 
+### Current feasibility decision
+
+Sixty-FPS gameplay is now demonstrably possible in the iPad Simulator on this
+machine; it is no longer only a projection. The ordinary observer-free product
+held every reported moving opening/attract interval above the written 59.0
+FPS/VPS floor for about eight minutes, and the exact five-minute Fountain route
+held 59.9-60.0 FPS/VPS after the caller-qualified controller-wait correction.
+Those results also rule out the M1, Metal throughput, static recompilation as a
+whole, and the 59.94 Hz guest cadence as unavoidable explanations for the old
+20-36 FPS behavior.
+
+The ordinary visible route has now directly retested the sticky 21.9 FPS
+anchor. Its sustained 20-36 FPS behavior does not reproduce, but the anchor is
+not cleared under the written acceptance protocol: three isolated recorded
+reports fall below 59 FPS/VPS, and none of the automated matches lasts five
+uninterrupted minutes before Samus loses four stocks. This is a residual
+acceptance/tail gap, not evidence of a known remaining 40 FPS performance gap.
+
+Use this decision boundary next:
+
+1. run one human-controlled uninterrupted five-minute Samus versus level-1 CPU
+   Kirby, Stock/04, 05:00, Fountain match with a short retained recording and
+   same-run runtime log;
+2. pass only if every moving phase remains at or above 59.0 FPS/VPS with no
+   sustained underrun growth, corruption, or input failure; and
+3. if a dip repeats visibly, profile only that exact interval. Reopen
+   static-core architecture work only if the failure is on-core, CPU-heavy,
+   sustained, and does not contain the already-corrected
+   `80019550/801A4064` controller-wait motif.
+
+Do not add another optimization merely to make progress. A passing ordinary
+route closes the performance investigation; a failing route must identify the
+next measured mechanism.
+
+### Latest ordinary manual result
+
+The first fully visible no-pipe setup now works end to end: the shipped overlay
+sets Stock/04/05:00, P1 Samus, level-1 CPU Kirby, and Fountain, drives combat,
+reaches results, returns to CSS, and survives background/resume with speaker
+audio restored. Five exact Fountain attempts total more than eleven minutes of
+visible combat and overwhelmingly report 59.8-60.0 FPS/VPS. This confirms that
+the old sustained 20-36 FPS failure is reversed in the ordinary product.
+
+Do not close row 7 yet. The long HEVC-observed window contains three isolated
+sub-59 reports (49.4/51.0, 46.7/46.7, and 52.1/52.2 FPS/VPS), each recovering
+on the next report, and UI automation lost all four Samus stocks before five
+minutes in every attempt. The strict remaining gate is therefore one
+human-controlled uninterrupted five-minute match plus classification of any
+visible repeated dip. This is not justification for another broad static-core
+rewrite: reopen architecture work only for a sustained, on-core, CPU-heavy
+failure distinct from the corrected controller wait. See
+`docs/artifacts/2026-09-01/g8-ordinary-manual-fountain-reality-route.md`.
+
 ### 1. Close acceptance after the controller-wait reversal
 
 The primary iPad Simulator CPU collapse now has a measured cause and retained

@@ -14,6 +14,7 @@ done
 
 grep -Fq 'self.valueChanged(x, y);' "$OVERLAY"
 grep -Fq '[weakSelf reset];' "$OVERLAY"
+grep -Fq '0.05 * NSEC_PER_SEC' "$OVERLAY"
 grep -Fq -- '- (BOOL)accessibilityActivate' "$OVERLAY"
 grep -Fq 'accessibilityPressHandler' "$OVERLAY"
 grep -Fq '[strongSelf buttonDown:pressedButton];' "$OVERLAY"

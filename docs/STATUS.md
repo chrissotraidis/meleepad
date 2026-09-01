@@ -2719,3 +2719,15 @@ remains separately open. See
   phase passes, but row 7 remains PARTIAL pending the unchanged-build manual
   exact Fountain route. Evidence:
   `docs/artifacts/2026-09-01/g8-observer-free-opening-attract-reality-lane.md`.
+- **PERF-283 (ordinary manual Fountain reality route):** The visible shipped
+  overlay configures Stock/04/05:00, P1 Samus, level-1 CPU Kirby, and Fountain
+  without diagnostic state or pipe input. Five matches total more than eleven
+  minutes of coherent combat and overwhelmingly run at 59.8-60.0 FPS/VPS;
+  results, CSS return, background/resume, and speaker-audio reactivation pass.
+  The strict row remains PARTIAL: three isolated reports reach 49.4/51.0,
+  46.7/46.7, and 52.1/52.2 FPS/VPS, and UI automation loses all four Samus
+  stocks before five minutes in each attempt. Next retain one human-controlled
+  uninterrupted five-minute match and classify only a visibly repeated dip.
+  The sustained 20-36 FPS architecture failure is reversed, but stable-60,
+  physical-iPad promotion, and G9 remain closed. Evidence:
+  `docs/artifacts/2026-09-01/g8-ordinary-manual-fountain-reality-route.md`.

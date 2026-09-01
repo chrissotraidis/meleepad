@@ -5787,3 +5787,25 @@ Append-only execution ledger. Claims are limited to observed evidence.
   architecture work for above-threshold 59.4/59.5 intervals.
 - Evidence:
   `docs/artifacts/2026-09-01/g8-observer-free-opening-attract-reality-lane.md`.
+
+## 2026-09-01 — PERF-283 ordinary manual Fountain reality route
+
+- Rebuild and install the ordinary Release Simulator product with a 50 ms
+  VoiceOver/custom-action stick pulse; the focused regression and build pass.
+- Through the shipped overlay alone, configure Stock/04/05:00, P1 Samus,
+  level-1 CPU Kirby, and Fountain. Drive five complete matches totaling more
+  than eleven minutes of combat, retain results and CSS return, then prove
+  background/resume and speaker-audio reactivation.
+- Across 132 HEVC-observed reports, measure 59.7023/59.7061 mean FPS/VPS. Three
+  isolated reports fall below the 59 floor at 49.4/51.0, 46.7/46.7, and
+  52.1/52.2; each recovers on the next report. Automation loses all four Samus
+  stocks before five minutes in every attempt.
+- Decision: the sustained 20-36 FPS controller-wait collapse is reversed, but
+  row 7 remains PARTIAL. Next retain one human-controlled uninterrupted
+  five-minute exact match and classify only a visibly repeated sub-59 interval.
+  Do not reopen architecture work, promote to physical iPad, or claim stable
+  60 FPS from this partial result.
+- Stop the app, keep one Simulator booted, and restore ordinary GCI SHA-256
+  `0a361d3471289f6c4ea1f4c0254b1f197b44fb8466e408b71240418f01ad0e70`.
+- Evidence:
+  `docs/artifacts/2026-09-01/g8-ordinary-manual-fountain-reality-route.md`.

@@ -2686,6 +2686,20 @@ manual exact Fountain route; this reality-lane pass is not a second complete
 exact route. See
 `docs/artifacts/2026-09-01/g8-observer-free-opening-attract-reality-lane.md`.
 
+PERF-283 completes the first ordinary no-pipe exact-Fountain setup but keeps
+row 7 partial. The visible overlay configures Stock/04/05:00, Samus, level-1
+CPU Kirby, and Fountain, then drives more than eleven cumulative minutes of
+combat across five matches with results, CSS return, background/resume, and
+speaker-audio reactivation. The sustained 20-36 FPS failure is reversed: 129
+of 132 reports meet the 59 FPS/VPS floor. The three failures are isolated
+49.4/51.0, 46.7/46.7, and 52.1/52.2 reports and each recovers on the next
+interval. Automation also loses all four Samus stocks before five minutes in
+every attempt, so no attempt satisfies the uninterrupted-duration requirement.
+Next retain one human-controlled five-minute exact match and classify only a
+visibly repeated sub-59 host-wait interval. Do not reopen architecture work,
+promote to physical iPad, or call stable 60 FPS from this partial result. See
+`docs/artifacts/2026-09-01/g8-ordinary-manual-fountain-reality-route.md`.
+
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).
 - **Per goal claim:** full evidence per PRD Section 11 before marking a goal met in STATUS.md.
 - **Per session:** before ending, run the ported regression scripts (sunpad `tests/` equivalents) plus a boot check on the highest working target, so the journal's last entry states a known-good state.
