@@ -23,6 +23,7 @@ for contract in \
   'experimental-qos-only-100' \
   'cpuVideoSplit=1' \
   'syncGPU=1' \
+  'syncGPUMaxDistance=1000000' \
   'shaderCompilerThreads=3' \
   'runtime render scale=%ld source=live' \
   'runtime aspect mode=%@ source=%@'; do
@@ -31,6 +32,8 @@ done
 grep -Fq 'Config::SetBase(Config::MAIN_CPU_THREAD, true);' \
   "$ROOT/ref/ModernGekko/src/runtime/dolphin_runtime.cpp"
 grep -Fq 'Config::SetBase(Config::MAIN_SYNC_GPU, true);' \
+  "$ROOT/ref/ModernGekko/src/runtime/dolphin_runtime.cpp"
+grep -Fq 'Config::SetBase(Config::MAIN_SYNC_GPU_MAX_DISTANCE, 1000000);' \
   "$ROOT/ref/ModernGekko/src/runtime/dolphin_runtime.cpp"
 grep -Fq 'Config::SetBase(Config::GFX_SHADER_COMPILER_THREADS, 3);' \
   "$ROOT/ref/ModernGekko/src/runtime/dolphin_runtime.cpp"

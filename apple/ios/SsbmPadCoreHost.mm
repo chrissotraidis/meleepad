@@ -274,10 +274,10 @@ static NSString *SsbmPadRuntimeUserDirectory(NSString *userDirectory) {
         if (useExperimentalQoS)
             qosResult = pthread_set_qos_class_self_np(QOS_CLASS_USER_INITIATED, 0);
         if (useExperimentalQoS) {
-            SsbmPadLog(@"runtime performance profile=%@ cpuVideoSplit=1 syncGPU=1 shaderCompilerThreads=3 emulatedCPUClock=%.2f gameThreadQoS=userInitiated qosResult=%d source=%@",
+            SsbmPadLog(@"runtime performance profile=%@ cpuVideoSplit=1 syncGPU=1 syncGPUMaxDistance=1000000 shaderCompilerThreads=3 emulatedCPUClock=%.2f gameThreadQoS=userInitiated qosResult=%d source=%@",
                       performanceProfile, emulatedCPUClock, qosResult, performanceSource);
         } else {
-            SsbmPadLog(@"runtime performance profile=stable cpuVideoSplit=1 syncGPU=1 shaderCompilerThreads=3 emulatedCPUClock=1.00 gameThreadQoS=inherited source=default");
+            SsbmPadLog(@"runtime performance profile=stable cpuVideoSplit=1 syncGPU=1 syncGPUMaxDistance=1000000 shaderCompilerThreads=3 emulatedCPUClock=1.00 gameThreadQoS=inherited source=default");
         }
         @synchronized (self) {
             _activePerformanceProfile = performanceProfile;

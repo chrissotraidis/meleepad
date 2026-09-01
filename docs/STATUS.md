@@ -137,6 +137,22 @@ descheduling with catch-up, not another missing static-recompiler speedup.
 Freeze speculative performance rewrites and move the candidate through the
 ordinary cold product, audio/lifecycle, recorder-free, and rendering gates.
 
+PERF-267 completes the first post-fix ordinary product screen. Moving cold
+content mostly holds 59.9-60.0 FPS/VPS, but one ordinary interval reaches only
+55.6 FPS / 55.3 VPS / 0.863 speed and cold transitions accumulate underruns;
+row 7 therefore remains failed. A default-off trace proves complete touch
+button press/release delivery, and visible controls reach Ness Classic gameplay
+at 59.9-60.0 FPS/VPS. Sustained combat holds the underrun counter flat;
+background/foreground correctly pauses/resumes the same match and reactivates
+audio, with isolated recovery underruns followed by another flat interval.
+The active queue also incorrectly reopened Fountain's lower reflection: it is
+closed as signed official Dolphin 2606a reference parity. The separate real-
+mesh defect remains closed by the scalar-single/`frsp` correction and its
+402.7-second corpus unless adjacent-frame evidence recurs. The next mechanism
+is the ordinary cold sub-59 interval, not rendering or broad generated-code
+work. See
+`docs/artifacts/2026-09-01/g8-ordinary-reality-audio-lifecycle-and-visual-reconciliation.md`.
+
 See
 `docs/artifacts/2026-09-01/g8-r0-cold-host-profile-and-loop-hoist-reversal.md`,
 `docs/artifacts/2026-09-01/g8-progressive-fountain-collapse-and-menu-cleanup.md`,
@@ -2532,3 +2548,13 @@ remains separately open. See
   and G6 blocked; next join the eight warm CPU overruns to retained phase
   timing. Evidence:
   `docs/artifacts/2026-08-29/g5-same-process-fountain-warmup.md`.
+- **PERF-268 (bounded SyncGPU-distance reversal):** The retained iOS candidate
+  raises the synchronized CPU lead from 200,000 to 1,000,000 guest ticks. It
+  reverses matched 57.20/57.56/58.71 FPS cold windows to
+  59.94/59.97/59.88 FPS, cuts underruns from 11 to 2, survives 182.8 seconds,
+  and completes exact Fountain combat at about 59.94 FPS without FIFO or visual
+  failure. Row 7 remains failed because the exact cold load reports 57.5 then
+  53.5 FPS/VPS. The latter interval is CPU-bound at 16.224 ms CPU-thread time,
+  8.11 million guest cycles, and 523,000 native dispatches per frame; Metal
+  present is 0.122 ms. Next profile only emulated frames 3,124-3,714. Evidence:
+  `docs/artifacts/2026-09-01/g8-bounded-syncgpu-distance-reversal.md`.

@@ -249,6 +249,32 @@ descheduling pending a recorder-free and hardware reversal, not as evidence for
 another static-recompiler rewrite. Stop speculative performance code here and
 run the ordinary cold product, audio/lifecycle, and visual-correctness gates.
 
+PERF-267 runs that ordinary lane and keeps row 7 failed for the correct reason.
+The installed app's moving opening/title mostly holds 59.9-60.0 FPS/VPS, but
+one cold interval falls to 55.6 FPS / 55.3 VPS / 0.863 speed and transition
+underruns accumulate. A separate edge trace proves visible touch START/B edges
+are complete; visible controls select Ness, enter Classic, move, jump, and
+attack at 59.9-60.0 FPS/VPS. Background/foreground pauses and resumes the same
+match with audio reactivation; isolated recovery underruns are followed by a
+flat twenty-second combat interval. The visual audit also corrects a stale
+blocker: Fountain's lower reflection matches signed official Dolphin 2606a,
+and the real-mesh issue was already closed by the scalar-single/`frsp` fix plus
+a 402.7-second corpus. Next attribute the ordinary cold sub-59 interval; do not
+retry EFB-copy settings or speculative recompiler work. See
+`docs/artifacts/2026-09-01/g8-ordinary-reality-audio-lifecycle-and-visual-reconciliation.md`.
+
+PERF-268 accepts a bounded SyncGPU-distance improvement without claiming
+completion. Raising the synchronized CPU lead from 200,000 to 1,000,000 guest
+ticks removes three matched cold 57-59 FPS windows, reduces transition
+underruns from 11 to 2, survives beyond the prior unconstrained-dual-core crash
+point, and preserves exact Fountain combat at about 59.94 FPS. The exact cold
+route still has a 57.5 then 53.5 FPS/VPS load sequence. Host-time alignment
+splits it into a 93-pipeline first interval and a following on-core interval
+with 16.224 ms CPU-thread time, 8.11 million guest cycles, and 523,000 native
+dispatches per frame. Retain the bounded candidate, keep row 7 failed, and
+profile only exact emulated frames 3,124-3,714 before another code change. See
+`docs/artifacts/2026-09-01/g8-bounded-syncgpu-distance-reversal.md`.
+
 DECISION-215 originally recorded a user-authorized sequencing exception after
 PERF-214. On 30 Aug 2026 the user explicitly broadened that direction: assume
 the unavailable external-display check passes and repeat it later once the

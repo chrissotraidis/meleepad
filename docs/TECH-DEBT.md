@@ -7,7 +7,7 @@ not a substitute for `GOAL-LOOP.md` or evidence in `docs/artifacts/`.
 
 ## P0 — G8 row 7: prove the complete iPad route honestly at 60 FPS
 
-### 1. Prove the retained architecture over the complete route
+### 1. Clear the exact cold load failure
 
 The synchronized CPU/video candidate plus iOS duplicate-XFB presentation now
 has enough measured ceiling. The formerly frozen moving transition advances,
@@ -20,22 +20,40 @@ That is sufficient evidence that another speculative static-code rewrite is
 not the next step. The remaining proof is product-facing, not a missing 2.7x
 optimization.
 
-This changes the problem from a 2.7x throughput deficit to proof and cleanup.
-Run a longer uninterrupted exact-Fountain capture, then two complete cold
-routes and one ordinary manual five-minute route. Retain FPS/VPS, pixels,
-controls, audio-underrun deltas, results, return, lifecycle, FIFO diagnostics,
-and a coherent frame. Do not substitute the short diagnostic run for that
-acceptance sequence.
+The first post-fix ordinary installed-app route directly reverses the former
+49-52 FPS XFB freeze, but one moving interval still reaches 55.6 FPS / 55.3
+VPS / 0.863 speed. Raising the bounded SyncGPU lead from 200,000 to 1,000,000
+guest ticks then removes three matched 57-59 FPS control windows and reduces
+transition underruns from 11 to 2 without a crash or visual regression.
 
-### 2. Rendering correctness
+The unchanged exact cold route still reports 57.5 then 53.5 FPS/VPS during
+load. The first ten seconds create 93 pipelines (80.735 ms total) while the CPU
+thread averages 9.199 ms. The following 591-frame interval creates only 16
+pipelines (13.107 ms), but CPU-thread execution rises to 16.224 ms with 8.11
+million guest cycles and 523,000 native dispatches per frame; Metal present is
+only 0.122 ms. Profile exactly emulated frames 3,124-3,714 and rank guest PCs
+and host call paths. Change code only if one safe path predicts at least a
+five-percent interval reduction. Do not conflate this on-core load with the
+preceding pipeline burst or resume broad recompiler work.
 
-Fountain's lower reflection/geometry remains malformed at 59.9 FPS, and earlier
-runs showed character morphology. Fast corrupted output is a failure. Locate
-the earliest divergent frame and attribute it to FIFO ordering, XFB/EFB state,
-generated semantics, or Metal translation. The duplicate-XFB policy is retained
-only if this investigation does not tie it to new corruption.
+### 2. Complete the exact ordinary acceptance route
 
-### 3. Residual frame tails
+Run two complete cold routes and one unchanged-build ordinary manual five-minute
+Samus/CPU-Kirby Fountain route. Retain opening, menu/CSS, load, combat, results,
+return, controls, FPS/VPS, audio, lifecycle, and FIFO diagnostics. The visible
+Classic route proves touch controls and gameplay can hold 59.9 FPS, but it does
+not clear the exact manual anchor.
+
+### 3. Cold-transition and resume audio
+
+Sustained visible Classic combat holds the DMA-underrun counter flat while
+running 59.9-60.0 FPS/VPS. Load adds one isolated underrun; background/resume
+adds five before another flat twenty-second interval. Preserve the current
+120 ms buffer and adaptive 15-granule target. Attribute the cold-transition
+producer loss before changing permanent latency; do not repeat the rejected
+larger-reserve experiment.
+
+### 4. Residual frame tails
 
 The minute-long combat mean is the 59.94 Hz cadence, but p95/p99 remain
 17.437/18.697 ms and one 71.070 ms wall outlier occurs. That outlier contains
@@ -45,7 +63,16 @@ Optimize only repeatable CPU-heavy clusters that produce visible/VPS loss; do
 not chase compensated host-scheduler jitter while rendered cadence remains
 59.9-60.0 FPS.
 
-### 4. Duplicate-XFB regression coverage
+### 5. Bound and regression-test CPU/video separation
+
+iOS now uses synchronized CPU/video threads with a 1,000,000-tick maximum
+distance, about 2.06 ms of guest time. Preserve that explicit bound, its source
+contract, and the runtime log token. Reject any increase that fails the same
+cold control/candidate/control, changes deterministic results, increases
+underruns, or revives the old FIFO/crash behavior. Unconstrained dual-core
+remains closed.
+
+### 6. Visual and duplicate-XFB regression coverage
 
 The product correction is iOS-only
 `GFX_HACK_SKIP_DUPLICATE_XFBS=false`. Default-off boundary counters proved the
@@ -53,6 +80,12 @@ control discarded 100 of 101 stable-identity XFB updates, while the candidate
 presented advancing pixels. Preserve a focused source/config regression and
 repeat one transition video after future Dolphin updates so upstream duplicate
 detection changes cannot silently restore the freeze.
+
+The blurred/blocky lower Fountain reflection is closed as official-Dolphin
+reference parity. The separate real-mesh issue is closed by the retained
+scalar-single/`frsp` correction and its 402.7-second, 2,110-frame corpus. Reopen
+only on adjacent-frame evidence of actual fighter deformation; do not retry
+EFB-to-RAM or non-deferred-copy controls for the reference reflection.
 
 ## P1 — cold pipeline behavior
 

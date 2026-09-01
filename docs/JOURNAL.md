@@ -5424,3 +5424,51 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Stop the app and clear every diagnostic Simulator variable.
 - Evidence:
   `docs/artifacts/2026-09-01/g8-xfb-presentation-reversal.md`.
+
+## 2026-09-01 — PERF-267 ordinary reality, audio/lifecycle, and visual reconciliation
+
+- Cold-launch the installed published app with no private pipe, watcher, phase
+  logger, profiler, savestate, or diagnostic environment and retain one
+  continuous video. Moving content mostly holds 59.9-60.0 FPS/VPS, but one
+  interval reaches 55.6 FPS / 55.3 VPS / 0.863 speed and cold transitions add
+  underruns. Keep row 7 failed.
+- Use a separate default-off edge trace to prove visible START/B taps deliver
+  complete press/release pairs. Repeated visible START crosses the title state;
+  touch controls select Ness, start Classic, move, jump, and attack at
+  59.9-60.0 FPS/VPS.
+- Background and foreground the live match. Retain runtime pause, save-flush
+  grace, audio-session reactivation, and same-process resume. Sustained combat
+  keeps underruns flat; transition/resume adds isolated underruns before a flat
+  twenty-second interval.
+- Correct the active visual queue: the lower Fountain reflection matches signed
+  official Dolphin 2606a and is closed reference parity. The real-mesh issue is
+  already closed by the scalar-single/`frsp` correction and 402.7-second corpus.
+- Stop the app and clear the trace environment. Next attribute the ordinary
+  cold sub-59 interval with minimal diagnostics; physical iPad and G9 remain
+  closed.
+- Evidence:
+  `docs/artifacts/2026-09-01/g8-ordinary-reality-audio-lifecycle-and-visual-reconciliation.md`.
+
+## 2026-09-01 — PERF-268 bounded SyncGPU-distance reversal
+
+- Attribute the recorder-free cold control's sub-59 transition to bounded
+  CPU/video synchronization: the 200,000-tick ceiling is about 0.41 ms while a
+  slow interval loses about 2.55 ms off-core.
+- Raise only iOS `MAIN_SYNC_GPU_MAX_DISTANCE` to 1,000,000 ticks (about 2.06
+  ms), retaining synchronized and deterministic execution.
+- Reverse matched control windows of 57.20, 57.56, and 58.71 FPS to 59.94,
+  59.97, and 59.88 FPS. Transition underruns fall from 11 to 2. The candidate
+  survives 182.8 seconds with no crash or FIFO failure.
+- Complete the exact Fountain route. Consecutive 2,001-frame combat windows
+  hold 16.6832-16.6834 ms (about 59.94 FPS), and the result screen is coherent.
+- Keep row 7 failed: the exact cold load still reports 57.5 then 53.5 FPS/VPS
+  and adds five underruns.
+- Align those intervals to phase data. The first creates 93 pipelines while
+  CPU-thread time averages 9.199 ms. The next 591 frames average 16.224 ms
+  CPU-thread time, 8.11 million guest cycles, and 523,000 native dispatches per
+  frame; only 16 pipelines remain and Metal present averages 0.122 ms.
+- Retain the bounded candidate. Next profile only emulated frames 3,124-3,714
+  and require a safe five-percent predicted reduction before another build.
+  Physical iPad and G9 remain closed.
+- Evidence:
+  `docs/artifacts/2026-09-01/g8-bounded-syncgpu-distance-reversal.md`.

@@ -12,6 +12,11 @@ index 0cedfdb..0422bb3 100644
 +  // command; SyncGPU keeps the architectural speedup under guest-cycle control.
 +  Config::SetBase(Config::MAIN_CPU_THREAD, true);
 +  Config::SetBase(Config::MAIN_SYNC_GPU, true);
++  // The default 200k-tick ceiling is only about 0.41 ms of guest time and
++  // blocks the CPU during pipeline-dense transitions. Keep execution bounded,
++  // but allow roughly 2.06 ms of lead so short video-side bursts do not stall
++  // guest progress.
++  Config::SetBase(Config::MAIN_SYNC_GPU_MAX_DISTANCE, 1000000);
 +#endif
    if (impl->config.emulated_cpu_clock_scale)
    {
