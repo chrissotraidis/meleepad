@@ -5285,3 +5285,22 @@ Append-only execution ledger. Claims are limited to observed evidence.
   iPad promotion and G9 netplay queued.
 - Evidence:
   `docs/artifacts/2026-09-01/g8-transition-lockstep-cache-filter.md`.
+
+## 2026-09-01 — PERF-259 repeated-return interval replay
+
+- Trace the first post-cache report and prove native entry `0x80358ABC`
+  consumes a 257-cycle generated interval that revisits return address
+  `0x80358AE8`; the shadow previously stopped after its first 19 instructions.
+- Reject a broad charged-interval rule because non-repeating endpoints run to
+  the step cap and create new false reports. Retain only an explicit
+  repeat-PC diagnostic rule in canonical patch 0033.
+- Pass the focused fail-before regression, reverse-apply check, bootstrap,
+  incremental Simulator core build, Release link/install, and exact route.
+  The old `0x80358ABC -> 0x80358AE8` report disappears; the first survivor is
+  `0x80358AE8 -> 0x80358AE0` with `r28` native `0x3`, shadow `0x15`.
+- Keep that survivor unclassified and trace it next. This is diagnostic
+  integrity work, not a product FPS improvement. Row 7 remains hard failed at
+  the ordinary visible 21.9 FPS floor; physical iPad and G9 remain queued.
+- Stop the app and unset every diagnostic Simulator environment variable.
+- Evidence:
+  `docs/artifacts/2026-09-01/g8-lockstep-repeated-return-replay.md`.

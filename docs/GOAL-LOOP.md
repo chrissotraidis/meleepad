@@ -150,6 +150,19 @@ semantic mismatch. This is diagnostic integrity work, not an FPS improvement;
 the 21.9 FPS floor and no-iPad-promotion rule remain unchanged. See
 `docs/artifacts/2026-09-01/g8-transition-lockstep-cache-filter.md`.
 
+PERF-259 rejects that first remaining interval as another verifier artifact.
+The native generated chunk revisits return address `0x80358AE8` while consuming
+257 guest cycles, but the shadow originally stopped on its first 19-instruction
+visit. Patch 0033 lets only an explicitly repeated diagnostic PC replay until
+it reaches the same endpoint after covering the native charge; a rejected
+broad version is not retained. The exact route no longer reports
+`0x80358ABC -> 0x80358AE8`; the earliest survivor is the smaller
+`0x80358AE8 -> 0x80358AE0` interval with an `r28` difference. Trace that
+interval next before classifying it as product corruption. This changes no
+product default and makes no FPS claim; the 21.9 FPS floor and no-iPad-promotion
+rule remain unchanged. See
+`docs/artifacts/2026-09-01/g8-lockstep-repeated-return-replay.md`.
+
 DECISION-215 originally recorded a user-authorized sequencing exception after
 PERF-214. On 30 Aug 2026 the user explicitly broadened that direction: assume
 the unavailable external-display check passes and repeat it later once the

@@ -1,0 +1,19 @@
+diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompLockstep_Check.cpp b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompLockstep_Check.cpp
+--- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompLockstep_Check.cpp
++++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompLockstep_Check.cpp
+@@ -168,6 +168,7 @@ void StaticRecompLockstepVerifier::Check(u32 entry_pc, u32 end_pc, s64 native_ch
+   int steps = 0;
+   s64 interp_cycles = 0;
+   const bool end_is_loop_header = LsIsLoopHeader(ram, ram_size, end_pc);
++  const bool replay_full_interval = m_ls_repeat_pc != 0 && entry_pc == m_ls_repeat_pc;
+   while (steps < m_ls_step_cap)
+   {
+     const u32 before = ppc.pc;
+@@ -180,6 +181,6 @@ void StaticRecompLockstepVerifier::Check(u32 entry_pc, u32 end_pc, s64 native_ch
+                    ppc.GetXER().Hex, ppc.cr.Get(), ppc.spr[SPR_LR], ppc.spr[SPR_CTR]);
+     }
+-    if (ppc.pc == end_pc)
++    if (ppc.pc == end_pc && (!replay_full_interval || interp_cycles >= native_charge))
+       break;
+     if (ppc.Exceptions != 0)
+       break;

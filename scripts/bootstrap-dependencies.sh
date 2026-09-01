@@ -176,6 +176,7 @@ pipe_short_tap_patch="$ROOT/patches/moderngekko-dolphin/0029-pipe-short-tap-latc
 static_recomp_loop_hoists_patch="$ROOT/patches/moderngekko-dolphin/0030-static-recomp-loop-hoists.patch"
 frame_workload_attribution_patch="$ROOT/patches/moderngekko-dolphin/0031-frame-workload-attribution.patch"
 lockstep_cache_side_effect_patch="$ROOT/patches/moderngekko-dolphin/0032-lockstep-skip-cache-side-effects.patch"
+lockstep_loop_replay_patch="$ROOT/patches/moderngekko-dolphin/0033-lockstep-replay-loop-interval.patch"
 apply_patch_once_or_marker "$MG" "$mg_patch" \
   include/moderngekko/runtime.hpp 'struct RuntimeDiagnosticsSnapshot'
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$dolphin_patch" \
@@ -261,6 +262,9 @@ apply_patch_once_or_marker "$MG/vendor/dolphin" "$frame_workload_attribution_pat
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$lockstep_cache_side_effect_patch" \
   Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Hooks.cpp \
   'Cache-control hooks mutate cache state that the lockstep journal cannot replay.'
+apply_patch_once_or_marker "$MG/vendor/dolphin" "$lockstep_loop_replay_patch" \
+  Source/Core/Core/PowerPC/StaticRecomp/StaticRecompLockstep_Check.cpp \
+  'ppc.pc == end_pc && (!replay_full_interval || interp_cycles >= native_charge)'
 verify_patch_scope "$MG" "$mg_patch" "$ROOT"/patches/moderngekko/*.patch -- \
   vendor/dolphin
 verify_patch_scope "$MG/vendor/dolphin" "$dolphin_patch" "$mg_patch" \

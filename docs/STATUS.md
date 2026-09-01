@@ -58,10 +58,22 @@ a real static-recompiler semantic error. No product speed claim follows from
 this observer-heavy run; row 7 and physical-iPad promotion remain closed. See
 `docs/artifacts/2026-09-01/g8-transition-lockstep-cache-filter.md`.
 
+PERF-259 then rejects `0x80358ABC -> 0x80358AE8` as a repeated-return
+interval-boundary artifact. Generated native execution revisits the endpoint
+inside one 257-cycle chunk, while the shadow had compared its first
+19-instruction visit. The retained default-off, repeat-PC-only checker mode
+now covers the same charged interval; the old report disappears and the first
+survivor becomes `0x80358AE8 -> 0x80358AE0` with an `r28` mismatch. That next
+interval is still unclassified. This improves diagnostic integrity, not
+product performance; the ordinary 21.9 FPS floor, animated-menu failure, and
+physical-iPad prohibition remain controlling. See
+`docs/artifacts/2026-09-01/g8-lockstep-repeated-return-replay.md`.
+
 See
 `docs/artifacts/2026-09-01/g8-r0-cold-host-profile-and-loop-hoist-reversal.md`,
 `docs/artifacts/2026-09-01/g8-progressive-fountain-collapse-and-menu-cleanup.md`,
 `docs/artifacts/2026-09-01/g8-transition-lockstep-cache-filter.md`,
+`docs/artifacts/2026-09-01/g8-lockstep-repeated-return-replay.md`,
 `docs/artifacts/2026-08-31/g8-r0-exact-combat-dispatch-subtraction.md` and
 `docs/artifacts/2026-08-31/g8-r0-rules-normalization-and-pc-store-preflight.md`.
 

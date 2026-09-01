@@ -32,6 +32,7 @@ tests/test-ios-external-pipe-input.sh
 tests/test-static-recomp-loop-hoists.sh
 tests/test-frame-workload-attribution.sh
 tests/test-lockstep-cache-side-effect-skip.sh
+tests/test-lockstep-loop-replay.sh
 
 prohibited=$(git ls-files | grep -E \
   '(^|/)(ref|DerivedData|Provisioned|build[^/]*)/|\.(iso|gcm|rvz|wia|wbfs|gcz|dylib|ipa|xcarchive|mobileprovision|p12|pem|key|gci|sav|raw|profraw|profdata)$' || true)
