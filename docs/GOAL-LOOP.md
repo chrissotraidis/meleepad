@@ -30,14 +30,56 @@ replace that result. Animated opening/menu slowdowns also fail independently.
 
 Until this hard stop is cleared, the loop order is:
 
-1. reproduce the exact route with guest-state feedback and retain the lower of
-   visible FPS and runtime FPS/VPS;
-2. measure one narrower mechanism inside the exact slow combat phase;
-3. make no product build change unless that evidence predicts a falsifiable
-   improvement;
-4. reverse control/candidate/control on the same route and reject regressions;
-5. only after two complete cold routes and the unchanged-build manual route
+1. start each optimization cycle with the normal installed app, default product
+   settings, no savestate, no private pipe input, and no profiler; retain the
+   first moving content, menu/CSS/load, and first combat minute;
+2. reproduce the exact Samus/level-1-CPU-Kirby, Stock/04/05:00 Fountain route
+   with guest-state feedback and retain the lower of visible FPS and runtime
+   FPS/VPS for every phase;
+3. measure one narrower mechanism inside the exact slow combat phase;
+4. make no product build change unless that evidence predicts a falsifiable
+   improvement of at least five percent without weakening correctness;
+5. reverse control/candidate/control on the same route and reject regressions;
+6. only after two complete cold routes and the unchanged-build manual route
    meet the protocol below may physical-device testing begin.
+
+### Row-7 truth and acceptance protocol
+
+Use this evidence order for every performance claim:
+
+1. an ordinary on-screen installed-app run;
+2. synchronized runtime FPS, VPS, speed, DMA, and callback evidence from that
+   same run;
+3. automated exact-route reversals;
+4. focused profiles, counters, microbenchmarks, and binary-size preflights.
+
+Lower-ranked evidence may explain or reject a mechanism, but it cannot raise a
+failed higher-ranked result. The user's 21.9 FPS screenshot and its matching
+20.2 FPS / 19.8 VPS runtime interval therefore remain the sticky product floor.
+This floor is cleared only by a newer ordinary manual run of the same installed
+candidate and route—not by a warm scene, attract/demo playback, idle screen,
+easier roster, average, best interval, or profiler-only capture.
+
+Judge these phases independently: moving opening/attract content, menu and CSS,
+match loading, the first combat minute, continued five-minute combat, results,
+and return to menu. Any moving phase below 59.0 FPS, any emulation phase below
+59.0 VPS, sustained speed below real time, sustained/new audio underruns, lost
+callbacks, visual corruption, or input failure fails the whole route. Do not
+average a failed phase into a later 60 FPS screen.
+
+A candidate can change row 7 from FAIL only after all of the following pass:
+
+- the measured mechanism and semantic regressions;
+- same-build control/candidate/control on the exact route with no failed phase;
+- two complete fresh-process cold routes, retaining every interval;
+- one unchanged-build ordinary manual five-minute Fountain run with visible
+  recording, responsive controls, coherent rendering, music and SFX, and no
+  sustained underrun.
+
+Until then, describe the app as an optimization build that boots and runs but
+is not currently playable at target speed. Do not call it stable 60 FPS,
+nearly ready, physical-iPad-ready, or promoted. G9 netplay remains queued
+behind this gate.
 
 The address-translation/discarded-instruction split is now complete. It rejects
 TLB misses and branch misses as standalone explanations for a 21.9-to-60 FPS

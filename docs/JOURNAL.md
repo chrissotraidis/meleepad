@@ -5145,3 +5145,23 @@ Append-only execution ledger. Claims are limited to observed evidence.
   5%; otherwise reject the direction.
 - Evidence:
   `docs/artifacts/2026-08-31/g8-r0-instruction-front-end-counter-split.md`.
+
+## 2026-08-31 — LOOP-253 visible-first acceptance hierarchy
+
+- Make the user's ordinary 21.9 FPS first run the highest-ranked, sticky
+  product floor; matching runtime evidence shows real emulation slowdown, not
+  a harmless overlay or one-frame display artifact.
+- Require every optimization cycle to start with the normal installed app,
+  default product settings, no savestate, no private pipe input, and no
+  profiler. Retain each moving phase instead of reporting a recovered or
+  averaged value.
+- Use profiles, counters, automation, and binary preflights only to select or
+  reject mechanisms. They cannot supersede a failed ordinary run.
+- Require a measured/semantic screen, matched control/candidate/control, two
+  complete cold exact routes, and an unchanged-build ordinary manual
+  five-minute Fountain run before row 7 or physical-iPad candidacy can reopen.
+- Current verdict remains unchanged: the Simulator product boots and runs but
+  is not playable at target speed; G9 netplay remains queued behind row 7.
+- Next: finish the no-build guest-PC-store preflight, reject it if the safe
+  reduction is below five percent, then measure the exact-route dispatch
+  distribution before selecting another product change.

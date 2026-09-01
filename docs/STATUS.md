@@ -10,7 +10,13 @@ The current loop cannot advance past performance. The controlling result is
 the user's ordinary first-run 21.9 FPS Samus/CPU-Kirby, Stock/04/05:00 Fountain
 combat frame, supported by 20.2 FPS / 19.8 VPS runtime evidence and increasing
 DMA underruns. Faster automation, an idle 60 FPS value, or an observer-heavy
-profile cannot supersede it. PERF-251 completes the exact-route address-
+profile cannot supersede it. The row-7 truth hierarchy now requires each
+optimization cycle to begin with an ordinary installed-app run and judges
+opening, menu/CSS/load, first-minute combat, continued combat, results, and
+return independently. One failed moving phase fails the route; later recovery
+cannot be averaged over it. Only two clean cold exact routes followed by an
+unchanged-build ordinary manual five-minute run can reopen physical-iPad
+candidacy. PERF-251 completes the exact-route address-
 translation and discarded-instruction split: both event families are
 measurable but too small and too distributed to explain the 21.9-to-60 gap
 alone. The immediate next step is a no-build post-optimization census of
