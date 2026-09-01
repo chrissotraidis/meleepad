@@ -5830,3 +5830,20 @@ Append-only execution ledger. Claims are limited to observed evidence.
   `0a361d3471289f6c4ea1f4c0254b1f197b44fb8466e408b71240418f01ad0e70`.
 - Evidence:
   `docs/artifacts/2026-09-01/g8-hevc-no-ui-observer-tail-reversal.md`.
+
+## 2026-09-01 — MENU-285 SunPad Preview 7 menu-state fix
+
+- Fast-forward the clean sibling SunPad checkout from `e43f0ea` to Preview 7
+  `2608265`; identify `792f0e7` as the relevant settings-menu change.
+- Transfer the narrow immutable circular `UIButtonConfiguration` fix that
+  prevents iPadOS from synthesizing a rectangular selected state during menu
+  dismissal.
+- Adopt the matching Display, Controls, and icon-labelled Game Data hierarchy;
+  retain SsbmPad diagnostic sharing and the removal of Experimental
+  Performance Mode.
+- Pass the focused regression and Release Simulator build. Install, open, and
+  dismiss the menu on the booted iPad Simulator; retain both UI states, stop
+  the app, and leave one Simulator booted.
+- Netplay status is unchanged: G9 is not started and no synchronized Melee
+  match with an iPadOS endpoint has passed.
+- Evidence: `docs/artifacts/2026-09-01/g8-sunpad-menu-state-fix.md`.

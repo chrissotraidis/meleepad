@@ -1,5 +1,20 @@
 # ssbmpad status
 
+## 2026-09-01 — SunPad Preview 7 three-dot-menu fix transferred
+
+The clean sibling SunPad checkout was fast-forwarded to Preview 7 `2608265`.
+Its `792f0e7` fix identifies the three-dot defect precisely: iPadOS can create
+a rectangular selected state while dismissing a primary-action menu. SsbmPad
+now uses SunPad's fixed circular button configuration and matching Display,
+Controls, and icon-labelled Game Data hierarchy while retaining diagnostic
+sharing and keeping Experimental Performance Mode absent.
+
+The focused regression, Release Simulator build, installed-app open/dismiss
+interaction, and retained screenshots pass. This is UI-only and makes no
+netplay claim. G9 remains not started: the current Host/Join infrastructure has
+not completed a synchronized Melee match and no iPadOS endpoint has passed.
+See `docs/artifacts/2026-09-01/g8-sunpad-menu-state-fix.md`.
+
 ## 2026-09-01 — Fixed-phase corpus rejected; live attract context controls
 
 The deterministic Big Blue route now visibly recreates Ness plus CPU Peach,

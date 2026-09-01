@@ -58,6 +58,11 @@ if grep -Fq 'menuPreferencePerformance' "$HOST"; then
 fi
 
 for menu_contract in \
+  'plainButtonConfiguration' \
+  'automaticallyUpdatesConfiguration = NO' \
+  'configuration.cornerStyle = UIButtonConfigurationCornerStyleCapsule' \
+  'UIMenu *displayMenu' \
+  'UIMenu *controlsMenu' \
   'Render Resolution' \
   'Aspect Ratio' \
   'Show FPS Counter' \
