@@ -5048,6 +5048,27 @@ Append-only execution ledger. Claims are limited to observed evidence.
   the same visible workload, then collect address-translation and discarded-
   sampling counters on the exact slowest phase before another module build.
 
+## 2026-08-31 — PERF-248 exact route and state-driven harness gate
+
+- Define the controlling route exactly: P1 Samus versus level-1 CPU Kirby,
+  Stock/04 stocks/05:00, on Fountain of Dreams. Four-stock means stock count,
+  not four fighters; crowded four-character traces remain diagnostic-only.
+- Retain a warm calibration that visibly reaches the correct roster and stage,
+  but reject it as acceptance because the match still uses default two-minute
+  time rules. Confirm a Simulator reboot resets the manually corrected rules.
+- Reject two cold elapsed-duration cursor routes: one remains on blank CSS and
+  one selects Link instead of Samus before the state barrier stops it.
+- Probe historical revision-1.02 libmelee cursor/player addresses read-only.
+  They do not yet correlate with the pinned revision-1.00 CSS, so do not use
+  them for steering without a controlled revision-1.00 derivation.
+- Stop the app, unset both diagnostic launch variables, and remove the short
+  runtime symlink. Keep exactly one Simulator booted.
+- Next: derive and regress revision-1.00 cursor/player/rules fields, implement
+  minimal state-driven steering, and prove two cold exact-route traversals.
+  Only then profile address translation and discarded sampling on the visible
+  20 FPS phase; do not build another module first.
+- Evidence: `docs/artifacts/2026-08-31/g8-exact-route-state-calibration.md`.
+
 ## 2026-08-31 — PERF-247 Simulator MemoryWatcher short-path repair
 
 - Verify generated iOS core compile commands contain `USE_MEMORYWATCHER=1` and

@@ -46,6 +46,19 @@ row-7 pass. Next use it to prove the exact normal roster/stage route before
 recording matched address-translation and discarded-sampling windows. See
 `docs/artifacts/2026-08-31/g8-ios-memorywatcher-short-path.md`.
 
+PERF-248 corrects the route identity and the immediate next step. The user's
+visible control is P1 Samus versus level-1 CPU Kirby, four stocks, 5:00, on
+Fountain of Dreams; four-stock does not mean four fighters. A guarded warm
+calibration reached the correct roster and stage but retained default two-
+minute time rules. Two cold duration-driven attempts then failed to reproduce
+the route, and a reboot reset manually configured Stock/04/05:00 rules.
+Revision-1.02 libmelee cursor/player address candidates did not yet correlate
+with the pinned revision-1.00 CSS state. No module candidate may be built until
+revision-1.00 state-driven steering and rules verification prove two cold
+exact-route traversals. The next performance evidence is matched instruction-
+address-translation and discarded-sampling on that visible slow phase. See
+`docs/artifacts/2026-08-31/g8-exact-route-state-calibration.md`.
+
 PERF-240 makes that correction operational rather than rhetorical. The lower
 of the visible FPS label and runtime diagnostics is authoritative, so the
 user's 21.9 FPS frame fails the whole route. Each optimization must now pass a

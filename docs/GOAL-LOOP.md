@@ -2051,6 +2051,21 @@ launches do not set the override. This enables exact route calibration but is
 diagnostic evidence only; it changes neither row 7 nor the FPS baseline. See
 `docs/artifacts/2026-08-31/g8-ios-memorywatcher-short-path.md`.
 
+PERF-248 makes the controlling route exact and rejects elapsed-time cursor
+automation. The user's workload is **P1 Samus versus level-1 CPU Kirby in a
+four-stock, 5:00 match on Fountain of Dreams**; four-stock means four stocks,
+not four fighters. A warm calibration reached the correct roster and literal
+stage, but still used the default two-minute time rules, while two cold timed
+cursor attempts either remained on blank CSS or selected Link. Simulator
+reboot also reset the manually corrected Stock/04/05:00 rules. Historical
+revision-1.02 libmelee cursor/player addresses did not yet correlate with the
+pinned revision-1.00 visible state, so they are candidates rather than route
+facts. Before another module build, derive and test the revision-1.00 fields,
+make `gcpipe.py` steer and verify from observed guest state, and prove two cold
+exact-route traversals. Only then collect address-translation and discarded-
+sampling counters on the visible slow phase. See
+`docs/artifacts/2026-08-31/g8-exact-route-state-calibration.md`.
+
 ## G8 row-7 and iPad promotion acceptance protocol
 
 This protocol prevents a fast idle/menu tail or final interval from hiding a
@@ -2091,6 +2106,12 @@ reversal.
    automation, reproduce and explain that route before optimizing an easier
    roster or phase. Diagnostic collection may follow, but no diagnostic result
    can upgrade the visible baseline.
+
+   The controlling acceptance route is P1 Samus versus level-1 CPU Kirby,
+   Stock with 04 stocks and a 05:00 time limit, on Fountain of Dreams. Preserve
+   visible proof of all four settings. `Four-stock` never means four fighters;
+   crowded four-character traces are diagnostic-only unless the tester reports
+   that as a separate slower normal route.
 
 1. Test the exact product build and default product settings from a fresh app
    process. Record the complete visible route from boot/title through normal
@@ -2150,6 +2171,11 @@ reversal.
    counts for the target workload. A created `.profraw` file alone is not
    training evidence. If input automation does not visibly advance the guest,
    stop and repair/calibrate the harness; never merge the resulting profile.
+
+   A fixed-duration character/stage cursor script is not acceptable route
+   proof. It must verify the revision-1.00 cursor/player/rules state and correct
+   deviations before starting the measured phase. If those state fields are
+   not validated, repair the harness before profiling or compiling a candidate.
 5. Repeat the complete route in two fresh processes. Both runs must pass every
    phase and threshold in steps 1-3. Stop a run as a pass attempt immediately
    after an interval below 55.0, but retain enough surrounding diagnostics to
@@ -2170,8 +2196,9 @@ reversal.
    or generic-device compilation is never device acceptance.
 
 Current anchor: the user's first ordinary Simulator run reached 21.9 FPS on
-screen in active Fountain combat, with 20.2 FPS / 19.8 VPS in matching
-diagnostics and growing DMA underruns. This is the control workload for the
+screen in active Samus-versus-level-1-CPU-Kirby, four-stock, 5:00 Fountain
+combat, with 20.2 FPS / 19.8 VPS in matching diagnostics and growing DMA
+underruns. This exact roster/rules/stage route is the control workload for the
 next performance reversal; the later lighter one-CPU 47.7 FPS diagnostic does
 not supersede it.
 The latest cold normal touch-driven route also fell to 49.1-51.0 FPS with
