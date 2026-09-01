@@ -163,6 +163,16 @@ product default and makes no FPS claim; the 21.9 FPS floor and no-iPad-promotion
 rule remain unchanged. See
 `docs/artifacts/2026-09-01/g8-lockstep-repeated-return-replay.md`.
 
+PERF-260 extends that same default-off gate from one repeat PC to a
+comma-separated set, preserving the single-PC form. Full-interval replay clears
+the four `0x80358Axx/0x80358C00` return-dispatch entries plus five
+`0x8035AAxx/0x8035BAxx` array-loop entries. The first surviving report is now
+`0x803210A4 -> 0x80321178`, with register-only differences and no journaled
+memory or MMIO difference. Trace that interval next; do not classify it from
+the broad report alone. This diagnostic improvement changes no product default
+and makes no FPS claim. Row 7 and physical-iPad promotion remain closed. See
+`docs/artifacts/2026-09-01/g8-lockstep-repeat-set-screen.md`.
+
 DECISION-215 originally recorded a user-authorized sequencing exception after
 PERF-214. On 30 Aug 2026 the user explicitly broadened that direction: assume
 the unavailable external-display check passes and repeat it later once the

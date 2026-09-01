@@ -5304,3 +5304,24 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Stop the app and unset every diagnostic Simulator environment variable.
 - Evidence:
   `docs/artifacts/2026-09-01/g8-lockstep-repeated-return-replay.md`.
+
+## 2026-09-01 — PERF-260 repeat-set transition screen
+
+- Confirm `0x80358AE8 -> 0x80358AE0` and
+  `0x80358AE0 -> 0x80358C00` disappear when their shadows cover the native
+  charged interval. Their earlier register differences were verifier boundary
+  artifacts, not proven product defects.
+- Add canonical patch 0034 so the default-off repeat diagnostic accepts a
+  comma-separated PC set while preserving the single-PC form. Its focused
+  regression fails before the source change and passes afterward.
+- Pass reverse-apply, bootstrap, incremental Simulator core build, Release
+  link/install, and the exact route. Full-interval replay clears nine
+  `0x80358Axx/0x80358C00`, `0x8035AAxx`, and `0x8035BAxx` entries.
+- The first surviving report becomes `0x803210A4 -> 0x80321178`, with
+  register-only differences and no journaled-memory/MMIO difference. Trace it
+  next before classification.
+- Keep row 7 hard failed at the ordinary visible 21.9 FPS floor. This run makes
+  no product FPS claim; physical iPad and G9 remain queued.
+- Stop the app and unset every diagnostic Simulator environment variable.
+- Evidence:
+  `docs/artifacts/2026-09-01/g8-lockstep-repeat-set-screen.md`.

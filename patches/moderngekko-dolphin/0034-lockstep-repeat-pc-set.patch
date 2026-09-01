@@ -1,0 +1,77 @@
+diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompLockstep.h b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompLockstep.h
+--- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompLockstep.h
++++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompLockstep.h
+@@ -155,8 +155,8 @@ class StaticRecompLockstepVerifier
+   SetMemJournalFn m_set_mem_journal = nullptr;  // resolved from the module
+   std::unordered_set<u32> m_ls_checked;    // entry PCs already checked (dedupe)
+   std::unordered_set<u32> m_ls_whitelist;  // entry PCs never reported (known-benign)
++  std::unordered_set<u32> m_ls_repeat_pcs; // entry PCs checked every time over their full interval
+   u32 m_ls_trace_pc = 0;  // STATICRECOMP_LOCKSTEP_TRACE: per-instr shadow dump for one entry PC
+-  u32 m_ls_repeat_pc = 0;
+ 
+   u32 m_ls_entry = 0;
+   CPUState m_ls_snapshot{};
+diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompLockstep.cpp b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompLockstep.cpp
+--- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompLockstep.cpp
++++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompLockstep.cpp
+@@ -74,10 +74,7 @@ void StaticRecompLockstepVerifier::Initialize()
+     m_ls_step_cap = std::atoi(s);
+   if (const char* s = std::getenv("STATICRECOMP_LOCKSTEP_TRACE"))
+     m_ls_trace_pc = static_cast<u32>(std::strtoull(s, nullptr, 0));
+-  if (const char* s = std::getenv("STATICRECOMP_LOCKSTEP_REPEAT"))
+-    m_ls_repeat_pc = static_cast<u32>(std::strtoull(s, nullptr, 0));
+-  if (const char* s = std::getenv("STATICRECOMP_LOCKSTEP_WHITELIST"))
+-  {
++  const auto parse_pc_set = [](const char* s, std::unordered_set<u32>& pcs) {
+     const char* p = s;
+     while (*p)
+     {
+@@ -84,17 +81,22 @@ void StaticRecompLockstepVerifier::Initialize()
+       const unsigned long long pc = std::strtoull(p, &end, 0);
+       if (end == p)
+         break;
+-      m_ls_whitelist.insert(static_cast<u32>(pc));
++      pcs.insert(static_cast<u32>(pc));
+       p = end;
+       while (*p == ',' || *p == ' ')
+         ++p;
+     }
+-  }
++  };
++  if (const char* s = std::getenv("STATICRECOMP_LOCKSTEP_REPEAT"))
++    parse_pc_set(s, m_ls_repeat_pcs);
++  if (const char* s = std::getenv("STATICRECOMP_LOCKSTEP_WHITELIST"))
++    parse_pc_set(s, m_ls_whitelist);
+ 
+   std::fprintf(
+-      stderr,
+-      "[lockstep] ENABLED: start=%llu limit=%llu maxreport=%llu stepcap=%d whitelist=%zu\n",
++      stderr, "[lockstep] ENABLED: start=%llu limit=%llu maxreport=%llu stepcap=%d "
++              "repeat=%zu whitelist=%zu\n",
+       (unsigned long long)m_ls_start, (unsigned long long)m_ls_limit,
+-      (unsigned long long)m_ls_max_report, m_ls_step_cap, m_ls_whitelist.size());
++      (unsigned long long)m_ls_max_report, m_ls_step_cap, m_ls_repeat_pcs.size(),
++      m_ls_whitelist.size());
+ }
+ 
+@@ -105,6 +107,7 @@ bool StaticRecompLockstepVerifier::ShouldCheck(u32 address) const
+   if (!LockstepWindowOpen())
+     return false;
+-  return address == m_ls_repeat_pc || m_ls_checked.find(address) == m_ls_checked.end();
++  return m_ls_repeat_pcs.find(address) != m_ls_repeat_pcs.end() ||
++         m_ls_checked.find(address) == m_ls_checked.end();
+ }
+ 
+ bool StaticRecompLockstepVerifier::LockstepWindowOpen() const
+diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompLockstep_Check.cpp b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompLockstep_Check.cpp
+--- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompLockstep_Check.cpp
++++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompLockstep_Check.cpp
+@@ -168,7 +168,7 @@ void StaticRecompLockstepVerifier::Check(u32 entry_pc, u32 end_pc, s64 native_ch
+   int steps = 0;
+   s64 interp_cycles = 0;
+   const bool end_is_loop_header = LsIsLoopHeader(ram, ram_size, end_pc);
+-  const bool replay_full_interval = m_ls_repeat_pc != 0 && entry_pc == m_ls_repeat_pc;
++  const bool replay_full_interval = m_ls_repeat_pcs.find(entry_pc) != m_ls_repeat_pcs.end();
+   while (steps < m_ls_step_cap)
+   {
+     const u32 before = ppc.pc;

@@ -69,11 +69,21 @@ product performance; the ordinary 21.9 FPS floor, animated-menu failure, and
 physical-iPad prohibition remain controlling. See
 `docs/artifacts/2026-09-01/g8-lockstep-repeated-return-replay.md`.
 
+PERF-260 makes the repeat gate a comma-separated set and clears nine proven
+return/array-loop interval boundaries in one exact route. The first surviving
+bounded report is `0x803210A4 -> 0x80321178`, with register-only differences
+and no journaled-memory or MMIO mismatch. It is the next trace target, not yet a
+product defect. This remains diagnostic integrity work: it does not change the
+ordinary 21.9 FPS floor, animated-menu failure, visible corruption, row-7 hard
+fail, or physical-iPad prohibition. See
+`docs/artifacts/2026-09-01/g8-lockstep-repeat-set-screen.md`.
+
 See
 `docs/artifacts/2026-09-01/g8-r0-cold-host-profile-and-loop-hoist-reversal.md`,
 `docs/artifacts/2026-09-01/g8-progressive-fountain-collapse-and-menu-cleanup.md`,
 `docs/artifacts/2026-09-01/g8-transition-lockstep-cache-filter.md`,
 `docs/artifacts/2026-09-01/g8-lockstep-repeated-return-replay.md`,
+`docs/artifacts/2026-09-01/g8-lockstep-repeat-set-screen.md`,
 `docs/artifacts/2026-08-31/g8-r0-exact-combat-dispatch-subtraction.md` and
 `docs/artifacts/2026-08-31/g8-r0-rules-normalization-and-pc-store-preflight.md`.
 
