@@ -1,14 +1,31 @@
 diff --git a/src/runtime/dolphin_runtime.cpp b/src/runtime/dolphin_runtime.cpp
-index 0cedfdb..12d58b8 100644
+index 0cedfdb..0422bb3 100644
 --- a/src/runtime/dolphin_runtime.cpp
 +++ b/src/runtime/dolphin_runtime.cpp
-@@ -502,6 +502,9 @@ bool ConfigureDolphin(Runtime::Impl* impl)
+@@ -485,6 +485,14 @@ bool ConfigureDolphin(Runtime::Impl* impl)
+   SetDolphinLogCallback(impl->config.log_callback, impl->config.log_user_data);
+ 
+   Config::SetBase(Config::MAIN_CPU_CORE, PowerPC::CPUCore::StaticRecomp);
++#ifdef MODERNGEKKO_HAVE_IOS
++  // Split guest execution from video work, but bound how far the CPU may run
++  // ahead. Unconstrained dual-core execution reproduced a malformed FIFO
++  // command; SyncGPU keeps the architectural speedup under guest-cycle control.
++  Config::SetBase(Config::MAIN_CPU_THREAD, true);
++  Config::SetBase(Config::MAIN_SYNC_GPU, true);
++#endif
+   if (impl->config.emulated_cpu_clock_scale)
+   {
+     Config::SetBase(Config::MAIN_OVERCLOCK_ENABLE, true);
+@@ -502,6 +510,12 @@ bool ConfigureDolphin(Runtime::Impl* impl)
                    ShaderCompilationMode::AsynchronousUberShaders);
    Config::SetBase(Config::GFX_WAIT_FOR_SHADERS_BEFORE_STARTING, true);
- #ifdef MODERNGEKKO_HAVE_IOS
+  #ifdef MODERNGEKKO_HAVE_IOS
 +  // Compile newly encountered specialized pipelines on otherwise idle cores
 +  // so the ubershader fallback remains brief during stage transitions.
 +  Config::SetBase(Config::GFX_SHADER_COMPILER_THREADS, 3);
++  // Melee updates one XFB allocation across consecutive fields. Treating its
++  // stable cache identity as unchanged pixels visibly freezes transitions.
++  Config::SetBase(Config::GFX_HACK_SKIP_DUPLICATE_XFBS, false);
    // Dolphin's ARM64 vertex loader generates executable host code. iOS forbids
    // that JIT path, so use the portable software vertex loader.
    Config::SetBase(Config::GFX_VERTEX_LOADER_TYPE, VertexLoaderType::Software);

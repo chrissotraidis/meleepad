@@ -212,6 +212,43 @@ deficits and repair rendering. Keep synchronized dual-core unmerged, row 7
 failed, physical-iPad promotion closed, and G9 queued. See
 `docs/artifacts/2026-09-01/g8-synchronized-pipeline-persistence-replay.md`.
 
+PERF-264 rejects a valid 446-entry Fountain pipeline seed as the general
+first-run fix. It reduces matched runtime pipeline creation from 10 / 16.961 ms
+to 3 / 2.431 ms but leaves the same 83.3-second presentation span, adds a
+99.702 ms CPU-heavy hitch, and still reaches a visible 14.6 FPS transition.
+Do not bundle the seed.
+
+PERF-265 then isolates that transition. A synchronized video retains five
+byte-identical frames across 1.6 seconds before the action jumps forward. The
+guest remains near real time. New default-off XFB boundary counters prove the
+1.732-second interval contains 101 output requests, 101 queued swaps, 101
+executed swaps, 100 duplicate classifications, and one present. The immediate
+falsifiable candidate is iOS-only `SkipDuplicateXFBs=false`. Accept it only if
+pixels advance—not merely the FPS label—and no FIFO, rendering, audio, input,
+lifecycle, or future-netplay semantic regression appears. Keep row 7 and
+physical-iPad promotion closed. The ranked debt is in `docs/TECH-DEBT.md`.
+
+PERF-266 accepts that falsifiable reversal. With iOS duplicate-XFB suppression
+disabled, every inspected duplicate-classified swap is presented, the former
+1.732-second gap disappears, and eight recorded transition samples contain
+eight distinct advancing images. The unchanged candidate then completes the
+state-verified exact Fountain route; its final ten combat seconds average
+16.684733 ms (about 59.94 FPS), with 17.150292 ms p95, 18.065917 ms p99, and
+20.715625 ms worst. This is the clearest evidence yet that 60 FPS is feasible,
+but not a row-7 pass: the sample is short, strict tails still fail, and the
+lower Fountain reflection remains malformed. Retain the candidate for a longer
+exact-combat and ordinary cold reversal; do not promote it yet. See
+`docs/artifacts/2026-09-01/g8-xfb-presentation-reversal.md`.
+
+The immediate longer reversal then holds 3,597 exact-Fountain rows for one
+minute at 16.683199 ms mean, or 59.9405 FPS. Its 17.437458 ms p95, 18.696834 ms
+p99, and one 71.069625 ms wall outlier still fail the literal tail gate, but
+that outlier contains only 11.870 ms of CPU-thread execution, no pipeline work,
+and no visible one-second FPS collapse. Treat it as off-core Simulator/recording
+descheduling pending a recorder-free and hardware reversal, not as evidence for
+another static-recompiler rewrite. Stop speculative performance code here and
+run the ordinary cold product, audio/lifecycle, and visual-correctness gates.
+
 DECISION-215 originally recorded a user-authorized sequencing exception after
 PERF-214. On 30 Aug 2026 the user explicitly broadened that direction: assume
 the unavailable external-display check passes and repeat it later once the

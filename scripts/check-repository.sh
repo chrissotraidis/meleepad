@@ -31,6 +31,7 @@ tests/test-ios-audio-diagnostics.sh
 tests/test-ios-external-pipe-input.sh
 tests/test-static-recomp-loop-hoists.sh
 tests/test-frame-workload-attribution.sh
+tests/test-xfb-boundary-attribution.sh
 tests/test-lockstep-cache-side-effect-skip.sh
 tests/test-lockstep-loop-replay.sh
 tests/test-lockstep-repeat-set.sh

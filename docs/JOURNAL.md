@@ -5396,3 +5396,31 @@ Append-only execution ledger. Claims are limited to observed evidence.
   physical-iPad promotion, and G9 remain closed.
 - Evidence:
   `docs/artifacts/2026-09-01/g8-synchronized-pipeline-persistence-replay.md`.
+
+## 2026-09-01 — PERF-264–266 XFB presentation attribution and reversal
+
+- Reject a structurally valid 446-entry pipeline seed as the general first-run
+  fix: pipeline work falls, total pacing does not, and a new 99.702 ms CPU hitch
+  appears.
+- Record the moving transition and prove five byte-identical game frames across
+  1.6 seconds while the guest advances. Add default-off XFB boundary counters.
+- Attribute the 1.732-second control gap to 101 output requests and executed
+  swaps, 100 duplicate classifications, and only one present.
+- Disable duplicate-XFB suppression for iOS. The gap disappears, every inspected
+  duplicate swap presents, and eight transition samples contain eight distinct,
+  visibly advancing images.
+- Complete the exact Samus/CPU-Kirby Stock/04/05:00 Fountain route. Its final
+  ten combat seconds average 16.684733 ms with 17.150292 ms p95, 18.065917 ms
+  p99, 20.715625 ms worst, and visible 59.9 FPS.
+- Repeat the unchanged route and retain one minute / 3,597 combat rows at
+  16.683199 ms mean (59.9405 FPS), 17.437458 ms p95, and 18.696834 ms p99.
+  The 71.069625 ms worst frame contains only 11.870 ms CPU-thread work, no
+  pipeline work, and no visible one-second FPS collapse, so classify it as
+  host/Simulator descheduling pending recorder-free/hardware reversal.
+- Retain the candidate for longer reversal testing, but keep row 7 failed: the
+  strict tails remain and Fountain's lower reflection is malformed. Stop
+  speculative static-code rewrites; physical-iPad promotion and G9 remain
+  closed pending ordinary cold, audio/lifecycle, and visual gates.
+- Stop the app and clear every diagnostic Simulator variable.
+- Evidence:
+  `docs/artifacts/2026-09-01/g8-xfb-presentation-reversal.md`.

@@ -114,6 +114,29 @@ clusters. The candidate stays unmerged; row 7, physical-iPad promotion, and G9
 stay closed. See
 `docs/artifacts/2026-09-01/g8-synchronized-pipeline-persistence-replay.md`.
 
+PERF-264 through PERF-266 reject pipeline seeding as the general cure and then
+find the moving-transition defect at the XFB boundary. The control executes 101
+guest fields and swaps but suppresses 100 presents because the stable XFB
+identity is classified as duplicate. The iOS-only reversal presents those
+updates: the 1.732-second freeze disappears and recorded pixels advance. The
+same candidate completes the exact Fountain route, with its final ten combat
+seconds at 16.684733 ms mean (about 59.94 FPS), 17.150292 ms p95, 18.065917 ms
+p99, and 20.715625 ms worst. This confirms that target speed is feasible and
+solves the identified front-end freeze, but the short sample, strict tails, and
+malformed lower Fountain reflection still prevent promotion. Next retain a
+longer uninterrupted exact match, then run the ordinary cold acceptance route
+and isolate the earliest rendering divergence. See
+`docs/artifacts/2026-09-01/g8-xfb-presentation-reversal.md`.
+
+The immediate longer exact route retains 3,597 active-combat rows over one
+minute at 16.683199 ms mean, or 59.9405 FPS. Its p95/p99 remain 17.437/18.697 ms
+and one 71.070 ms wall outlier fails the strict written gate, but that outlier
+contains only 11.870 ms of CPU-thread execution, no pipeline work, and no
+visible one-second FPS collapse. The evidence now supports host/Simulator
+descheduling with catch-up, not another missing static-recompiler speedup.
+Freeze speculative performance rewrites and move the candidate through the
+ordinary cold product, audio/lifecycle, recorder-free, and rendering gates.
+
 See
 `docs/artifacts/2026-09-01/g8-r0-cold-host-profile-and-loop-hoist-reversal.md`,
 `docs/artifacts/2026-09-01/g8-progressive-fountain-collapse-and-menu-cleanup.md`,

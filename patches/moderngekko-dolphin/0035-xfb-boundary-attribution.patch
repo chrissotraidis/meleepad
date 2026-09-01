@@ -1,0 +1,146 @@
+diff --git a/Source/Core/Common/FramePhaseTiming.h b/Source/Core/Common/FramePhaseTiming.h
+index 4d2cda6c4f..55ab2139a6 100644
+--- a/Source/Core/Common/FramePhaseTiming.h
++++ b/Source/Core/Common/FramePhaseTiming.h
+@@ -43,6 +43,11 @@ inline std::atomic<u64> s_efb_ram_pipeline_misses{0};
+ inline std::atomic<u64> s_efb_ram_shader_ns{0};
+ inline std::atomic<u64> s_efb_ram_pipeline_ns{0};
+ inline std::atomic<u64> s_present_frame_index{0};
++inline std::atomic<u64> s_xfb_output_requests{0};
++inline std::atomic<u64> s_xfb_swap_queued{0};
++inline std::atomic<u64> s_xfb_swap_executed{0};
++inline std::atomic<u64> s_xfb_duplicates{0};
++inline std::atomic<u64> s_xfb_presents{0};
+ inline std::atomic<u64> s_emulated_frame_index{0};
+ 
+ inline bool IsEnabled()
+@@ -241,6 +246,36 @@ inline u64 GetPresentFrameIndex()
+   return s_present_frame_index.load(std::memory_order_acquire);
+ }
+ 
++inline void AddXfbOutputRequest()
++{
++  if (IsEnabled())
++    s_xfb_output_requests.fetch_add(1, std::memory_order_relaxed);
++}
++
++inline void AddXfbSwapQueued()
++{
++  if (IsEnabled())
++    s_xfb_swap_queued.fetch_add(1, std::memory_order_relaxed);
++}
++
++inline void AddXfbSwapExecuted()
++{
++  if (IsEnabled())
++    s_xfb_swap_executed.fetch_add(1, std::memory_order_relaxed);
++}
++
++inline void AddXfbDuplicate()
++{
++  if (IsEnabled())
++    s_xfb_duplicates.fetch_add(1, std::memory_order_relaxed);
++}
++
++inline void AddXfbPresent()
++{
++  if (IsEnabled())
++    s_xfb_presents.fetch_add(1, std::memory_order_relaxed);
++}
++
+ inline void SetEmulatedFrameIndex(u64 frame)
+ {
+   s_emulated_frame_index.store(frame, std::memory_order_release);
+@@ -290,6 +330,11 @@ struct Totals
+   u64 efb_ram_pipeline_misses;
+   u64 efb_ram_shader_ns;
+   u64 efb_ram_pipeline_ns;
++  u64 xfb_output_requests;
++  u64 xfb_swap_queued;
++  u64 xfb_swap_executed;
++  u64 xfb_duplicates;
++  u64 xfb_presents;
+ };
+ 
+ inline Totals GetTotals()
+@@ -338,6 +383,11 @@ inline Totals GetTotals()
+       s_efb_ram_pipeline_misses.load(std::memory_order_relaxed),
+       s_efb_ram_shader_ns.load(std::memory_order_relaxed),
+       s_efb_ram_pipeline_ns.load(std::memory_order_relaxed),
++      s_xfb_output_requests.load(std::memory_order_relaxed),
++      s_xfb_swap_queued.load(std::memory_order_relaxed),
++      s_xfb_swap_executed.load(std::memory_order_relaxed),
++      s_xfb_duplicates.load(std::memory_order_relaxed),
++      s_xfb_presents.load(std::memory_order_relaxed),
+   };
+ }
+ }  // namespace Common::FramePhaseTiming
+diff --git a/Source/Core/VideoCommon/Present.cpp b/Source/Core/VideoCommon/Present.cpp
+--- a/Source/Core/VideoCommon/Present.cpp
++++ b/Source/Core/VideoCommon/Present.cpp
+@@ -91,7 +91,8 @@
+                 "fallback_other,cache_controls,cache_control_dcbst,cache_control_dcbf,"
+                 "cache_control_dcbi,cache_control_icbi,efb_vram_pipeline_misses,"
+                 "efb_vram_shader_ms,efb_vram_pipeline_ms,efb_ram_pipeline_misses,"
+-                "efb_ram_shader_ms,efb_ram_pipeline_ms\n";
++                "efb_ram_shader_ms,efb_ram_pipeline_ms,xfb_output_requests,"
++                "xfb_swap_queued,xfb_swap_executed,xfb_duplicates,xfb_presents\n";
+       if (const char* start_frame = std::getenv("SSBMPAD_FRAME_PHASE_SLOW_START_FRAME"))
+         m_slow_start_frame = std::strtoull(start_frame, nullptr, 10);
+       if (const char* arm_path = std::getenv("SSBMPAD_FRAME_PHASE_SLOW_ARM_FILE"))
+@@ -244,7 +245,11 @@
+            << ',' << totals.efb_ram_pipeline_misses - m_previous_totals.efb_ram_pipeline_misses
+            << ',' << counter_ms(totals.efb_ram_shader_ns, m_previous_totals.efb_ram_shader_ns)
+            << ',' << counter_ms(totals.efb_ram_pipeline_ns, m_previous_totals.efb_ram_pipeline_ns)
+-           << '\n';
++           << ',' << totals.xfb_output_requests - m_previous_totals.xfb_output_requests
++           << ',' << totals.xfb_swap_queued - m_previous_totals.xfb_swap_queued
++           << ',' << totals.xfb_swap_executed - m_previous_totals.xfb_swap_executed
++           << ',' << totals.xfb_duplicates - m_previous_totals.xfb_duplicates
++           << ',' << totals.xfb_presents - m_previous_totals.xfb_presents << '\n';
+ 
+     if (!m_spike_captured)
+     {
+@@ -462,6 +467,8 @@
+                        TimePoint presentation_time)
+ {
+   bool is_duplicate = FetchXFB(xfb_addr, fb_width, fb_stride, fb_height, ticks);
++  if (is_duplicate)
++    Common::FramePhaseTiming::AddXfbDuplicate();
+ 
+   PresentInfo present_info{
+       .present_count = m_present_count++,
+@@ -505,6 +512,7 @@
+ 
+   if (!is_duplicate || !g_ActiveConfig.bSkipPresentingDuplicateXFBs)
+   {
++    Common::FramePhaseTiming::AddXfbPresent();
+     Present(&present_info);
+     ProcessFrameDumping(ticks);
+ 
+diff --git a/Source/Core/VideoCommon/VideoBackendBase.cpp b/Source/Core/VideoCommon/VideoBackendBase.cpp
+index 26945c8fdc..84303fbda0 100644
+--- a/Source/Core/VideoCommon/VideoBackendBase.cpp
++++ b/Source/Core/VideoCommon/VideoBackendBase.cpp
+@@ -12,5 +12,6 @@
+ 
+ #include "Common/ChunkFile.h"
+ #include "Common/CommonTypes.h"
++#include "Common/FramePhaseTiming.h"
+ #include "Common/FileUtil.h"
+ #include "Common/Logging/Log.h"
+@@ -98,4 +99,5 @@ void VideoBackendBase::Video_OutputXFB(u32 xfb_addr, u32 fb_width, u32 fb_stride,
+   if (!m_initialized || !g_presenter)
+     return;
++  Common::FramePhaseTiming::AddXfbOutputRequest();
+ 
+   auto& system = Core::System::GetInstance();
+@@ -110,6 +112,8 @@ void VideoBackendBase::Video_OutputXFB(u32 xfb_addr, u32 fb_width, u32 fb_stride,
+ 
+     const TimePoint presentation_time = core_timing.GetTargetHostTime(ticks);
++    Common::FramePhaseTiming::AddXfbSwapQueued();
+     AsyncRequests::GetInstance()->PushEvent([=] {
++      Common::FramePhaseTiming::AddXfbSwapExecuted();
+       g_presenter->ViSwap(xfb_addr, fb_width, fb_stride, fb_height, ticks, presentation_time);
+     });
+   }

@@ -21,18 +21,20 @@ for contract in \
   'experimental-single-core-90' \
   'experimental-single-core-95' \
   'experimental-qos-only-100' \
-  'cpuVideoSplit=0' \
+  'cpuVideoSplit=1' \
+  'syncGPU=1' \
   'shaderCompilerThreads=3' \
   'runtime render scale=%ld source=live' \
   'runtime aspect mode=%@ source=%@'; do
   grep -Fq -- "$contract" "$HOST"
 done
-if grep -Fq 'Config::SetBase(Config::MAIN_CPU_THREAD, true);' \
-  "$ROOT/ref/ModernGekko/src/runtime/dolphin_runtime.cpp"; then
-  echo "iOS CPU/video split must remain disabled after the FIFO desync regression" >&2
-  exit 1
-fi
+grep -Fq 'Config::SetBase(Config::MAIN_CPU_THREAD, true);' \
+  "$ROOT/ref/ModernGekko/src/runtime/dolphin_runtime.cpp"
+grep -Fq 'Config::SetBase(Config::MAIN_SYNC_GPU, true);' \
+  "$ROOT/ref/ModernGekko/src/runtime/dolphin_runtime.cpp"
 grep -Fq 'Config::SetBase(Config::GFX_SHADER_COMPILER_THREADS, 3);' \
+  "$ROOT/ref/ModernGekko/src/runtime/dolphin_runtime.cpp"
+grep -Fq 'Config::SetBase(Config::GFX_HACK_SKIP_DUPLICATE_XFBS, false);' \
   "$ROOT/ref/ModernGekko/src/runtime/dolphin_runtime.cpp"
 
 # Experimental clock/QoS variants remain explicit developer launch arguments,

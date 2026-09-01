@@ -178,6 +178,7 @@ frame_workload_attribution_patch="$ROOT/patches/moderngekko-dolphin/0031-frame-w
 lockstep_cache_side_effect_patch="$ROOT/patches/moderngekko-dolphin/0032-lockstep-skip-cache-side-effects.patch"
 lockstep_loop_replay_patch="$ROOT/patches/moderngekko-dolphin/0033-lockstep-replay-loop-interval.patch"
 lockstep_repeat_set_patch="$ROOT/patches/moderngekko-dolphin/0034-lockstep-repeat-pc-set.patch"
+xfb_boundary_attribution_patch="$ROOT/patches/moderngekko-dolphin/0035-xfb-boundary-attribution.patch"
 apply_patch_once_or_marker "$MG" "$mg_patch" \
   include/moderngekko/runtime.hpp 'struct RuntimeDiagnosticsSnapshot'
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$dolphin_patch" \
@@ -269,6 +270,8 @@ apply_patch_once_or_marker "$MG/vendor/dolphin" "$lockstep_loop_replay_patch" \
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$lockstep_repeat_set_patch" \
   Source/Core/Core/PowerPC/StaticRecomp/StaticRecompLockstep.cpp \
   'parse_pc_set(s, m_ls_repeat_pcs);'
+apply_patch_once_or_marker "$MG/vendor/dolphin" "$xfb_boundary_attribution_patch" \
+  Source/Core/Common/FramePhaseTiming.h s_xfb_output_requests
 verify_patch_scope "$MG" "$mg_patch" "$ROOT"/patches/moderngekko/*.patch -- \
   vendor/dolphin
 verify_patch_scope "$MG/vendor/dolphin" "$dolphin_patch" "$mg_patch" \
