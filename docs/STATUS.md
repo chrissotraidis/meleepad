@@ -1,5 +1,20 @@
 # ssbmpad status
 
+## 2026-09-01 — Big Blue, not generic four-player attract, controls
+
+Visual extraction corrects the newest attribution. The failing ordinary video
+shows Brinstar at 49.3 FPS, then Big Blue at 27.5-35.3 FPS with four fighters.
+A source-identical warmed HEVC run shows four-player Hyrule Temple holding
+59.7-60.0 FPS/VPS; CPU-thread use peaks near 80% and underruns rise only 0 ->
+2. Recording alone and four fighters alone are refuted.
+
+Row 7 remains failed because the Big Blue and user Fountain anchors are not
+reversed. The next mechanism gate is a present-aligned, no-recorder Big Blue
+phase. Patch 0036 provides sparse consecutive dispatch bursts without changing
+product defaults. Build broad register-resident regions only if that exact
+phase reproduces on-core saturation and projects sufficient whole-frame gain.
+See `docs/artifacts/2026-09-01/g8-attract-stage-workload-factorial.md`.
+
 ## 2026-09-01 — Ordinary full-load attract reopens CPU architecture
 
 The unchanged published iPad Simulator product is not stable at 60 FPS. A

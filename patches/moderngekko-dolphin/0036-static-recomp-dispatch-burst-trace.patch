@@ -1,0 +1,152 @@
+diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp
+--- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp
++++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp
+@@ -183,6 +183,12 @@
+     m_dispatch_frame_samples.reserve(262144);
+   }
+ 
++  if (const char* path = std::getenv("STATICRECOMP_DISPATCH_BURST_LOG"); path && path[0] != '\0')
++  {
++    m_dispatch_burst_log_path = path;
++    m_dispatch_burst_samples.reserve(16384);
++  }
++
+   std::fprintf(stderr, "[staticrecomp] core init\n");
+ 
+   LoadModule();
+@@ -236,6 +242,38 @@
+   }
+ }
+ 
++void StaticRecompCore::FlushDispatchBurstSamples(bool final)
++{
++  if (m_dispatch_burst_log_path.empty() || m_dispatch_burst_samples.empty())
++    return;
++
++  const char* mode = m_dispatch_burst_log_started ? "a" : "w";
++  if (FILE* file = std::fopen(m_dispatch_burst_log_path.c_str(), mode))
++  {
++    if (!m_dispatch_burst_log_started)
++      std::fprintf(file, "present_frame,emulated_frame,burst,index,previous_pc,pc\n");
++    for (const DispatchBurstSample& sample : m_dispatch_burst_samples)
++      std::fprintf(file, "%llu,%llu,%llu,%u,%08x,%08x\n",
++                   static_cast<unsigned long long>(sample.present_frame),
++                   static_cast<unsigned long long>(sample.emulated_frame),
++                   static_cast<unsigned long long>(sample.burst), sample.index,
++                   sample.previous_pc, sample.pc);
++    std::fclose(file);
++    m_dispatch_burst_log_started = true;
++    m_dispatch_burst_samples_written += m_dispatch_burst_samples.size();
++    m_dispatch_burst_samples.clear();
++    if (final)
++      std::fprintf(stderr, "[staticrecomp] dispatch-burst samples=%llu path=%s\n",
++                   static_cast<unsigned long long>(m_dispatch_burst_samples_written),
++                   m_dispatch_burst_log_path.c_str());
++  }
++  else
++  {
++    std::fprintf(stderr, "[staticrecomp] dispatch-burst open failed: %s\n",
++                 m_dispatch_burst_log_path.c_str());
++  }
++}
++
+ void StaticRecompCore::Shutdown()
+ {
+   g_static_recomp_core = nullptr;
+@@ -258,6 +296,7 @@
+                  static_cast<unsigned long long>(dispatch_samples[i].second));
+   }
+   FlushDispatchFrameSamples(true);
++  FlushDispatchBurstSamples(true);
+   NOTICE_LOG_FMT(POWERPC,
+                  "StaticRecomp: shutdown. native_dispatches={} fallback_steps={} "
+                  "native_exceptions={} hook_fallback_instructions={} smc_failed_chunks={} "
+diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h
+--- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h
++++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h
+@@ -98,6 +98,7 @@
+   void LoadModule();
+   void UpdateProfileCapture();
+   void FlushDispatchFrameSamples(bool final);
++  void FlushDispatchBurstSamples(bool final);
+ 
+   // D4 SMC guard, verify-on-entry model. Every chunk starts Unverified; the
+   // first native dispatch into it hashes its guest RAM against the module's
+@@ -182,6 +183,23 @@
+   std::vector<DispatchFrameSample> m_dispatch_frame_samples;
+   bool m_dispatch_frame_log_started = false;
+   u64 m_dispatch_frame_samples_written = 0;
++  struct DispatchBurstSample
++  {
++    u64 present_frame;
++    u64 emulated_frame;
++    u64 burst;
++    u32 index;
++    u32 previous_pc;
++    u32 pc;
++  };
++  std::string m_dispatch_burst_log_path;
++  std::vector<DispatchBurstSample> m_dispatch_burst_samples;
++  bool m_dispatch_burst_log_started = false;
++  u64 m_dispatch_burst_samples_written = 0;
++  u64 m_dispatch_burst_id = 0;
++  u32 m_dispatch_burst_index = 0;
++  u32 m_dispatch_burst_remaining = 0;
++  u32 m_dispatch_burst_previous_pc = 0;
+   u64 m_bursts = 0;          // SyncIn..SyncOut native runs (diagnostic)
+   u64 m_charged_cycles = 0;  // cycles flushed from module charges (diagnostic)
+ 
+diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
+--- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
++++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
+@@ -65,6 +65,7 @@
+   const bool lockstep_enabled = m_lockstep_verifier->IsEnabled();
+   const bool sample_dispatches = !m_dispatch_frame_log_path.empty() ||
+                                  std::getenv("STATICRECOMP_DISPATCH_SAMPLE") != nullptr;
++  const bool sample_dispatch_bursts = !m_dispatch_burst_log_path.empty();
+   const bool freeze_trace = std::getenv("STATICRECOMP_FREEZE_TRACE") != nullptr;
+   const bool has_rel_modules = m_module && m_module->num_rel_modules != 0;
+   const u32 idle_pc = m_idle_pc;
+@@ -131,6 +132,28 @@
+                 FlushDispatchFrameSamples(false);
+             }
+           }
++          if (sample_dispatch_bursts)
++          {
++            // Retain 16 consecutive entries every 16,384 dispatches. This is
++            // sparse enough for attribution but preserves real path edges.
++            if ((m_native_dispatches & 16383u) == 0)
++            {
++              ++m_dispatch_burst_id;
++              m_dispatch_burst_index = 0;
++              m_dispatch_burst_remaining = 16;
++            }
++            if (m_dispatch_burst_remaining != 0)
++            {
++              m_dispatch_burst_samples.push_back(
++                  {Common::FramePhaseTiming::GetPresentFrameIndex(),
++                   Common::FramePhaseTiming::GetEmulatedFrameIndex(), m_dispatch_burst_id,
++                   m_dispatch_burst_index++, m_dispatch_burst_previous_pc, m_guest.pc});
++              --m_dispatch_burst_remaining;
++              if (m_dispatch_burst_samples.size() >= 16384)
++                FlushDispatchBurstSamples(false);
++            }
++            m_dispatch_burst_previous_pc = m_guest.pc;
++          }
+           const u32 runtime_dispatch_address = m_guest.pc;
+           u32 linked_dispatch_address = runtime_dispatch_address;
+           if (has_rel_modules)
+diff --git a/Source/Core/Common/FramePhaseTiming.h b/Source/Core/Common/FramePhaseTiming.h
+--- a/Source/Core/Common/FramePhaseTiming.h
++++ b/Source/Core/Common/FramePhaseTiming.h
+@@ -74,7 +74,9 @@
+ {
+   static const bool enabled = [] {
+     const char* path = std::getenv("SSBMPAD_LIGHTWEIGHT_FRAME_LOG");
+-    return IsEnabled() || (path != nullptr && path[0] != '\0');
++    const char* burst_path = std::getenv("STATICRECOMP_DISPATCH_BURST_LOG");
++    return IsEnabled() || (path != nullptr && path[0] != '\0') ||
++           (burst_path != nullptr && burst_path[0] != '\0');
+   }();
+   return enabled;
+ }

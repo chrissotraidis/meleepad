@@ -5541,3 +5541,23 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Keep row 7 hard failed, physical-iPad promotion closed, and G9 queued.
 - Evidence:
   `docs/artifacts/2026-09-01/g8-ordinary-four-fighter-attract-collapse.md`.
+
+## 2026-09-01 — PERF-272 attract stage/workload factorial
+
+- Extract frames from the retained failing ordinary video. Identify Brinstar
+  at 61.4 then 49.3 FPS and Big Blue at 27.5-35.3 FPS. The latter contains
+  Ness, Peach, Ice Climbers, and Bowser and owns the sustained collapse.
+- Run the source-identical warmed product under the same HEVC recorder with all
+  diagnostics off. Retain four-player Hyrule Temple at 59.7-60.0 FPS/VPS,
+  CPU-thread use near 80%, and underruns 0 -> 2. Refute recording alone and
+  four fighters alone.
+- Add default-off patch 0036: sample 16 consecutive native dispatch entries
+  every 16,384, retain present/emulated frame identity, and ignore burst index
+  zero in edge analysis. iOS core and complete Release app compile; focused
+  source and analyzer regressions pass.
+- Do not optimize from the first passing Hyrule burst trace. Next capture a
+  present-aligned no-recorder Big Blue interval and separate CPU paths, video
+  build, and first-use state before an architecture candidate.
+- Keep row 7, physical-iPad promotion, and G9 closed.
+- Evidence:
+  `docs/artifacts/2026-09-01/g8-attract-stage-workload-factorial.md`.

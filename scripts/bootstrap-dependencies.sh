@@ -179,6 +179,7 @@ lockstep_cache_side_effect_patch="$ROOT/patches/moderngekko-dolphin/0032-lockste
 lockstep_loop_replay_patch="$ROOT/patches/moderngekko-dolphin/0033-lockstep-replay-loop-interval.patch"
 lockstep_repeat_set_patch="$ROOT/patches/moderngekko-dolphin/0034-lockstep-repeat-pc-set.patch"
 xfb_boundary_attribution_patch="$ROOT/patches/moderngekko-dolphin/0035-xfb-boundary-attribution.patch"
+static_recomp_dispatch_burst_patch="$ROOT/patches/moderngekko-dolphin/0036-static-recomp-dispatch-burst-trace.patch"
 apply_patch_once_or_marker "$MG" "$mg_patch" \
   include/moderngekko/runtime.hpp 'struct RuntimeDiagnosticsSnapshot'
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$dolphin_patch" \
@@ -272,6 +273,9 @@ apply_patch_once_or_marker "$MG/vendor/dolphin" "$lockstep_repeat_set_patch" \
   'parse_pc_set(s, m_ls_repeat_pcs);'
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$xfb_boundary_attribution_patch" \
   Source/Core/Common/FramePhaseTiming.h s_xfb_output_requests
+apply_patch_once_or_marker "$MG/vendor/dolphin" "$static_recomp_dispatch_burst_patch" \
+  Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp \
+  STATICRECOMP_DISPATCH_BURST_LOG
 verify_patch_scope "$MG" "$mg_patch" "$ROOT"/patches/moderngekko/*.patch -- \
   vendor/dolphin
 verify_patch_scope "$MG/vendor/dolphin" "$dolphin_patch" "$mg_patch" \

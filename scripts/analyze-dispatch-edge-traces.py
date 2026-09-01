@@ -30,6 +30,11 @@ def load_edges(path: Path, first_frame: int, last_frame: int) -> dict[str, Count
         if rows.fieldnames is None or not expected.issubset(rows.fieldnames):
             raise ValueError(f"{path} does not contain {sorted(expected)}")
         for row in rows:
+            # Sparse burst traces retain the predecessor before each sampled
+            # burst for orientation, but index zero is not adjacent to the
+            # preceding retained row and must not become a synthetic edge.
+            if "index" in row and int(row["index"]) == 0:
+                continue
             frame = int(row["emulated_frame"])
             if first_frame <= frame <= last_frame:
                 source = row["previous_pc"].upper().removeprefix("0X")

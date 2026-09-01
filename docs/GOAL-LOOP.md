@@ -121,6 +121,18 @@ cannot, record the static architecture ceiling honestly rather than returning
 to compiler flags or small hotspots. See
 `docs/artifacts/2026-09-01/g8-ordinary-four-fighter-attract-collapse.md`.
 
+PERF-272 narrows that claim from generic four-player attract to stage/workload
+specific behavior. The failing video shows Brinstar at 49.3 FPS and Big Blue
+at 27.5-35.3 FPS. A source-identical warmed run under the same HEVC recorder
+shows four-player Hyrule Temple at 59.9 FPS, with only two underruns. Recording
+alone and four fighters alone are refuted. Do not select an architecture
+candidate from the passing Hyrule trace. First capture Big Blue without the
+recorder, align sparse consecutive dispatch paths to present frames, and
+separate guest CPU work from video build and first-use resource work. Only a
+reproduced on-core Big Blue deficit earns the broad register-resident C-region
+tranche. See
+`docs/artifacts/2026-09-01/g8-attract-stage-workload-factorial.md`.
+
 The address-translation/discarded-instruction split, guest-PC-store preflight,
 and exact-route one-in-4,096 dispatch distribution are complete. TLB/branch
 events are too small and distributed to explain the 21.9-to-60 FPS gap alone.

@@ -7,10 +7,10 @@ not a substitute for `GOAL-LOOP.md` or evidence in `docs/artifacts/`.
 
 ## P0 — G8 row 7: prove the complete iPad route honestly at 60 FPS
 
-### 1. Cross the full-load static-CPU ceiling
+### 1. Cross the Big Blue full-load ceiling
 
 The ordinary cold product now supplies the controlling failure that the exact
-one-on-one route did not. A hands-off four-fighter attract match falls from
+one-on-one route did not. A hands-off four-fighter Big Blue attract match falls from
 59.9-60.0 FPS to sustained 31.8-32.3 FPS, reaches 21.1 FPS, drives the CPU
 thread to 96-99.7%, and raises DMA underruns from 0 to 447. The visible labels
 show 31.6 and about 24.9 FPS. This supersedes the stale conclusion that only
@@ -24,7 +24,16 @@ roughly twice the allowed host time. Target speed remains possible in
 principle, but requires a roughly 50% or greater CPU-thread reduction, not
 another isolated five-percent tweak.
 
-The only credible in-scope route is broad register-resident generated C:
+Visual extraction narrows this further. Four-player Hyrule Temple holds
+59.9 FPS under the same HEVC recorder, while Brinstar falls to 49.3 and Big
+Blue to 27.5-35.3. Recording alone and four fighters alone are refuted. The
+remaining factorial is Big Blue stage/roster work versus first-use state. Run
+a present-aligned, no-recorder Big Blue phase before declaring a universal
+static-CPU ceiling or building from the passing Hyrule distribution. See
+`docs/artifacts/2026-09-01/g8-attract-stage-workload-factorial.md`.
+
+If Big Blue reproduces on-core saturation without recording, the only credible
+in-scope route is broad register-resident generated C:
 single-entry regions keep guest GPR/FPR/paired state live across internal
 control flow while the canonical arbitrary-entry path remains available for
 uncommon entries, helpers, exceptions, cycle exits, and SMC invalidation. The
@@ -41,7 +50,7 @@ static-C architecture cannot guarantee worst-case 60 FPS on the M1 Simulator
 host instead of cycling compiler flags. See
 `docs/artifacts/2026-09-01/g8-ordinary-four-fighter-attract-collapse.md`.
 
-The retained attract distribution makes the first-tranche breadth concrete:
+The retained slow-attract distribution makes the provisional first-tranche breadth concrete:
 at 35% local gain, seven 16 KiB regions cover only 70.39% and project 24.64%
 whole-frame gain; eight cover 75.99% and project 26.60%. Treat this as an
 optimistic selection bound, not proof that entire chunks can be optimized.
