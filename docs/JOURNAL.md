@@ -5765,3 +5765,25 @@ Append-only execution ledger. Claims are limited to observed evidence.
   otherwise proceed to the manual product route.
 - Evidence:
   `docs/artifacts/2026-09-01/g8-first-post-yield-fountain-acceptance.md`.
+
+## 2026-09-01 — PERF-282 observer-free opening/attract reality lane
+
+- Launch a fresh Release Simulator product with phase logging, MemoryWatcher,
+  short-path override, external pipe, profiler, savestate, cheat, and recording
+  all disabled. Interact through the visible touch overlay, then leave the
+  ordinary moving opening/attract sequence uninterrupted for about eight
+  minutes.
+- Across 49 runtime reports, measure 59.908/59.912 mean FPS/VPS, 59.4/59.5
+  minima, 0.984 minimum speed, and DMA underruns 0 -> 5 only in isolated
+  transitions. No report falls below the written 59.0 route threshold.
+- Retain a visible moving four-fighter Dream Land frame at 59.8 FPS with
+  coherent characters. The former sustained 21-36 FPS collapse and PERF-281's
+  diagnostic 56.7-VPS wall stall do not reproduce.
+- Stop the app and restore ordinary GCI
+  `0a361d3471289f6c4ea1f4c0254b1f197b44fb8466e408b71240418f01ad0e70`.
+- Decision: opening/attract reality lane PASS; retain patch 0038. Row 7 remains
+  PARTIAL because this is not the second exact route or the required unchanged-
+  build manual Fountain route. Next perform that manual route; do not reopen
+  architecture work for above-threshold 59.4/59.5 intervals.
+- Evidence:
+  `docs/artifacts/2026-09-01/g8-observer-free-opening-attract-reality-lane.md`.

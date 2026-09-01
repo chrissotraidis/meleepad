@@ -2674,6 +2674,18 @@ with phase, MemoryWatcher, and external pipe disabled. If the dip repeats,
 attribute the host wait; if not, proceed to the manual product route. See
 `docs/artifacts/2026-09-01/g8-first-post-yield-fountain-acceptance.md`.
 
+PERF-282 clears the observer question and the ordinary opening/attract reality
+lane. A fresh normal product process with every observer disabled runs about
+eight minutes through moving content. All 49 reports remain above the written
+59.0 threshold: FPS/VPS minima are 59.4/59.5, speed minimum is 0.984, and DMA
+underruns rise 0 -> 5 only in isolated transitions. A final moving four-fighter
+Dream Land frame visibly reads 59.8 FPS with coherent characters. The former
+sustained 21-36 FPS attract collapse and PERF-281's diagnostic 56.7-VPS stall
+do not reproduce. Retain patch 0038 and move directly to the unchanged-build
+manual exact Fountain route; this reality-lane pass is not a second complete
+exact route. See
+`docs/artifacts/2026-09-01/g8-observer-free-opening-attract-reality-lane.md`.
+
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).
 - **Per goal claim:** full evidence per PRD Section 11 before marking a goal met in STATUS.md.
 - **Per session:** before ending, run the ported regression scripts (sunpad `tests/` equivalents) plus a boot check on the highest working target, so the journal's last entry states a known-good state.

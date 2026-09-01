@@ -2709,3 +2709,13 @@ remains separately open. See
   only 13/18 ms CPU time. Row 7 remains PARTIAL pending an observer-free fresh
   route and the manual product route. Evidence:
   `docs/artifacts/2026-09-01/g8-first-post-yield-fountain-acceptance.md`.
+- **PERF-282 (observer-free opening/attract reality lane):** A fresh ordinary
+  product process runs about eight minutes with phase, MemoryWatcher, external
+  pipe, profiler, savestate, and recording all absent. Across 49 reports,
+  FPS/VPS minima are 59.4/59.5, minimum speed is 0.984, and underruns rise 0 ->
+  5 only in isolated transitions. A final moving four-fighter Dream Land frame
+  visibly reads 59.8 FPS with coherent characters. The prior sustained attract
+  collapse and PERF-281's 56.7-VPS diagnostic stall do not reproduce. This
+  phase passes, but row 7 remains PARTIAL pending the unchanged-build manual
+  exact Fountain route. Evidence:
+  `docs/artifacts/2026-09-01/g8-observer-free-opening-attract-reality-lane.md`.

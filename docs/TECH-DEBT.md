@@ -52,6 +52,15 @@ MemoryWatcher, or external-pipe observers. Do not tune the static core for this
 single host-wait event unless it reproduces visibly. See
 `docs/artifacts/2026-09-01/g8-first-post-yield-fountain-acceptance.md`.
 
+The observer-free reality lane then runs about eight minutes through moving
+opening/menu/attract content. All 49 reports remain above the written 59.0
+floor: FPS/VPS minima are 59.4/59.5, minimum speed is 0.984, and five underruns
+occur only in isolated transitions. The old sustained attract collapse and the
+diagnostic route's 56.7-VPS stall do not reproduce. Opening/attract architecture
+work is closed; the remaining P0 is the unchanged-build manual exact Fountain
+route. See
+`docs/artifacts/2026-09-01/g8-observer-free-opening-attract-reality-lane.md`.
+
 ### 2. Cold-transition and resume audio
 
 Sustained visible Classic combat holds the DMA-underrun counter flat while
