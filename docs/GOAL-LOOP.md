@@ -185,6 +185,20 @@ fault, sub-55 interval, or less than five-percent matched gain. Row 7 and iPad
 promotion remain closed. See
 `docs/artifacts/2026-09-01/g8-synchronized-dual-core-screen.md`.
 
+PERF-262 corrects the existing short-path MemoryWatcher invocation and proves
+the unchanged candidate on the exact Fountain route twice. Active combat now
+averages about 59.94 FPS across 5,001 consecutive emulated frames and both
+matches complete without the former FIFO crash. This is the first architecture
+to reverse the sustained 21.9 FPS anchor, but it remains below acceptance:
+p95/p99 are 17.481/18.374 ms, a first-use Metal pipeline creates a 91.782 ms
+combat frame, cold/load/results phases visibly fall below 59, and Fountain
+rendering remains malformed. Treat the repeated one-second results-transition
+XFB drought separately from active combat; the prior FastDisc rejection still
+controls. Keep synchronized dual-core unmerged. Next identify and reverse the
+slow Metal pipeline, then classify moving front-end intervals and repair visual
+correctness before any full acceptance sequence. See
+`docs/artifacts/2026-09-01/g8-synchronized-dual-core-exact-fountain.md`.
+
 DECISION-215 originally recorded a user-authorized sequencing exception after
 PERF-214. On 30 Aug 2026 the user explicitly broadened that direction: assume
 the unavailable external-display check passes and repeat it later once the

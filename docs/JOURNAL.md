@@ -5346,3 +5346,28 @@ Append-only execution ledger. Claims are limited to observed evidence.
   Stop the app and clear every diagnostic Simulator environment variable.
 - Evidence:
   `docs/artifacts/2026-09-01/g8-synchronized-dual-core-screen.md`.
+
+## 2026-09-01 — PERF-262 synchronized dual-core exact Fountain reversal
+
+- Repair the existing diagnostic invocation, not product code: a 49-byte short
+  symlink resolves to the exact normal SsbmPad user directory, allowing the
+  already-guarded MemoryWatcher socket and `gcpipe.py` to share one valid root.
+- Complete the exact Samus/level-1-CPU-Kirby, Stock/04/05:00 Fountain route
+  twice on the unchanged PERF-261 executable. Both matches reach results with
+  no malformed-FIFO crash, panic, fatal line, or callback loss.
+- Retain 5,001 consecutive combat frames at 16.683633 ms mean, 17.481167 ms
+  p95, 18.374041 ms p99, and 91.782083 ms worst. Runtime remains about
+  59.9-60.0 FPS/VPS, reversing the ordinary sustained 21.9 FPS anchor but not
+  satisfying row 7.
+- Attribute the 91.782 ms active-combat hitch to one first-use Metal pipeline
+  (101.033 ms worker timing), while two roughly one-second no-present intervals
+  belong to synchronous results/resource transition loops that advance 61-63
+  emulated frames. Do not repeat the already-rejected FastDisc experiment.
+- Keep the synchronized candidate unmerged. Next retain the slow pipeline's
+  identity and cache status and run one cold exact reversal; then handle
+  front-end moving phases and malformed Fountain rendering separately.
+- Keep row 7 failed, physical-iPad promotion closed, and G9 netplay queued.
+  Stop both app processes and clear every diagnostic Simulator environment
+  variable.
+- Evidence:
+  `docs/artifacts/2026-09-01/g8-synchronized-dual-core-exact-fountain.md`.

@@ -88,6 +88,19 @@ unmerged; this is a promising mechanism screen, not playability evidence. Row
 7, physical-iPad promotion, and G9 netplay remain closed. See
 `docs/artifacts/2026-09-01/g8-synchronized-dual-core-screen.md`.
 
+PERF-262 repairs only the existing short-path MemoryWatcher bracket and runs
+that unchanged binary through the exact Fountain route twice. This is the
+first major reversal of the ordinary 21.9 FPS anchor: 5,001 consecutive active
+combat frames average 16.683633 ms (about 59.94 FPS), with runtime rows around
+59.9-60.0 FPS/VPS, and both matches reach results without the old dual-core
+crash. It is still not a pass. Combat p95/p99 are 17.481/18.374 ms, one
+first-use Metal pipeline produces a 91.782 ms frame and visible 56.1 FPS dip,
+cold/load/results phases fall much lower, and the malformed Fountain output
+remains. Keep the candidate unmerged; next identify that pipeline and prove a
+cold persistence/prewarm reversal before front-end classification and visual
+repair. Row 7, physical-iPad promotion, and G9 remain closed. See
+`docs/artifacts/2026-09-01/g8-synchronized-dual-core-exact-fountain.md`.
+
 See
 `docs/artifacts/2026-09-01/g8-r0-cold-host-profile-and-loop-hoist-reversal.md`,
 `docs/artifacts/2026-09-01/g8-progressive-fountain-collapse-and-menu-cleanup.md`,
