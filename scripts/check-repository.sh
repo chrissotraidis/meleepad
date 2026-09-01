@@ -38,6 +38,8 @@ tests/test-lockstep-cache-side-effect-skip.sh
 tests/test-lockstep-loop-replay.sh
 tests/test-lockstep-repeat-set.sh
 tests/test-static-recomp-dispatch-burst-trace.sh
+tests/test-ios-simulator-savestate-signals.sh
+tests/test-capture-projection-trigger.sh
 
 prohibited=$(git ls-files | grep -E \
   '(^|/)(ref|DerivedData|Provisioned|build[^/]*)/|\.(iso|gcm|rvz|wia|wbfs|gcz|dylib|ipa|xcarchive|mobileprovision|p12|pem|key|gci|sav|raw|profraw|profdata)$' || true)

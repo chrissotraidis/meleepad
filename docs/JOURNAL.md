@@ -5574,3 +5574,24 @@ Append-only execution ledger. Claims are limited to observed evidence.
   on the exact Big Blue hash and immediately retain screenshot, phase/burst
   range, and savestate rather than waiting randomly.
 - Keep row 7, physical-iPad promotion, and G9 closed.
+
+## 2026-09-01 — PERF-274 exact iOS Simulator savestate trigger
+
+- Audit the retained savestate harness and find its implementation and handler
+  installation compiled out for iOS Simulator under `MODERNGEKKO_HAVE_IOS`.
+- Add a narrow default-off Apple-Simulator boundary while retaining the
+  physical-iOS exclusion. Bootstrap, focused source checks, core build, and
+  complete Release Simulator build pass.
+- Prove `SIGUSR1` writes a real `GALE01.s01`, `SIGUSR2` leaves the app alive,
+  and normal runtime continues. No save is tracked.
+- Add an exact 16-digit projection-hash monitor. Its absent-hash path times out
+  without action; its live positive path captures a screenshot and exact
+  runtime row, updates the state, reports `savestateUpdated=true`, and leaves
+  the app alive.
+- Stop the app and clear the signal opt-in. This is capture infrastructure, not
+  an FPS change. Next arm the monitor for Big Blue hash
+  `002a81fb84e3f68f` with phase/burst logs and replay the first capture before
+  choosing cold-state work or broad register-resident generated C.
+- Keep row 7, physical-iPad promotion, and G9 closed.
+- Evidence:
+  `docs/artifacts/2026-09-01/g8-ios-simulator-savestate-trigger-boundary.md`.

@@ -1,0 +1,37 @@
+diff --git a/src/runtime/dolphin_runtime.cpp b/src/runtime/dolphin_runtime.cpp
+--- a/src/runtime/dolphin_runtime.cpp
++++ b/src/runtime/dolphin_runtime.cpp
+@@ -52,6 +52,15 @@
+ #include <thread>
+ #include <utility>
+ 
++#if defined(__APPLE__)
++#include <TargetConditionals.h>
++#endif
++
++#if !defined(_WIN32) && \
++    (!defined(MODERNGEKKO_HAVE_IOS) || (defined(__APPLE__) && TARGET_OS_SIMULATOR))
++#define MODERNGEKKO_HAVE_SAVESTATE_SIGNALS 1
++#endif
++
+ namespace {
+ static_assert(sizeof(ModernGekkoModuleDesc) == sizeof(StaticRecompModuleDesc));
+ static_assert(offsetof(ModernGekkoModuleDesc, chunk_hashes) ==
+@@ -67,7 +76,7 @@
+ double s_net_wait_ms_per_second = 0.0;
+ std::chrono::steady_clock::time_point s_previous_net_wait_sample;
+ 
+-#if !defined(_WIN32) && !defined(MODERNGEKKO_HAVE_IOS)
++#if defined(MODERNGEKKO_HAVE_SAVESTATE_SIGNALS)
+ Platform* s_savestate_signal_platform = nullptr;
+ 
+ void SaveStateSignalHandler(int) {
+@@ -674,7 +683,7 @@
+       }
+     });
+   }
+-#if !defined(_WIN32) && !defined(MODERNGEKKO_HAVE_IOS)
++#if defined(MODERNGEKKO_HAVE_SAVESTATE_SIGNALS)
+   ScopedSavestateSignalHandlers savestate_signal_handlers(m_impl->platform.get());
+ #endif
+   m_impl->platform->MainLoop();

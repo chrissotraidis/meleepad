@@ -2570,6 +2570,18 @@ complete cold routes plus the manual product route, describe the Simulator
 build as **unplayable in the failing workload**, never as playable, stable-60,
 nearly ready, or device-ready.
 
+PERF-274 closes the missing exact-scene capture prerequisite. The original
+default-off savestate signal harness was desktop-only because its compile guard
+excluded iOS Simulator. A narrow patch now admits Apple Simulator, continues to
+exclude physical iOS, and remains inert without the explicit environment
+opt-in. Live save, load, exact-hash screenshot, runtime-row capture, and state
+update all pass. The next loop iteration must arm phase plus sparse burst logs
+and trigger on Big Blue hash `002a81fb84e3f68f`; it must not substitute another
+unbounded attract wait. Replay that state before choosing a mechanism. A warmed
+60 FPS replay routes to cold resource/cache attribution; a repeated 21-35 FPS,
+8.11-million-cycle saturated replay earns the representative register-resident
+generated-C corpus. This infrastructure does not alter row 7.
+
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).
 - **Per goal claim:** full evidence per PRD Section 11 before marking a goal met in STATUS.md.
 - **Per session:** before ending, run the ported regression scripts (sunpad `tests/` equivalents) plus a boot check on the highest working target, so the journal's last entry states a known-good state.

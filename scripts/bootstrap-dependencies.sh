@@ -142,6 +142,7 @@ pgo_cache_patch="$ROOT/patches/moderngekko/0008-private-pgo-cache-identity.patch
 metal_sync_config_patch="$ROOT/patches/moderngekko/0009-macos-metal-display-sync.patch"
 macos_diagnostics_patch="$ROOT/patches/moderngekko/0010-macos-diagnostics-export.patch"
 ios_performance_defaults_patch="$ROOT/patches/moderngekko/0011-ios-shader-workers.patch"
+ios_simulator_savestate_signals_patch="$ROOT/patches/moderngekko/0012-ios-simulator-savestate-signals.patch"
 render_log_patch="$ROOT/patches/moderngekko-dolphin/0002-buffer-render-time-logging.patch"
 idle_patch="$ROOT/patches/moderngekko-dolphin/0003-gale01r0-staticrecomp-idle.patch"
 memory_watcher_patch="$ROOT/patches/moderngekko-dolphin/0004-static-recomp-memory-watcher.patch"
@@ -212,7 +213,8 @@ apply_patch_once_or_marker "$MG/vendor/dolphin" "$dispatch_frame_patch" \
   Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp \
   STATICRECOMP_DISPATCH_FRAME_LOG
 apply_patch_once "$MG/vendor/dolphin" "$paired_store_patch"
-apply_patch_once "$MG" "$savestate_signal_patch"
+apply_patch_once_or_marker "$MG" "$savestate_signal_patch" \
+  src/runtime/dolphin_runtime.cpp MODERNGEKKO_ENABLE_SAVESTATE_SIGNALS
 apply_patch_once_or_marker "$MG" "$extracted_idle_patch" \
   src/runtime/dolphin_runtime.cpp \
   'Executable-only boots do not give Dolphin a disc volume'
@@ -226,6 +228,8 @@ apply_patch_once_or_marker "$MG" "$macos_diagnostics_patch" \
 apply_patch_once_or_marker "$MG" "$ios_performance_defaults_patch" \
   src/runtime/dolphin_runtime.cpp \
   'Config::SetBase(Config::GFX_SHADER_COMPILER_THREADS, 3);'
+apply_patch_once_or_marker "$MG" "$ios_simulator_savestate_signals_patch" \
+  src/runtime/dolphin_runtime.cpp MODERNGEKKO_HAVE_SAVESTATE_SIGNALS
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$emulated_frame_patch" \
   Source/Core/Common/FramePhaseTiming.h s_emulated_frame_index
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$gxruntime_fma_test_patch" \

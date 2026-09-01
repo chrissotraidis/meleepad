@@ -1,5 +1,22 @@
 # ssbmpad status
 
+## 2026-09-01 — Exact Big Blue capture boundary passes
+
+The prior claim that an existing signal harness could capture an iOS Simulator
+state was incomplete: its implementation was compiled out under
+`MODERNGEKKO_HAVE_IOS`. A narrow default-off patch now enables the handlers on
+Apple Simulator while retaining their physical-iOS exclusion. Live `SIGUSR1`
+created a real `GALE01.s01`, `SIGUSR2` returned with the app alive, and the
+exact-hash monitor captured a screenshot, runtime row, and updated state on a
+recurring control hash. The app was stopped and the opt-in cleared.
+
+This is experiment infrastructure, not an FPS improvement. Row 7 remains
+failed. The next run triggers on Big Blue hash `002a81fb84e3f68f` with aligned
+phase/burst logs. Replay decides whether the collapse is cold-state work or a
+repeatable full-load static-CPU ceiling before any broad generated-code change.
+See
+`docs/artifacts/2026-09-01/g8-ios-simulator-savestate-trigger-boundary.md`.
+
 ## 2026-09-01 — Big Blue, not generic four-player attract, controls
 
 Visual extraction corrects the newest attribution. The failing ordinary video

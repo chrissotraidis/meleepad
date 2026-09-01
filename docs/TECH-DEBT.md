@@ -33,12 +33,16 @@ static-CPU ceiling or building from the passing Hyrule distribution. See
 `docs/artifacts/2026-09-01/g8-attract-stage-workload-factorial.md`.
 
 An eight-minute present-aligned no-recorder search did not encounter Big
-Blue's exact projection hash. Do not keep waiting randomly. Monitor the hash
-and capture a savestate plus aligned phase/burst evidence on first appearance;
-use that replayable corpus for the architecture decision.
+Blue's exact projection hash. Random waiting is closed. The missing Simulator
+capture boundary now passes live: the default-off signal harness creates and
+loads a real state on iOS Simulator, and the exact-hash trigger captures a
+screenshot, matching runtime row, and updated state without affecting physical
+iOS or product defaults. Arm it with phase/burst logging for the first Big Blue
+appearance, then use that replayable corpus for the architecture decision. See
+`docs/artifacts/2026-09-01/g8-ios-simulator-savestate-trigger-boundary.md`.
 
-If Big Blue reproduces on-core saturation without recording, the only credible
-in-scope route is broad register-resident generated C:
+If Big Blue reproduces on-core saturation without recording and after replay,
+the only credible in-scope route is broad register-resident generated C:
 single-entry regions keep guest GPR/FPR/paired state live across internal
 control flow while the canonical arbitrary-entry path remains available for
 uncommon entries, helpers, exceptions, cycle exits, and SMC invalidation. The
@@ -59,6 +63,12 @@ The retained slow-attract distribution makes the provisional first-tranche bread
 at 35% local gain, seven 16 KiB regions cover only 70.39% and project 24.64%
 whole-frame gain; eight cover 75.99% and project 26.60%. Treat this as an
 optimistic selection bound, not proof that entire chunks can be optimized.
+
+If the captured state instead replays at 60 FPS after caches/resources are
+warm, reject the broad rewrite for this failure and bisect first-use resource
+creation and cache persistence. Do not conflate these outcomes: the former
+requires roughly two-times static CPU throughput; the latter is a cold-state
+repair. This replay fork is the current highest-priority decision.
 
 ### 2. Complete the exact ordinary acceptance route
 
