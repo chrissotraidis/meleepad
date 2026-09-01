@@ -19,6 +19,31 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 
+### Current hard stop: G8 row 7
+
+The installed iPad Simulator product is **not currently playable** on the
+controlling route and is **not eligible for physical-iPad promotion**. The
+authoritative floor is the user's ordinary first-run, on-screen 21.9 FPS result
+in P1 Samus versus level-1 CPU Kirby, Stock/04/05:00, on Fountain of Dreams.
+Later automated runs at 45.2, 36.4, or any higher diagnostic value do not
+replace that result. Animated opening/menu slowdowns also fail independently.
+
+Until this hard stop is cleared, the loop order is:
+
+1. reproduce the exact route with guest-state feedback and retain the lower of
+   visible FPS and runtime FPS/VPS;
+2. measure one narrower mechanism inside the exact slow combat phase;
+3. make no product build change unless that evidence predicts a falsifiable
+   improvement;
+4. reverse control/candidate/control on the same route and reject regressions;
+5. only after two complete cold routes and the unchanged-build manual route
+   meet the protocol below may physical-device testing begin.
+
+The immediate active step is process-filtered instruction-address-translation
+and discarded-instruction sampling in exact Samus/Kirby Fountain combat. Do
+not build another module, call the app playable, or promote it while collecting
+that diagnostic evidence.
+
 DECISION-215 originally recorded a user-authorized sequencing exception after
 PERF-214. On 30 Aug 2026 the user explicitly broadened that direction: assume
 the unavailable external-display check passes and repeat it later once the

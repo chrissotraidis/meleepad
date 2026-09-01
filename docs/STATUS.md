@@ -4,7 +4,16 @@ Last updated: 2026-08-31
 
 ## Current goal
 
-**G8 — Test matrix green: IN PROGRESS UNDER USER-AUTHORIZED G5 DEFERRAL**
+**G8 — Test matrix green: ROW 7 HARD FAIL; NO iPAD PROMOTION**
+
+The current loop cannot advance past performance. The controlling result is
+the user's ordinary first-run 21.9 FPS Samus/CPU-Kirby, Stock/04/05:00 Fountain
+combat frame, supported by 20.2 FPS / 19.8 VPS runtime evidence and increasing
+DMA underruns. Faster automation, an idle 60 FPS value, or an observer-heavy
+profile cannot supersede it. The immediate next step is matched, process-
+filtered instruction-address-translation and discarded-instruction evidence
+from the exact state-verified combat route; no new module candidate is allowed
+before that split names a narrower mechanism.
 
 PERF-238 reopens row 7 and retracts the prior physical-iPad-candidate
 interpretation. The user's first manual Simulator run visibly showed Fountain

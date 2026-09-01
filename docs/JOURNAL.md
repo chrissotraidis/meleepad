@@ -5105,3 +5105,19 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Next: collect process-filtered instruction-address-translation and discarded-
   sampling evidence on this exact slow combat phase before another module build.
 - Evidence: `docs/artifacts/2026-08-31/g8-r0-exact-route-reproduction.md`.
+
+## 2026-08-31 — LOOP-250 visible-result hard stop and stage feedback
+
+- Put the controlling state at the top of the operating loop: G8 row 7 is a
+  hard fail, the user's ordinary 21.9 FPS Fountain frame is the performance
+  floor, animated front-end slowdowns fail independently, and physical-iPad
+  promotion is prohibited.
+- Replace the last elapsed-time stage cursor path with revision-1.00 live
+  guest-state steering through `HSD_GObj_Entities` at `0x804D56A4`. Keep the
+  independent Fountain slot-8 predicate as the final veto before A.
+- Pass 27/27 focused harness tests and two further fresh-process exact-route
+  traversals. A visible 45.4 FPS result remains a failure and does not replace
+  the user's 21.9 FPS floor.
+- Next: collect matched process-filtered instruction-address-translation and
+  discarded-instruction evidence inside exact Samus/CPU-Kirby Fountain combat.
+  Do not build another module until that split identifies a narrower mechanism.

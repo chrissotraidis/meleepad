@@ -308,6 +308,20 @@ class SequenceTests(unittest.TestCase):
             gcpipe.sequence_addresses(sequence), {"80453134 2C B0"}
         )
 
+    def test_merges_read_only_watch_locations(self) -> None:
+        sequence = [{"action": "wait_memory", "address": "0x80477D68"}]
+        self.assertEqual(
+            gcpipe.watched_addresses(
+                sequence,
+                ["0x804D56AC 0x14 0x28 0x38", "0x80BDA810 0x28 0x3c"],
+            ),
+            {
+                "80477D68",
+                "804D56AC 14 28 38",
+                "80BDA810 28 3C",
+            },
+        )
+
     def test_wait_counter_sequence_action_uses_watcher(self) -> None:
         class FakeWriter:
             pass
@@ -473,6 +487,16 @@ class SequenceTests(unittest.TestCase):
         self.assertIn(
             ("0x804D1D60 0x1850", "0xFF000000", "0x05000000"), predicates
         )
+
+        stage_steer = next(
+            step
+            for step in sequence
+            if step.get("action") == "steer_memory_f32"
+            and str(step.get("x_address", "")).startswith("0x804D56A4")
+        )
+        self.assertEqual(stage_steer["x_address"].split().count("0x8"), 22)
+        self.assertEqual(stage_steer["y_address"].split().count("0x8"), 22)
+        self.assertEqual((stage_steer["target_x"], stage_steer["target_y"]), (7.4, 14.1))
 
 
 if __name__ == "__main__":

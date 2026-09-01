@@ -22,10 +22,13 @@ supersedes the user's lower ordinary-route observation of 21.9 FPS.
 - Scene state `80477D68` changed from CSS to stage select `0x02020101`, then
   active match `0x02020102` only after all predicates passed.
 
-The harness feedback-drives character cursors and rule values from watched
-guest state. Stage motion retains its calibrated physical stick path but now
-requires both the intermediate slot-14 state and final slot-8/Fountain state;
-it cannot start a match on a wrong stage.
+The harness feedback-drives character cursors, rule values, and the stage
+cursor from watched guest state. The revision-1.00 `HSD_GObj_Entities` global
+is `0x804D56A4`; following the p-link-5 list head through 22 successors reaches
+the live stage cursor object. Its X/Y values at `0x28/0x38` and `0x28/0x3C`
+now steer directly toward `(7.4, 14.1)`, while the independent slot-8 predicate
+still vetoes A if the cursor is not on Fountain. This replaces the calibrated
+elapsed-time stick path that could fail after a fresh heap recreation.
 
 ## Runs
 
@@ -37,8 +40,12 @@ it cannot start a match on a wrong stage.
    oversimplification was removed; it is not game stability evidence.
 3. Cold process 26251: the restored state-checked route passed end to end.
    Computer Use again showed the exact match and only 36.4 FPS.
+4. After replacing the remaining stage timing path with live cursor feedback,
+   two further fresh processes reached the same exact match. One visibly
+   reported 45.4 FPS. These are route-calibration passes only; they are not
+   performance passes and do not replace the 21.9 FPS control floor.
 
-Focused harness tests pass 26/26. The route changes product input only through
+Focused harness tests pass 27/27. The route changes product input only through
 the existing GameCube pipe and observes guest state through the diagnostic
 MemoryWatcher path; it does not alter emulation performance.
 

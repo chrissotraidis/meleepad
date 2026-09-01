@@ -232,6 +232,11 @@ def sequence_addresses(sequence: list[dict]) -> set[str]:
     return addresses
 
 
+def watched_addresses(sequence: list[dict], extra: list[str]) -> set[str]:
+    """Combine sequence predicates with read-only diagnostic locations."""
+    return sequence_addresses(sequence) | {memory_location(value) for value in extra}
+
+
 def steer_memory_f32(
     writer: PadWriter,
     watcher: MemoryWatcherClient,
@@ -429,6 +434,13 @@ def main() -> int:
     parser.add_argument("--sequence", type=Path)
     parser.add_argument("--repeat", type=int, default=1)
     parser.add_argument("--memory-user-dir", type=Path)
+    parser.add_argument(
+        "--watch",
+        action="append",
+        default=[],
+        metavar="ADDRESS",
+        help="also publish a MemoryWatcher address or pointer chain",
+    )
     parser.add_argument("--trace-memory", action="store_true")
     parser.add_argument("--tap", metavar="BUTTON")
     parser.add_argument("--stick", nargs=3, metavar=("AXIS", "X", "Y"))
@@ -443,7 +455,7 @@ def main() -> int:
 
     watcher: MemoryWatcherClient | None = None
     if args.memory_user_dir:
-        addresses = sequence_addresses(sequence)
+        addresses = watched_addresses(sequence, args.watch)
         if not addresses:
             parser.error("--memory-user-dir requires a memory-aware sequence")
         watcher = MemoryWatcherClient(
