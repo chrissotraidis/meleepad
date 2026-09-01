@@ -82,6 +82,15 @@ on the same unlocked route and saves the state. Only that result can separate
 fighter/AI scaling from attract-only cold state. See
 `docs/artifacts/2026-09-01/g8-controlled-big-blue-factorial.md`.
 
+That four-player factorial now exists. Its no-logger live arm sustains
+55.6-57.8 FPS; its observer-heavy replay sustains 46.8-51.8 FPS with about
+6.13 million guest cycles and 221,700 dispatches per row. The failing attract
+arm carries about 8.11 million cycles and 416,000 dispatches: 32% more guest
+work and 88% more dispatches. Recreate its exact Ness/Peach/Ice Climbers/Bowser
+roster on deterministic Big Blue next. If that state reaches the same work
+class, use it as the broad generated-C corpus; if it does not, the residual is
+attract-specific state rather than stage or player count.
+
 ### 2. Complete the exact ordinary acceptance route
 
 After the architecture gate produces a viable product candidate, run two

@@ -2592,6 +2592,17 @@ state. The next loop iteration must activate CPU slots 2-4 on the same unlocked
 route and retain/replay that state. Do not optimize from the passing one-on-one
 trace or return to passive attract waiting.
 
+PERF-276 completes the four-player factorial. Pikachu plus CPU Bowser/Link/Link
+on controlled Big Blue sustains 55.6-57.8 FPS without loggers and 46.8-51.8
+under phase/burst observer overhead. The replay measures about 6.13 million
+guest cycles and 221,700 dispatches per row, versus 8.11 million and 416,000
+in the failing attract arm. The extra attract roster/state therefore adds 32%
+guest work and 88% dispatches to an already near-ceiling state. Next recreate
+Ness/Peach/Ice Climbers/Bowser deterministically on the same unlocked Big Blue
+route, then save/replay it. If it reaches the attract work class, it is the
+representative generated-C architecture corpus; otherwise isolate the
+remaining attract-only state. Do not optimize the passing one-on-one trace.
+
 - **Per change:** the check relevant to what you touched (build, boot, or the affected test row).
 - **Per goal claim:** full evidence per PRD Section 11 before marking a goal met in STATUS.md.
 - **Per session:** before ending, run the ported regression scripts (sunpad `tests/` equivalents) plus a boot check on the highest working target, so the journal's last entry states a known-good state.

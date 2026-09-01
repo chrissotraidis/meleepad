@@ -1,5 +1,21 @@
 # ssbmpad status
 
+## 2026-09-01 — Four-player Big Blue isolates the extra attract work
+
+The controlled unlocked route now runs Pikachu plus CPU Bowser/Link/Link on
+Big Blue. The no-logger live arm slows to 55.6-57.8 FPS with CPU/video near
+99.5%/95.1%. A saved-state phase/burst replay is observer-contaminated at
+46.8-51.8 FPS, but yields the useful work count: about 6.13 million guest
+cycles and 221,700 dispatches per row.
+
+The failing attract Big Blue arm executes about 8.11 million cycles and
+416,000 dispatches—32% more guest work and 88% more dispatches. This explains
+why the attract roster/state pushes a near-ceiling four-player stage into the
+21-35 FPS regime. Next deterministically recreate its exact Ness/Peach/Ice
+Climbers/Bowser roster and save that corpus. Row 7 and device promotion remain
+closed. See
+`docs/artifacts/2026-09-01/g8-controlled-big-blue-factorial.md`.
+
 ## 2026-09-01 — Controlled Big Blue holds 60; stage alone refuted
 
 A deterministic diagnostic route used the already-retained isolated unlock

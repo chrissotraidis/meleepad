@@ -5617,3 +5617,26 @@ Append-only execution ledger. Claims are limited to observed evidence.
   `0a361d3471289f6c4ea1f4c0254b1f197b44fb8466e408b71240418f01ad0e70`.
 - Keep row 7, physical-iPad promotion, and G9 closed.
 - Evidence: `docs/artifacts/2026-09-01/g8-controlled-big-blue-factorial.md`.
+
+## 2026-09-01 — PERF-276 controlled four-player Big Blue
+
+- Reinstall the isolated unlock GCI after preserving the ordinary Simulator
+  GCI and deterministically activate P1 Pikachu plus CPU Bowser, Link, and
+  Link. Visibly select labeled Big Blue.
+- The no-logger live arm holds 59.9 through entry, then sustains 55.6-57.8 FPS
+  with CPU/video near 99.5%/95.1% and underruns rising 1 -> 37.
+- Save the exact four-player state. Fresh phase/burst replay sustains
+  46.8-51.8 FPS under observer overhead and raises underruns 0 -> 123.
+- Across 4,404 steady replay rows measure 20.930 ms total, 19.727 ms CPU-thread,
+  0.095 ms video-build, 0.032 ms present, 6.132 million guest cycles, and
+  221,698 native dispatches on average.
+- Compare with the failing attract arm's 8.11 million cycles and 416,000
+  dispatches: attract roster/state adds about 32% guest work and 88%
+  dispatches to an already near-ceiling four-player Big Blue state.
+- Next recreate Ness/Peach/Ice Climbers/Bowser on controlled Big Blue and save
+  it. This decides whether the exact roster earns the reproducible
+  register-resident generated-C corpus or whether residual state is
+  attract-only.
+- Stop the app, clear all diagnostic variables, and restore the ordinary GCI
+  byte-for-byte. Row 7, device promotion, and G9 remain closed.
+- Evidence: `docs/artifacts/2026-09-01/g8-controlled-big-blue-factorial.md`.
