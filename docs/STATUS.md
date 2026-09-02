@@ -1,5 +1,23 @@
 # ssbmpad status
 
+## 2026-09-01 — G9 NL1 GameCube transport passes
+
+The known controller-family defect is corrected in durable outer patches.
+The control Wii protocol test remains green. A pre-fix GameCube assertion
+failed with exit `19` because a client advertised three assigned controllers
+but owned no `m_pad_map` slots. The candidate explicitly selects GameCube for
+SsbmPad, assigns/counts/cleans/starts through that map, and exposes a locked
+lobby snapshot.
+
+The focused candidate passes two-client capacity and assignment, exact buttons,
+analog A/B, both sticks, both analog triggers, connection state, count change,
+disconnect cleanup, reconnect, the legacy Wii payload, and the rebuilt desktop
+runner. NL0 and NL1 therefore pass at protocol/build evidence. No Melee match,
+mobile lobby, internet room code, or public Online Play claim has passed. The
+active goal is NL2, a reusable window-independent session lifecycle. See
+`docs/NETPLAY-GOAL-LOOP.md` and
+`docs/artifacts/2026-09-01/g9-gamecube-netplay-transport.md`.
+
 ## 2026-09-01 — G9 Online Play research and implementation plan
 
 The current fixed-delay stack is suitable for native online friend play, but

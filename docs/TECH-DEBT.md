@@ -194,19 +194,13 @@ uncertainty. The iPhone/iPad app already links ENet/SFML and already publishes
 touch/controller state through the GameCube pipe that netplay polls. Dolphin's
 CC0 traversal server and eight-character room-code protocol are also present.
 
-The first defect remains source-proven: ModernGekko's customized server assigns
-requested controllers through `m_wiimote_map`, while Melee input transport uses
-`m_pad_map`. The current protocol test sends only `WiimoteData`. Do not start
-with UIKit or infrastructure. Start NP-0/NP-1 in an isolated build:
+The first defect is now closed by canonical outer patches: the pre-fix
+GameCube assertion failed with exit `19`, while the candidate passes explicit
+GameCube capacity/assignment/count/disconnect/reconnect and every
+`GCPadStatus` field without regressing the Wii path. NL0/NL1 are focused-test
+passes, not gameplay proof.
 
-1. add a focused regression that proves the current empty GameCube mapping;
-2. make controller family explicit and assign/count/clean/start through
-   `m_pad_map` for SsbmPad;
-3. transmit an exact `GCPadStatus`, including sticks and analog triggers, while
-   preserving the Wii regression; and
-4. record the dependency edits as canonical outer patches.
-
-Then extract a headless `NetplaySession`, prove a two-Mac match, add the native
+Next extract a headless `NetplaySession`, prove host/join/start/stop twice and a two-Mac match, add the native
 three-dot-menu Online Play flow, deploy a private SsbmPad traversal service,
 and complete physical-device/NAT/lifecycle acceptance. Room-code friend play is
 the first release; public matchmaking and Slippi rollback remain separate

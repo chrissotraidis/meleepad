@@ -5872,3 +5872,22 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Next falsifiable implementation step after this documentation checkpoint:
   NP-0, a regression that fails because connected SsbmPad clients receive no
   GameCube slot. Keep it isolated from the installed G8 product.
+
+## 2026-09-01 — NET-287 GameCube transport correction
+
+- Retain the passing customized Wii protocol control, then add the predicted
+  GameCube-slot assertion. The rebuilt pre-fix test exits `19`: three advertised
+  controllers, zero GameCube map entries.
+- Add explicit GameCube/Wii controller-family ownership. Route capacity,
+  assignment, count changes, and start gating through the selected map; expose
+  a locked GameCube lobby snapshot and correct desktop labels from Wii to GC.
+- Pass exact GameCube `PadData` relay for every controller field, count change,
+  disconnect cleanup, reconnect, the legacy Wii payload, and the rebuilt
+  `SsbmPadRunner` target.
+- Store the result as ordered outer patches `0039` and `0013`; reverse-apply
+  checks, bootstrap syntax, and outer diff checks pass. Do not touch the
+  installed app, canonical G8 package, ordinary save, ROM, or module.
+- Decision: NL0/NL1 pass at focused protocol/build evidence. Continue with NL2,
+  a reusable window-independent session lifecycle; make no gameplay, mobile,
+  traversal, or public Online Play claim.
+- Evidence: `docs/artifacts/2026-09-01/g9-gamecube-netplay-transport.md`.

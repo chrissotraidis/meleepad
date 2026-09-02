@@ -9,6 +9,8 @@ static-recomp runtime, including macOS, physical iPhone/iPad, and Simulator
 endpoints, an eight-character room-code traversal service, direct-IP fallback,
 the three-dot-menu UX, touch controls, lifecycle, diagnostics, and acceptance
 
+Active execution loop: `docs/NETPLAY-GOAL-LOOP.md`
+
 ## Decision
 
 Netplay is feasible on the current stack and can be a final ssbmpad feature,

@@ -1,0 +1,176 @@
+diff --git a/Source/Core/Core/NetPlay/NetPlayClient.cpp b/Source/Core/Core/NetPlay/NetPlayClient.cpp
+--- a/Source/Core/Core/NetPlay/NetPlayClient.cpp
++++ b/Source/Core/Core/NetPlay/NetPlayClient.cpp
+@@ -1246,6 +1246,12 @@ PadMappingArray NetPlayClient::GetWiimoteMappingSnapshot()
+   return m_wiimote_map;
+ }
+ 
++PadMappingArray NetPlayClient::GetPadMappingSnapshot()
++{
++  std::lock_guard lkg(m_crit.game);
++  return m_pad_map;
++}
++
+ const NetSettings& NetPlayClient::GetNetSettings() const
+ {
+   return m_net_settings;
+diff --git a/Source/Core/Core/NetPlay/NetPlayClient.h b/Source/Core/Core/NetPlay/NetPlayClient.h
+--- a/Source/Core/Core/NetPlay/NetPlayClient.h
++++ b/Source/Core/Core/NetPlay/NetPlayClient.h
+@@ -131,6 +131,7 @@ public:
+ 
+   std::vector<const Player*> GetPlayers();
+   std::vector<Player> GetPlayersSnapshot();
++  PadMappingArray GetPadMappingSnapshot();
+   PadMappingArray GetWiimoteMappingSnapshot();
+   const NetSettings& GetNetSettings() const;
+ 
+diff --git a/Source/Core/Core/NetPlay/NetPlayProto.h b/Source/Core/Core/NetPlay/NetPlayProto.h
+--- a/Source/Core/Core/NetPlay/NetPlayProto.h
++++ b/Source/Core/Core/NetPlay/NetPlayProto.h
+@@ -32,6 +32,12 @@ namespace NetPlay
+ inline constexpr char MODERNGEKKO_NETPLAY_VERSION_SUFFIX[] = "|moderngekko-netplay-6";
+ inline constexpr u32 MODERNGEKKO_START_GAME_SENTINEL = 0x4d475336;
+ 
++enum class ControllerFamily
++{
++  GameCube,
++  WiiRemote,
++};
++
+ struct NetSettings
+ {
+   bool cpu_thread = false;
+diff --git a/Source/Core/Core/NetPlay/NetPlayServer.cpp b/Source/Core/Core/NetPlay/NetPlayServer.cpp
+--- a/Source/Core/Core/NetPlay/NetPlayServer.cpp
++++ b/Source/Core/Core/NetPlay/NetPlayServer.cpp
+@@ -481,8 +481,9 @@ ConnectionError NetPlayServer::OnConnect(ENetPeer* incoming_connection, sf::Pack
+   if (compatibility_fingerprint != m_compatibility_fingerprint)
+     return ConnectionError::CompatibilityMismatch;
+ 
++  PadMappingArray& controller_mapping = GetControllerMapping();
+   const std::size_t occupied_controllers =
+-      std::ranges::count_if(m_wiimote_map, [](PlayerId pid) { return pid != 0; });
++      std::ranges::count_if(controller_mapping, [](PlayerId pid) { return pid != 0; });
+   const std::size_t available_controllers = 4 - occupied_controllers;
+   if (requested_controllers == 0 || requested_controllers > 4 || available_controllers == 0)
+     return ConnectionError::RoomFull;
+@@ -501,7 +502,7 @@ ConnectionError NetPlayServer::OnConnect(ENetPeer* incoming_connection, sf::Pack
+   // force a ping on first netplay loop
+   m_update_pings = true;
+ 
+-  for (PlayerId& mapping : m_wiimote_map)
++  for (PlayerId& mapping : controller_mapping)
+   {
+     if (mapping == 0 && requested_controllers > 0)
+     {
+@@ -678,17 +679,18 @@ void NetPlayServer::SetControllerCount(Client& player, u8 requested_count)
+     return;
+ 
+   std::lock_guard lkp(m_crit.players);
+-  for (PlayerId& mapping : m_wiimote_map)
++  PadMappingArray& controller_mapping = GetControllerMapping();
++  for (PlayerId& mapping : controller_mapping)
+   {
+     if (mapping == player.pid)
+       mapping = 0;
+   }
+ 
+   const u8 available =
+-      static_cast<u8>(std::ranges::count_if(m_wiimote_map, [](PlayerId pid) { return pid == 0; }));
++      static_cast<u8>(std::ranges::count_if(controller_mapping, [](PlayerId pid) { return pid == 0; }));
+   const u8 assigned = std::min<u8>({requested_count, available, 4});
+   u8 remaining = assigned;
+-  for (PlayerId& mapping : m_wiimote_map)
++  for (PlayerId& mapping : controller_mapping)
+   {
+     if (mapping == 0 && remaining > 0)
+     {
+@@ -699,7 +701,7 @@ void NetPlayServer::SetControllerCount(Client& player, u8 requested_count)
+ 
+   player.controller_count = assigned;
+   player.ready = false;
+-  UpdateWiimoteMapping();
++  UpdateControllerMapping();
+   SendPlayerState(player);
+ }
+ 
+@@ -716,8 +718,9 @@ void NetPlayServer::SetReady(Client& player, bool ready)
+ bool NetPlayServer::CanStart()
+ {
+   std::lock_guard lkp(m_crit.players);
++  const PadMappingArray& controller_mapping = GetControllerMapping();
+   const std::size_t occupied =
+-      std::ranges::count_if(m_wiimote_map, [](PlayerId pid) { return pid != 0; });
++      std::ranges::count_if(controller_mapping, [](PlayerId pid) { return pid != 0; });
+   return occupied >= 2 && !m_players.empty() &&
+          std::ranges::all_of(m_players, [](const auto& entry) {
+            return entry.second.ready && entry.second.controller_count > 0 &&
+diff --git a/Source/Core/Core/NetPlay/NetPlayServer.h b/Source/Core/Core/NetPlay/NetPlayServer.h
+--- a/Source/Core/Core/NetPlay/NetPlayServer.h
++++ b/Source/Core/Core/NetPlay/NetPlayServer.h
+@@ -62,6 +62,7 @@ public:
+ 
+   PadMappingArray GetWiimoteMapping() const;
+   void SetWiimoteMapping(const PadMappingArray& mappings);
++  void SetControllerFamily(ControllerFamily family);
+ 
+   void AdjustPadBufferSize(unsigned int size);
+   void SetAdaptiveBuffer(bool enable);
+@@ -160,6 +161,9 @@ private:
+   void SetupIndex();
+   bool PlayerHasControllerMapped(PlayerId pid) const;
+   void SetControllerCount(Client& player, u8 requested_count);
++  PadMappingArray& GetControllerMapping();
++  const PadMappingArray& GetControllerMapping() const;
++  void UpdateControllerMapping();
+   void SetReady(Client& player, bool ready);
+   void SendPlayerState(const Client& player, PlayerId target_pid = 0);
+ 
+@@ -187,6 +191,7 @@ private:
+   PadMappingArray m_pad_map;
+   GBAConfigArray m_gba_config;
+   PadMappingArray m_wiimote_map;
++  ControllerFamily m_controller_family = ControllerFamily::GameCube;
+   unsigned int m_save_data_synced_players = 0;
+   unsigned int m_codes_synced_players = 0;
+   bool m_saves_synced = true;
+diff --git a/Source/Core/Core/NetPlay/NetPlayServerInput.cpp b/Source/Core/Core/NetPlay/NetPlayServerInput.cpp
+--- a/Source/Core/Core/NetPlay/NetPlayServerInput.cpp
++++ b/Source/Core/Core/NetPlay/NetPlayServerInput.cpp
+@@ -17,6 +17,35 @@
+ namespace NetPlay
+ {
+ 
++void NetPlayServer::SetControllerFamily(const ControllerFamily family)
++{
++  std::lock_guard lkp(m_crit.players);
++  if (!m_players.empty() || m_is_running || m_start_pending)
++    return;
++
++  m_controller_family = family;
++  m_pad_map.fill(0);
++  m_wiimote_map.fill(0);
++}
++
++PadMappingArray& NetPlayServer::GetControllerMapping()
++{
++  return m_controller_family == ControllerFamily::GameCube ? m_pad_map : m_wiimote_map;
++}
++
++const PadMappingArray& NetPlayServer::GetControllerMapping() const
++{
++  return m_controller_family == ControllerFamily::GameCube ? m_pad_map : m_wiimote_map;
++}
++
++void NetPlayServer::UpdateControllerMapping()
++{
++  if (m_controller_family == ControllerFamily::GameCube)
++    UpdatePadMapping();
++  else
++    UpdateWiimoteMapping();
++}
++
+ PadMappingArray NetPlayServer::GetPadMapping() const
+ {
+   return m_pad_map;
