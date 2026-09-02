@@ -113,6 +113,18 @@ The mechanism discussion below is retained as historical decision evidence.
 Where it conflicts with PERF-280 through PERF-285, the newer measured reversal
 controls the next action.
 
+PERF-287 reinforces the no-observer boundary. A live Computer Use assertion
+aligned within one second of a 54.2 FPS / 54.3 VPS row and a Core Audio overload
+on an otherwise trivial two-draw workload. A fresh 180-second control with no
+UI observation retained 16 reports at or above 59.7 FPS/VPS and later held
+59.9/59.9 at 171.4% aggregate app CPU. Keep the product unchanged and do not
+invoke Computer Use during the human acceptance window. See
+`docs/artifacts/2026-09-02/g8-computer-use-audio-overload-reversal.md`.
+An induced fresh-process check confirms the boundary: exactly one state read
+is followed by 56.2/56.5 FPS/VPS and three underruns on the light projection,
+then immediate recovery. The human capture harness must remain the only live
+observer during acceptance.
+
 PERF-271 supplies the controlling post-fix ordinary failure. A hands-off cold
 installed-app run enters a four-fighter attract match and falls from
 59.9-60.0 FPS to sustained 31.8-32.3 FPS, with a 21.1 FPS interval, CPU-thread

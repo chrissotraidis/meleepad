@@ -6059,3 +6059,27 @@ Append-only execution ledger. Claims are limited to observed evidence.
   runs and passes the exact uninterrupted five-minute route.
 - Evidence:
   `docs/artifacts/2026-09-02/g8-human-acceptance-capture-harness.md`.
+
+## 2026-09-02 — PERF-287 Computer Use/audio-overload reversal
+
+- Preserve an unchanged ordinary Release row at 54.2 FPS / 54.3 VPS / 0.917
+  speed with four new transition underruns. The light projection has only two
+  draws/four primitives and 67.4%/6.6% CPU/video thread usage.
+- Correlate the host timeline: a Codex Computer Use `UserIsActive` assertion
+  begins 0.849 seconds before the low row; Core Audio reports an overload for
+  SsbmPad 21 ms after the row. Generic idle-service jetsam activity is present
+  but is not sufficient by itself.
+- Run a fresh 180-second ordinary control with no UI observation, recording,
+  diagnostics, savestate, external input, or live log reads. All 16 reports
+  remain at 59.7-60.0 FPS/VPS with 0.989 minimum speed and underruns 0 -> 1;
+  a later 171.4%-aggregate-CPU interval still holds 59.9/59.9.
+- Decision: classify and reverse the sub-55 row as observer/system contingent,
+  make no product change, and return to the human route with Computer Use
+  prohibited during combat.
+- Add an induced fresh-process check. Exactly one Computer Use state read is
+  followed by a 56.2 FPS / 56.5 VPS light-work report and underruns 3 -> 6,
+  then immediate recovery. No audio overload or jetsam occurs in that induced
+  window, proving the base observer effect and separating the original overload
+  amplification.
+- Evidence:
+  `docs/artifacts/2026-09-02/g8-computer-use-audio-overload-reversal.md`.

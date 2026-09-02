@@ -1,5 +1,25 @@
 # ssbmpad status
 
+## 2026-09-02 — G8 observer-induced sub-55 interval reversed
+
+An unchanged ordinary Release emitted one 54.2 FPS / 54.3 VPS / 0.917-speed
+report on a trivial two-draw workload. Host evidence aligns it with a live
+Codex Computer Use assertion and a Core Audio overload for SsbmPad; CPU/video
+were not saturated. A fresh 180-second run with no UI observation retained 16
+reports at 59.7-60.0 FPS/VPS, 0.989 minimum speed, and only one underrun, even
+while later reaching 171.4% aggregate app CPU.
+
+A fresh induced-observer reproduction then invoked exactly one Computer Use
+state read. The next complete light-work report fell to 56.2/56.5 FPS/VPS and
+added three underruns before immediate recovery, with no audio overload in
+that window. Computer Use alone is therefore sufficient for the sub-59 class;
+the synchronized overload amplified the original event to 54.2/54.3.
+
+The exact failure is therefore observer/system contingent and reversed without
+a product change. Row 7 remains PARTIAL solely pending the unchanged-build
+human five-minute Fountain route with no Computer Use during combat. See
+`docs/artifacts/2026-09-02/g8-computer-use-audio-overload-reversal.md`.
+
 ## 2026-09-02 — G8 human acceptance capture path is ready
 
 The final row-7 manual route now has a bounded operator-driven harness. It

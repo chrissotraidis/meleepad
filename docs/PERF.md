@@ -2,6 +2,20 @@
 
 G5 is active. G4 passed with a clean controlled 1v1 on 2026-08-24.
 
+PERF-287 attributes and reverses a new ordinary 54.2 FPS / 54.3 VPS / 0.917
+speed interval. The failing two-draw workload used only 67.4% CPU-thread and
+6.6% video-thread time. A Codex Computer Use assertion began 0.849 seconds
+before the row, and Core Audio reported a SsbmPad overload 21 ms afterward.
+A fresh 180-second no-observer control retains 16 reports at 59.7-60.0 FPS/VPS,
+0.989 minimum speed, and one underrun; it later holds 59.9 FPS at 171.4%
+aggregate app CPU. Keep the product unchanged and exclude Computer Use from
+the manual acceptance window. A third fresh process then reproduces the effect
+causally: one state read is followed by 56.2/56.5 FPS/VPS and three underruns
+on the same light projection, then immediate recovery. That induced window has
+no audio overload, so Computer Use is sufficient for sub-59 pacing; the
+original overload amplified the first event. See
+`docs/artifacts/2026-09-02/g8-computer-use-audio-overload-reversal.md`.
+
 PERF-258 repairs the bounded transition correctness screen before another
 throughput candidate. The first exact-combat reports were cache-control false
 positives: generated `dcbi`/`dcbf` hooks changed cache state that lockstep could

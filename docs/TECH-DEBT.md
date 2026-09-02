@@ -135,6 +135,19 @@ work. Preserve the unchanged Release and run the human five-minute acceptance
 route. See
 `docs/artifacts/2026-09-02/g8-post-netplay-ordinary-attract-reversal.md`.
 
+PERF-287 closes the only post-PERF-285 sub-55 recurrence as an observer event.
+The 54.2/54.3 row occurred on a two-draw workload immediately after a live
+Computer Use assertion and alongside a Core Audio overload. A fresh
+180-second no-observer control has no report below 59.7 FPS/VPS and holds
+cadence at much higher CPU/video load. Do not modify the product or treat
+generic host idle-service jetsam as causal; the matched control also contains
+idle exits without slowdown. Keep Computer Use absent during the human route.
+An induced third process confirms causality: one state read is followed by a
+56.2/56.5 light-work report and three underruns, then immediate recovery. No
+audio overload occurs in that induced window, separating the base observer
+effect from the original overload amplification.
+See `docs/artifacts/2026-09-02/g8-computer-use-audio-overload-reversal.md`.
+
 ### 2. Cold-transition and resume audio
 
 Sustained visible Classic combat holds the DMA-underrun counter flat while
