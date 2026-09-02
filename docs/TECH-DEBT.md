@@ -212,19 +212,24 @@ NL4 is partially implemented. The three-dot menu opens a native UIKit Online
 Play form and the iOS core links the headless session library. Visible iPad
 evidence passes direct-IP Host, live player/ping/GC-slot/compatibility state,
 Ready, Cancel, input neutralization, clean teardown, and fresh solo restart.
-An isolated Mac also joins as GC 2, both endpoints become ready, native Start
-enables, and synchronized boot reaches the same Nintendo/HAL opening. The first
-checksum then desynchronizes at frame 60 despite both processes being arm64 on
-the same M1 with zero network wait. The first host setup also takes roughly
-14.5 seconds while solo runtime and UICommon ownership turn over.
+An isolated Mac also joins as GC 2, both endpoints become ready, and native
+Start enables. Timebase telemetry identified an ISO-versus-extracted-DOL boot
+mismatch; aligning every netplay peer on the selected DOL moves the failure
+from frame 60 to frame 6,240. Single-core execution reproduces frame 6,240 and
+is rejected. Rebuilding the Mac module from the same generated chunks as iPad
+moves the failure to frame 7,440 but does not eliminate it. The first host setup
+also takes roughly 14.5 seconds while solo runtime and UICommon ownership turn
+over.
 
-The first remaining NL4 debt is the exact frame-60 divergence: compare both
-endpoints' synchronized NetSettings/config digest, save manifest, SRAM/RTC
-state, and checksum memory before changing timing. The match-ended callback
-that reopens the native lobby also needs visible reversal evidence. Remaining
-product debt is Mac-host/mobile-join, every exact failure family, host/client
-loss, background teardown, repeated open/cancel, iPhone interaction/layout,
-and a decision on whether the initialization delay needs a warmer boundary.
+The first remaining NL4 debt is instruction-level static-recomp lockstep around
+the reproducible frame-120 residual. The large boot mismatch and thread-mode
+theories are closed; exact timebase comparison must not be weakened. The
+match-ended callback now visibly reopens the native lobby with the exact error,
+and retained telemetry is capped to the two mismatch records relevant to
+Dolphin's stop decision. Remaining product debt is Mac-host/mobile-join, every
+exact failure family, host/client loss, background teardown, repeated
+open/cancel, iPhone interaction/layout, and a decision on whether the
+initialization delay needs a warmer boundary.
 NL5 then requires a complete Mac/iPadOS Simulator touch-controlled match. Only
 after that should the project deploy a private SsbmPad traversal service and
 pursue room-code, physical-device, NAT, lifecycle, privacy, security, and
@@ -232,6 +237,8 @@ reliability acceptance.
 
 The same-M1 two-process NL3 run was commonly 12-21 FPS during final combat;
 zero network wait separates that host-emulation contention from network delay.
+The latest cross-platform control showed roughly 36 FPS on the iPad overlay
+during visible combat, so it does not clear the 60 FPS gate either.
 NL3 correctness does not clear G8 row 7 or prove 60 FPS netplay. Room-code
 friend play remains the first release; public matchmaking and Slippi rollback
 remain separate multi-month projects. See `docs/NETPLAY-FEASIBILITY.md` and

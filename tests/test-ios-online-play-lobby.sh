@@ -68,6 +68,8 @@ for contract in \
   'AttachRuntime' \
   'FinishRuntime' \
   'onNetplayMatchEnded' \
+  'Netplay selects and fingerprints sys/main.dol' \
+  'discImagePath:@""' \
   'Options/Always Connected = True'; do
   grep -Fq "$contract" "$CORE" "$CORE_HEADER"
 done

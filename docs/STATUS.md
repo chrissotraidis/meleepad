@@ -1,5 +1,29 @@
 # ssbmpad status
 
+## 2026-09-02 — G9 cross-platform determinism reaches frame 7,440
+
+The original mobile/Mac desync is now mechanistically narrowed. New retained
+telemetry showed the iPad host and Mac join already differed by 12,170,073
+emulated timebase ticks at frame 0 and 19,462,562 at frame 60. Serializing
+CPU/GPU emulation reproduced the same values and was rejected.
+
+The actual large mismatch was the boot path: the native iPad session supplied
+an imported ISO while the reusable session selected, fingerprinted, and booted
+`sys/main.dol` on Mac. Netplay now boots the selected extracted DOL on every
+platform. That moved the failure from frame 60 to frame 6,240. A second
+single-core control reproduced frame 6,240 and was rejected. A private Mac
+module rebuilt from the same generated chunks and optimization policy as iPad
+reached visible combat and crossed frame 6,240, but still desynchronized at
+frame 7,440. Native iPad performance during that combat sample fell to roughly
+36 FPS under the two-emulator same-M1 load.
+
+NL4 therefore remains partial. The native match-ended callback now visibly
+reopens Online Play with the exact error, and diagnostics retain only the two
+latest mismatch records. The next correctness gate is focused static-recomp
+lockstep around the reproducible frame-120 residual before reverse-host,
+failure-family, background, iPhone, full-match, device, or public-service work.
+See `docs/artifacts/2026-09-02/g9-cross-platform-determinism-progress.md`.
+
 ## 2026-09-02 — G9 NL4 native iPad lobby is partial
 
 The iPadOS Simulator build now has a native UIKit Online Play screen in the

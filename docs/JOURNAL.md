@@ -5974,3 +5974,25 @@ Append-only execution ledger. Claims are limited to observed evidence.
   RTC state, and frame-60 checksums on both arm64 endpoints; do not try timing or
   performance changes without a named deterministic divergence.
 - Evidence: `docs/artifacts/2026-09-02/g9-native-mobile-lobby-partial.md`.
+
+## 2026-09-02 — NET-292 cross-platform timebase narrowing
+
+- Add exact player/timebase telemetry at every mismatching 60-frame check and
+  surface it through the native match-ended lobby recovery. Cap retained status
+  to the latest two mismatches so the exact error remains readable.
+- Measure the original iPad-host/Mac-join gap: `12,170,073` ticks at frame 0
+  and `19,462,562` at frame 60. A single-core control reproduces the signature
+  and is rejected.
+- Find that iPad supplied an imported ISO while the selected/fingerprinted Mac
+  session booted `sys/main.dol`. Align mobile netplay on the extracted DOL;
+  the pair reaches visible attract/combat play and moves the stop to frame
+  6,240. Re-run single-core on the aligned path; it still stops at 6,240.
+- Build a private Mac module from the same 237 generated chunks, `-O2`,
+  ThinLTO, and strict floating-point policy as iPad. It crosses frame 6,240 and
+  reaches visible combat, then stops at frame 7,440; module provenance improves
+  but does not close determinism.
+- Decision: retain the DOL boot alignment and telemetry, reject both single-core
+  controls, make no mobile/full-match/60 FPS claim, and move next to focused
+  static-recomp lockstep around the reproducible frame-120 residual.
+- Evidence:
+  `docs/artifacts/2026-09-02/g9-cross-platform-determinism-progress.md`.

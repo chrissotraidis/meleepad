@@ -1,0 +1,17 @@
+diff --git a/Source/Core/Core/NetPlay/NetPlayServer.cpp b/Source/Core/Core/NetPlay/NetPlayServer.cpp
+--- a/Source/Core/Core/NetPlay/NetPlayServer.cpp
++++ b/Source/Core/Core/NetPlay/NetPlayServer.cpp
+@@ -1130,6 +1130,13 @@ unsigned int NetPlayServer::OnData(sf::Packet& packet, Client& player)
+             return pair.second == timebases[0].second;
+           }))
+       {
++        std::string mismatch = "netplay-timebase frame=" + std::to_string(frame);
++        for (const auto [pid, reported_timebase] : timebases)
++        {
++          mismatch +=
++              " pid=" + std::to_string(pid) + " value=" + std::to_string(reported_timebase);
++        }
++        m_dialog->AppendChat(mismatch);
+         ++m_desync_mismatch_count;
+         if (m_desync_mismatch_count >= 2)
+         {

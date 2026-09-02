@@ -1,0 +1,29 @@
+diff --git a/tools/netplay_session_core.cpp b/tools/netplay_session_core.cpp
+--- a/tools/netplay_session_core.cpp
++++ b/tools/netplay_session_core.cpp
+@@ -66,7 +66,15 @@ public:
+   void Update() override {}
+   void AppendChat(const std::string &message) override {
+     std::lock_guard lock(m_mutex);
+-    m_status = message;
++    if (message.starts_with("netplay-timebase") &&
++        m_status.starts_with("netplay-timebase")) {
++      const std::size_t separator = m_status.find("; ");
++      if (separator != std::string::npos)
++        m_status.erase(0, separator + 2);
++      m_status += "; " + message;
++    } else {
++      m_status = message;
++    }
+   }
+   void OnMsgChangeGame(const NetPlay::SyncIdentifier &,
+                        const std::string &name) override {
+@@ -93,6 +101,8 @@ public:
+       m_error = "Desync at frame " + std::to_string(frame);
+       if (!player.empty())
+         m_error += " reported for " + player;
++      if (m_status.starts_with("netplay-timebase"))
++        m_error += ": " + m_status;
+     }
+     StopGame();
+   }

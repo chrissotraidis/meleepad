@@ -146,6 +146,7 @@ ios_simulator_savestate_signals_patch="$ROOT/patches/moderngekko/0012-ios-simula
 gamecube_netplay_session_patch="$ROOT/patches/moderngekko/0013-gamecube-netplay-session.patch"
 headless_netplay_session_patch="$ROOT/patches/moderngekko/0014-headless-netplay-session.patch"
 netplay_runtime_lifecycle_patch="$ROOT/patches/moderngekko/0015-netplay-runtime-lifecycle.patch"
+netplay_timebase_status_patch="$ROOT/patches/moderngekko/0016-netplay-timebase-status-history.patch"
 render_log_patch="$ROOT/patches/moderngekko-dolphin/0002-buffer-render-time-logging.patch"
 idle_patch="$ROOT/patches/moderngekko-dolphin/0003-gale01r0-staticrecomp-idle.patch"
 memory_watcher_patch="$ROOT/patches/moderngekko-dolphin/0004-static-recomp-memory-watcher.patch"
@@ -189,6 +190,7 @@ caller_idle_preflight_patch="$ROOT/patches/moderngekko-dolphin/0038-caller-quali
 gamecube_netplay_controller_patch="$ROOT/patches/moderngekko-dolphin/0039-gamecube-netplay-controller-family.patch"
 macos_sdl_application_patch="$ROOT/patches/moderngekko-dolphin/0040-macos-sdl-application-handoff.patch"
 netplay_save_lifetime_patch="$ROOT/patches/moderngekko-dolphin/0041-netplay-save-write-lifetime.patch"
+netplay_timebase_telemetry_patch="$ROOT/patches/moderngekko-dolphin/0042-netplay-timebase-mismatch-telemetry.patch"
 apply_patch_once_or_marker "$MG" "$mg_patch" \
   include/moderngekko/runtime.hpp 'struct RuntimeDiagnosticsSnapshot'
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$dolphin_patch" \
@@ -303,6 +305,9 @@ apply_patch_once_or_marker "$MG/vendor/dolphin" "$macos_sdl_application_patch" \
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$netplay_save_lifetime_patch" \
   Source/Core/Core/HW/GCMemcard/GCMemcardDirectory.h \
   'const bool m_save_data_writable;'
+apply_patch_once_or_marker "$MG/vendor/dolphin" "$netplay_timebase_telemetry_patch" \
+  Source/Core/Core/NetPlay/NetPlayServer.cpp \
+  'netplay-timebase frame='
 apply_patch_once_or_marker "$MG" "$gamecube_netplay_session_patch" \
   tools/netplay_session_core.cpp \
   'SetControllerFamily(NetPlay::ControllerFamily::GameCube)'
@@ -312,6 +317,9 @@ apply_patch_once_or_marker "$MG" "$headless_netplay_session_patch" \
 apply_patch_once_or_marker "$MG" "$netplay_runtime_lifecycle_patch" \
   tools/netplay_session_core.cpp \
   'void NetplaySession::FinishRuntime()'
+apply_patch_once_or_marker "$MG" "$netplay_timebase_status_patch" \
+  tools/netplay_session_core.cpp \
+  'm_status.starts_with("netplay-timebase")'
 verify_patch_scope "$MG" "$mg_patch" "$ROOT"/patches/moderngekko/*.patch -- \
   vendor/dolphin
 verify_patch_scope "$MG/vendor/dolphin" "$dolphin_patch" "$mg_patch" \

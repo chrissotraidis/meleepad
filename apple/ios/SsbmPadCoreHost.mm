@@ -520,8 +520,8 @@ static NSString *SsbmPadNetplayFailureMessage(moderngekko::frontend::NetplayExit
 
         moderngekko::RuntimeConfig config;
         config.game_root = gameRoot.fileSystemRepresentation;
-        if (discImagePath.length > 0)
-            config.disc_image = discImagePath.fileSystemRepresentation;
+        // Netplay selects and fingerprints sys/main.dol. Keep the session and
+        // synchronized runtime on that file instead of an imported ISO.
         config.user_directory = runtimeUserDirectory.fileSystemRepresentation;
         config.graphics.backend = "Metal";
         config.headless = false;
@@ -632,7 +632,7 @@ static NSString *SsbmPadNetplayFailureMessage(moderngekko::frontend::NetplayExit
                 *self->_netplayBootInstalled = YES;
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self startWithGameRoot:self->_lastGameRoot
-                             discImagePath:self->_lastDiscImagePath
+                             discImagePath:@""
                                 modulePath:self->_lastModulePath
                              userDirectory:self->_lastUserDirectory
                                    onError:self->_onError ?: ^(NSString *message) {
