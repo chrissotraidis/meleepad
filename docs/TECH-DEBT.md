@@ -200,8 +200,11 @@ GameCube capacity/assignment/count/disconnect/reconnect and every
 `GCPadStatus` field without regressing the Wii path. NL0/NL1 are focused-test
 passes, not gameplay proof.
 
-Next extract a headless `NetplaySession`, prove host/join/start/stop twice and a two-Mac match, add the native
-three-dot-menu Online Play flow, deploy a private SsbmPad traversal service,
+The headless `NetplaySession` extraction now passes two complete lifecycle
+cycles and compiles for macOS and the iPhone Simulator. Next prove a two-Mac
+full Melee match with isolated roots, two-sided input, save hashes, no desync,
+and clean teardown. Then add the native three-dot-menu Online Play flow, deploy
+a private SsbmPad traversal service,
 and complete physical-device/NAT/lifecycle acceptance. Room-code friend play is
 the first release; public matchmaking and Slippi rollback remain separate
 multi-month projects. See `docs/NETPLAY-FEASIBILITY.md`.

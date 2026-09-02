@@ -1,0 +1,1301 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 5de06b9..b3301c6 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -91,6 +95,31 @@ if(MODERNGEKKO_FRONTEND_SDK)
+ endif()
+ 
+ if(MODERNGEKKO_ENABLE_DOLPHIN_RUNTIME)
++    add_library(moderngekko_netplay_session STATIC
++        tools/netplay_compatibility.cpp
++        tools/netplay_session_core.cpp)
++    target_include_directories(moderngekko_netplay_session
++        PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/tools"
++        PRIVATE
++            "${CMAKE_CURRENT_SOURCE_DIR}/src"
++            "${CMAKE_CURRENT_SOURCE_DIR}/vendor/dolphin/Source/Core"
++            "${CMAKE_CURRENT_SOURCE_DIR}/vendor/dolphin/GXRuntime/include")
++    target_link_libraries(moderngekko_netplay_session
++        PUBLIC ModernGekko::Runtime core uicommon)
++    target_compile_features(moderngekko_netplay_session PUBLIC cxx_std_23)
++    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
++        target_compile_definitions(moderngekko_netplay_session PRIVATE _ARCH_64=1)
++    else()
++        target_compile_definitions(moderngekko_netplay_session PRIVATE _ARCH_32=1)
++    endif()
++    if(CMAKE_SYSTEM_PROCESSOR MATCHES "x64|x86_64|amd64|AMD64")
++        target_compile_definitions(moderngekko_netplay_session PRIVATE _M_X86_64=1)
++    elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|ARM64")
++        target_compile_definitions(moderngekko_netplay_session PRIVATE _M_ARM_64=1)
++    else()
++        target_compile_definitions(moderngekko_netplay_session PRIVATE _M_GENERIC=1)
++    endif()
++
+     set(MODERNGEKKO_ENABLE_IMGUI_LAUNCHER ON CACHE BOOL "" FORCE)
+     set(ENABLE_QT OFF CACHE BOOL "" FORCE)
+     set(ENABLE_NOGUI OFF CACHE BOOL "" FORCE)
+@@ -405,7 +453,6 @@ if(MODERNGEKKO_ENABLE_DOLPHIN_RUNTIME)
+     endif()
+     add_executable(moderngekko-run
+         tools/moderngekko_run.cpp
+-        tools/netplay_compatibility.cpp
+         tools/netplay_session.cpp
+         tools/frontend_config.cpp
+         tools/dol_patch.cpp
+@@ -438,7 +485,7 @@ if(MODERNGEKKO_ENABLE_DOLPHIN_RUNTIME)
+             "${_moderngekko_sdk_lib}")
+     endif()
+     target_link_libraries(moderngekko-run PRIVATE
+-        ModernGekko::Runtime core uicommon imgui ${_moderngekko_sdl_target})
++        moderngekko_netplay_session imgui ${_moderngekko_sdl_target})
+     set_target_properties(moderngekko-run PROPERTIES
+         OUTPUT_NAME "${MODERNGEKKO_RUNNER_OUTPUT_NAME}")
+     target_compile_definitions(moderngekko-run PRIVATE
+@@ -693,12 +740,45 @@ if(BUILD_TESTING)
+                 ModernGekko::Runtime core uicommon)
+         endif()
+         add_test(NAME moderngekko.netplay_protocol COMMAND moderngekko_netplay_protocol_test)
++
++        add_executable(moderngekko_netplay_session_test
++            tests/netplay_session_test.cpp)
++        target_include_directories(moderngekko_netplay_session_test PRIVATE
++            "${CMAKE_CURRENT_SOURCE_DIR}/tools"
++            "${CMAKE_CURRENT_SOURCE_DIR}/src"
++            "${CMAKE_CURRENT_SOURCE_DIR}/vendor/dolphin/Source/Core"
++            "${CMAKE_CURRENT_SOURCE_DIR}/vendor/dolphin/GXRuntime/include")
++        if(CMAKE_SIZEOF_VOID_P EQUAL 8)
++            target_compile_definitions(moderngekko_netplay_session_test PRIVATE _ARCH_64=1)
++        else()
++            target_compile_definitions(moderngekko_netplay_session_test PRIVATE _ARCH_32=1)
++        endif()
++        if(CMAKE_SYSTEM_PROCESSOR MATCHES "x64|x86_64|amd64|AMD64")
++            target_compile_definitions(moderngekko_netplay_session_test PRIVATE _M_X86_64=1)
++        elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|ARM64")
++            target_compile_definitions(moderngekko_netplay_session_test PRIVATE _M_ARM_64=1)
++        else()
++            target_compile_definitions(moderngekko_netplay_session_test PRIVATE _M_GENERIC=1)
++        endif()
++        target_link_libraries(moderngekko_netplay_session_test PRIVATE
++            moderngekko_netplay_session)
++        add_test(NAME moderngekko.netplay_session COMMAND moderngekko_netplay_session_test)
+     endif()
+ 
+     add_executable(moderngekko_game_inspect_test tests/game_inspect_test.cpp)
+     target_link_libraries(moderngekko_game_inspect_test PRIVATE ModernGekko::LegacyRuntime)
+     add_test(NAME moderngekko.game_inspect COMMAND moderngekko_game_inspect_test)
+ 
++    add_executable(moderngekko_memory_watcher_utils_test
++        tests/memory_watcher_utils_test.cpp
++    )
++    target_include_directories(moderngekko_memory_watcher_utils_test PRIVATE
++        "${CMAKE_CURRENT_SOURCE_DIR}/vendor/dolphin/Source/Core"
++    )
++    target_compile_features(moderngekko_memory_watcher_utils_test PRIVATE cxx_std_20)
++    add_test(NAME moderngekko.memory_watcher_utils
++             COMMAND moderngekko_memory_watcher_utils_test)
++
+     add_executable(moderngekko_module_abi_test
+         tests/module_abi_test.c
+     )
+diff --git a/tools/netplay_session.cpp b/tools/netplay_session.cpp
+index 1e93631..228be39 100644
+--- a/tools/netplay_session.cpp
++++ b/tools/netplay_session.cpp
+@@ -1,15 +1,9 @@
+ #include "netplay_session.hpp"
+ 
+-#include "netplay_compatibility.hpp"
+-
+ #include "Core/Boot/Boot.h"
+ #include "Core/Config/MainSettings.h"
+ #include "Core/Config/NetplaySettings.h"
+-#include "Core/IOS/FS/FileSystem.h"
+-#include "Core/NetPlay/NetPlayClient.h"
+-#include "Core/NetPlay/NetPlayServer.h"
+ #include "Core/PowerPC/PowerPC.h"
+-#include "UICommon/GameFile.h"
+ #include "UICommon/UICommon.h"
+ #include "runtime/dolphin_runtime_internal.hpp"
+ 
+@@ -19,24 +13,14 @@
+ #include <imgui_impl_sdlrenderer3.h>
+ 
+ #include <algorithm>
+-#include <array>
+-#include <atomic>
+ #include <chrono>
+-#include <filesystem>
+ #include <iostream>
+ #include <memory>
+-#include <mutex>
+-#include <optional>
+ #include <ranges>
+-#include <span>
+ #include <string>
+-#include <thread>
+ #include <unordered_map>
+-#include <utility>
+ #include <vector>
+ 
+-namespace fs = std::filesystem;
+-
+ namespace moderngekko::frontend {
+ namespace {
+ struct ControllerOption {
+@@ -66,204 +50,6 @@ std::vector<ControllerOption> EnumerateControllers() {
+   return result;
+ }
+ 
+-class SessionUI final : public NetPlay::NetPlayUI {
+-public:
+-  explicit SessionUI(std::shared_ptr<UICommon::GameFile> game)
+-      : m_game(std::move(game)) {}
+-
+-  void SetClient(NetPlay::NetPlayClient *client) {
+-    std::lock_guard lock(m_mutex);
+-    m_client = client;
+-  }
+-
+-  void SetHosting(bool hosting) {
+-    std::lock_guard lock(m_mutex);
+-    m_hosting = hosting;
+-  }
+-
+-  void SetRuntime(Runtime *runtime) {
+-    std::lock_guard lock(m_mutex);
+-    m_runtime = runtime;
+-  }
+-
+-  bool TakeStartRequest() { return m_start_requested.exchange(false); }
+-
+-  std::unique_ptr<BootSessionData> TakeBootData() {
+-    std::lock_guard lock(m_mutex);
+-    return std::move(m_boot_data);
+-  }
+-
+-  std::string Error() {
+-    std::lock_guard lock(m_mutex);
+-    return m_error;
+-  }
+-
+-  std::string Status() {
+-    std::lock_guard lock(m_mutex);
+-    return m_status;
+-  }
+-
+-  u32 BufferSize() const { return m_buffer_size.load(); }
+-
+-  bool ConnectionLost() const { return m_connection_lost.load(); }
+-
+-  void ClearReadyState() {
+-    if (m_client)
+-      m_client->SetReady(false);
+-  }
+-
+-  void BootGame(const std::string &,
+-                std::unique_ptr<BootSessionData> boot_session_data) override {
+-    std::lock_guard lock(m_mutex);
+-    m_boot_data = std::move(boot_session_data);
+-  }
+-
+-  void StopGame() override {
+-    std::lock_guard lock(m_mutex);
+-    if (m_runtime)
+-      m_runtime->RequestStop();
+-  }
+-
+-  bool IsHosting() const override { return m_hosting; }
+-
+-  void Update() override {}
+-
+-  void AppendChat(const std::string &msg) override {
+-    std::lock_guard lock(m_mutex);
+-    m_status = msg;
+-  }
+-
+-  void OnMsgChangeGame(const NetPlay::SyncIdentifier &,
+-                       const std::string &name) override {
+-    std::lock_guard lock(m_mutex);
+-    m_status = "Game: " + name;
+-  }
+-
+-  void OnMsgChangeGBARom(int, const NetPlay::GBAConfig &) override {}
+-
+-  void OnMsgStartGame() override { m_start_requested = true; }
+-
+-  void OnMsgStopGame() override { StopGame(); }
+-
+-  void OnMsgPowerButton() override { StopGame(); }
+-
+-  void OnPlayerConnect(const std::string &player) override {
+-    std::lock_guard lock(m_mutex);
+-    m_status = player + " joined";
+-  }
+-
+-  void OnPlayerDisconnect(const std::string &player) override {
+-    std::lock_guard lock(m_mutex);
+-    m_status = player + " left";
+-  }
+-
+-  void OnPadBufferChanged(u32 buffer) override { m_buffer_size = buffer; }
+-
+-  void OnHostInputAuthorityChanged(bool) override {}
+-
+-  void OnDesync(u32 frame, const std::string &player) override {
+-    {
+-      std::lock_guard lock(m_mutex);
+-      m_error = "Desync at frame " + std::to_string(frame);
+-      if (!player.empty())
+-        m_error += " reported for " + player;
+-    }
+-    StopGame();
+-  }
+-
+-  void OnConnectionLost() override {
+-    m_connection_lost = true;
+-    {
+-      std::lock_guard lock(m_mutex);
+-      m_error = "Connection to the netplay host was lost";
+-    }
+-    StopGame();
+-  }
+-
+-  void OnConnectionError(const std::string &message) override {
+-    std::lock_guard lock(m_mutex);
+-    m_error = message;
+-  }
+-
+-  void OnTraversalError(Common::TraversalClient::FailureReason) override {
+-    OnConnectionError("Direct connection failed");
+-  }
+-
+-  void OnTraversalStateChanged(Common::TraversalClient::State) override {}
+-
+-  void OnGameStartAborted() override {
+-    std::lock_guard lock(m_mutex);
+-    m_error = "Game start was aborted";
+-  }
+-
+-  void OnGolferChanged(bool, const std::string &) override {}
+-  void OnTtlDetermined(u8) override {}
+-  bool IsRecording() override { return false; }
+-
+-  std::shared_ptr<const UICommon::GameFile>
+-  FindGameFile(const NetPlay::SyncIdentifier &sync_identifier,
+-               NetPlay::SyncIdentifierComparison *found) override {
+-    const auto comparison = m_game->CompareSyncIdentifier(sync_identifier);
+-    if (found)
+-      *found = comparison;
+-    return m_game;
+-  }
+-
+-  std::string FindGBARomPath(const std::array<u8, 20> &, std::string_view,
+-                             int) override {
+-    return {};
+-  }
+-
+-  void ShowGameDigestDialog(const std::string &) override {}
+-  void SetGameDigestProgress(int, int) override {}
+-  void SetGameDigestResult(int, const std::string &) override {}
+-  void AbortGameDigest() override {}
+-  void OnIndexAdded(bool, std::string) override {}
+-  void OnIndexRefreshFailed(std::string) override {}
+-
+-  void ShowChunkedProgressDialog(const std::string &title, u64 data_size,
+-                                 std::span<const int>) override {
+-    std::lock_guard lock(m_mutex);
+-    m_status = title;
+-    m_progress_size = data_size;
+-    m_progress = 0;
+-  }
+-
+-  void HideChunkedProgressDialog() override {
+-    std::lock_guard lock(m_mutex);
+-    m_progress_size = 0;
+-    m_progress = 0;
+-  }
+-
+-  void SetChunkedProgress(int, u64 progress) override {
+-    std::lock_guard lock(m_mutex);
+-    m_progress = progress;
+-  }
+-
+-  void SetHostWiiSyncData(std::vector<u64> titles,
+-                          std::string redirect_folder) override {
+-    std::lock_guard lock(m_mutex);
+-    if (m_client)
+-      m_client->SetWiiSyncData(nullptr, std::move(titles),
+-                               std::move(redirect_folder));
+-  }
+-
+-private:
+-  std::shared_ptr<UICommon::GameFile> m_game;
+-  mutable std::mutex m_mutex;
+-  NetPlay::NetPlayClient *m_client = nullptr;
+-  Runtime *m_runtime = nullptr;
+-  bool m_hosting = false;
+-  std::atomic<bool> m_start_requested{false};
+-  std::atomic<bool> m_connection_lost{false};
+-  std::atomic<u32> m_buffer_size{5};
+-  std::unique_ptr<BootSessionData> m_boot_data;
+-  std::string m_error;
+-  std::string m_status;
+-  u64 m_progress_size = 0;
+-  u64 m_progress = 0;
+-};
+-
+ class LobbyWindow {
+ public:
+   bool Open(WindowSystem window_system) {
+@@ -349,8 +135,7 @@ private:
+ 
+ bool RunLobbyWindow(RuntimeConfig &runtime_config,
+                     ConfigResult &frontend_config, NetplayOptions &options,
+-                    SessionUI &ui, NetPlay::NetPlayClient &client,
+-                    NetPlay::NetPlayServer *server) {
++                    NetplaySession &session) {
+   LobbyWindow window;
+   if (!window.Open(runtime_config.window_system))
+     return false;
+@@ -368,9 +153,9 @@ bool RunLobbyWindow(RuntimeConfig &runtime_config,
+       last_refresh = now;
+     }
+ 
+-    const std::vector<NetPlay::Player> players = client.GetPlayersSnapshot();
+-    const NetPlay::PadMappingArray pad_mapping = client.GetPadMappingSnapshot();
+-    const u8 assigned = client.GetAssignedControllerCount();
++    const NetplayLobbySnapshot snapshot = session.Snapshot();
++    const std::vector<NetplayPlayerSnapshot> &players = snapshot.players;
++    const u8 assigned = snapshot.assigned_controllers;
+     if (assigned > 0 && options.controllers.size() > assigned) {
+       options.controllers.resize(assigned);
+       frontend_config.controllers = options.controllers;
+@@ -379,9 +164,7 @@ bool RunLobbyWindow(RuntimeConfig &runtime_config,
+       SaveConfig(runtime_config.user_directory, frontend_config, &ignored);
+     }
+ 
+-    if (ui.TakeStartRequest())
+-      client.StartGame(runtime_config.game_root.string() + "/sys/main.dol");
+-    auto boot_data = ui.TakeBootData();
++    auto boot_data = session.TakeBootData();
+     if (boot_data) {
+       detail::SetBootSessionData(std::move(boot_data));
+       window.Close();
+@@ -394,18 +177,18 @@ bool RunLobbyWindow(RuntimeConfig &runtime_config,
+     ImGui::Begin("KirbyRecomp Netplay", nullptr,
+                  ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove |
+                      ImGuiWindowFlags_NoSavedSettings);
+-    ImGui::TextUnformatted(server ? "Hosting direct-IP netplay"
+-                                  : "Connected to direct-IP host");
+-    if (server) {
+-      ImGui::Text("UDP port: %u", server->GetPort());
+-      for (const std::string &interface_name : server->GetInterfaceSet())
+-        ImGui::Text("%s: %s", interface_name.c_str(),
+-                    server->GetInterfaceHost(interface_name).c_str());
++    const bool hosting = options.role == NetplayRole::Host;
++    ImGui::TextUnformatted(hosting ? "Hosting direct-IP netplay"
++                                   : "Connected to direct-IP host");
++    if (hosting) {
++      ImGui::Text("UDP port: %u", snapshot.port);
++      for (const auto &[interface_name, address] : snapshot.interfaces)
++        ImGui::Text("%s: %s", interface_name.c_str(), address.c_str());
+     } else {
+       ImGui::Text("Host: %s:%u", options.address.c_str(), options.port);
+     }
+-    ImGui::Text("Input buffer: %u frames%s", ui.BufferSize(),
+-                server && options.buffer == "auto" ? " (auto)" : "");
++    ImGui::Text("Input buffer: %u frames%s", snapshot.buffer_frames,
++                hosting && snapshot.adaptive_buffer ? " (auto)" : "");
+     ImGui::Separator();
+ 
+     if (ImGui::BeginTable("players", 5,
+@@ -416,27 +199,23 @@ bool RunLobbyWindow(RuntimeConfig &runtime_config,
+       ImGui::TableSetupColumn("Game");
+       ImGui::TableSetupColumn("Ready");
+       ImGui::TableHeadersRow();
+-      for (const NetPlay::Player &player : players) {
++      for (const NetplayPlayerSnapshot &player : players) {
+         ImGui::TableNextRow();
+         ImGui::TableSetColumnIndex(0);
+         ImGui::TextUnformatted(player.name.c_str());
+         ImGui::TableSetColumnIndex(1);
+-        ImGui::Text("%u ms", player.ping);
++        ImGui::Text("%u ms", player.ping_ms);
+         ImGui::TableSetColumnIndex(2);
+         std::string slots;
+-        for (std::size_t i = 0; i < pad_mapping.size(); ++i) {
+-          if (pad_mapping[i] != player.pid)
+-            continue;
++        for (const std::uint8_t slot : player.controller_slots) {
+           if (!slots.empty())
+             slots += ", ";
+-          slots += "GC " + std::to_string(i + 1);
++          slots += "GC " + std::to_string(slot + 1);
+         }
+         ImGui::TextUnformatted(slots.empty() ? "None" : slots.c_str());
+         ImGui::TableSetColumnIndex(3);
+         ImGui::TextUnformatted(
+-            player.game_status == NetPlay::SyncIdentifierComparison::SameGame
+-                ? "Match"
+-                : "Mismatch");
++            player.game_matches ? "Match" : "Mismatch");
+         ImGui::TableSetColumnIndex(4);
+         ImGui::TextUnformatted(player.ready ? "Ready" : "Not ready");
+       }
+@@ -444,10 +223,10 @@ bool RunLobbyWindow(RuntimeConfig &runtime_config,
+     }
+ 
+     ImGui::Spacing();
+-    ImGui::TextUnformatted("Local sideways Wii Remotes");
++    ImGui::TextUnformatted("Local GameCube controllers");
+     std::size_t total_assigned = 0;
+-    for (const NetPlay::Player &player : players)
+-      total_assigned += player.controller_count;
++    for (const NetplayPlayerSnapshot &player : players)
++      total_assigned += player.controller_slots.size();
+     const std::size_t local_limit =
+         std::min<std::size_t>(4, assigned + 4 - total_assigned);
+     for (const ControllerOption &controller : available) {
+@@ -467,37 +246,34 @@ bool RunLobbyWindow(RuntimeConfig &runtime_config,
+                                      options.controllers, &error) &&
+             SaveConfig(runtime_config.user_directory, frontend_config,
+                        &error)) {
+-          client.SetLocalControllerCount(
++          session.SetLocalControllerCount(
+               static_cast<u8>(options.controllers.size()));
+-          client.SetReady(false);
+         }
+       }
+       ImGui::EndDisabled();
+     }
+ 
+-    const auto local_player =
+-        std::ranges::find_if(players, [&](const NetPlay::Player &player) {
+-          return client.IsLocalPlayer(player.pid);
+-        });
++    const auto local_player = std::ranges::find_if(
++        players, [](const NetplayPlayerSnapshot &player) { return player.local; });
+     const bool local_ready =
+         local_player != players.end() && local_player->ready;
+     if (ImGui::Button(local_ready ? "Not Ready" : "Ready", ImVec2(140, 38)))
+-      client.SetReady(!local_ready);
++      session.SetReady(!local_ready);
+ 
+-    if (server) {
++    if (hosting) {
+       ImGui::SameLine();
+-      const bool can_start = server->CanStart();
++      const bool can_start = snapshot.can_start;
+       ImGui::BeginDisabled(!can_start);
+       if (ImGui::Button("Start", ImVec2(140, 38)))
+-        server->RequestStartGame();
++        session.RequestStart();
+       ImGui::EndDisabled();
+       if (!can_start)
+         ImGui::TextDisabled(
+             "Two controller slots and every machine ready are required");
+     }
+ 
+-    const std::string status = ui.Status();
+-    const std::string error = ui.Error();
++    const std::string &status = snapshot.status;
++    const std::string &error = snapshot.error;
+     if (!status.empty())
+       ImGui::TextWrapped("%s", status.c_str());
+     if (!error.empty())
+@@ -505,7 +281,7 @@ bool RunLobbyWindow(RuntimeConfig &runtime_config,
+     ImGui::End();
+     window.Present();
+ 
+-    if (ui.ConnectionLost())
++    if (snapshot.connection_lost)
+       running = false;
+   }
+   return false;
+@@ -532,94 +308,23 @@ int RunNetplayLobby(RuntimeConfig runtime_config, ConfigResult frontend_config,
+   Config::SetBase(Config::NETPLAY_NETWORK_MODE, std::string("fixeddelay"));
+   Config::SetBase(Config::NETPLAY_USE_INDEX, false);
+ 
+-  auto game = std::make_shared<UICommon::GameFile>(
+-      (runtime_config.game_root / "sys/main.dol").string());
+-  if (!game->IsValid()) {
+-    detail::SetExternalUICommon(false);
+-    UICommon::Shutdown();
+-    return static_cast<int>(NetplayExitCode::InvalidConfiguration);
+-  }
+-
+-  const GameInspectResult inspected = InspectGame(runtime_config.game_root);
+-  if (!inspected) {
+-    detail::SetExternalUICommon(false);
+-    UICommon::Shutdown();
+-    return static_cast<int>(NetplayExitCode::InvalidConfiguration);
+-  }
+   std::cerr << "netplay: validating compatibility\n";
+-  NetPlay::SetCompatibilityFingerprint(
+-      CompatibilityFingerprint(runtime_config, *inspected.metadata));
+-  std::cerr << "netplay: compatibility validated\n";
+-
+-  SessionUI ui(game);
+-  const NetPlay::NetTraversalConfig direct{};
+-  std::unique_ptr<NetPlay::NetPlayServer> server;
+-  std::unique_ptr<NetPlay::NetPlayClient> client;
+-  if (options.role == NetplayRole::Host) {
+-    std::cerr << "netplay: opening host on UDP port " << options.port << '\n';
+-    ui.SetHosting(true);
+-    server = std::make_unique<NetPlay::NetPlayServer>(options.port, false, &ui,
+-                                                      direct);
+-    if (!server->is_connected) {
+-      server.reset();
+-      detail::SetExternalUICommon(false);
+-      UICommon::Shutdown();
+-      return static_cast<int>(NetplayExitCode::Failed);
+-    }
+-    server->SetControllerFamily(NetPlay::ControllerFamily::GameCube);
+-    server->SetHostInputAuthority(false);
+-    server->SetAdaptiveBuffer(options.buffer == "auto");
+-    if (options.buffer != "auto")
+-      server->AdjustPadBufferSize(
+-          static_cast<unsigned int>(std::stoul(options.buffer)));
+-    server->ChangeGame(game->GetSyncIdentifier(),
+-                       inspected.metadata->game_name);
+-    client = std::make_unique<NetPlay::NetPlayClient>(
+-        "127.0.0.1", server->GetPort(), &ui, options.nickname, direct,
+-        static_cast<u8>(options.controllers.size()));
+-  } else {
+-    std::cerr << "netplay: connecting to " << options.address << ':'
+-              << options.port << '\n';
+-    client = std::make_unique<NetPlay::NetPlayClient>(
+-        options.address, options.port, &ui, options.nickname, direct,
+-        static_cast<u8>(options.controllers.size()));
+-  }
+-
+-  if (!client->IsConnected()) {
+-    const NetPlay::ConnectionError connection_error =
+-        client->GetConnectionError();
+-    const std::string error = ui.Error();
+-    if (!error.empty())
+-      std::cerr << "netplay: " << error << '\n';
+-    client.reset();
+-    server.reset();
++  NetplayExitCode failure = NetplayExitCode::Failed;
++  std::unique_ptr<NetplaySession> session =
++      NetplaySession::Create(runtime_config, options, &failure);
++  if (!session) {
+     detail::SetExternalUICommon(false);
+     UICommon::Shutdown();
+-    switch (connection_error) {
+-    case NetPlay::ConnectionError::VersionMismatch:
+-      return static_cast<int>(NetplayExitCode::VersionMismatch);
+-    case NetPlay::ConnectionError::CompatibilityMismatch:
+-      return static_cast<int>(NetplayExitCode::CompatibilityMismatch);
+-    case NetPlay::ConnectionError::RoomFull:
+-      return static_cast<int>(NetplayExitCode::RoomFull);
+-    case NetPlay::ConnectionError::GameRunning:
+-      return static_cast<int>(NetplayExitCode::GameRunning);
+-    case NetPlay::ConnectionError::ServerFull:
+-      return static_cast<int>(NetplayExitCode::ServerFull);
+-    case NetPlay::ConnectionError::NameTooLong:
+-      return static_cast<int>(NetplayExitCode::NicknameRejected);
+-    case NetPlay::ConnectionError::NoError:
+-      return static_cast<int>(NetplayExitCode::HostUnavailable);
+-    }
++    return static_cast<int>(failure);
+   }
+-  ui.SetClient(client.get());
++  std::cerr << "netplay: compatibility validated\n";
+   std::cerr << "netplay: connected; opening lobby\n";
+ 
+   int result = 0;
+   bool remain = true;
+   while (remain) {
+-    const bool boot = RunLobbyWindow(runtime_config, frontend_config, options,
+-                                     ui, *client, server.get());
++    const bool boot =
++        RunLobbyWindow(runtime_config, frontend_config, options, *session);
+     if (!boot)
+       break;
+ 
+@@ -628,20 +333,18 @@ int RunNetplayLobby(RuntimeConfig runtime_config, ConfigResult frontend_config,
+       result = 1;
+       break;
+     }
+-    ui.SetRuntime(created.runtime.get());
++    session->AttachRuntime(created.runtime.get());
+     const RuntimeRunResult run_result = created.runtime->Run();
+-    ui.SetRuntime(nullptr);
+-    client->Stop();
+-    client->StopGame();
++    session->AttachRuntime(nullptr);
+     created.runtime.reset();
+-    ui.ClearReadyState();
++    session->SetReady(false);
+     if (run_result.error)
+       result = 1;
+-    remain = !ui.ConnectionLost();
++    remain = !session->Snapshot().connection_lost;
+   }
+ 
+-  client.reset();
+-  server.reset();
++  session->Stop();
++  session.reset();
+   detail::SetExternalUICommon(false);
+   UICommon::Shutdown();
+   return result;
+diff --git a/tools/netplay_session.hpp b/tools/netplay_session.hpp
+index 7e8511b..00ab4f1 100644
+--- a/tools/netplay_session.hpp
++++ b/tools/netplay_session.hpp
+@@ -4,9 +4,13 @@
+ #include "moderngekko/runtime.hpp"
+ 
+ #include <cstdint>
++#include <memory>
+ #include <string>
++#include <utility>
+ #include <vector>
+ 
++class BootSessionData;
++
+ namespace moderngekko::frontend {
+ enum class NetplayRole {
+   Host,
+@@ -34,6 +38,65 @@ struct NetplayOptions {
+   std::vector<std::string> controllers;
+ };
+ 
++enum class NetplayState {
++  Idle,
++  Connecting,
++  Lobby,
++  Starting,
++  Running,
++  Stopping,
++  Failed,
++};
++
++struct NetplayPlayerSnapshot {
++  std::uint8_t id = 0;
++  std::string name;
++  std::uint32_t ping_ms = 0;
++  std::vector<std::uint8_t> controller_slots;
++  bool local = false;
++  bool ready = false;
++  bool game_matches = false;
++};
++
++struct NetplayLobbySnapshot {
++  NetplayState state = NetplayState::Idle;
++  NetplayRole role = NetplayRole::Join;
++  std::uint16_t port = 0;
++  std::vector<std::pair<std::string, std::string>> interfaces;
++  std::vector<NetplayPlayerSnapshot> players;
++  std::uint8_t assigned_controllers = 0;
++  std::uint32_t buffer_frames = 0;
++  bool adaptive_buffer = true;
++  bool can_start = false;
++  bool connection_lost = false;
++  std::string status;
++  std::string error;
++};
++
++class NetplaySession {
++public:
++  static std::unique_ptr<NetplaySession>
++  Create(RuntimeConfig runtime_config, NetplayOptions options,
++         NetplayExitCode *failure = nullptr);
++
++  ~NetplaySession();
++  NetplaySession(const NetplaySession &) = delete;
++  NetplaySession &operator=(const NetplaySession &) = delete;
++
++  NetplayLobbySnapshot Snapshot();
++  bool SetLocalControllerCount(std::uint8_t count);
++  bool SetReady(bool ready);
++  bool RequestStart();
++  std::unique_ptr<BootSessionData> TakeBootData();
++  void AttachRuntime(Runtime *runtime);
++  void Stop();
++
++private:
++  struct Impl;
++  explicit NetplaySession(std::unique_ptr<Impl> impl);
++  std::unique_ptr<Impl> m_impl;
++};
++
+ int RunNetplayLobby(RuntimeConfig runtime_config, ConfigResult frontend_config,
+                     NetplayOptions options);
+ } // namespace moderngekko::frontend
+diff --git a/tools/netplay_session_core.cpp b/tools/netplay_session_core.cpp
+new file mode 100644
+index 0000000..089453e
+--- /dev/null
++++ b/tools/netplay_session_core.cpp
+@@ -0,0 +1,376 @@
++#include "netplay_session.hpp"
++
++#include "netplay_compatibility.hpp"
++
++#include "Core/Boot/Boot.h"
++#include "Core/IOS/FS/FileSystem.h"
++#include "Core/NetPlay/NetPlayClient.h"
++#include "Core/NetPlay/NetPlayServer.h"
++#include "UICommon/GameFile.h"
++
++#include <array>
++#include <atomic>
++#include <mutex>
++#include <ranges>
++#include <span>
++#include <utility>
++
++namespace moderngekko::frontend {
++namespace {
++
++class SessionUI final : public NetPlay::NetPlayUI {
++public:
++  explicit SessionUI(std::shared_ptr<UICommon::GameFile> game)
++      : m_game(std::move(game)) {}
++
++  void SetClient(NetPlay::NetPlayClient *client) {
++    std::lock_guard lock(m_mutex);
++    m_client = client;
++  }
++  void SetHosting(bool hosting) { m_hosting = hosting; }
++  void SetRuntime(Runtime *runtime) {
++    std::lock_guard lock(m_mutex);
++    m_runtime = runtime;
++  }
++  bool TakeStartRequest() { return m_start_requested.exchange(false); }
++  bool HasBootData() const {
++    std::lock_guard lock(m_mutex);
++    return m_boot_data != nullptr;
++  }
++  std::unique_ptr<BootSessionData> TakeBootData() {
++    std::lock_guard lock(m_mutex);
++    return std::move(m_boot_data);
++  }
++  std::string Error() const {
++    std::lock_guard lock(m_mutex);
++    return m_error;
++  }
++  std::string Status() const {
++    std::lock_guard lock(m_mutex);
++    return m_status;
++  }
++  u32 BufferSize() const { return m_buffer_size.load(); }
++  bool ConnectionLost() const { return m_connection_lost.load(); }
++
++  void BootGame(const std::string &,
++                std::unique_ptr<BootSessionData> data) override {
++    std::lock_guard lock(m_mutex);
++    m_boot_data = std::move(data);
++  }
++  void StopGame() override {
++    std::lock_guard lock(m_mutex);
++    if (m_runtime)
++      m_runtime->RequestStop();
++  }
++  bool IsHosting() const override { return m_hosting; }
++  void Update() override {}
++  void AppendChat(const std::string &message) override {
++    std::lock_guard lock(m_mutex);
++    m_status = message;
++  }
++  void OnMsgChangeGame(const NetPlay::SyncIdentifier &,
++                       const std::string &name) override {
++    std::lock_guard lock(m_mutex);
++    m_status = "Game: " + name;
++  }
++  void OnMsgChangeGBARom(int, const NetPlay::GBAConfig &) override {}
++  void OnMsgStartGame() override { m_start_requested = true; }
++  void OnMsgStopGame() override { StopGame(); }
++  void OnMsgPowerButton() override { StopGame(); }
++  void OnPlayerConnect(const std::string &player) override {
++    std::lock_guard lock(m_mutex);
++    m_status = player + " joined";
++  }
++  void OnPlayerDisconnect(const std::string &player) override {
++    std::lock_guard lock(m_mutex);
++    m_status = player + " left";
++  }
++  void OnPadBufferChanged(u32 buffer) override { m_buffer_size = buffer; }
++  void OnHostInputAuthorityChanged(bool) override {}
++  void OnDesync(u32 frame, const std::string &player) override {
++    {
++      std::lock_guard lock(m_mutex);
++      m_error = "Desync at frame " + std::to_string(frame);
++      if (!player.empty())
++        m_error += " reported for " + player;
++    }
++    StopGame();
++  }
++  void OnConnectionLost() override {
++    m_connection_lost = true;
++    {
++      std::lock_guard lock(m_mutex);
++      m_error = "Connection to the netplay host was lost";
++    }
++    StopGame();
++  }
++  void OnConnectionError(const std::string &message) override {
++    std::lock_guard lock(m_mutex);
++    m_error = message;
++  }
++  void OnTraversalError(Common::TraversalClient::FailureReason) override {
++    OnConnectionError("Direct connection failed");
++  }
++  void OnTraversalStateChanged(Common::TraversalClient::State) override {}
++  void OnGameStartAborted() override {
++    std::lock_guard lock(m_mutex);
++    m_error = "Game start was aborted";
++  }
++  void OnGolferChanged(bool, const std::string &) override {}
++  void OnTtlDetermined(u8) override {}
++  bool IsRecording() override { return false; }
++  std::shared_ptr<const UICommon::GameFile>
++  FindGameFile(const NetPlay::SyncIdentifier &identifier,
++               NetPlay::SyncIdentifierComparison *found) override {
++    const auto comparison = m_game->CompareSyncIdentifier(identifier);
++    if (found)
++      *found = comparison;
++    return m_game;
++  }
++  std::string FindGBARomPath(const std::array<u8, 20> &, std::string_view,
++                             int) override {
++    return {};
++  }
++  void ShowGameDigestDialog(const std::string &) override {}
++  void SetGameDigestProgress(int, int) override {}
++  void SetGameDigestResult(int, const std::string &) override {}
++  void AbortGameDigest() override {}
++  void OnIndexAdded(bool, std::string) override {}
++  void OnIndexRefreshFailed(std::string) override {}
++  void ShowChunkedProgressDialog(const std::string &title, u64, std::span<const int>) override {
++    std::lock_guard lock(m_mutex);
++    m_status = title;
++  }
++  void HideChunkedProgressDialog() override {}
++  void SetChunkedProgress(int, u64) override {}
++  void SetHostWiiSyncData(std::vector<u64> titles,
++                          std::string redirect_folder) override {
++    std::lock_guard lock(m_mutex);
++    if (m_client)
++      m_client->SetWiiSyncData(nullptr, std::move(titles),
++                               std::move(redirect_folder));
++  }
++
++private:
++  std::shared_ptr<UICommon::GameFile> m_game;
++  mutable std::mutex m_mutex;
++  NetPlay::NetPlayClient *m_client = nullptr;
++  Runtime *m_runtime = nullptr;
++  bool m_hosting = false;
++  std::atomic<bool> m_start_requested{false};
++  std::atomic<bool> m_connection_lost{false};
++  std::atomic<u32> m_buffer_size{5};
++  std::unique_ptr<BootSessionData> m_boot_data;
++  std::string m_error;
++  std::string m_status;
++};
++
++NetplayExitCode MapFailure(NetPlay::ConnectionError error) {
++  switch (error) {
++  case NetPlay::ConnectionError::VersionMismatch:
++    return NetplayExitCode::VersionMismatch;
++  case NetPlay::ConnectionError::CompatibilityMismatch:
++    return NetplayExitCode::CompatibilityMismatch;
++  case NetPlay::ConnectionError::RoomFull:
++    return NetplayExitCode::RoomFull;
++  case NetPlay::ConnectionError::GameRunning:
++    return NetplayExitCode::GameRunning;
++  case NetPlay::ConnectionError::ServerFull:
++    return NetplayExitCode::ServerFull;
++  case NetPlay::ConnectionError::NameTooLong:
++    return NetplayExitCode::NicknameRejected;
++  case NetPlay::ConnectionError::NoError:
++    return NetplayExitCode::HostUnavailable;
++  }
++  return NetplayExitCode::Failed;
++}
++
++} // namespace
++
++struct NetplaySession::Impl {
++  RuntimeConfig runtime_config;
++  NetplayOptions options;
++  std::shared_ptr<UICommon::GameFile> game;
++  std::unique_ptr<SessionUI> ui;
++  std::unique_ptr<NetPlay::NetPlayServer> server;
++  std::unique_ptr<NetPlay::NetPlayClient> client;
++  NetplayState state = NetplayState::Connecting;
++
++  void Poll() {
++    if (state == NetplayState::Failed || state == NetplayState::Idle || !client)
++      return;
++    if (ui->ConnectionLost()) {
++      state = NetplayState::Failed;
++      return;
++    }
++    if (ui->TakeStartRequest()) {
++      state = NetplayState::Starting;
++      if (!client->StartGame((runtime_config.game_root / "sys/main.dol").string()))
++        state = NetplayState::Failed;
++    }
++    if (ui->HasBootData())
++      state = NetplayState::Starting;
++  }
++};
++
++NetplaySession::NetplaySession(std::unique_ptr<Impl> impl) : m_impl(std::move(impl)) {}
++NetplaySession::~NetplaySession() { Stop(); }
++
++std::unique_ptr<NetplaySession>
++NetplaySession::Create(RuntimeConfig runtime_config, NetplayOptions options,
++                       NetplayExitCode *failure) {
++  if (failure)
++    *failure = NetplayExitCode::Failed;
++  if (options.controllers.empty()) {
++    if (failure)
++      *failure = NetplayExitCode::InvalidConfiguration;
++    return {};
++  }
++
++  auto impl = std::make_unique<Impl>();
++  impl->runtime_config = std::move(runtime_config);
++  impl->options = std::move(options);
++  impl->game = std::make_shared<UICommon::GameFile>(
++      (impl->runtime_config.game_root / "sys/main.dol").string());
++  const GameInspectResult inspected = InspectGame(impl->runtime_config.game_root);
++  if (!impl->game->IsValid() || !inspected) {
++    if (failure)
++      *failure = NetplayExitCode::InvalidConfiguration;
++    return {};
++  }
++
++  NetPlay::SetCompatibilityFingerprint(
++      CompatibilityFingerprint(impl->runtime_config, *inspected.metadata));
++  impl->ui = std::make_unique<SessionUI>(impl->game);
++  const NetPlay::NetTraversalConfig direct{};
++  if (impl->options.role == NetplayRole::Host) {
++    impl->ui->SetHosting(true);
++    impl->server = std::make_unique<NetPlay::NetPlayServer>(
++        impl->options.port, false, impl->ui.get(), direct);
++    if (!impl->server->is_connected)
++      return {};
++    impl->server->SetControllerFamily(NetPlay::ControllerFamily::GameCube);
++    impl->server->SetHostInputAuthority(false);
++    impl->server->SetAdaptiveBuffer(impl->options.buffer == "auto");
++    if (impl->options.buffer != "auto")
++      impl->server->AdjustPadBufferSize(
++          static_cast<unsigned int>(std::stoul(impl->options.buffer)));
++    impl->server->ChangeGame(impl->game->GetSyncIdentifier(),
++                             inspected.metadata->game_name);
++    impl->client = std::make_unique<NetPlay::NetPlayClient>(
++        "127.0.0.1", impl->server->GetPort(), impl->ui.get(),
++        impl->options.nickname, direct,
++        static_cast<u8>(impl->options.controllers.size()));
++  } else {
++    impl->client = std::make_unique<NetPlay::NetPlayClient>(
++        impl->options.address, impl->options.port, impl->ui.get(),
++        impl->options.nickname, direct,
++        static_cast<u8>(impl->options.controllers.size()));
++  }
++
++  if (!impl->client->IsConnected()) {
++    if (failure)
++      *failure = MapFailure(impl->client->GetConnectionError());
++    return {};
++  }
++  impl->ui->SetClient(impl->client.get());
++  impl->state = NetplayState::Lobby;
++  return std::unique_ptr<NetplaySession>(new NetplaySession(std::move(impl)));
++}
++
++NetplayLobbySnapshot NetplaySession::Snapshot() {
++  NetplayLobbySnapshot snapshot;
++  if (!m_impl)
++    return snapshot;
++  m_impl->Poll();
++  snapshot.state = m_impl->state;
++  snapshot.role = m_impl->options.role;
++  snapshot.adaptive_buffer = m_impl->options.buffer == "auto";
++  snapshot.buffer_frames = m_impl->ui->BufferSize();
++  snapshot.connection_lost = m_impl->ui->ConnectionLost();
++  snapshot.status = m_impl->ui->Status();
++  snapshot.error = m_impl->ui->Error();
++  if (!m_impl->client)
++    return snapshot;
++  snapshot.assigned_controllers = m_impl->client->GetAssignedControllerCount();
++  const NetPlay::PadMappingArray mapping = m_impl->client->GetPadMappingSnapshot();
++  for (const NetPlay::Player &player : m_impl->client->GetPlayersSnapshot()) {
++    NetplayPlayerSnapshot item;
++    item.id = player.pid;
++    item.name = player.name;
++    item.ping_ms = player.ping;
++    item.local = m_impl->client->IsLocalPlayer(player.pid);
++    item.ready = player.ready;
++    item.game_matches = player.game_status == NetPlay::SyncIdentifierComparison::SameGame;
++    for (std::size_t slot = 0; slot < mapping.size(); ++slot) {
++      if (mapping[slot] == player.pid)
++        item.controller_slots.push_back(static_cast<std::uint8_t>(slot));
++    }
++    snapshot.players.push_back(std::move(item));
++  }
++  if (m_impl->server) {
++    snapshot.port = m_impl->server->GetPort();
++    snapshot.can_start = m_impl->server->CanStart();
++    for (const std::string &name : m_impl->server->GetInterfaceSet())
++      snapshot.interfaces.emplace_back(name, m_impl->server->GetInterfaceHost(name));
++  } else {
++    snapshot.port = m_impl->options.port;
++  }
++  return snapshot;
++}
++
++bool NetplaySession::SetLocalControllerCount(std::uint8_t count) {
++  if (!m_impl || m_impl->state != NetplayState::Lobby || !m_impl->client || count == 0)
++    return false;
++  m_impl->client->SetLocalControllerCount(count);
++  m_impl->client->SetReady(false);
++  return true;
++}
++
++bool NetplaySession::SetReady(bool ready) {
++  if (!m_impl || m_impl->state != NetplayState::Lobby || !m_impl->client)
++    return false;
++  m_impl->client->SetReady(ready);
++  return true;
++}
++
++bool NetplaySession::RequestStart() {
++  if (!m_impl || m_impl->state != NetplayState::Lobby || !m_impl->server ||
++      !m_impl->server->CanStart())
++    return false;
++  if (!m_impl->server->RequestStartGame())
++    return false;
++  m_impl->state = NetplayState::Starting;
++  return true;
++}
++
++std::unique_ptr<BootSessionData> NetplaySession::TakeBootData() {
++  if (!m_impl)
++    return {};
++  m_impl->Poll();
++  return m_impl->ui->TakeBootData();
++}
++
++void NetplaySession::AttachRuntime(Runtime *runtime) {
++  if (!m_impl)
++    return;
++  m_impl->ui->SetRuntime(runtime);
++  m_impl->state = runtime ? NetplayState::Running : NetplayState::Lobby;
++}
++
++void NetplaySession::Stop() {
++  if (!m_impl || m_impl->state == NetplayState::Idle)
++    return;
++  m_impl->state = NetplayState::Stopping;
++  m_impl->ui->SetRuntime(nullptr);
++  m_impl->ui->SetClient(nullptr);
++  if (m_impl->client) {
++    m_impl->client->Stop();
++    m_impl->client->StopGame();
++  }
++  m_impl->client.reset();
++  m_impl->server.reset();
++  m_impl->state = NetplayState::Idle;
++}
++
++} // namespace moderngekko::frontend
+diff --git a/tests/netplay_session_test.cpp b/tests/netplay_session_test.cpp
+new file mode 100644
+index 0000000..a3d413c
+--- /dev/null
++++ b/tests/netplay_session_test.cpp
+@@ -0,0 +1,185 @@
++#include "netplay_session.hpp"
++
++#include "Core/Boot/Boot.h"
++#include "Core/Config/MainSettings.h"
++#include "Core/Config/NetplaySettings.h"
++#include "Core/PowerPC/PowerPC.h"
++#include "UICommon/UICommon.h"
++#include "moderngekko/cpu_state.h"
++#include "moderngekko/runtime.hpp"
++
++#include <algorithm>
++#include <array>
++#include <chrono>
++#include <cstdio>
++#include <filesystem>
++#include <fstream>
++#include <memory>
++#include <ranges>
++#include <string>
++#include <thread>
++
++namespace fs = std::filesystem;
++using moderngekko::frontend::NetplayLobbySnapshot;
++using moderngekko::frontend::NetplayOptions;
++using moderngekko::frontend::NetplayRole;
++using moderngekko::frontend::NetplaySession;
++using moderngekko::frontend::NetplayState;
++
++namespace {
++int Dispatch(CPUState *, std::uint32_t) { return 0; }
++constexpr ModernGekkoRange ranges[] = {{0x80003100u, 0x80003120u}};
++constexpr std::uint64_t hashes[] = {0x123456789abcdef0u};
++const ModernGekkoModuleDesc descriptor = {
++    MODERNGEKKO_MODULE_ABI_VERSION,
++    MODERNGEKKO_CPU_ABI_VERSION,
++    sizeof(CPUState),
++    "TEST01",
++    0x80003100u,
++    Dispatch,
++    nullptr,
++    ranges,
++    1,
++    nullptr,
++    0,
++    ranges,
++    1,
++    hashes,
++};
++
++bool WaitFor(const auto &condition) {
++  for (int i = 0; i < 250; ++i) {
++    if (condition())
++      return true;
++    std::this_thread::sleep_for(std::chrono::milliseconds(20));
++  }
++  return false;
++}
++
++bool LobbyReady(NetplaySession &host, NetplaySession &join) {
++  return WaitFor([&] {
++    const NetplayLobbySnapshot host_snapshot = host.Snapshot();
++    const NetplayLobbySnapshot join_snapshot = join.Snapshot();
++    return host_snapshot.state == NetplayState::Lobby &&
++           join_snapshot.state == NetplayState::Lobby &&
++           host_snapshot.players.size() == 2 &&
++           join_snapshot.players.size() == 2 &&
++           std::ranges::all_of(host_snapshot.players,
++                               [](const auto &player) { return player.game_matches; }) &&
++           std::ranges::all_of(join_snapshot.players,
++                               [](const auto &player) { return player.game_matches; });
++  });
++}
++} // namespace
++
++int main() {
++  const fs::path root =
++      fs::temp_directory_path() / "moderngekko-netplay-session-test";
++  fs::remove_all(root);
++  fs::create_directories(root / "game" / "sys");
++  fs::create_directories(root / "game" / "files");
++  fs::create_directories(root / "user");
++
++  std::array<unsigned char, 0x60> boot{};
++  const char id[] = "TEST01";
++  std::copy_n(id, 6, boot.begin());
++  boot[0x18] = 0x5d;
++  boot[0x19] = 0x1c;
++  boot[0x1a] = 0x9e;
++  boot[0x1b] = 0xa3;
++  const char name[] = "Netplay Session Test";
++  std::copy_n(name, sizeof(name), boot.begin() + 0x20);
++  std::ofstream(root / "game" / "sys" / "boot.bin", std::ios::binary)
++      .write(reinterpret_cast<const char *>(boot.data()), boot.size());
++
++  std::array<unsigned char, 0x104> dol{};
++  dol[0x02] = 0x01;
++  dol[0x48] = 0x80;
++  dol[0x49] = 0x00;
++  dol[0x4a] = 0x31;
++  dol[0x4b] = 0x00;
++  dol[0x93] = 0x04;
++  dol[0xe0] = 0x80;
++  dol[0xe1] = 0x00;
++  dol[0xe2] = 0x31;
++  dol[0xe3] = 0x00;
++  std::ofstream(root / "game" / "sys" / "main.dol", std::ios::binary)
++      .write(reinterpret_cast<const char *>(dol.data()), dol.size());
++
++  UICommon::SetUserDirectory((root / "user").string());
++  UICommon::Init();
++  Config::SetBase(Config::MAIN_CPU_THREAD, true);
++  Config::SetBase(Config::MAIN_CPU_CORE, PowerPC::CPUCore::StaticRecomp);
++  Config::SetBase(Config::NETPLAY_SAVEDATA_LOAD, false);
++  Config::SetBase(Config::NETPLAY_SAVEDATA_WRITE, false);
++  Config::SetBase(Config::NETPLAY_SAVEDATA_SYNC_ALL_WII, false);
++  Config::SetBase(Config::NETPLAY_SYNC_CODES, false);
++  Config::SetBase(Config::NETPLAY_STRICT_SETTINGS_SYNC, true);
++  Config::SetBase(Config::NETPLAY_NETWORK_MODE, std::string("fixeddelay"));
++  Config::SetBase(Config::NETPLAY_USE_INDEX, false);
++
++  moderngekko::RuntimeConfig runtime;
++  runtime.game_root = root / "game";
++  runtime.user_directory = root / "user";
++  runtime.module = moderngekko::ModuleSource::AttachedDescriptor(&descriptor);
++
++  for (int cycle = 0; cycle < 2; ++cycle) {
++    std::fprintf(stderr, "session-test cycle=%d host-create\n", cycle);
++    NetplayOptions host_options;
++    host_options.role = NetplayRole::Host;
++    host_options.port = 0;
++    host_options.nickname = "Host";
++    host_options.controllers = {"Pipe/0/ssbmpad-host"};
++    std::unique_ptr<NetplaySession> host =
++        NetplaySession::Create(runtime, host_options);
++    if (!host)
++      return 10 + cycle;
++
++    std::fprintf(stderr, "session-test cycle=%d join-create\n", cycle);
++    NetplayOptions join_options;
++    join_options.role = NetplayRole::Join;
++    join_options.port = host->Snapshot().port;
++    join_options.nickname = "Join";
++    join_options.controllers = {"Pipe/0/ssbmpad-join"};
++    std::unique_ptr<NetplaySession> join =
++        NetplaySession::Create(runtime, join_options);
++    if (!join || !LobbyReady(*host, *join))
++      return 20 + cycle;
++    if (join->RequestStart())
++      return 22 + cycle;
++
++    std::fprintf(stderr, "session-test cycle=%d ready\n", cycle);
++    if (!host->SetReady(true) || !join->SetReady(true) ||
++        !WaitFor([&] { return host->Snapshot().can_start; }) ||
++        !host->RequestStart())
++      return 30 + cycle;
++
++    std::fprintf(stderr, "session-test cycle=%d start-data\n", cycle);
++    std::unique_ptr<BootSessionData> host_boot;
++    std::unique_ptr<BootSessionData> join_boot;
++    if (!WaitFor([&] {
++          if (!host_boot)
++            host_boot = host->TakeBootData();
++          if (!join_boot)
++            join_boot = join->TakeBootData();
++          return host_boot && join_boot;
++        }))
++      return 40 + cycle;
++    if (host->TakeBootData() || join->TakeBootData())
++      return 42 + cycle;
++
++    std::fprintf(stderr, "session-test cycle=%d stop\n", cycle);
++    join->Stop();
++    host->Stop();
++    join->Stop();
++    host->Stop();
++    if (join->Snapshot().state != NetplayState::Idle ||
++        host->Snapshot().state != NetplayState::Idle ||
++        join->SetReady(true) || host->RequestStart())
++      return 50 + cycle;
++  }
++
++  UICommon::Shutdown();
++  fs::remove_all(root);
++  return 0;
++}

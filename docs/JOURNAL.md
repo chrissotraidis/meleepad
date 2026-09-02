@@ -5891,3 +5891,24 @@ Append-only execution ledger. Claims are limited to observed evidence.
   a reusable window-independent session lifecycle; make no gameplay, mobile,
   traversal, or public Online Play claim.
 - Evidence: `docs/artifacts/2026-09-01/g9-gamecube-netplay-transport.md`.
+
+## 2026-09-01 — NET-288 headless session lifecycle
+
+- Extract Dolphin client/server/UI ownership from the SDL/ImGui lobby into a
+  pImpl `NetplaySession` library with snapshots, serialized actions, one-shot
+  boot handoff, runtime attachment, and idempotent stop.
+- Add a synthetic two-endpoint lifecycle test. Its first run exits 139 after an
+  invalid fixture return omitted normal UICommon teardown; add the required
+  empty `files/` directory and retain save sync disabled only because the
+  synthetic test has no running emulated Core/IOS.
+- Pass host/join/game-match/ready/host-start/boot-data/stop twice in one process,
+  including join-start rejection, one-shot consumption, repeated stop, and
+  post-stop action rejection.
+- Rebuild the legacy protocol target and desktop runner. Compile the standalone
+  session library successfully with the iPhone Simulator arm64 toolchain.
+- Store the dependency changes as ordered outer patch `0014`; reverse-apply and
+  bootstrap syntax checks pass. Do not launch or replace the app or touch ROM,
+  module, ordinary saves, or Simulator runtime.
+- Decision: NL2 passes. Continue to NL3, an isolated two-Mac full Melee match;
+  make no gameplay, mobile Online Play, traversal, or public support claim yet.
+- Evidence: `docs/artifacts/2026-09-01/g9-headless-netplay-session.md`.

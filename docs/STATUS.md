@@ -1,5 +1,21 @@
 # ssbmpad status
 
+## 2026-09-01 — G9 NL2 headless session lifecycle passes
+
+Netplay ownership is now separated from SDL/ImGui as a reusable
+`moderngekko_netplay_session` library. Its pImpl owner exposes serialized
+state, immutable snapshots, ready/controller actions, host-only start,
+one-shot boot handoff, runtime attachment, and idempotent stop. The desktop
+lobby is an adapter over that API rather than the owner of raw Dolphin objects.
+
+A synthetic data-free test passes two consecutive host/join/ready/start/stop
+cycles in one process, including two matching endpoints, role rejection,
+one-shot boot data, repeated stop, and post-stop action rejection. The legacy
+protocol test and desktop runner remain green, and the same library compiles
+for the iPhone Simulator arm64 toolchain. NL2 therefore passes. No actual Melee
+netplay match has passed; NL3 two-Mac full-match evidence is now required. See
+`docs/artifacts/2026-09-01/g9-headless-netplay-session.md`.
+
 ## 2026-09-01 — G9 NL1 GameCube transport passes
 
 The known controller-family defect is corrected in durable outer patches.

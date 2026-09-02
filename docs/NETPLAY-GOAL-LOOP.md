@@ -52,18 +52,19 @@ smoke does not satisfy a gameplay goal. Every pass requires retained evidence.
 
 ## Current goal
 
-**NL2 — Headless session reusable.** NL0 and NL1 passed focused protocol and
-desktop-build evidence on 2026-09-01.
+**NL3 — Two-Mac Melee proof.** NL0 through NL2 passed their focused gates on
+2026-09-01.
 
-The retained control passed, the GameCube regression failed with exit `19` for
-the intended empty-map reason, and the candidate now passes exact GameCube
-mapping/payload/count/disconnect/reconnect coverage while preserving the Wii
-path. See `docs/artifacts/2026-09-01/g9-gamecube-netplay-transport.md`.
+The reusable `NetplaySession` now completes host/join/ready/start-data/stop
+twice in one process, rejects invalid role/state actions, consumes boot data
+once, rebuilds the desktop adapter, preserves the protocol suite, and compiles
+for the iPhone Simulator toolchain. See
+`docs/artifacts/2026-09-01/g9-headless-netplay-session.md`.
 
-The next experiment is intentionally isolated: move session ownership and
-host/join/ready/start/stop state out of the SDL/ImGui lobby, then drive two
-consecutive loopback sessions in one process. Do not launch Melee or modify the
-installed app until this lifecycle test passes.
+Next create two fully isolated macOS endpoints and complete an actual Melee
+match with two-sided input, matching timebase/desync diagnostics, clean
+teardown, and unchanged ordinary saves. This is the first gameplay gate; a
+connection, lobby, synchronized boot, or first frame is not enough.
 
 ## Operating loop
 
