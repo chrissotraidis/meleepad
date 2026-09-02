@@ -2807,3 +2807,16 @@ remains separately open. See
   exact match with short HEVC and no Computer Use polling. No product change,
   physical-iPad promotion, or G9 work is justified yet. Evidence:
   `docs/artifacts/2026-09-01/g8-hevc-no-ui-observer-tail-reversal.md`.
+## 2026-09-02 — G9 NL3 gameplay passes; lifecycle/save rerun pending
+
+Two isolated macOS endpoints completed a full two-player Melee match with
+independent P1/P2 Pipe input, matching clocks/state, buffer 2, zero reported
+network wait, Sudden Death, identical results, and return to ready CSS. NL3 is
+still PARTIAL: the control exposed stale runtime restart on host close and a
+mutated host ordinary GCI. Patch candidates make runtime finish explicit,
+auto-start one-shot, saves load-only, Pipe profiles backend-correct, and the
+SDL/macOS application handoff safe; focused session-restart, protocol, and
+frontend tests pass. A clean paired runtime reversal is required before NL3
+promotion. Same-machine combat was commonly 16-29 FPS and is not a G8/G9
+performance pass. See
+`docs/artifacts/2026-09-02/g9-two-mac-melee-match-partial.md`.

@@ -53,7 +53,7 @@ smoke does not satisfy a gameplay goal. Every pass requires retained evidence.
 ## Current goal
 
 **NL3 — Two-Mac Melee proof.** NL0 through NL2 passed their focused gates on
-2026-09-01.
+2026-09-01. NL3 gameplay is PARTIAL as of 2026-09-02.
 
 The reusable `NetplaySession` now completes host/join/ready/start-data/stop
 twice in one process, rejects invalid role/state actions, consumes boot data
@@ -61,10 +61,15 @@ once, rebuilds the desktop adapter, preserves the protocol suite, and compiles
 for the iPhone Simulator toolchain. See
 `docs/artifacts/2026-09-01/g9-headless-netplay-session.md`.
 
-Next create two fully isolated macOS endpoints and complete an actual Melee
-match with two-sided input, matching timebase/desync diagnostics, clean
-teardown, and unchanged ordinary saves. This is the first gameplay gate; a
-connection, lobby, synchronized boot, or first frame is not enough.
+A control completed Zelda versus Samus on Onett through timed combat, Sudden
+Death, identical results, and return to ready CSS with independent P1/P2 input
+and no reported desync. It also exposed stale restart after host close and a
+changed host ordinary isolated GCI. The candidate adds explicit runtime finish,
+one-shot test auto-start, load-only save sync, exact Pipe profiles, and the
+macOS SDL application handoff. Repeat the paired match from clean card copies;
+NL3 passes only if teardown is clean and canonical/host/join ordinary save
+hashes remain identical. See
+`docs/artifacts/2026-09-02/g9-two-mac-melee-match-partial.md`.
 
 ## Operating loop
 

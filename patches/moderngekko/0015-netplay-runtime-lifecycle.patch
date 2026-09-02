@@ -1,0 +1,225 @@
+diff --git a/tools/frontend_config.cpp b/tools/frontend_config.cpp
+--- a/tools/frontend_config.cpp
++++ b/tools/frontend_config.cpp
+@@ -384,8 +384,35 @@
+     output << "[GCPad" << i + 1 << "]\n";
+     if (i >= controllers.size())
+       continue;
+-    output << "Device = " << controllers[i] << '\n'
+-           << "Buttons/A = `Button A`\n"
++    output << "Device = " << controllers[i] << '\n';
++    if (ControllerRequiresBackgroundInput(controllers[i])) {
++      output << "Buttons/A = `Button A`\n"
++                "Buttons/B = `Button B`\n"
++                "Buttons/X = `Button X`\n"
++                "Buttons/Y = `Button Y`\n"
++                "Buttons/Z = `Button Z`\n"
++                "Buttons/Start = `Button START`\n"
++                "Main Stick/Up = `Axis MAIN Y -`\n"
++                "Main Stick/Down = `Axis MAIN Y +`\n"
++                "Main Stick/Left = `Axis MAIN X -`\n"
++                "Main Stick/Right = `Axis MAIN X +`\n"
++                "Main Stick/Calibration = 100.00\n"
++                "C-Stick/Up = `Axis C Y -`\n"
++                "C-Stick/Down = `Axis C Y +`\n"
++                "C-Stick/Left = `Axis C X -`\n"
++                "C-Stick/Right = `Axis C X +`\n"
++                "C-Stick/Calibration = 100.00\n"
++                "Triggers/L = `Button L`\n"
++                "Triggers/R = `Button R`\n"
++                "Triggers/L-Analog = `Axis L +`\n"
++                "Triggers/R-Analog = `Axis R +`\n"
++                "D-Pad/Up = `Button D_UP`\n"
++                "D-Pad/Down = `Button D_DOWN`\n"
++                "D-Pad/Left = `Button D_LEFT`\n"
++                "D-Pad/Right = `Button D_RIGHT`\n";
++      continue;
++    }
++    output << "Buttons/A = `Button A`\n"
+               "Buttons/B = `Button B`\n"
+               "Buttons/X = `Button X`\n"
+               "Buttons/Y = `Button Y`\n"
+diff --git a/tests/frontend_config_test.cpp b/tests/frontend_config_test.cpp
+--- a/tests/frontend_config_test.cpp
++++ b/tests/frontend_config_test.cpp
+@@ -102,6 +102,24 @@
+     return 5;
+   }
+ 
++  const std::array pipe_controllers = {std::string("Pipe/0/ssbmpad")};
++  if (!moderngekko::frontend::GenerateControllerConfig(
++          directory, pipe_controllers, &error))
++    return 15;
++  std::ifstream pipe_input(directory / "Config" / CONTROLLER_CONFIG_NAME);
++  const std::string pipe_generated{std::istreambuf_iterator<char>(pipe_input),
++                                   std::istreambuf_iterator<char>()};
++  if (!pipe_generated.contains("Device = Pipe/0/ssbmpad\n") ||
++      !pipe_generated.contains("Buttons/Z = `Button Z`\n") ||
++      !pipe_generated.contains("Buttons/Start = `Button START`\n") ||
++      !pipe_generated.contains("Main Stick/Up = `Axis MAIN Y -`\n") ||
++      !pipe_generated.contains("C-Stick/Right = `Axis C X +`\n") ||
++      !pipe_generated.contains("Triggers/L = `Button L`\n") ||
++      !pipe_generated.contains("Triggers/L-Analog = `Axis L +`\n") ||
++      !pipe_generated.contains("D-Pad/Up = `Button D_UP`\n") ||
++      pipe_generated.contains("Rumble/Motor")) {
++    return 16;
++  }
+ #else
+   if (!generated.contains("Buttons/A = `Shoulder L`\n") ||
+       !generated.contains("Buttons/1 = `Button W`\n") ||
+diff --git a/tools/netplay_session.cpp b/tools/netplay_session.cpp
+--- a/tools/netplay_session.cpp
++++ b/tools/netplay_session.cpp
+@@ -14,6 +14,7 @@
+ 
+ #include <algorithm>
+ #include <chrono>
++#include <cstdlib>
+ #include <iostream>
+ #include <memory>
+ #include <ranges>
+@@ -27,6 +28,11 @@
+   std::string label;
+   std::string device;
+ };
++
++bool EnvironmentEnabled(const char *name) {
++  const char *value = std::getenv(name);
++  return value && std::string_view(value) == "1";
++}
+ 
+ std::vector<ControllerOption> EnumerateControllers() {
+   std::vector<ControllerOption> result;
+@@ -135,12 +141,14 @@
+ 
+ bool RunLobbyWindow(RuntimeConfig &runtime_config,
+                     ConfigResult &frontend_config, NetplayOptions &options,
+-                    NetplaySession &session) {
++                    NetplaySession &session, bool &auto_start_available) {
+   LobbyWindow window;
+   if (!window.Open(runtime_config.window_system))
+     return false;
+ 
+   std::vector<ControllerOption> available = EnumerateControllers();
++  const bool auto_ready = EnvironmentEnabled("SSBMPAD_NETPLAY_AUTO_READY");
++  const bool auto_start = EnvironmentEnabled("SSBMPAD_NETPLAY_AUTO_START");
+   auto last_refresh = std::chrono::steady_clock::now();
+   bool running = true;
+   while (running) {
+@@ -257,12 +265,17 @@
+         players, [](const NetplayPlayerSnapshot &player) { return player.local; });
+     const bool local_ready =
+         local_player != players.end() && local_player->ready;
++    if (auto_ready && !local_ready)
++      session.SetReady(true);
+     if (ImGui::Button(local_ready ? "Not Ready" : "Ready", ImVec2(140, 38)))
+       session.SetReady(!local_ready);
+ 
+     if (hosting) {
+       ImGui::SameLine();
+       const bool can_start = snapshot.can_start;
++      if (auto_start && auto_start_available && can_start &&
++          session.RequestStart())
++        auto_start_available = false;
+       ImGui::BeginDisabled(!can_start);
+       if (ImGui::Button("Start", ImVec2(140, 38)))
+         session.RequestStart();
+@@ -301,7 +314,7 @@
+   Config::SetBase(Config::MAIN_CPU_THREAD, true);
+   Config::SetBase(Config::MAIN_CPU_CORE, PowerPC::CPUCore::StaticRecomp);
+   Config::SetBase(Config::NETPLAY_SAVEDATA_LOAD, true);
+-  Config::SetBase(Config::NETPLAY_SAVEDATA_WRITE, true);
++  Config::SetBase(Config::NETPLAY_SAVEDATA_WRITE, false);
+   Config::SetBase(Config::NETPLAY_SAVEDATA_SYNC_ALL_WII, false);
+   Config::SetBase(Config::NETPLAY_SYNC_CODES, false);
+   Config::SetBase(Config::NETPLAY_STRICT_SETTINGS_SYNC, true);
+@@ -322,9 +335,11 @@
+ 
+   int result = 0;
+   bool remain = true;
++  bool auto_start_available = true;
+   while (remain) {
+     const bool boot =
+-        RunLobbyWindow(runtime_config, frontend_config, options, *session);
++        RunLobbyWindow(runtime_config, frontend_config, options, *session,
++                       auto_start_available);
+     if (!boot)
+       break;
+ 
+@@ -335,7 +350,7 @@
+     }
+     session->AttachRuntime(created.runtime.get());
+     const RuntimeRunResult run_result = created.runtime->Run();
+-    session->AttachRuntime(nullptr);
++    session->FinishRuntime();
+     created.runtime.reset();
+     session->SetReady(false);
+     if (run_result.error)
+diff --git a/tools/netplay_session.hpp b/tools/netplay_session.hpp
+--- a/tools/netplay_session.hpp
++++ b/tools/netplay_session.hpp
+@@ -89,6 +89,7 @@
+   bool RequestStart();
+   std::unique_ptr<BootSessionData> TakeBootData();
+   void AttachRuntime(Runtime *runtime);
++  void FinishRuntime();
+   void Stop();
+ 
+ private:
+diff --git a/tools/netplay_session_core.cpp b/tools/netplay_session_core.cpp
+--- a/tools/netplay_session_core.cpp
++++ b/tools/netplay_session_core.cpp
+@@ -356,6 +356,16 @@
+     return;
+   m_impl->ui->SetRuntime(runtime);
+   m_impl->state = runtime ? NetplayState::Running : NetplayState::Lobby;
++}
++
++void NetplaySession::FinishRuntime() {
++  if (!m_impl || !m_impl->client)
++    return;
++  m_impl->ui->SetRuntime(nullptr);
++  m_impl->client->Stop();
++  m_impl->client->StopGame();
++  m_impl->state = m_impl->ui->ConnectionLost() ? NetplayState::Failed
++                                                : NetplayState::Lobby;
+ }
+ 
+ void NetplaySession::Stop() {
+diff --git a/tests/netplay_session_test.cpp b/tests/netplay_session_test.cpp
+--- a/tests/netplay_session_test.cpp
++++ b/tests/netplay_session_test.cpp
+@@ -168,6 +168,32 @@
+     if (host->TakeBootData() || join->TakeBootData())
+       return 42 + cycle;
+ 
++    host->FinishRuntime();
++    join->FinishRuntime();
++    if (host->Snapshot().state != NetplayState::Lobby ||
++        join->Snapshot().state != NetplayState::Lobby)
++      return 44 + cycle;
++
++    if (cycle == 0) {
++      std::fprintf(stderr, "session-test same-session restart\n");
++      if (!host->SetReady(true) || !join->SetReady(true) ||
++          !WaitFor([&] { return host->Snapshot().can_start; }) ||
++          !host->RequestStart())
++        return 60;
++      std::unique_ptr<BootSessionData> host_restart;
++      std::unique_ptr<BootSessionData> join_restart;
++      if (!WaitFor([&] {
++            if (!host_restart)
++              host_restart = host->TakeBootData();
++            if (!join_restart)
++              join_restart = join->TakeBootData();
++            return host_restart && join_restart;
++          }))
++        return 61;
++      host->FinishRuntime();
++      join->FinishRuntime();
++    }
++
+     std::fprintf(stderr, "session-test cycle=%d stop\n", cycle);
+     join->Stop();
+     host->Stop();
+

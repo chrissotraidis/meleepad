@@ -200,10 +200,14 @@ GameCube capacity/assignment/count/disconnect/reconnect and every
 `GCPadStatus` field without regressing the Wii path. NL0/NL1 are focused-test
 passes, not gameplay proof.
 
-The headless `NetplaySession` extraction now passes two complete lifecycle
-cycles and compiles for macOS and the iPhone Simulator. Next prove a two-Mac
-full Melee match with isolated roots, two-sided input, save hashes, no desync,
-and clean teardown. Then add the native three-dot-menu Online Play flow, deploy
+The headless `NetplaySession` extraction passes repeated lifecycle tests and
+compiles for macOS and the iPhone Simulator. A two-Mac control now completes a
+full Zelda/Samus match with two-sided input and identical results, but exposed
+two remaining NL3 debts: returning from a runtime did not clear Dolphin's
+running/queued-boot state, and load-and-write save sync mutated the host's
+ordinary isolated GCI. The candidate makes runtime finish explicit and saves
+load-only; a clean paired reversal must prove teardown and all ordinary card
+hashes before NL3 closes. Then add the native three-dot-menu Online Play flow, deploy
 a private SsbmPad traversal service,
 and complete physical-device/NAT/lifecycle acceptance. Room-code friend play is
 the first release; public matchmaking and Slippi rollback remain separate

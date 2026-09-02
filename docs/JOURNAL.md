@@ -5912,3 +5912,18 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Decision: NL2 passes. Continue to NL3, an isolated two-Mac full Melee match;
   make no gameplay, mobile Online Play, traversal, or public support claim yet.
 - Evidence: `docs/artifacts/2026-09-01/g9-headless-netplay-session.md`.
+
+## 2026-09-02 — NET-289 two-Mac full-match control and NL3 corrections
+
+- Boot two isolated host/join macOS endpoints after correcting the SDL-created
+  `NSApplication` handoff; retain synchronized video and exact P1/P2 ownership.
+- Correct Pipe-native controller names after the pre-fix regression exits `16`.
+- Complete Zelda versus Samus, two-minute Onett, Sudden Death, identical
+  results, and return to ready CSS with no reported desync or network wait.
+- Reject NL3 promotion because host-close leaves stale running/boot state and
+  the host ordinary isolated GCI changes. Add explicit runtime finish,
+  one-shot test auto-start, and load-only synchronized saves.
+- Pass same-session restart, GameCube/legacy frontend, and protocol tests.
+  Retain NL3 as PARTIAL until a fresh paired candidate proves clean teardown
+  and byte-identical ordinary saves.
+- Evidence: `docs/artifacts/2026-09-02/g9-two-mac-melee-match-partial.md`.

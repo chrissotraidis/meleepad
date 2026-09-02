@@ -1,0 +1,54 @@
+diff --git a/Source/Core/DolphinNoGUI/PlatformMacos.mm b/Source/Core/DolphinNoGUI/PlatformMacos.mm
+--- a/Source/Core/DolphinNoGUI/PlatformMacos.mm
++++ b/Source/Core/DolphinNoGUI/PlatformMacos.mm
+@@ -21,8 +21,9 @@
+ #include <cstring>
+ #include <thread>
+ 
+-@interface Application : NSApplication
+-@property Platform* platform;
++static Platform* s_application_platform = nullptr;
++
++@interface NSApplication (ModernGekkoApplication)
+ - (void)shutdown;
+ - (void)togglePause;
+ - (void)saveScreenShot;
+@@ -33,10 +34,11 @@
+ - (void)saveState:(id)sender;
+ @end
+ 
+-@implementation Application
++@implementation NSApplication (ModernGekkoApplication)
+ - (void)shutdown;
+ {
+-  [self platform]->Stop();
++  if (s_application_platform)
++    s_application_platform->Stop();
+   [self stop:nil];
+ }
+ 
+@@ -198,18 +200,20 @@
+ PlatformMacOS::~PlatformMacOS()
+ {
+   [m_window close];
++  if (s_application_platform == this)
++    s_application_platform = nullptr;
+ }
+ 
+ bool PlatformMacOS::Init()
+ {
+-  [Application sharedApplication];
++  [NSApplication sharedApplication];
+ 
+   m_app_delegate = [[AppDelegate alloc] initWithPlatform:this];
+   [NSApp setDelegate:m_app_delegate];
+ 
+   [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
+-  [NSApp setPlatform:this];
+-  [Application.sharedApplication finishLaunching];
++  s_application_platform = this;
++  [NSApplication.sharedApplication finishLaunching];
+ 
+   unsigned long styleMask =
+       NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable;
+
