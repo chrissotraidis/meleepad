@@ -21,12 +21,12 @@ G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance.
 
 ### Current hard stop: G8 row 7
 
-The installed iPad Simulator product is **not currently playable** on the
-controlling route and is **not eligible for physical-iPad promotion**. The
-authoritative floor is the user's ordinary first-run, on-screen 21.9 FPS result
-in P1 Samus versus level-1 CPU Kirby, Stock/04/05:00, on Fountain of Dreams.
-Later automated runs at 45.2, 36.4, or any higher diagnostic value do not
-replace that result. Animated opening/menu slowdowns also fail independently.
+The installed iPad Simulator product now boots and runs ordinary solo opening,
+menu, attract, and exact Fountain routes predominantly at 59.8-60.0 FPS/VPS,
+but row 7 is **PARTIAL** and the product is **not eligible for physical-iPad
+promotion**. The old ordinary first-run 21.9 FPS Fountain result is retained as
+the historical regression anchor: the sustained 20-36 FPS mechanism has been
+reversed, but only the unchanged-build human route below can close acceptance.
 
 Until this hard stop is cleared, the loop order is:
 
@@ -69,14 +69,12 @@ Use this evidence order for every performance claim:
 
 Lower-ranked evidence may explain or reject a mechanism, but it cannot raise a
 failed higher-ranked result. The user's visible **21.9 FPS** first-run frame and
-its matching **20.2 FPS / 19.8 VPS** runtime interval therefore form a sticky
-regression anchor, not an outlier to average away. This anchor is cleared only
-by a newer ordinary manual run of the same installed candidate and exact route
-that records the complete moving path—not by a warm scene, attract/demo
-playback, idle screen, easier roster, average, best interval, or profiler-only
-capture. If the normal first run is slow while a scripted warm run is fast, the
-product still fails and the discrepancy itself becomes the next mechanism to
-explain.
+its matching **20.2 FPS / 19.8 VPS** runtime interval remain in the regression
+history rather than being averaged away. PERF-280 through PERF-285 reverse the
+sustained mechanism in ordinary and exact routes, but automated and
+observer-free evidence cannot substitute for the final human-controlled route.
+If that normal route is slow while scripted or hands-off runs are fast, the
+product still fails and the discrepancy itself becomes the next mechanism.
 
 Judge these phases independently: moving opening/attract content, menu and CSS,
 match loading, the first combat minute, continued five-minute combat, results,
@@ -95,16 +93,25 @@ A candidate can change row 7 from FAIL only after all of the following pass:
   recording, responsive controls, coherent rendering, music and SFX, and no
   sustained underrun.
 
-Until then, describe the app as an optimization build that boots and runs but
-is not currently playable at target speed. Do not call it stable 60 FPS,
-nearly ready, physical-iPad-ready, or promoted. G9 netplay remains queued
-behind this gate.
+Until then, describe the app as an optimization build that boots and runs at
+target cadence in retained solo automation but is not yet accepted as stable
+60 FPS. Do not call it physical-iPad-ready or promoted. G9 netplay remains
+queued behind this gate.
 
-The 2026-09-02 native netplay fingerprint run reinforces this ordering. Local
-ping was approximately 1 ms and early opening play held near 60 FPS, but iPad
-combat fell to roughly 39–41 FPS as the peers reached different guest PCs at
-frames 6,180/6,240. Online transport is not the controlling slowdown; row-7
-CPU throughput remains the next mechanism before NL5 can pass.
+The 2026-09-02 native netplay fingerprint run does not reopen solo row-7
+architecture work. Local ping was approximately 1 ms and early opening play
+held near 60 FPS, but iPad combat fell to roughly 39-41 FPS while two emulators
+shared the same M1 and the peers reached different guest PCs at frames
+6,180/6,240. PERF-285 then ran the unchanged ordinary single-app Release for
+200 observer-free seconds: all 17 reports held 59.9-60.0 FPS/VPS, including a
+146.7% aggregate-CPU high-work interval. Treat NET-293 as separate paired-load
+and determinism evidence. The next row-7 step is the human acceptance route,
+not another static-core rewrite. See
+`docs/artifacts/2026-09-02/g8-post-netplay-ordinary-attract-reversal.md`.
+
+The mechanism discussion below is retained as historical decision evidence.
+Where it conflicts with PERF-280 through PERF-285, the newer measured reversal
+controls the next action.
 
 PERF-271 supplies the controlling post-fix ordinary failure. A hands-off cold
 installed-app run enters a four-fighter attract match and falls from

@@ -1,5 +1,21 @@
 # ssbmpad status
 
+## 2026-09-02 — G8 ordinary post-netplay reversal holds target cadence
+
+A fresh ordinary installed Release ran for 200 seconds with no diagnostic
+environment, savestate, profiler, external input, recording, screenshot, or UI
+polling. The app was terminated before its log was inspected. All 17 retained
+ten-second reports held 59.9-60.0 FPS and VPS, including a high-work interval
+at 146.7% aggregate app CPU (85.0% CPU thread, 55.0% video thread). DMA
+underruns rose 0 -> 4 in isolated transitions and then stayed flat.
+
+The NET-293 39-41 FPS paired result therefore does not reproduce in ordinary
+single-app play and does not justify another solo core rewrite. Row 7 remains
+PARTIAL only because the higher-ranked unchanged-build, human-controlled,
+uninterrupted five-minute exact Fountain route is still absent. Physical-iPad
+promotion and further G9 implementation remain closed. See
+`docs/artifacts/2026-09-02/g8-post-netplay-ordinary-attract-reversal.md`.
+
 ## 2026-09-02 — G9 fingerprint separates boundary skew from real divergence
 
 Per-peer netplay telemetry now records guest PC, CoreTiming/timebase origin,
@@ -2882,6 +2898,15 @@ remains separately open. See
   exact match with short HEVC and no Computer Use polling. No product change,
   physical-iPad promotion, or G9 work is justified yet. Evidence:
   `docs/artifacts/2026-09-01/g8-hevc-no-ui-observer-tail-reversal.md`.
+- **PERF-285 (ordinary post-netplay reversal):** A fresh ordinary installed
+  Release runs 200 seconds without diagnostics or live observation. All 17
+  reports hold 59.9-60.0 FPS/VPS, including the maximum 146.7% aggregate-CPU
+  interval; transition underruns rise 0 -> 4 and then remain flat. This rejects
+  NET-293's dual-emulator 39-41 FPS as a new solo-performance anchor and makes
+  no visible/manual acceptance claim. Row 7 remains PARTIAL pending only the
+  unchanged-build human-controlled uninterrupted five-minute exact Fountain
+  route. Evidence:
+  `docs/artifacts/2026-09-02/g8-post-netplay-ordinary-attract-reversal.md`.
 ## 2026-09-02 — G9 NL3 gameplay passes; lifecycle/save rerun pending
 
 Two isolated macOS endpoints completed a full two-player Melee match with

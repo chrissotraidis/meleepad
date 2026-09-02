@@ -1,6 +1,6 @@
 # ssbmpad technical debt
 
-Last updated: 2026-09-01
+Last updated: 2026-09-02
 
 This is the short, ranked engineering queue behind the active goal loop. It is
 not a substitute for `GOAL-LOOP.md` or evidence in `docs/artifacts/`.
@@ -125,6 +125,15 @@ diagnostic route's 56.7-VPS stall do not reproduce. Opening/attract architecture
 work is closed; the remaining P0 is the unchanged-build manual exact Fountain
 route. See
 `docs/artifacts/2026-09-01/g8-observer-free-opening-attract-reality-lane.md`.
+
+After NET-293, PERF-285 repeats the ordinary single-app lane from a fresh
+process with no UI observation until after termination. All 17 ten-second
+reports hold 59.9-60.0 FPS/VPS, including the 146.7% aggregate-CPU high-work
+interval; four isolated transition underruns do not grow afterward. The paired
+netplay run's 39-41 FPS therefore does not justify reopening solo static-core
+work. Preserve the unchanged Release and run the human five-minute acceptance
+route. See
+`docs/artifacts/2026-09-02/g8-post-netplay-ordinary-attract-reversal.md`.
 
 ### 2. Cold-transition and resume audio
 

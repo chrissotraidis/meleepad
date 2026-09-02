@@ -6019,3 +6019,20 @@ Append-only execution ledger. Claims are limited to observed evidence.
   device, room-code, or public Online Play claim.
 - Evidence:
   `docs/artifacts/2026-09-02/g9-cross-platform-execution-fingerprint.md`.
+
+## 2026-09-02 — PERF-285 ordinary post-netplay reversal
+
+- Launch the unchanged installed Release from a fresh process and prohibit all
+  UI observation, recording, diagnostics, savestates, and external input until
+  after termination.
+- Retain 17 consecutive ten-second reports at 59.9-60.0 FPS/VPS. The heaviest
+  report remains 59.9/59.9 at 146.7% aggregate app CPU, split 85.0% CPU thread
+  and 55.0% video thread.
+- Observe four isolated transition DMA underruns with no subsequent growth and
+  no report below the 59.0 floor.
+- Decision: the NET-293 two-emulator 39-41 FPS result is not a new ordinary
+  solo anchor. Make no core change. Keep row 7 PARTIAL pending the unchanged
+  Release, human-controlled uninterrupted five-minute exact Fountain route;
+  keep physical-iPad promotion and further G9 implementation closed.
+- Evidence:
+  `docs/artifacts/2026-09-02/g8-post-netplay-ordinary-attract-reversal.md`.
