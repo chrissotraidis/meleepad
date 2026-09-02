@@ -1,11 +1,13 @@
 diff --git a/Data/Sys/GameSettings/GALE01r0.ini b/Data/Sys/GameSettings/GALE01r0.ini
 --- a/Data/Sys/GameSettings/GALE01r0.ini
 +++ b/Data/Sys/GameSettings/GALE01r0.ini
-@@ -1,5 +1,8 @@
+@@ -1,5 +1,10 @@
  # GALE01 - Super Smash Bros. Melee
  
 +[Core]
-+StaticRecompIdlePC = 0x80349494
++StaticRecompIdlePC = 0x80348814
++StaticRecompCallerIdlePC = 0x80019550
++StaticRecompCallerIdleLR = 0x801A4064
 +
  [ActionReplay]
  # Add action replay cheats here.

@@ -100,6 +100,12 @@ is not currently playable at target speed. Do not call it stable 60 FPS,
 nearly ready, physical-iPad-ready, or promoted. G9 netplay remains queued
 behind this gate.
 
+The 2026-09-02 native netplay fingerprint run reinforces this ordering. Local
+ping was approximately 1 ms and early opening play held near 60 FPS, but iPad
+combat fell to roughly 39–41 FPS as the peers reached different guest PCs at
+frames 6,180/6,240. Online transport is not the controlling slowdown; row-7
+CPU throughput remains the next mechanism before NL5 can pass.
+
 PERF-271 supplies the controlling post-fix ordinary failure. A hands-off cold
 installed-app run enters a four-fighter attract match and falls from
 59.9-60.0 FPS to sustained 31.8-32.3 FPS, with a 21.1 FPS interval, CPU-thread

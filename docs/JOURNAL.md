@@ -5996,3 +5996,26 @@ Append-only execution ledger. Claims are limited to observed evidence.
   static-recomp lockstep around the reproducible frame-120 residual.
 - Evidence:
   `docs/artifacts/2026-09-02/g9-cross-platform-determinism-progress.md`.
+
+## 2026-09-02 — NET-293 execution fingerprint and bounded comparator
+
+- Add guest PC, CoreTiming/timebase origin, native-dispatch/cycle/burst, and
+  integer/FPR/paired/combined architectural hashes to the periodic netplay
+  diagnostic record.
+- Find unlike idle policy: iPad configured the main and caller-qualified sites,
+  while executable-only macOS boot imported only the main GameINI value. Align
+  both paths; the first periodic gap falls to 107 CPU cycles/9 timebase ticks.
+- Reject the asymmetric iPad-only caller-idle disable control. Classify
+  `0x803210A4 -> 0x80321178` as a repeated-endpoint verifier artifact after
+  full charged-interval replay removes it.
+- Use one temporary 20-mismatch diagnostic run, then restore Dolphin's default
+  two-consecutive rule. Retain a 2,048-tick bound only for same-PC samples;
+  different PCs are never accepted.
+- Visibly run the native iPad-host/Mac-join candidate. It passes early boundary
+  noise, then correctly rejects different PCs at frames 6,180 and 6,240 while
+  iPad performance falls to roughly 39–41 FPS at approximately 1 ms ping.
+- Decision: NL4/NL5 remain partial/failed. Return the next mechanism step to
+  the row-7 full-load CPU slowdown; make no full-match, stable-60, physical
+  device, room-code, or public Online Play claim.
+- Evidence:
+  `docs/artifacts/2026-09-02/g9-cross-platform-execution-fingerprint.md`.

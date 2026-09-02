@@ -76,12 +76,16 @@ Ready gating, synchronized Start, Cancel, clean session teardown, input
 neutralization, fresh solo restart, and match-ended lobby/error recovery reach
 their intended boundaries. Aligning both peers on the selected extracted DOL
 moved the cross-platform desync from frame 60 to frame 6,240; an exact-source
-Mac module control moved it to frame 7,440 but did not eliminate it. Native
-iPad combat was visible but dropped to roughly 36 FPS under the two-process
-load. The reverse host direction, instruction-level determinism, exact failure
-paths, background teardown, and iPhone layout remain unmet; no mobile support
-or 60 FPS claim is allowed. See
-`docs/artifacts/2026-09-02/g9-cross-platform-determinism-progress.md`.
+Mac module control moved it to frame 7,440 but did not eliminate it. Execution
+fingerprints then exposed unlike idle configuration and asynchronous
+same-PC/timebase sampling. Symmetric idle policy plus a same-PC-only 2,048-tick
+bound passes the early sampling noise while retaining Dolphin's two-consecutive
+rule, but correctly stops on different PCs at frames 6,180 and 6,240. Native
+iPad combat fell to roughly 39–41 FPS under the two-process load. The reverse
+host direction, a complete cross-platform match, exact failure paths,
+background teardown, and iPhone layout remain unmet; no mobile support or
+60 FPS claim is allowed. See
+`docs/artifacts/2026-09-02/g9-cross-platform-execution-fingerprint.md`.
 
 ## Operating loop
 

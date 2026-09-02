@@ -1,5 +1,21 @@
 # ssbmpad status
 
+## 2026-09-02 — G9 fingerprint separates boundary skew from real divergence
+
+Per-peer netplay telemetry now records guest PC, CoreTiming/timebase origin,
+static-recomp progress, and architectural state-family hashes. Aligning the
+main and caller-qualified idle policy across iPad and executable-only macOS
+reduced the first periodic difference to 107 CPU cycles/9 timebase ticks.
+
+The retained comparator keeps Dolphin's two-consecutive rule and accepts a
+bounded skew only when peers report the same PC. It ignored early asynchronous
+boundary noise but correctly rejected different PCs at frames 6,180 and 6,240.
+The native pair therefore still fails before a full match. The iPad fell to
+roughly 39–41 FPS around that combat transition despite approximately 1 ms
+local ping, so NL4/NL5 and the 60 FPS gate remain unmet. Lockstep also clears
+`0x803210A4` as another repeated-endpoint verifier artifact. See
+`docs/artifacts/2026-09-02/g9-cross-platform-execution-fingerprint.md`.
+
 ## 2026-09-02 — G9 cross-platform determinism reaches frame 7,440
 
 The original mobile/Mac desync is now mechanistically narrowed. New retained

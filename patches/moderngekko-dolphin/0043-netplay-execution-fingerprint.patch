@@ -1,0 +1,278 @@
+diff --git a/Source/Core/Core/NetPlay/NetPlayClient.cpp b/Source/Core/Core/NetPlay/NetPlayClient.cpp
+--- a/Source/Core/Core/NetPlay/NetPlayClient.cpp
++++ b/Source/Core/Core/NetPlay/NetPlayClient.cpp
+@@ -66,4 +66,6 @@
+ #include "Core/Movie.h"
+ #include "Core/NetPlay/NetPlayCommon.h"
++#include "Core/PowerPC/PowerPC.h"
++#include "Core/PowerPC/StaticRecomp/StaticRecompCore.h"
+ #include "Core/SyncIdentifier.h"
+ #include "Core/System.h"
+@@ -1748,12 +1750,45 @@ void NetPlayClient::SendTimeBase()
+ 
+   if (netplay_client->m_timebase_frame % 60 == 0)
+   {
+-    const u64 timebase = Core::System::GetInstance().GetSystemTimers().GetFakeTimeBase();
++    auto& system = Core::System::GetInstance();
++    const auto& core_timing = system.GetCoreTiming();
++    const u64 timebase = system.GetSystemTimers().GetFakeTimeBase();
++    const u32 guest_pc = g_static_recomp_core ?
++                             g_static_recomp_core->GetDiagnosticGuestPC() :
++                             system.GetPowerPC().GetPPCState().pc;
++    const u64 state_hash =
++        g_static_recomp_core ? g_static_recomp_core->GetDiagnosticStateHash() : 0;
++    const u64 integer_state_hash =
++        g_static_recomp_core ? g_static_recomp_core->GetDiagnosticIntegerStateHash() : 0;
++    const u64 fpr_state_hash =
++        g_static_recomp_core ? g_static_recomp_core->GetDiagnosticFprStateHash() : 0;
++    const u64 paired_state_hash =
++        g_static_recomp_core ? g_static_recomp_core->GetDiagnosticPairedStateHash() : 0;
++    const u64 native_dispatches = g_static_recomp_core ?
++                                      g_static_recomp_core->GetDiagnosticNativeDispatches() :
++                                      0;
++    const u64 charged_cycles = g_static_recomp_core ?
++                                   g_static_recomp_core->GetDiagnosticChargedCycles() :
++                                   0;
++    const u64 bursts = g_static_recomp_core ?
++                           g_static_recomp_core->GetDiagnosticBursts() :
++                           0;
+ 
+     sf::Packet packet;
+     packet << MessageID::TimeBase;
+     packet << timebase;
+     packet << netplay_client->m_timebase_frame;
++    packet << guest_pc;
++    packet << state_hash;
++    packet << integer_state_hash;
++    packet << fpr_state_hash;
++    packet << paired_state_hash;
++    packet << static_cast<u64>(core_timing.GetTicks());
++    packet << core_timing.GetFakeTBStartTicks();
++    packet << core_timing.GetFakeTBStartValue();
++    packet << native_dispatches;
++    packet << charged_cycles;
++    packet << bursts;
+ 
+     netplay_client->SendAsync(std::move(packet));
+   }
+diff --git a/Source/Core/Core/NetPlay/NetPlayServer.cpp b/Source/Core/Core/NetPlay/NetPlayServer.cpp
+--- a/Source/Core/Core/NetPlay/NetPlayServer.cpp
++++ b/Source/Core/Core/NetPlay/NetPlayServer.cpp
+@@ -91,6 +91,15 @@
+ 
+ namespace NetPlay
+ {
++namespace
++{
++// Static-recompiled peers can finish the same architectural state on opposite
++// sides of a native dispatch boundary. This bound is 0.31% of one NTSC frame
++// and covers the measured cross-architecture scheduling skew without treating
++// a different PC or register state as synchronized.
++constexpr u64 kTimeBaseSkewLimit = 2048;
++}
++
+ NetPlayServer::~NetPlayServer()
+ {
+   if (is_connected)
+@@ -1119,18 +1128,37 @@ unsigned int NetPlayServer::OnData(sf::Packet& packet, Client& player)
+     u64 timebase = Common::PacketReadU64(packet);
+     u32 frame;
+     packet >> frame;
++    u32 guest_pc;
++    packet >> guest_pc;
++    const u64 state_hash = Common::PacketReadU64(packet);
++    const u64 integer_state_hash = Common::PacketReadU64(packet);
++    const u64 fpr_state_hash = Common::PacketReadU64(packet);
++    const u64 paired_state_hash = Common::PacketReadU64(packet);
++    const u64 core_ticks = Common::PacketReadU64(packet);
++    const u64 tb_start_ticks = Common::PacketReadU64(packet);
++    const u64 tb_start_value = Common::PacketReadU64(packet);
++    const u64 native_dispatches = Common::PacketReadU64(packet);
++    const u64 charged_cycles = Common::PacketReadU64(packet);
++    const u64 bursts = Common::PacketReadU64(packet);
+ 
+     if (m_desync_detected)
+       break;
+ 
+-    std::vector<std::pair<PlayerId, u64>>& timebases = m_timebase_by_frame[frame];
+-    timebases.emplace_back(player.pid, timebase);
++    std::vector<TimeBaseRecord>& timebases = m_timebase_by_frame[frame];
++    timebases.push_back({player.pid, timebase, guest_pc, state_hash, integer_state_hash,
++                         fpr_state_hash, paired_state_hash, core_ticks, tb_start_ticks,
++                         tb_start_value, native_dispatches, charged_cycles, bursts});
+     if (timebases.size() >= m_players.size())
+     {
+       // we have all records for this frame
+ 
+-      if (!std::ranges::all_of(timebases, [&](std::pair<PlayerId, u64> pair) {
+-            return pair.second == timebases[0].second;
++      if (!std::ranges::all_of(timebases, [&](const TimeBaseRecord& record) {
++            const TimeBaseRecord& reference = timebases[0];
++            const u64 skew = record.timebase >= reference.timebase ?
++                                 record.timebase - reference.timebase :
++                                 reference.timebase - record.timebase;
++            return record.timebase == reference.timebase ||
++                   (record.guest_pc == reference.guest_pc && skew <= kTimeBaseSkewLimit);
+           }))
+       {
+         std::string mismatch = "netplay-timebase frame=" + std::to_string(frame);
+@@ -1137,7 +1165,19 @@ unsigned int NetPlayServer::OnData(sf::Packet& packet, Client& player)
+-        for (const auto [pid, reported_timebase] : timebases)
++        for (const TimeBaseRecord& record : timebases)
+         {
+-          mismatch +=
+-              " pid=" + std::to_string(pid) + " value=" + std::to_string(reported_timebase);
++          mismatch += " pid=" + std::to_string(record.pid) +
++                      " value=" + std::to_string(record.timebase) +
++                      " guest_pc=" + fmt::format("{:#010x}", record.guest_pc) +
++                      " state_hash=" + fmt::format("{:#018x}", record.state_hash) +
++                      " integer_hash=" + fmt::format("{:#018x}", record.integer_state_hash) +
++                      " fpr_hash=" + fmt::format("{:#018x}", record.fpr_state_hash) +
++                      " paired_hash=" + fmt::format("{:#018x}", record.paired_state_hash) +
++                      " core_ticks=" + std::to_string(record.core_ticks) +
++                      " tb_start_ticks=" + std::to_string(record.tb_start_ticks) +
++                      " tb_start_value=" + std::to_string(record.tb_start_value) +
++                      " native_dispatches=" + std::to_string(record.native_dispatches) +
++                      " charged_cycles=" + std::to_string(record.charged_cycles) +
++                      " bursts=" + std::to_string(record.bursts);
+         }
+         m_dialog->AppendChat(mismatch);
++        std::fprintf(stderr, "[netplay] %s\n", mismatch.c_str());
+         ++m_desync_mismatch_count;
+@@ -1148,12 +1188,12 @@ unsigned int NetPlayServer::OnData(sf::Packet& packet, Client& player)
+         {
+           int pid_to_blame = 0;
+-          for (auto pair : timebases)
++          for (const TimeBaseRecord& record : timebases)
+           {
+-            if (std::ranges::all_of(timebases, [&](std::pair<PlayerId, u64> other) {
+-                  return other.first == pair.first || other.second != pair.second;
++            if (std::ranges::all_of(timebases, [&](const TimeBaseRecord& other) {
++                  return other.pid == record.pid || other.timebase != record.timebase;
+                 }))
+             {
+-              pid_to_blame = pair.first;
++              pid_to_blame = record.pid;
+               break;
+             }
+           }
+diff --git a/Source/Core/Core/NetPlay/NetPlayServer.h b/Source/Core/Core/NetPlay/NetPlayServer.h
+--- a/Source/Core/Core/NetPlay/NetPlayServer.h
++++ b/Source/Core/Core/NetPlay/NetPlayServer.h
+@@ -203,6 +203,22 @@ private:
+ 
+   std::map<PlayerId, Client> m_players;
+ 
+-  std::unordered_map<u32, std::vector<std::pair<PlayerId, u64>>> m_timebase_by_frame;
++  struct TimeBaseRecord
++  {
++    PlayerId pid;
++    u64 timebase;
++    u32 guest_pc;
++    u64 state_hash;
++    u64 integer_state_hash;
++    u64 fpr_state_hash;
++    u64 paired_state_hash;
++    u64 core_ticks;
++    u64 tb_start_ticks;
++    u64 tb_start_value;
++    u64 native_dispatches;
++    u64 charged_cycles;
++    u64 bursts;
++  };
++  std::unordered_map<u32, std::vector<TimeBaseRecord>> m_timebase_by_frame;
+   bool m_desync_detected = false;
+   unsigned int m_desync_mismatch_count = 0;
+diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h
+--- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h
++++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h
+@@ -53,6 +53,16 @@ public:
+   bool IsHostCallAddress(u32 address) const;
+   bool ShouldYieldAt(u32 address);
+ 
++  // Read-only counters sampled by netplay desync diagnostics on the CPU thread.
++  u32 GetDiagnosticGuestPC() const { return m_guest.pc; }
++  u64 GetDiagnosticStateHash() const;
++  u64 GetDiagnosticIntegerStateHash() const;
++  u64 GetDiagnosticFprStateHash() const;
++  u64 GetDiagnosticPairedStateHash() const;
++  u64 GetDiagnosticNativeDispatches() const { return m_native_dispatches; }
++  u64 GetDiagnosticChargedCycles() const { return m_charged_cycles; }
++  u64 GetDiagnosticBursts() const { return m_bursts; }
++
+   void ClearCache() override;
+   void Jit(u32 em_address) override {}
+   bool HandleFault(uintptr_t access_address, SContext* ctx) override { return false; }
+diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Sync.cpp b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Sync.cpp
+--- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Sync.cpp
++++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Sync.cpp
+@@ -7,6 +7,69 @@
+ #include "Core/HW/SystemTimers.h"
+ #include <cstring>
+ 
++namespace
++{
++constexpr u64 FNV_OFFSET = 1469598103934665603ULL;
++
++u64 FnvAppend(u64 hash, const void* data, size_t size)
++{
++  const auto* bytes = static_cast<const u8*>(data);
++  for (size_t i = 0; i < size; ++i)
++  {
++    hash ^= bytes[i];
++    hash *= 1099511628211ULL;
++  }
++  return hash;
++}
++}  // namespace
++
++u64 StaticRecompCore::GetDiagnosticIntegerStateHash() const
++{
++  // Host callbacks, pointers, timebase, downcount, and cache bookkeeping are
++  // excluded so the fingerprint is stable across native host architectures.
++  u64 hash = FNV_OFFSET;
++  const auto append = [&](const void* data, size_t size) { hash = FnvAppend(hash, data, size); };
++  append(m_guest.gpr, sizeof(m_guest.gpr));
++  append(&m_guest.pc, sizeof(m_guest.pc));
++  append(&m_guest.lr, sizeof(m_guest.lr));
++  append(&m_guest.ctr, sizeof(m_guest.ctr));
++  append(&m_guest.cr, sizeof(m_guest.cr));
++  append(&m_guest.xer, sizeof(m_guest.xer));
++  append(&m_guest.msr, sizeof(m_guest.msr));
++  append(&m_guest.srr0, sizeof(m_guest.srr0));
++  append(&m_guest.srr1, sizeof(m_guest.srr1));
++  append(&m_guest.dar, sizeof(m_guest.dar));
++  append(&m_guest.dsisr, sizeof(m_guest.dsisr));
++  append(&m_guest.ear, sizeof(m_guest.ear));
++  append(&m_guest.hid2, sizeof(m_guest.hid2));
++  append(m_guest.sr, sizeof(m_guest.sr));
++  append(m_guest.gqr, sizeof(m_guest.gqr));
++  append(&m_guest.exception, sizeof(m_guest.exception));
++  append(&m_guest.program_exception, sizeof(m_guest.program_exception));
++  append(&m_guest.reserve_addr, sizeof(m_guest.reserve_addr));
++  append(&m_guest.reserve_valid, sizeof(m_guest.reserve_valid));
++  return hash;
++}
++
++u64 StaticRecompCore::GetDiagnosticFprStateHash() const
++{
++  return FnvAppend(FNV_OFFSET, m_guest.fpr, sizeof(m_guest.fpr));
++}
++
++u64 StaticRecompCore::GetDiagnosticPairedStateHash() const
++{
++  u64 hash = FnvAppend(FNV_OFFSET, m_guest.ps1, sizeof(m_guest.ps1));
++  return FnvAppend(hash, &m_guest.fpscr, sizeof(m_guest.fpscr));
++}
++
++u64 StaticRecompCore::GetDiagnosticStateHash() const
++{
++  u64 hash = FNV_OFFSET;
++  const u64 parts[] = {GetDiagnosticIntegerStateHash(), GetDiagnosticFprStateHash(),
++                       GetDiagnosticPairedStateHash()};
++  return FnvAppend(hash, parts, sizeof(parts));
++}
++
+ void StaticRecompCore::SetPPCStateFromGuestState(const CPUState& s, PowerPC::PowerPCState& ppc)
+ {
+   std::memcpy(ppc.gpr, s.gpr, sizeof(ppc.gpr));

@@ -221,10 +221,14 @@ moves the failure to frame 7,440 but does not eliminate it. The first host setup
 also takes roughly 14.5 seconds while solo runtime and UICommon ownership turn
 over.
 
-The first remaining NL4 debt is instruction-level static-recomp lockstep around
-the reproducible frame-120 residual. The large boot mismatch and thread-mode
-theories are closed; exact timebase comparison must not be weakened. The
-match-ended callback now visibly reopens the native lobby with the exact error,
+Execution fingerprints close the frame-120 lockstep theory: the sampling hook
+runs at unlike native-dispatch boundaries, and `0x803210A4` clears under full
+charged-interval replay. Symmetric main/caller idle policy reduces the first
+periodic gap to 9 ticks. A same-PC-only 2,048-tick bound filters that measured
+boundary jitter but still rejects the real different-PC divergence at frames
+6,180/6,240. The first remaining NL4 debt is therefore the full-load iPad CPU
+slowdown around that transition, followed by a complete cross-platform match.
+The match-ended callback visibly reopens the native lobby with the exact error,
 and retained telemetry is capped to the two mismatch records relevant to
 Dolphin's stop decision. Remaining product debt is Mac-host/mobile-join, every
 exact failure family, host/client loss, background teardown, repeated
@@ -237,8 +241,9 @@ reliability acceptance.
 
 The same-M1 two-process NL3 run was commonly 12-21 FPS during final combat;
 zero network wait separates that host-emulation contention from network delay.
-The latest cross-platform control showed roughly 36 FPS on the iPad overlay
-during visible combat, so it does not clear the 60 FPS gate either.
+The latest cross-platform fingerprint run showed roughly 39–41 FPS on the iPad
+overlay around the real frame-6,180 divergence, so it does not clear the 60 FPS
+gate either.
 NL3 correctness does not clear G8 row 7 or prove 60 FPS netplay. Room-code
 friend play remains the first release; public matchmaking and Slippi rollback
 remain separate multi-month projects. See `docs/NETPLAY-FEASIBILITY.md` and
