@@ -5927,3 +5927,23 @@ Append-only execution ledger. Claims are limited to observed evidence.
   Retain NL3 as PARTIAL until a fresh paired candidate proves clean teardown
   and byte-identical ordinary saves.
 - Evidence: `docs/artifacts/2026-09-02/g9-two-mac-melee-match-partial.md`.
+
+## 2026-09-02 — NET-290 direct two-Mac match and save reversal pass
+
+- Reconfigure the real desktop runner with GameCube-controller support after
+  finding that only the focused test target had the definition enabled; add
+  always-connected Pipe profiles with a focused assertion.
+- Capture session save writability at raw/directory card construction and skip
+  their flush threads and destructor flushes for load-only netplay cards.
+- Complete isolated P1 Pikachu versus P2 Peach through a two-minute random-stage
+  match, Sudden Death, identical results, ready character select, both lobbies,
+  and visible clean exit. Retain buffer 2, zero network wait, closely matched
+  shutdown counters, and no reported desync.
+- Prove canonical/host/join ordinary GCI SHA-256 equality and unchanged host/join
+  mtimes after teardown; verify zero matching runner processes.
+- Rebuild without temporary diagnostic prints and pass GameCube/legacy frontend,
+  protocol, and repeated session-lifecycle tests.
+- Decision: NL3 passes. Direct two-Mac Melee netplay works in the retained test.
+  Continue to NL4 native mobile lobby; make no mobile, traversal, public Online
+  Play, or 60 FPS claim.
+- Evidence: `docs/artifacts/2026-09-02/g9-two-mac-melee-match-pass.md`.

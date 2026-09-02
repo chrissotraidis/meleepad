@@ -1,7 +1,7 @@
 diff --git a/tools/frontend_config.cpp b/tools/frontend_config.cpp
 --- a/tools/frontend_config.cpp
 +++ b/tools/frontend_config.cpp
-@@ -384,8 +384,35 @@
+@@ -384,8 +384,36 @@
      output << "[GCPad" << i + 1 << "]\n";
      if (i >= controllers.size())
        continue;
@@ -32,7 +32,8 @@ diff --git a/tools/frontend_config.cpp b/tools/frontend_config.cpp
 +                "D-Pad/Up = `Button D_UP`\n"
 +                "D-Pad/Down = `Button D_DOWN`\n"
 +                "D-Pad/Left = `Button D_LEFT`\n"
-+                "D-Pad/Right = `Button D_RIGHT`\n";
++                "D-Pad/Right = `Button D_RIGHT`\n"
++                "Options/Always Connected = True\n";
 +      continue;
 +    }
 +    output << "Buttons/A = `Button A`\n"
@@ -42,7 +43,7 @@ diff --git a/tools/frontend_config.cpp b/tools/frontend_config.cpp
 diff --git a/tests/frontend_config_test.cpp b/tests/frontend_config_test.cpp
 --- a/tests/frontend_config_test.cpp
 +++ b/tests/frontend_config_test.cpp
-@@ -102,6 +102,24 @@
+@@ -102,6 +102,25 @@
      return 5;
    }
  
@@ -61,6 +62,7 @@ diff --git a/tests/frontend_config_test.cpp b/tests/frontend_config_test.cpp
 +      !pipe_generated.contains("Triggers/L = `Button L`\n") ||
 +      !pipe_generated.contains("Triggers/L-Analog = `Axis L +`\n") ||
 +      !pipe_generated.contains("D-Pad/Up = `Button D_UP`\n") ||
++      !pipe_generated.contains("Options/Always Connected = True\n") ||
 +      pipe_generated.contains("Rumble/Motor")) {
 +    return 16;
 +  }
@@ -222,4 +224,3 @@ diff --git a/tests/netplay_session_test.cpp b/tests/netplay_session_test.cpp
      std::fprintf(stderr, "session-test cycle=%d stop\n", cycle);
      join->Stop();
      host->Stop();
-

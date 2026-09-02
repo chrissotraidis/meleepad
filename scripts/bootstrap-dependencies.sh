@@ -188,6 +188,7 @@ dispatch_sample_phase_patch="$ROOT/patches/moderngekko-dolphin/0037-dispatch-sam
 caller_idle_preflight_patch="$ROOT/patches/moderngekko-dolphin/0038-caller-qualified-idle-preflight.patch"
 gamecube_netplay_controller_patch="$ROOT/patches/moderngekko-dolphin/0039-gamecube-netplay-controller-family.patch"
 macos_sdl_application_patch="$ROOT/patches/moderngekko-dolphin/0040-macos-sdl-application-handoff.patch"
+netplay_save_lifetime_patch="$ROOT/patches/moderngekko-dolphin/0041-netplay-save-write-lifetime.patch"
 apply_patch_once_or_marker "$MG" "$mg_patch" \
   include/moderngekko/runtime.hpp 'struct RuntimeDiagnosticsSnapshot'
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$dolphin_patch" \
@@ -299,6 +300,9 @@ apply_patch_once_or_marker "$MG/vendor/dolphin" "$gamecube_netplay_controller_pa
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$macos_sdl_application_patch" \
   Source/Core/DolphinNoGUI/PlatformMacos.mm \
   'NSApplication (ModernGekkoApplication)'
+apply_patch_once_or_marker "$MG/vendor/dolphin" "$netplay_save_lifetime_patch" \
+  Source/Core/Core/HW/GCMemcard/GCMemcardDirectory.h \
+  'const bool m_save_data_writable;'
 apply_patch_once_or_marker "$MG" "$gamecube_netplay_session_patch" \
   tools/netplay_session.cpp \
   'SetControllerFamily(NetPlay::ControllerFamily::GameCube)'

@@ -1,0 +1,113 @@
+diff --git a/Source/Core/Core/HW/GCMemcard/GCMemcardDirectory.cpp b/Source/Core/Core/HW/GCMemcard/GCMemcardDirectory.cpp
+--- a/Source/Core/Core/HW/GCMemcard/GCMemcardDirectory.cpp
++++ b/Source/Core/Core/HW/GCMemcard/GCMemcardDirectory.cpp
+@@ -181,7 +181,8 @@ GCMemcardDirectory::GCMemcardDirectory(std::string directory, ExpansionInterface
+                                        const Memcard::HeaderData& header_data, u32 game_id)
+     : MemoryCardBase(slot, header_data.m_size_mb), m_game_id(game_id), m_last_block(-1),
+       m_hdr(header_data), m_bat1(header_data.m_size_mb), m_saves(0),
+-      m_save_directory(std::move(directory)), m_exiting(false)
++      m_save_directory(std::move(directory)),
++      m_save_data_writable(Config::Get(Config::SESSION_SAVE_DATA_WRITABLE)), m_exiting(false)
+ {
+   // Use existing header data if available
+   {
+@@ -255,16 +256,12 @@ GCMemcardDirectory::GCMemcardDirectory(std::string directory, ExpansionInterface
+   m_dir2 = m_dir1;
+   m_bat2 = m_bat1;
+ 
+-  m_flush_thread = std::thread(&GCMemcardDirectory::FlushThread, this);
++  if (m_save_data_writable)
++    m_flush_thread = std::thread(&GCMemcardDirectory::FlushThread, this);
+ }
+ 
+ void GCMemcardDirectory::FlushThread()
+ {
+-  if (!Config::Get(Config::SESSION_SAVE_DATA_WRITABLE))
+-  {
+-    return;
+-  }
+-
+   Common::SetCurrentThreadName(fmt::format("Memcard {} flushing thread", m_card_slot).c_str());
+ 
+   constexpr std::chrono::seconds flush_interval{1};
+@@ -288,11 +285,15 @@ void GCMemcardDirectory::FlushThread()
+ 
+ GCMemcardDirectory::~GCMemcardDirectory()
+ {
+-  m_exiting.Set();
+-  m_flush_trigger.Set();
+-  m_flush_thread.join();
++  if (m_flush_thread.joinable())
++  {
++    m_exiting.Set();
++    m_flush_trigger.Set();
++    m_flush_thread.join();
++  }
+ 
+-  FlushToFile();
++  if (m_save_data_writable)
++    FlushToFile();
+ }
+ 
+ s32 GCMemcardDirectory::Read(u32 src_address, s32 length, u8* dest_address)
+diff --git a/Source/Core/Core/HW/GCMemcard/GCMemcardDirectory.h b/Source/Core/Core/HW/GCMemcard/GCMemcardDirectory.h
+--- a/Source/Core/Core/HW/GCMemcard/GCMemcardDirectory.h
++++ b/Source/Core/Core/HW/GCMemcard/GCMemcardDirectory.h
+@@ -61,6 +61,7 @@ private:
+   std::vector<Memcard::GCIFile> m_saves;
+ 
+   std::string m_save_directory;
++  const bool m_save_data_writable;
+   Common::Event m_flush_trigger;
+   std::mutex m_write_mutex;
+   Common::Flag m_exiting;
+diff --git a/Source/Core/Core/HW/GCMemcard/GCMemcardRaw.cpp b/Source/Core/Core/HW/GCMemcard/GCMemcardRaw.cpp
+--- a/Source/Core/Core/HW/GCMemcard/GCMemcardRaw.cpp
++++ b/Source/Core/Core/HW/GCMemcard/GCMemcardRaw.cpp
+@@ -36,7 +36,8 @@
+ #define MC_HDR_SIZE 0xA000
+ 
+ MemoryCard::MemoryCard(std::string filename, ExpansionInterface::Slot card_slot, u16 size_mbits)
+-    : MemoryCardBase(card_slot, size_mbits), m_filename(std::move(filename))
++    : MemoryCardBase(card_slot, size_mbits), m_filename(std::move(filename)),
++      m_save_data_writable(Config::Get(Config::SESSION_SAVE_DATA_WRITABLE))
+ {
+   File::IOFile file(m_filename, "rb");
+   if (file)
+@@ -77,8 +78,11 @@ MemoryCard::MemoryCard(std::string filename, ExpansionInterface::Slot card_slot,
+ 
+   // Class members (including inherited ones) have now been initialized, so
+   // it's safe to startup the flush thread (which reads them).
+-  m_flush_buffer = std::make_unique<u8[]>(m_memory_card_size);
+-  m_flush_thread = std::thread(&MemoryCard::FlushThread, this);
++  if (m_save_data_writable)
++  {
++    m_flush_buffer = std::make_unique<u8[]>(m_memory_card_size);
++    m_flush_thread = std::thread(&MemoryCard::FlushThread, this);
++  }
+ }
+ 
+ MemoryCard::~MemoryCard()
+@@ -93,11 +97,6 @@ MemoryCard::~MemoryCard()
+ 
+ void MemoryCard::FlushThread()
+ {
+-  if (!Config::Get(Config::SESSION_SAVE_DATA_WRITABLE))
+-  {
+-    return;
+-  }
+-
+   Common::SetCurrentThreadName(fmt::format("Memcard {} flushing thread", m_card_slot).c_str());
+ 
+   const auto flush_interval = std::chrono::seconds(15);
+diff --git a/Source/Core/Core/HW/GCMemcard/GCMemcardRaw.h b/Source/Core/Core/HW/GCMemcard/GCMemcardRaw.h
+--- a/Source/Core/Core/HW/GCMemcard/GCMemcardRaw.h
++++ b/Source/Core/Core/HW/GCMemcard/GCMemcardRaw.h
+@@ -37,6 +37,7 @@ private:
+   }
+ 
+   std::string m_filename;
++  const bool m_save_data_writable;
+   std::unique_ptr<u8[]> m_memcard_data;
+   std::unique_ptr<u8[]> m_flush_buffer;
+   std::thread m_flush_thread;

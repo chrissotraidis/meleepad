@@ -201,17 +201,27 @@ GameCube capacity/assignment/count/disconnect/reconnect and every
 passes, not gameplay proof.
 
 The headless `NetplaySession` extraction passes repeated lifecycle tests and
-compiles for macOS and the iPhone Simulator. A two-Mac control now completes a
-full Zelda/Samus match with two-sided input and identical results, but exposed
-two remaining NL3 debts: returning from a runtime did not clear Dolphin's
-running/queued-boot state, and load-and-write save sync mutated the host's
-ordinary isolated GCI. The candidate makes runtime finish explicit and saves
-load-only; a clean paired reversal must prove teardown and all ordinary card
-hashes before NL3 closes. Then add the native three-dot-menu Online Play flow, deploy
-a private SsbmPad traversal service,
-and complete physical-device/NAT/lifecycle acceptance. Room-code friend play is
-the first release; public matchmaking and Slippi rollback remain separate
-multi-month projects. See `docs/NETPLAY-FEASIBILITY.md`.
+compiles for macOS and the iPhone Simulator. NL3 now passes: isolated macOS
+host/join endpoints completed a full Pikachu/Peach match with two-sided input,
+matching results, coordinated return to both lobbies, clean exit, and unchanged
+ordinary-save hashes and mtimes. The runner's missing GameCube build option,
+Pipe connection lifetime, stale runtime finish, and memory-card destructor
+write-through are closed in the durable patch stack.
+
+The active debt is NL4: expose the reusable session through a native UIKit
+Online Play flow in the three-dot menu, including host/join state, players,
+controller ownership, ping, automatic/manual buffer, compatibility, start,
+cancel, exact errors, and input neutralization on every exit. NL5 then requires
+a complete Mac/iPadOS Simulator touch-controlled match. Only after that should
+the project deploy a private SsbmPad traversal service and pursue room-code,
+physical-device, NAT, lifecycle, privacy, security, and reliability acceptance.
+
+The same-M1 two-process NL3 run was commonly 12-21 FPS during final combat;
+zero network wait separates that host-emulation contention from network delay.
+NL3 correctness does not clear G8 row 7 or prove 60 FPS netplay. Room-code
+friend play remains the first release; public matchmaking and Slippi rollback
+remain separate multi-month projects. See `docs/NETPLAY-FEASIBILITY.md` and
+`docs/artifacts/2026-09-02/g9-two-mac-melee-match-pass.md`.
 
 ## Closed directions — do not repeat without new evidence
 

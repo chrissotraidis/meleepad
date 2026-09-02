@@ -52,24 +52,22 @@ smoke does not satisfy a gameplay goal. Every pass requires retained evidence.
 
 ## Current goal
 
-**NL3 — Two-Mac Melee proof.** NL0 through NL2 passed their focused gates on
-2026-09-01. NL3 gameplay is PARTIAL as of 2026-09-02.
+**NL4 — Native mobile lobby.** NL0 through NL3 pass their defined gates.
 
-The reusable `NetplaySession` now completes host/join/ready/start-data/stop
-twice in one process, rejects invalid role/state actions, consumes boot data
-once, rebuilds the desktop adapter, preserves the protocol suite, and compiles
-for the iPhone Simulator toolchain. See
-`docs/artifacts/2026-09-01/g9-headless-netplay-session.md`.
+The final NL3 candidate completed a full two-minute Pikachu-versus-Peach match
+between isolated macOS host and join endpoints, including independent input,
+matching clocks, Sudden Death, identical results, return to ready character
+select, coordinated return to both lobbies, and clean process exit. Automatic
+buffer was 2 and network wait remained 0.0 ms/s. The canonical and both
+isolated ordinary memory cards retained the same SHA-256 and the isolated file
+modification times did not move.
 
-A control completed Zelda versus Samus on Onett through timed combat, Sudden
-Death, identical results, and return to ready CSS with independent P1/P2 input
-and no reported desync. It also exposed stale restart after host close and a
-changed host ordinary isolated GCI. The candidate adds explicit runtime finish,
-one-shot test auto-start, load-only save sync, exact Pipe profiles, and the
-macOS SDL application handoff. Repeat the paired match from clean card copies;
-NL3 passes only if teardown is clean and canonical/host/join ordinary save
-hashes remain identical. See
-`docs/artifacts/2026-09-02/g9-two-mac-melee-match-partial.md`.
+The candidate also closes the actual-runner GameCube CMake mismatch, forces
+Pipe profiles to remain connected, and prevents load-only netplay cards from
+starting flush threads or writing during destruction. Direct two-Mac Melee
+netplay therefore works in the retained test. This does not prove mobile,
+Internet room-code, public-service, or 60 FPS support. See
+`docs/artifacts/2026-09-02/g9-two-mac-melee-match-pass.md`.
 
 ## Operating loop
 

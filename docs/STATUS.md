@@ -1,5 +1,22 @@
 # ssbmpad status
 
+## 2026-09-02 — G9 NL3 direct two-Mac Melee passes
+
+Two isolated macOS endpoints completed a full two-minute
+Pikachu-versus-Peach match with independent P1/P2 input, matching clocks,
+Sudden Death, identical results, return to ready character select, coordinated
+return to both netplay lobbies, and clean process exit. Automatic buffer was 2,
+network wait remained 0.0 ms/s, and no desync was reported.
+
+The final candidate fixes the actual runner's GameCube-controller CMake
+configuration, keeps Pipe profiles connected, and makes load-only memory-card
+write policy last for the card object's full lifetime. Canonical, host, and
+join ordinary GCI hashes remained identical and both isolated mtimes remained
+unchanged. NL3 passes; the active goal is NL4, a native UIKit Online Play lobby
+in the three-dot menu. This is not mobile, Internet traversal, public Online
+Play, or performance proof. See
+`docs/artifacts/2026-09-02/g9-two-mac-melee-match-pass.md`.
+
 ## 2026-09-01 — G9 NL2 headless session lifecycle passes
 
 Netplay ownership is now separated from SDL/ImGui as a reusable
