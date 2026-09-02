@@ -603,7 +603,16 @@ static CGFloat SsbmPadDefaultSizeScaleForControl(UIView *view, NSString *identif
         }],
     ]];
 
+    UIAction *onlinePlayAction =
+        [UIAction actionWithTitle:@"Online Play…"
+                            image:[UIImage systemImageNamed:@"person.2.wave.2"]
+                       identifier:nil handler:^(__kindof UIAction *action) {
+        (void)action;
+        [weakSelf.delegate gameOverlayRequestsOnlinePlay:weakSelf];
+    }];
+
     return [UIMenu menuWithTitle:@"SsbmPad" children:@[
+        onlinePlayAction,
         displayMenu,
         fpsAction,
         controlsMenu,

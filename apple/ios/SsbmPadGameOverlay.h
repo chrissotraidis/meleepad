@@ -17,13 +17,15 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)gameOverlayRequestsGameDataRemoval:(SsbmPadGameOverlay *)overlay;
 /* The user asked to configure the narrow physical-controller face-button map. */
 - (void)gameOverlayRequestsControllerMapping:(SsbmPadGameOverlay *)overlay;
+/* The user asked to open the native Online Play setup and lobby. */
+- (void)gameOverlayRequestsOnlinePlay:(SsbmPadGameOverlay *)overlay;
 /* Current privacy-safe app/runtime state for a user-generated problem report. */
 - (NSString *)gameOverlayDiagnosticContext:(SsbmPadGameOverlay *)overlay;
 /* The performance profile actually selected at launch. */
 - (NSString *)gameOverlayPerformanceProfile:(SsbmPadGameOverlay *)overlay;
 @end
 
-/* UIKit overlay above the game render surface: the three-dot menu, render
+/* UIKit overlay above the game render surface: the three-dot menu, Online Play, render
  * resolution choices (Native/1x/2x/3x/4x), touch-control settings, and the
  * Melee GameCube touch controls (main stick, C-stick, D-pad,
  * A/B/X/Y/Z/Start/L/R). Touch state is published to the shared input mixer

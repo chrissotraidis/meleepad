@@ -10,6 +10,7 @@
 #import <sys/un.h>
 
 #include <atomic>
+#include <algorithm>
 #include <cerrno>
 #include <chrono>
 #include <cmath>
@@ -24,13 +25,20 @@ namespace fs = std::filesystem;
 
 /* The ModernGekko runtime header is a C++ header; include it here only. */
 #include "moderngekko/runtime.hpp"
+#include "netplay_session.hpp"
+#include "runtime/dolphin_runtime_internal.hpp"
 
 #include "AudioCommon/Mixer.h"
 #include "AudioCommon/SoundStream.h"
+#include "Core/Boot/Boot.h"
+#include "Core/Config/MainSettings.h"
+#include "Core/Config/NetplaySettings.h"
 #include "Core/Core.h"
 #include "Core/Config/StaticRecompSettings.h"
 #include "Core/Config/GraphicsSettings.h"
+#include "Core/PowerPC/PowerPC.h"
 #include "Core/System.h"
+#include "UICommon/UICommon.h"
 #include "VideoCommon/PerformanceMetrics.h"
 #include "VideoCommon/VideoConfig.h"
 
@@ -73,6 +81,30 @@ static NSString *SsbmPadRuntimeUserDirectory(NSString *userDirectory) {
     return userDirectory;
 }
 
+static NSString *SsbmPadNetplayFailureMessage(moderngekko::frontend::NetplayExitCode failure) {
+    using moderngekko::frontend::NetplayExitCode;
+    switch (failure) {
+    case NetplayExitCode::InvalidConfiguration:
+        return @"The selected game data or controller configuration is invalid.";
+    case NetplayExitCode::HostUnavailable:
+        return @"The host could not be reached. Check the address, port, and network.";
+    case NetplayExitCode::VersionMismatch:
+        return @"The other player is using a different SsbmPad netplay version.";
+    case NetplayExitCode::CompatibilityMismatch:
+        return @"The game revision, module, or synchronized settings do not match.";
+    case NetplayExitCode::RoomFull:
+    case NetplayExitCode::ServerFull:
+        return @"That lobby is full.";
+    case NetplayExitCode::GameRunning:
+        return @"That lobby has already started a match.";
+    case NetplayExitCode::NicknameRejected:
+        return @"The nickname was rejected. Use 1–20 characters.";
+    case NetplayExitCode::Failed:
+    default:
+        return @"Online Play could not start.";
+    }
+}
+
 @interface SsbmPadCoreHost ()
 - (void)applyAspectRatioMode:(SsbmPadAspectRatioMode)mode source:(NSString *)source;
 - (void)applySystemPauseState;
@@ -101,6 +133,14 @@ static NSString *SsbmPadRuntimeUserDirectory(NSString *userDirectory) {
     NSString *_activePerformanceSource;
     NSString *_activeFrameMode;
     unsigned long long _moduleFileSize;
+    dispatch_queue_t _netplayQueue;
+    std::unique_ptr<moderngekko::frontend::NetplaySession> *_netplaySession;
+    BOOL *_netplayServicesActive;
+    BOOL *_netplayBootInstalled;
+    NSString *_lastGameRoot;
+    NSString *_lastDiscImagePath;
+    NSString *_lastModulePath;
+    NSString *_lastUserDirectory;
 }
 
 - (instancetype)initWithLayer:(CAMetalLayer *)layer {
@@ -124,6 +164,10 @@ static NSString *SsbmPadRuntimeUserDirectory(NSString *userDirectory) {
         _activePerformanceSource = @"none";
         _activeFrameMode = @"not started";
         _moduleFileSize = 0;
+        _netplayQueue = dispatch_queue_create("com.ssbmpad.netplay-session", DISPATCH_QUEUE_SERIAL);
+        _netplaySession = new std::unique_ptr<moderngekko::frontend::NetplaySession>();
+        _netplayServicesActive = new BOOL(NO);
+        _netplayBootInstalled = new BOOL(NO);
         [[NSNotificationCenter defaultCenter]
             addObserver:self
                selector:@selector(handleAudioSessionInterruption:)
@@ -144,6 +188,10 @@ static NSString *SsbmPadRuntimeUserDirectory(NSString *userDirectory) {
                    onError:(void (^)(NSString *))onError {
     if (_running->load() || _starting->load() || _gameThread->joinable())
         return;
+    _lastGameRoot = [gameRoot copy];
+    _lastDiscImagePath = [discImagePath copy];
+    _lastModulePath = [modulePath copy];
+    _lastUserDirectory = [userDirectory copy];
     _onError = [onError copy];
     *_stopRequested = false;
     *_starting = true;
@@ -203,7 +251,8 @@ static NSString *SsbmPadRuntimeUserDirectory(NSString *userDirectory) {
          "D-Pad/Up = `Button D_UP`\n"
          "D-Pad/Down = `Button D_DOWN`\n"
          "D-Pad/Left = `Button D_LEFT`\n"
-         "D-Pad/Right = `Button D_RIGHT`\n";
+         "D-Pad/Right = `Button D_RIGHT`\n"
+         "Options/Always Connected = True\n";
     [padConfig writeToFile:[configDirectory stringByAppendingPathComponent:@"GCPadNew.ini"]
                  atomically:YES
                    encoding:NSUTF8StringEncoding
@@ -327,6 +376,11 @@ static NSString *SsbmPadRuntimeUserDirectory(NSString *userDirectory) {
         *_starting = false;
         *_running = true;
         SsbmPadLog(@"runtime created");
+        moderngekko::Runtime *createdRuntime = created.runtime.get();
+        dispatch_sync(_netplayQueue, ^{
+            if (*self->_netplaySession)
+                (*self->_netplaySession)->AttachRuntime(createdRuntime);
+        });
 
         // Apply the persisted render-resolution choice now that the runtime's
         // config layers exist.
@@ -367,6 +421,15 @@ static NSString *SsbmPadRuntimeUserDirectory(NSString *userDirectory) {
             [self applySystemPauseState];
         });
         auto result = created.runtime->Run();
+        dispatch_sync(_netplayQueue, ^{
+            if (*self->_netplaySession) {
+                (*self->_netplaySession)->FinishRuntime();
+                *self->_netplayBootInstalled = NO;
+            }
+        });
+        if (*_netplaySession && self.onNetplayMatchEnded) {
+            dispatch_async(dispatch_get_main_queue(), self.onNetplayMatchEnded);
+        }
         {
             std::scoped_lock lock(*_runtimeMutex);
             _runtime = nullptr;
@@ -417,6 +480,204 @@ static NSString *SsbmPadRuntimeUserDirectory(NSString *userDirectory) {
                       (unsigned long)commands.size());
         }
     }
+}
+
+- (void)beginNetplayWithRole:(moderngekko::frontend::NetplayRole)role
+                     address:(NSString *)address
+                    nickname:(NSString *)nickname
+                        port:(uint16_t)port
+             automaticBuffer:(BOOL)automaticBuffer
+                bufferFrames:(NSUInteger)bufferFrames
+                  completion:(void (^)(NSString *_Nullable))completion {
+    [self stop];
+    NSString *gameRoot = [_lastGameRoot copy];
+    NSString *discImagePath = [_lastDiscImagePath copy];
+    NSString *modulePath = [_lastModulePath copy];
+    NSString *userDirectory = [_lastUserDirectory copy];
+    dispatch_async(_netplayQueue, ^{
+        if (*self->_netplaySession) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completion(@"An Online Play session is already active.");
+            });
+            return;
+        }
+
+        NSString *runtimeUserDirectory = SsbmPadRuntimeUserDirectory(userDirectory);
+        UICommon::SetUserDirectory(runtimeUserDirectory.fileSystemRepresentation);
+        UICommon::Init();
+        moderngekko::detail::SetExternalUICommon(true);
+        *self->_netplayServicesActive = YES;
+
+        Config::SetBase(Config::MAIN_CPU_THREAD, true);
+        Config::SetBase(Config::MAIN_CPU_CORE, PowerPC::CPUCore::StaticRecomp);
+        Config::SetBase(Config::NETPLAY_SAVEDATA_LOAD, true);
+        Config::SetBase(Config::NETPLAY_SAVEDATA_WRITE, false);
+        Config::SetBase(Config::NETPLAY_SAVEDATA_SYNC_ALL_WII, false);
+        Config::SetBase(Config::NETPLAY_SYNC_CODES, false);
+        Config::SetBase(Config::NETPLAY_STRICT_SETTINGS_SYNC, true);
+        Config::SetBase(Config::NETPLAY_NETWORK_MODE, std::string("fixeddelay"));
+        Config::SetBase(Config::NETPLAY_USE_INDEX, false);
+
+        moderngekko::RuntimeConfig config;
+        config.game_root = gameRoot.fileSystemRepresentation;
+        if (discImagePath.length > 0)
+            config.disc_image = discImagePath.fileSystemRepresentation;
+        config.user_directory = runtimeUserDirectory.fileSystemRepresentation;
+        config.graphics.backend = "Metal";
+        config.headless = false;
+        config.show_fps_in_title = false;
+        config.enable_gmse01_60fps = false;
+        config.render_surface = (__bridge void *)self->_layer;
+        config.log_callback = SsbmPadRuntimeLogCallback;
+        config.module = moderngekko::ModuleSource::DynamicPath(
+            modulePath.fileSystemRepresentation);
+
+        moderngekko::frontend::NetplayOptions options;
+        options.role = role;
+        options.address = address.UTF8String ?: "";
+        options.port = port;
+        options.nickname = nickname.UTF8String ?: "Player";
+        options.buffer = automaticBuffer ? "auto" : std::to_string(
+            std::clamp<NSUInteger>(bufferFrames, 1, 20));
+        options.controllers = {"Pipe/0/ssbmpad"};
+
+        moderngekko::frontend::NetplayExitCode failure =
+            moderngekko::frontend::NetplayExitCode::Failed;
+        *self->_netplaySession = moderngekko::frontend::NetplaySession::Create(
+            std::move(config), std::move(options), &failure);
+        NSString *error = nil;
+        if (!*self->_netplaySession) {
+            error = SsbmPadNetplayFailureMessage(failure);
+            moderngekko::detail::SetExternalUICommon(false);
+            UICommon::Shutdown();
+            *self->_netplayServicesActive = NO;
+        }
+        SsbmPadLog(@"netplay session create role=%@ result=%@",
+                  role == moderngekko::frontend::NetplayRole::Host ? @"host" : @"join",
+                  error ?: @"connected");
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completion(error);
+        });
+    });
+}
+
+- (void)beginNetplayHostingWithNickname:(NSString *)nickname
+                                   port:(uint16_t)port
+                        automaticBuffer:(BOOL)automaticBuffer
+                           bufferFrames:(NSUInteger)bufferFrames
+                             completion:(void (^)(NSString *_Nullable))completion {
+    [self beginNetplayWithRole:moderngekko::frontend::NetplayRole::Host
+                       address:@"127.0.0.1" nickname:nickname port:port
+               automaticBuffer:automaticBuffer bufferFrames:bufferFrames
+                    completion:completion];
+}
+
+- (void)beginNetplayJoiningAddress:(NSString *)address
+                          nickname:(NSString *)nickname
+                              port:(uint16_t)port
+                   automaticBuffer:(BOOL)automaticBuffer
+                      bufferFrames:(NSUInteger)bufferFrames
+                        completion:(void (^)(NSString *_Nullable))completion {
+    [self beginNetplayWithRole:moderngekko::frontend::NetplayRole::Join
+                       address:address nickname:nickname port:port
+               automaticBuffer:automaticBuffer bufferFrames:bufferFrames
+                    completion:completion];
+}
+
+- (void)pollNetplayWithCompletion:(void (^)(NSDictionary<NSString *,id> *))completion {
+    dispatch_async(_netplayQueue, ^{
+        if (!*self->_netplaySession) {
+            dispatch_async(dispatch_get_main_queue(), ^{ completion(@{@"state": @"idle"}); });
+            return;
+        }
+        moderngekko::frontend::NetplayLobbySnapshot snapshot =
+            (*self->_netplaySession)->Snapshot();
+        NSMutableArray<NSDictionary<NSString *, id> *> *players = [NSMutableArray array];
+        for (const moderngekko::frontend::NetplayPlayerSnapshot &player : snapshot.players) {
+            NSMutableArray<NSString *> *slots = [NSMutableArray array];
+            for (std::uint8_t slot : player.controller_slots)
+                [slots addObject:[NSString stringWithFormat:@"GC %u", slot + 1]];
+            [players addObject:@{
+                @"name": @(player.name.c_str()),
+                @"ping": @(player.ping_ms),
+                @"controller": slots.count > 0 ? [slots componentsJoinedByString:@", "] : @"No controller",
+                @"compatible": @(player.game_matches),
+                @"ready": @(player.ready),
+                @"local": @(player.local),
+            }];
+        }
+        NSString *state = @"lobby";
+        if (snapshot.state == moderngekko::frontend::NetplayState::Starting)
+            state = @"starting";
+        else if (snapshot.state == moderngekko::frontend::NetplayState::Running)
+            state = @"running";
+        else if (snapshot.state == moderngekko::frontend::NetplayState::Failed)
+            state = @"failed";
+        NSDictionary *result = @{
+            @"state": state,
+            @"role": snapshot.role == moderngekko::frontend::NetplayRole::Host ? @"host" : @"join",
+            @"players": players,
+            @"buffer": @(snapshot.buffer_frames),
+            @"automaticBuffer": @(snapshot.adaptive_buffer),
+            @"canStart": @(snapshot.can_start),
+            @"status": snapshot.status.empty() ? @"" : @(snapshot.status.c_str()),
+            @"error": snapshot.error.empty() ? @"" : @(snapshot.error.c_str()),
+            @"connectionLost": @(snapshot.connection_lost),
+        };
+
+        if (!*self->_netplayBootInstalled) {
+            std::unique_ptr<BootSessionData> boot = (*self->_netplaySession)->TakeBootData();
+            if (boot) {
+                moderngekko::detail::SetBootSessionData(std::move(boot));
+                *self->_netplayBootInstalled = YES;
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self startWithGameRoot:self->_lastGameRoot
+                             discImagePath:self->_lastDiscImagePath
+                                modulePath:self->_lastModulePath
+                             userDirectory:self->_lastUserDirectory
+                                   onError:self->_onError ?: ^(NSString *message) {
+                        SsbmPadLog(@"netplay runtime error: %@", message);
+                    }];
+                    if (self.onNetplayMatchStarted)
+                        self.onNetplayMatchStarted();
+                });
+            }
+        }
+        dispatch_async(dispatch_get_main_queue(), ^{ completion(result); });
+    });
+}
+
+- (void)setNetplayReady:(BOOL)ready {
+    dispatch_async(_netplayQueue, ^{
+        if (*self->_netplaySession)
+            (*self->_netplaySession)->SetReady(ready);
+    });
+}
+
+- (void)requestNetplayStart {
+    dispatch_async(_netplayQueue, ^{
+        if (*self->_netplaySession)
+            (*self->_netplaySession)->RequestStart();
+    });
+}
+
+- (void)endNetplayWithCompletion:(dispatch_block_t)completion {
+    [self stop];
+    dispatch_async(_netplayQueue, ^{
+        if (*self->_netplaySession) {
+            (*self->_netplaySession)->Stop();
+            self->_netplaySession->reset();
+        }
+        *self->_netplayBootInstalled = NO;
+        self.onNetplayMatchStarted = nil;
+        self.onNetplayMatchEnded = nil;
+        if (*self->_netplayServicesActive) {
+            moderngekko::detail::SetExternalUICommon(false);
+            UICommon::Shutdown();
+            *self->_netplayServicesActive = NO;
+        }
+        dispatch_async(dispatch_get_main_queue(), completion ?: ^{});
+    });
 }
 
 - (void)setRenderScale:(NSInteger)scale {
@@ -747,11 +1008,26 @@ static NSString *SsbmPadRuntimeUserDirectory(NSString *userDirectory) {
         [self stop];
     if (_pipeFd >= 0)
         ::close(_pipeFd);
+    if (*_netplaySession || *_netplayServicesActive) {
+        dispatch_sync(_netplayQueue, ^{
+            if (*self->_netplaySession) {
+                (*self->_netplaySession)->Stop();
+                self->_netplaySession->reset();
+            }
+            if (*self->_netplayServicesActive) {
+                moderngekko::detail::SetExternalUICommon(false);
+                UICommon::Shutdown();
+            }
+        });
+    }
     delete _gameThread;
     delete _stopRequested;
     delete _starting;
     delete _running;
     delete _runtimeMutex;
+    delete _netplaySession;
+    delete _netplayServicesActive;
+    delete _netplayBootInstalled;
 }
 
 @end

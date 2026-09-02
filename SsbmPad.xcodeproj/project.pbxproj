@@ -37,6 +37,7 @@
 		AA0000000000000000000123 /* SsbmPadInputPipeEncoder.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000233 /* SsbmPadInputPipeEncoder.mm */; };
 		AA0000000000000000000124 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000235 /* PrivacyInfo.xcprivacy */; };
 		AA0000000000000000000125 /* SsbmPadControllerMapping.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000236 /* SsbmPadControllerMapping.mm */; };
+		AA0000000000000000000126 /* SsbmPadOnlinePlayViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000238 /* SsbmPadOnlinePlayViewController.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -82,6 +83,8 @@
 		AA0000000000000000000235 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		AA0000000000000000000236 /* SsbmPadControllerMapping.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SsbmPadControllerMapping.mm; sourceTree = "<group>"; };
 		AA0000000000000000000237 /* SsbmPadControllerMapping.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SsbmPadControllerMapping.h; sourceTree = "<group>"; };
+		AA0000000000000000000238 /* SsbmPadOnlinePlayViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SsbmPadOnlinePlayViewController.mm; sourceTree = "<group>"; };
+		AA0000000000000000000239 /* SsbmPadOnlinePlayViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SsbmPadOnlinePlayViewController.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -142,6 +145,8 @@
 				AA0000000000000000000211 /* SsbmPadGameViewController.h */,
 				AA0000000000000000000203 /* SsbmPadGameOverlay.mm */,
 				AA0000000000000000000210 /* SsbmPadGameOverlay.h */,
+				AA0000000000000000000238 /* SsbmPadOnlinePlayViewController.mm */,
+				AA0000000000000000000239 /* SsbmPadOnlinePlayViewController.h */,
 				AA0000000000000000000205 /* Assets.xcassets */,
 				AA0000000000000000000214 /* Info.plist */,
 				AA0000000000000000000220 /* dev-config.plist */,
@@ -279,6 +284,7 @@
 				AA0000000000000000000101 /* SsbmPadAppDelegate.mm in Sources */,
 				AA0000000000000000000102 /* SsbmPadGameViewController.mm in Sources */,
 				AA0000000000000000000103 /* SsbmPadGameOverlay.mm in Sources */,
+				AA0000000000000000000126 /* SsbmPadOnlinePlayViewController.mm in Sources */,
 				AA0000000000000000000104 /* SsbmPadSettings.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -355,6 +361,8 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/ref/ModernGekko/include",
+					"$(SRCROOT)/ref/ModernGekko/tools",
+					"$(SRCROOT)/ref/ModernGekko/src",
 					"$(SRCROOT)/ref/ModernGekko/vendor/dolphin/Source/Core",
 					"$(SRCROOT)/ref/ModernGekko/vendor/dolphin/GXRuntime/include",
 					"$(SRCROOT)/ref/ModernGekko/build-ios-iphonesimulator-ssbmpad-static",
@@ -385,6 +393,8 @@
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(inherited)",
+					"-D_ARCH_64=1",
+					"-D_M_ARM_64=1",
 					"-ffile-prefix-map=$(SRCROOT)=.",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.ssbmpad.SsbmPad;
@@ -406,6 +416,8 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/ref/ModernGekko/include",
+					"$(SRCROOT)/ref/ModernGekko/tools",
+					"$(SRCROOT)/ref/ModernGekko/src",
 					"$(SRCROOT)/ref/ModernGekko/vendor/dolphin/Source/Core",
 					"$(SRCROOT)/ref/ModernGekko/vendor/dolphin/GXRuntime/include",
 					"$(SRCROOT)/ref/ModernGekko/build-ios-iphonesimulator-ssbmpad-static",
@@ -436,6 +448,8 @@
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(inherited)",
+					"-D_ARCH_64=1",
+					"-D_M_ARM_64=1",
 					"-ffile-prefix-map=$(SRCROOT)=.",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.ssbmpad.SsbmPad;

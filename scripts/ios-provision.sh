@@ -25,6 +25,7 @@ fi
 
 LIBS=(
   "$IOS_BUILD/libmoderngekko.a"
+  "$IOS_BUILD/libmoderngekko_netplay_session.a"
   "$IOS_BUILD/vendor/dolphin/Source/Core/UICommon/libuicommon.a"
   "$IOS_BUILD/vendor/dolphin/Source/Core/Core/libcore.a"
   "$IOS_BUILD/vendor/dolphin/Source/Core/DiscIO/libdiscio.a"

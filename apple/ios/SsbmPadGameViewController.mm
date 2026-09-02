@@ -7,6 +7,7 @@
 #import "SsbmPadDiscExtractor.h"
 #import "SsbmPadGameOverlay.h"
 #import "SsbmPadInputMixer.h"
+#import "SsbmPadOnlinePlayViewController.h"
 #import "SsbmPadSettings.h"
 
 #import <CommonCrypto/CommonDigest.h>
@@ -227,7 +228,8 @@ static NSUInteger SsbmPadRegularFileCount(NSString *directory) {
 }
 @end
 
-@interface SsbmPadGameViewController () <SsbmPadGameOverlayDelegate, UIDocumentPickerDelegate>
+@interface SsbmPadGameViewController () <SsbmPadGameOverlayDelegate,
+    SsbmPadOnlinePlayViewControllerDelegate, UIDocumentPickerDelegate>
 - (void)configureController:(GCController *)controller playerSlot:(NSInteger)slot;
 - (nullable GCController *)controllerForPlayerSlot:(NSInteger)slot;
 - (NSArray<NSURL *> *)gameImagesInDocumentsDirectory;
@@ -260,6 +262,9 @@ static NSUInteger SsbmPadRegularFileCount(NSString *directory) {
     BOOL _hasPerformanceUsageBaseline;
     NSString *_lastPerformanceSummary;
     NSDate *_lastScreenshotMarker;
+    SsbmPadOnlinePlayViewController *_onlinePlayController;
+    dispatch_source_t _onlinePlayPollTimer;
+    BOOL _onlinePlaySessionRequested;
 }
 
 - (BOOL)shouldAutorotate {
@@ -1047,6 +1052,162 @@ static NSUInteger SsbmPadRegularFileCount(NSString *directory) {
 - (void)gameOverlayRequestsControllerMapping:(SsbmPadGameOverlay *)overlay {
     (void)overlay;
     [self presentControllerMapping];
+}
+
+- (void)gameOverlayRequestsOnlinePlay:(SsbmPadGameOverlay *)overlay {
+    (void)overlay;
+    [[SsbmPadInputMixer sharedMixer] clearInputFromTouch:YES];
+    [[SsbmPadInputMixer sharedMixer] clearInputFromTouch:NO];
+    SsbmPadOnlinePlayViewController *onlinePlay =
+        [[SsbmPadOnlinePlayViewController alloc] init];
+    onlinePlay.delegate = self;
+    _onlinePlayController = onlinePlay;
+    UINavigationController *navigation =
+        [[UINavigationController alloc] initWithRootViewController:onlinePlay];
+    navigation.modalPresentationStyle = UIModalPresentationFormSheet;
+    __weak SsbmPadGameViewController *weakSelf = self;
+    _coreHost.onNetplayMatchStarted = ^{
+        SsbmPadGameViewController *strongSelf = weakSelf;
+        if (strongSelf == nil)
+            return;
+        if (strongSelf->_onlinePlayPollTimer != nil) {
+            dispatch_source_cancel(strongSelf->_onlinePlayPollTimer);
+            strongSelf->_onlinePlayPollTimer = nil;
+        }
+        [strongSelf->_onlinePlayController dismissViewControllerAnimated:YES completion:nil];
+        strongSelf->_onlinePlayController = nil;
+    };
+    _coreHost.onNetplayMatchEnded = ^{
+        SsbmPadGameViewController *strongSelf = weakSelf;
+        if (strongSelf == nil || !strongSelf->_onlinePlaySessionRequested ||
+            strongSelf->_onlinePlayController != nil)
+            return;
+        [strongSelf gameOverlayRequestsOnlinePlay:strongSelf->_overlay];
+        [strongSelf startOnlinePlayPolling];
+    };
+    [self presentViewController:navigation animated:YES completion:nil];
+}
+
+- (void)startOnlinePlayPolling {
+    if (_onlinePlayPollTimer != nil)
+        return;
+    _onlinePlayPollTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0,
+                                                  dispatch_get_main_queue());
+    dispatch_source_set_timer(_onlinePlayPollTimer, dispatch_time(DISPATCH_TIME_NOW, 0),
+                              250 * NSEC_PER_MSEC, 50 * NSEC_PER_MSEC);
+    __weak SsbmPadGameViewController *weakSelf = self;
+    dispatch_source_set_event_handler(_onlinePlayPollTimer, ^{
+        SsbmPadGameViewController *strongSelf = weakSelf;
+        if (strongSelf == nil || strongSelf->_onlinePlayController == nil)
+            return;
+        [strongSelf->_coreHost pollNetplayWithCompletion:^(NSDictionary<NSString *,id> *snapshot) {
+            SsbmPadOnlinePlayViewController *lobby = strongSelf->_onlinePlayController;
+            if (lobby == nil)
+                return;
+            NSString *error = snapshot[@"error"];
+            if (error.length > 0) {
+                [lobby showError:error];
+                return;
+            }
+            NSString *state = snapshot[@"state"];
+            if ([state isEqualToString:@"idle"])
+                return;
+            SsbmPadOnlinePlayRole role = [snapshot[@"role"] isEqualToString:@"host"]
+                ? SsbmPadOnlinePlayRoleHost : SsbmPadOnlinePlayRoleJoin;
+            [lobby showLobbyForRole:role
+                            players:snapshot[@"players"] ?: @[]
+                       bufferFrames:[snapshot[@"buffer"] unsignedIntegerValue]
+                    automaticBuffer:[snapshot[@"automaticBuffer"] boolValue]
+                           canStart:[snapshot[@"canStart"] boolValue]
+                             status:snapshot[@"status"]];
+        }];
+    });
+    dispatch_resume(_onlinePlayPollTimer);
+}
+
+- (void)onlinePlayViewController:(SsbmPadOnlinePlayViewController *)controller
+                     requestsHostWithNickname:(NSString *)nickname
+                                         port:(uint16_t)port
+                              automaticBuffer:(BOOL)automaticBuffer
+                                 bufferFrames:(NSUInteger)bufferFrames {
+    if (_coreHost == nil) {
+        [controller showError:@"Import supported game data before starting Online Play."];
+        return;
+    }
+    _onlinePlaySessionRequested = YES;
+    [controller showConnectingWithMessage:@"Creating lobby…"];
+    __weak SsbmPadGameViewController *weakSelf = self;
+    [_coreHost beginNetplayHostingWithNickname:nickname port:port
+                               automaticBuffer:automaticBuffer
+                                  bufferFrames:bufferFrames
+                                    completion:^(NSString *error) {
+        if (error.length > 0) {
+            [controller showError:error];
+            return;
+        }
+        [weakSelf startOnlinePlayPolling];
+    }];
+}
+
+- (void)onlinePlayViewController:(SsbmPadOnlinePlayViewController *)controller
+                     requestsJoinWithNickname:(NSString *)nickname
+                                      address:(NSString *)address
+                                         port:(uint16_t)port
+                              automaticBuffer:(BOOL)automaticBuffer
+                                 bufferFrames:(NSUInteger)bufferFrames {
+    if (_coreHost == nil) {
+        [controller showError:@"Import supported game data before starting Online Play."];
+        return;
+    }
+    _onlinePlaySessionRequested = YES;
+    [controller showConnectingWithMessage:@"Connecting to host…"];
+    __weak SsbmPadGameViewController *weakSelf = self;
+    [_coreHost beginNetplayJoiningAddress:address nickname:nickname port:port
+                          automaticBuffer:automaticBuffer
+                             bufferFrames:bufferFrames
+                               completion:^(NSString *error) {
+        if (error.length > 0) {
+            [controller showError:error];
+            return;
+        }
+        [weakSelf startOnlinePlayPolling];
+    }];
+}
+
+- (void)onlinePlayViewController:(SsbmPadOnlinePlayViewController *)controller
+                requestsReady:(BOOL)ready {
+    (void)controller;
+    [_coreHost setNetplayReady:ready];
+}
+
+- (void)onlinePlayViewControllerRequestsStart:(SsbmPadOnlinePlayViewController *)controller {
+    (void)controller;
+    [_coreHost requestNetplayStart];
+}
+
+- (void)onlinePlayViewControllerRequestsCancel:(SsbmPadOnlinePlayViewController *)controller {
+    [[SsbmPadInputMixer sharedMixer] clearInputFromTouch:YES];
+    [[SsbmPadInputMixer sharedMixer] clearInputFromTouch:NO];
+    if (_onlinePlayPollTimer != nil) {
+        dispatch_source_cancel(_onlinePlayPollTimer);
+        _onlinePlayPollTimer = nil;
+    }
+    _onlinePlayController = nil;
+    if (!_onlinePlaySessionRequested) {
+        [controller dismissViewControllerAnimated:YES completion:nil];
+        return;
+    }
+    _onlinePlaySessionRequested = NO;
+    __weak SsbmPadGameViewController *weakSelf = self;
+    [_coreHost endNetplayWithCompletion:^{
+        [controller dismissViewControllerAnimated:YES completion:^{
+            SsbmPadGameViewController *strongSelf = weakSelf;
+            strongSelf->_coreHost.onNetplayMatchStarted = nil;
+            strongSelf->_coreHost.onNetplayMatchEnded = nil;
+            strongSelf->_coreHost = nil;
+            [strongSelf startGameIfProvisioned];
+        }];
+    }];
 }
 
 - (NSString *)gameOverlayDiagnosticContext:(SsbmPadGameOverlay *)overlay {

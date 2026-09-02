@@ -304,10 +304,10 @@ apply_patch_once_or_marker "$MG/vendor/dolphin" "$netplay_save_lifetime_patch" \
   Source/Core/Core/HW/GCMemcard/GCMemcardDirectory.h \
   'const bool m_save_data_writable;'
 apply_patch_once_or_marker "$MG" "$gamecube_netplay_session_patch" \
-  tools/netplay_session.cpp \
+  tools/netplay_session_core.cpp \
   'SetControllerFamily(NetPlay::ControllerFamily::GameCube)'
 apply_patch_once_or_marker "$MG" "$headless_netplay_session_patch" \
-  tools/netplay_session_core.cpp \
+  tools/netplay_session.hpp \
   'class NetplaySession'
 apply_patch_once_or_marker "$MG" "$netplay_runtime_lifecycle_patch" \
   tools/netplay_session_core.cpp \

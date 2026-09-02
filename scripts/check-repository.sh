@@ -34,6 +34,7 @@ tests/test-touch-stick-accessibility.sh
 tests/test-game-data-setup.sh
 tests/test-ios-audio-diagnostics.sh
 tests/test-ios-external-pipe-input.sh
+tests/test-ios-online-play-lobby.sh
 tests/test-static-recomp-loop-hoists.sh
 tests/test-frame-workload-attribution.sh
 tests/test-xfb-boundary-attribution.sh

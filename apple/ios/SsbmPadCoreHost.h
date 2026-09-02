@@ -26,6 +26,28 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)stop;
 
+/* Stops solo play and creates the platform-neutral direct-IP session. All
+ * callbacks arrive on the main queue. The match callback fires only after
+ * synchronized boot data is installed and the netplay runtime has started. */
+- (void)beginNetplayHostingWithNickname:(NSString *)nickname
+                                   port:(uint16_t)port
+                        automaticBuffer:(BOOL)automaticBuffer
+                           bufferFrames:(NSUInteger)bufferFrames
+                             completion:(void (^)(NSString *_Nullable error))completion;
+- (void)beginNetplayJoiningAddress:(NSString *)address
+                          nickname:(NSString *)nickname
+                              port:(uint16_t)port
+                   automaticBuffer:(BOOL)automaticBuffer
+                      bufferFrames:(NSUInteger)bufferFrames
+                        completion:(void (^)(NSString *_Nullable error))completion;
+- (void)pollNetplayWithCompletion:(void (^)(NSDictionary<NSString *, id> *snapshot))completion;
+- (void)setNetplayReady:(BOOL)ready;
+- (void)requestNetplayStart;
+- (void)endNetplayWithCompletion:(dispatch_block_t)completion;
+
+@property(nonatomic, copy, nullable) dispatch_block_t onNetplayMatchStarted;
+@property(nonatomic, copy, nullable) dispatch_block_t onNetplayMatchEnded;
+
 /* Pauses/resumes emulation around iOS lifecycle and audio interruptions.
  * Resume also reactivates the app's AVAudioSession. */
 - (void)pauseRuntimeForSystemEvent;

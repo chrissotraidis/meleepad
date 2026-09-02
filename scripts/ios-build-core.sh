@@ -31,13 +31,14 @@ CMAKE_COMMON=(
   -DENABLE_CUBEB=OFF -DENABLE_VULKAN=OFF
   -DUSE_SYSTEM_LZ4=OFF -DUSE_SYSTEM_ZSTD=OFF
   -DHAVE_PIPE2=0
+  -DMODERNGEKKO_GAMECUBE_CONTROLLERS=ON
 )
 
 echo "==> Configuring ModernGekko core for iOS Simulator"
 cmake -S "$MG" -B "$BUILD" -G Ninja "${CMAKE_COMMON[@]}"
 
 echo "==> Building core libraries"
-ninja -C "$BUILD" libmoderngekko.a -j8
+ninja -C "$BUILD" libmoderngekko.a libmoderngekko_netplay_session.a -j8
 
 echo "==> Building GALE01 recompiled module for iOS Simulator"
 # The promoted macOS PGO dylib intentionally has no adjacent private source

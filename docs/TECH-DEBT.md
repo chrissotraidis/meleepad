@@ -208,13 +208,27 @@ ordinary-save hashes and mtimes. The runner's missing GameCube build option,
 Pipe connection lifetime, stale runtime finish, and memory-card destructor
 write-through are closed in the durable patch stack.
 
-The active debt is NL4: expose the reusable session through a native UIKit
-Online Play flow in the three-dot menu, including host/join state, players,
-controller ownership, ping, automatic/manual buffer, compatibility, start,
-cancel, exact errors, and input neutralization on every exit. NL5 then requires
-a complete Mac/iPadOS Simulator touch-controlled match. Only after that should
-the project deploy a private SsbmPad traversal service and pursue room-code,
-physical-device, NAT, lifecycle, privacy, security, and reliability acceptance.
+NL4 is partially implemented. The three-dot menu opens a native UIKit Online
+Play form and the iOS core links the headless session library. Visible iPad
+evidence passes direct-IP Host, live player/ping/GC-slot/compatibility state,
+Ready, Cancel, input neutralization, clean teardown, and fresh solo restart.
+An isolated Mac also joins as GC 2, both endpoints become ready, native Start
+enables, and synchronized boot reaches the same Nintendo/HAL opening. The first
+checksum then desynchronizes at frame 60 despite both processes being arm64 on
+the same M1 with zero network wait. The first host setup also takes roughly
+14.5 seconds while solo runtime and UICommon ownership turn over.
+
+The first remaining NL4 debt is the exact frame-60 divergence: compare both
+endpoints' synchronized NetSettings/config digest, save manifest, SRAM/RTC
+state, and checksum memory before changing timing. The match-ended callback
+that reopens the native lobby also needs visible reversal evidence. Remaining
+product debt is Mac-host/mobile-join, every exact failure family, host/client
+loss, background teardown, repeated open/cancel, iPhone interaction/layout,
+and a decision on whether the initialization delay needs a warmer boundary.
+NL5 then requires a complete Mac/iPadOS Simulator touch-controlled match. Only
+after that should the project deploy a private SsbmPad traversal service and
+pursue room-code, physical-device, NAT, lifecycle, privacy, security, and
+reliability acceptance.
 
 The same-M1 two-process NL3 run was commonly 12-21 FPS during final combat;
 zero network wait separates that host-emulation contention from network delay.

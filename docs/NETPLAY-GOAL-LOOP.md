@@ -69,6 +69,16 @@ netplay therefore works in the retained test. This does not prove mobile,
 Internet room-code, public-service, or 60 FPS support. See
 `docs/artifacts/2026-09-02/g9-two-mac-melee-match-pass.md`.
 
+NL4 is now **PARTIAL**. The exact iPadOS Simulator build exposes a native
+UIKit Online Play form backed by the real headless session library. Direct-IP
+Host, a real isolated Mac join, GC 1/GC 2 ownership, matching compatibility,
+Ready gating, synchronized Start, Cancel, clean session teardown, input
+neutralization, and fresh solo restart reach their intended boundaries. The
+paired runtime desynchronizes at the first checksum on frame 60, however. The
+reverse host direction, exact failure paths, background teardown, and iPhone
+layout also remain unmet; no mobile support claim is allowed. See
+`docs/artifacts/2026-09-02/g9-native-mobile-lobby-partial.md`.
+
 ## Operating loop
 
 Repeat until NL8 passes:

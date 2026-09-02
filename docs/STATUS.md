@@ -1,5 +1,23 @@
 # ssbmpad status
 
+## 2026-09-02 — G9 NL4 native iPad lobby is partial
+
+The iPadOS Simulator build now has a native UIKit Online Play screen in the
+three-dot menu and links the reusable headless session library. A visible live
+run stopped solo emulation, created a real direct-IP host, displayed Player,
+0–1 ms, GC 1, matching compatibility and Ready state, then canceled cleanly and
+fresh-booted solo play at 59.9 FPS. Debug and Release mobile builds pass.
+
+An isolated Mac then joined the native iPad host as GC 2. Both endpoints reached
+matching compatibility/Ready, the native Start enabled, and both booted the
+same Nintendo/HAL opening with buffer 2 and zero network wait. The first
+checksum failed at frame 60 and stopped the pair. NL4 therefore remains partial.
+Next compare the exact synchronized boot/config/save/checksum state and visibly
+verify the new match-ended native-lobby recovery before the reverse host,
+background, and iPhone gates. This is not a mobile Online Play, Internet
+room-code, public service, or performance claim. See
+`docs/artifacts/2026-09-02/g9-native-mobile-lobby-partial.md`.
+
 ## 2026-09-02 — G9 NL3 direct two-Mac Melee passes
 
 Two isolated macOS endpoints completed a full two-minute

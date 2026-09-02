@@ -5947,3 +5947,30 @@ Append-only execution ledger. Claims are limited to observed evidence.
   Continue to NL4 native mobile lobby; make no mobile, traversal, public Online
   Play, or 60 FPS claim.
 - Evidence: `docs/artifacts/2026-09-02/g9-two-mac-melee-match-pass.md`.
+
+## 2026-09-02 — NET-291 native iPad host-lobby slice
+
+- Add a failing source contract for a native Online Play view, three-dot entry,
+  host/join controls, session linkage, synchronized boot handoff, and input
+  neutralization; pre-fix failure is the missing view source.
+- Add the touch-first UIKit form and link the existing headless session library
+  into the mobile core with GameCube-controller support.
+- Serialize UICommon/session ownership, stop solo before connection, feed live
+  snapshots to UIKit, attach/finish the runtime, and restore solo play after
+  cancellation. Correct composed bootstrap markers exposed by the iOS rebuild.
+- Visibly pass iPad menu/open, direct-IP Host, Player at 0–1 ms on GC 1,
+  compatibility Match, Ready, Cancel, teardown, and fresh solo restart at
+  59.9 FPS. Debug and Release Simulator builds pass.
+- Decision: NL4 remains PARTIAL. Next pair iPadOS Simulator with an isolated Mac
+  in both host directions and prove Start, errors, background teardown, and
+  iPhone layout before promotion.
+- Pair an isolated Mac join with the native iPad host. Pass GC 1/GC 2 ownership,
+  1 ms ping, matching compatibility, both-ready gating, enabled native Start,
+  and synchronized Nintendo/HAL opening with buffer 2 and zero network wait.
+- Reject cross-platform gameplay: the first checksum reports a desync at frame
+  60 and stops both runtimes. Add a match-ended callback so the next candidate
+  reopens the native lobby instead of leaving a stale last drawable.
+- Revised next experiment: compare synchronized NetSettings/config, save/SRAM/
+  RTC state, and frame-60 checksums on both arm64 endpoints; do not try timing or
+  performance changes without a named deterministic divergence.
+- Evidence: `docs/artifacts/2026-09-02/g9-native-mobile-lobby-partial.md`.
