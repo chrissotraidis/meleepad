@@ -1,5 +1,21 @@
 # ssbmpad status
 
+## 2026-09-01 — G9 Online Play research and implementation plan
+
+The current fixed-delay stack is suitable for native online friend play, but
+the feature is not implemented. Source still proves the first blocker:
+requested controller slots are assigned through Dolphin's Wii map while Melee
+polls the GameCube map. The protocol test likewise proves only Wii payloads.
+
+The re-audit now covers the current iPhone/iPad shell, native touch path,
+three-dot-menu flow, platform-neutral session owner, SsbmPad-operated
+eight-character traversal service, strict-NAT/relay decision, privacy and save
+sync, iOS lifecycle, security limitations, physical-device matrix, thresholds,
+and a 25-44 engineer-day estimate. The recommended first claim is private
+room-code friend play with automatic delay buffer—not rollback or public
+matchmaking. NP-0/NP-1 may begin in an isolated build; installed-app integration
+still waits for the required gates. See `docs/NETPLAY-FEASIBILITY.md`.
+
 ## 2026-09-01 — SunPad Preview 7 three-dot-menu fix transferred
 
 The clean sibling SunPad checkout was fast-forwarded to Preview 7 `2608265`.

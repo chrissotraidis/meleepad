@@ -5847,3 +5847,28 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Netplay status is unchanged: G9 is not started and no synchronized Melee
   match with an iPadOS endpoint has passed.
 - Evidence: `docs/artifacts/2026-09-01/g8-sunpad-menu-state-fix.md`.
+
+## 2026-09-01 — NET-286 Online Play product/architecture re-audit
+
+- Re-read the complete prior feasibility plan and reconcile it with the current
+  product: SsbmPad now has a native iPhone/iPad shell, Objective-C++ runtime
+  host, 60 Hz touch/GameController pipe input, and linked ENet/SFML archives.
+- Confirm the first implementation defect still exists: customized server
+  capacity, assignment, controller-count changes, lobby labels, and start gate
+  use `m_wiimote_map`; Melee's `PadData`, `PollLocalPad`, `UpdateDevices`, and SI
+  input use `m_pad_map`. The current protocol test sends only `WiimoteData`.
+- Inspect Dolphin's direct connection, adaptive 2-20-frame buffer, exact
+  compatibility fingerprint, temporary NetPlay save directories, eight-character
+  traversal client/server, IPv4 limitation, strict-NAT boundary, reliable
+  plaintext ENet packets, and timebase/desync path.
+- Review primary Dolphin, Apple, ENet, and Project Slippi sources. Decide on
+  private room-code friend play first; public matchmaking and rollback remain
+  out of scope. Plan a SsbmPad-operated CC0 traversal service rather than relying
+  on Dolphin's public service.
+- Specify the native three-dot-menu Online Play flow, state machine, session API,
+  touch/controller contract, lifecycle and privacy behavior, NP-0 through NP-8
+  work packages, 25-44 engineer-day estimate, relay decision, and physical
+  iPhone/iPad acceptance thresholds in `docs/NETPLAY-FEASIBILITY.md`.
+- Next falsifiable implementation step after this documentation checkpoint:
+  NP-0, a regression that fails because connected SsbmPad clients receive no
+  GameCube slot. Keep it isolated from the installed G8 product.

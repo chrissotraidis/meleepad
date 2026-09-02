@@ -16,6 +16,9 @@ Order of delivery:
 2. The same core running in the **iPadOS and iOS Simulators** (no JIT, interpreter fallback for uncovered code, software vertex loader).
 3. **SunPad's touch controls and menu system ported over** as the ssbmpad shell: touch overlay, three-dot menu, settings, game data import, and diagnostics logging.
 4. **End-to-end testing** per Section 10, with dated evidence for every claim.
+5. **Online friend play** from the macOS and iPhone/iPad shells, using the
+   existing Dolphin-derived fixed-delay protocol, native touch/controller
+   input, and a short room code, with a completed cross-platform match.
 
 60 fps is a hard requirement, not a gate with a fallback. If the frame budget is missed, the response is profiling and optimization, iterated until it is met. Do not propose substitute titles or reduced targets.
 
@@ -29,8 +32,16 @@ All of the following, each backed by evidence per Section 11:
 - D4. Touch controls and the menu system, ported from sunpad, work in the iPadOS Simulator: overlay renders, buttons and sticks drive gameplay, three-dot menu opens with resolution / aspect / layout-edit / game data / diagnostics entries, diagnostic log export produces a file.
 - D5. The full test matrix in Section 10 has a Pass with evidence on every row.
 - D6. `docs/` contains the journal, evidence, and status documents described in Section 11.
+- D7. The three-dot menu exposes native Online Play. Two isolated endpoints
+  complete a synchronized match without desync, at least one endpoint is
+  iPadOS/iOS, and physical iPhone/iPad evidence exists before claiming mobile
+  online support publicly.
 
-Explicit non-goals for this build: physical-device deployment and IPA packaging (Chris does device testing himself afterward), App Store anything, netcode/Slippi integration, widescreen or texture enhancement, versions other than the ROM provided.
+Explicit non-goals for this build: App Store submission, Slippi rollback,
+ranked matchmaking, public lobbies, accounts, spectating/replay services,
+widescreen or texture enhancement, and versions other than the ROM provided.
+Physical-device deployment remains a user-operated signing step, but physical
+iPhone/iPad evidence is required for the mobile-online product claim.
 
 ## 3. Why this is feasible (validated 24 Aug 2026)
 

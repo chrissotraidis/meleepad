@@ -54,7 +54,7 @@ rows live in [`docs/GOAL-LOOP.md`](docs/GOAL-LOOP.md) and
 | macOS | Native arm64 launcher/runner, Metal, keyboard/controller profiles, coherent live matches, saves/settings | Strict final acceptance rows and suitable-display replay |
 | iPad/iPhone | Native app shell, Metal first frames/gameplay, touch overlay, menu, exact-image import, saves, diagnostics | Sustained 60 FPS/audio, every-control live proof, physical-device acceptance |
 | Recompiler | 237-chunk GALE01 module, exact-source PGO workflow, clean-clone regeneration | Remaining mobile producer deficit |
-| Netplay | Launcher configuration and feasibility design | Two-endpoint G9 implementation and acceptance |
+| Netplay | Fixed-delay protocol, traversal code, compatibility fingerprint, and [implementation plan](docs/NETPLAY-FEASIBILITY.md) | Native lobby, GameCube mapping fix, two-endpoint G9 acceptance |
 | Distribution | ROM-safe source repository and ad-hoc local builds | Signed device build, TestFlight/App Store release |
 
 ## Build from source
