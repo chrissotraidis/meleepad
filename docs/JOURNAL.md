@@ -6036,3 +6036,26 @@ Append-only execution ledger. Claims are limited to observed evidence.
   keep physical-iPad promotion and further G9 implementation closed.
 - Evidence:
   `docs/artifacts/2026-09-02/g8-post-netplay-ordinary-attract-reversal.md`.
+
+## 2026-09-02 — G8 human acceptance capture harness
+
+- Add an interactive row-7 harness that starts HEVC before a fresh ordinary
+  installed-app launch and waits while a person supplies every game input.
+- Prohibit forwarded diagnostic environment and omit screenshots, UI polling,
+  private input, savestates, MemoryWatcher, and profilers.
+- On completion, preserve the full video, same-session runtime log, every
+  performance row, numeric threshold summary, wall duration, and executable,
+  video, and log hashes outside Git. Mark sub-five-minute captures ineligible
+  and never infer acceptance automatically.
+- Fix the interrupted-terminal path found by the first smoke so both the
+  recorder and harness-launched app are cleaned up.
+- Verify the correction live: Ctrl-C at the operator prompt exits 130 with zero
+  app/recorder processes. A final short completion emits
+  `minimum_capture_duration_met=0` plus the explicit `INELIGIBLE` warning.
+- Pass the focused source check. A 15-second live smoke finalizes a 1,942,391-
+  byte HEVC and 1,804-byte runtime log, exits zero, and leaves no app/recorder;
+  it is explicitly not acceptance evidence.
+- Decision: capture infrastructure is ready. Keep row 7 PARTIAL until a person
+  runs and passes the exact uninterrupted five-minute route.
+- Evidence:
+  `docs/artifacts/2026-09-02/g8-human-acceptance-capture-harness.md`.

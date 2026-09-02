@@ -46,6 +46,7 @@ tests/test-lockstep-repeat-set.sh
 tests/test-static-recomp-dispatch-burst-trace.sh
 tests/test-ios-simulator-savestate-signals.sh
 tests/test-capture-projection-trigger.sh
+tests/test-g8-human-acceptance-harness.sh
 
 prohibited=$(git ls-files | grep -E \
   '(^|/)(ref|DerivedData|Provisioned|build[^/]*)/|\.(iso|gcm|rvz|wia|wbfs|gcz|dylib|ipa|xcarchive|mobileprovision|p12|pem|key|gci|sav|raw|profraw|profdata)$' || true)

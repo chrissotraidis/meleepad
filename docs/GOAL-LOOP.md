@@ -2560,7 +2560,11 @@ route improved.
    FPS label plus the matching complete runtime log. Any visible slowdown,
    input lag, audio breakup, character/stage corruption, crash, or threshold
    miss fails row 7 and returns the loop to mechanism attribution. A tester's
-   direct observation is acceptance evidence, not anecdotal evidence.
+   direct observation is acceptance evidence, not anecdotal evidence. Use
+   `./scripts/run-g8-human-acceptance.sh` to bind the ordinary launch, HEVC
+   recording, complete runtime rows, and hashes without UI polling; the person
+   still supplies every game input and the retained video still requires
+   phase-by-phase review.
 7. Only after both automated Simulator runs and the manual product route pass
    may the same build be called a
    physical-iPad test candidate. Physical-device readiness then requires its

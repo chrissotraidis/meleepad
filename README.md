@@ -146,6 +146,20 @@ Run the repository safety suite before publishing:
 ./scripts/check-repository.sh
 ```
 
+The final iPad Simulator performance gate must be played by a person; automated
+touch input cannot substitute for it. With exactly one Simulator booted, run:
+
+```sh
+./scripts/run-g8-human-acceptance.sh
+```
+
+The harness starts a fresh ordinary Release, records the complete screen
+without UI polling, and retains the same-session runtime rows and hashes outside
+Git. Follow its exact Samus/Kirby/Fountain instructions, play for five
+uninterrupted combat minutes, reach results, return to the menu, and then finish
+the capture from the terminal. The script reports numeric thresholds but never
+declares acceptance; the video and every phase still require review.
+
 See [`docs/PRD.md`](docs/PRD.md) for the acceptance contract and
 [`docs/JOURNAL.md`](docs/JOURNAL.md) for the chronological engineering record.
 

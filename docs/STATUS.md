@@ -1,5 +1,20 @@
 # ssbmpad status
 
+## 2026-09-02 — G8 human acceptance capture path is ready
+
+The final row-7 manual route now has a bounded operator-driven harness. It
+starts HEVC before a fresh ordinary Release launch, never observes or drives
+the UI, and finalizes the same-session runtime log, every performance row,
+threshold summary, wall duration, and executable/video/log hashes outside Git.
+Interrupted runs clean up both the recorder and launched app; captures under
+five minutes are explicitly ineligible.
+
+A live 15-second smoke finalized all artifact classes and left zero runtime
+processes. It is infrastructure evidence only, not gameplay acceptance. Row 7
+remains PARTIAL until a person completes and passes the exact uninterrupted
+five-minute Samus/level-1-Kirby Fountain route. See
+`docs/artifacts/2026-09-02/g8-human-acceptance-capture-harness.md`.
+
 ## 2026-09-02 — G8 ordinary post-netplay reversal holds target cadence
 
 A fresh ordinary installed Release ran for 200 seconds with no diagnostic
