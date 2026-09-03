@@ -1,5 +1,26 @@
 # meleepad status
 
+## 2026-09-03 — Preview 1 release decision and accepted physical-iPad debt
+
+MeleePad v0.1.0 Preview 1 is the first completed developer-preview milestone.
+The accepted physical-iPad path covers boot, game-data migration/import,
+gameplay, touch and Xbox-controller input, combat-only C-stick behavior, 2x
+rendering, saves, settings, diagnostics export, and foreground recovery. This
+is not a claim that every scene is locked to 60 FPS or rendered correctly.
+
+The latest retained device log records a real 46.2 FPS/VPS minimum, 0.776 speed
+ratio, and 133 new audio DMA underruns across the main 50-second slowdown. The
+event began as iPadOS thermal state became serious after several minutes of
+high CPU/video load. Memory remained stable, Low Power Mode was off, and no
+crash or memory warning occurred. This issue is accepted for Preview 1 and
+remains performance debt rather than a release blocker. See
+[`preview1-physical-ipad-thermal-slowdown.md`](artifacts/2026-09-03/preview1-physical-ipad-thermal-slowdown.md).
+
+Preview 1 is a source release. A playable iOS app still requires a locally
+generated GALE01 ARM64 module and a user-supplied supported disc image; neither
+belongs in the repository or release assets. Experimental multiplayer remains
+at the direct-connection preview boundary described below.
+
 ## 2026-09-03 — reconciled netplay beta stop checkpoint
 
 GitHub `main` now contains both the accepted physical-iPad controller/menu/icon

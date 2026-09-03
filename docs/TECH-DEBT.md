@@ -5,6 +5,30 @@ Last updated: 2026-09-03
 This is the short, ranked engineering queue behind the active goal loop. It is
 not a substitute for `GOAL-LOOP.md` or evidence in `docs/artifacts/`.
 
+## Preview 1 accepted debt — physical-iPad thermal slowdown
+
+Preview 1 is complete with this issue explicitly accepted as technical debt,
+not closed. A 2026-09-03 physical-iPad run captured a sustained slowdown after
+an approximately three-minute in-game pause and return to a heavy Classic-mode
+battle. The ten-second reports fell through 51.0, 47.7, 46.2, 47.0, and 56.7
+FPS while VPS matched the loss and emulation speed reached 0.776. Audio DMA
+underruns increased from 5 to 138 during the same 50-second interval.
+
+The device entered `serious` thermal state as the slowdown began. Aggregate app
+CPU remained about 182–186%, led by the CPU and video threads, while resident
+memory stayed near 503–507 MiB, Low Power Mode remained off, and no memory
+warning, audio interruption, crash, or multi-minute iPadOS background event was
+recorded. The evidence is consistent with a heavy scene exhausting CPU/video
+headroom after sustained load and thermal pressure; it does not prove a single
+stage-specific code defect.
+
+Do not block Preview 1 on this issue. Future work should reproduce from a fresh
+process and add bounded hitch telemetry: frame-time p95/p99/max, thresholded
+hitch counts, in-game pause and scene-transition markers, and GPU/pipeline or
+resource-upload timing. Keep diagnostics export enabled and request the same-run
+log plus scene, settings, and device information from reporters. See
+[`docs/artifacts/2026-09-03/preview1-physical-ipad-thermal-slowdown.md`](artifacts/2026-09-03/preview1-physical-ipad-thermal-slowdown.md).
+
 ## P0 — G8 row 7: prove the complete iPad route honestly at 60 FPS
 
 ### Current feasibility decision

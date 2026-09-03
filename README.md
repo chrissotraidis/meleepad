@@ -18,9 +18,11 @@ by scene and device; this image is evidence from one observed match, not a
 universal performance guarantee.*
 
 > [!IMPORTANT]
-> MeleePad is an engineering preview. It is not available through the App Store
-> or TestFlight, and online play is not yet reliable between Apple platforms.
-> You must build the app from source and supply your own supported game image.
+> MeleePad v0.1.0 Preview 1 is the first completed developer preview. It is not
+> available through the App Store or TestFlight, and online play is not yet
+> reliable between Apple platforms. You must build the playable app locally and
+> supply your own supported game image. Performance and rendering still vary by
+> scene and device.
 
 ## How MeleePad works
 
@@ -114,10 +116,12 @@ extracts the data required by the runtime. The game data stays on your device.
 
 ### How do I install it?
 
-There is no public App Store, TestFlight, or downloadable binary release yet.
-Developers can build it from source on an Apple Silicon Mac with Xcode and sign
-the iPhone or iPad build using their own Apple development account. Start with
-the [requirements](#requirements), follow the
+Preview 1 is published as a source release. There is no App Store or TestFlight
+build. A playable iPhone or iPad app must be built locally because its ARM64
+game module is generated from the user's own supported disc image and is not a
+redistributable repository or release asset. Developers can build it on an
+Apple Silicon Mac with Xcode and sign it using their own Apple development
+account. Start with the [requirements](#requirements), follow the
 [physical-device build steps](#build-for-a-physical-iphone-or-ipad), and then
 complete [first-launch game-data import](#first-launch-on-iphone-or-ipad).
 
@@ -133,9 +137,11 @@ section explains exactly what exists and what remains.
 
 The game launches and plays on a physical iPad with Metal rendering, touch
 controls, supported physical controllers, persistent game data and saves, and
-the native settings menu. Observed solo play has repeatedly held close to 60
-FPS at 2x resolution. Serious water, reflection, and shadow rendering defects
-remain, and the complete device acceptance matrix is still in progress.
+the native settings menu. Observed solo play can hold close to 60 FPS at 2x
+resolution, but a later physical-iPad run also captured a sustained 46-57 FPS
+slowdown under serious thermal pressure after an extended in-game pause.
+Serious water, reflection, and shadow rendering defects remain, and the
+complete device acceptance matrix is still in progress.
 
 ## Current status
 
@@ -143,15 +149,19 @@ remain, and the complete device acceptance matrix is still in progress.
 |---|---|---|
 | macOS | Native Apple Silicon launcher and runner, Metal rendering, keyboard and controller profiles, matches, saves, and settings | Final display and worst-frame acceptance work remains |
 | iPhone and iPad | Native app shell, Metal gameplay, touch controls, controller mapping, More menu, exact-image import, persistent saves and settings, and diagnostic export | Serious water, reflection, and shadow rendering defects remain; the full visual, audio, controller, and lifecycle matrix has not passed |
-| Performance | A physical iPad has repeatedly held 59.9–60.0 FPS/VPS at 2x resolution during observed solo play | Results are scene- and device-specific and are not final hardware acceptance |
+| Performance | A physical iPad can hold 59.9–60.0 FPS/VPS at 2x resolution during observed solo play | Preview 1 can fall to 46–57 FPS in heavier scenes under thermal pressure; results are scene- and device-specific |
 | Experimental multiplayer | Direct-IP fixed-delay transport, Host and Join lobby, compatibility fingerprinting, and one completed two-Mac direct match | Mac/iPad synchronization currently fails closed; reliable cross-platform matches, room codes, traversal, relay, and matchmaking are unavailable |
-| Distribution | ROM-safe source repository and locally signed development builds | No public binary, TestFlight build, or App Store release |
+| Distribution | v0.1.0 Preview 1 source release and locally built, locally signed development apps | No App Store or TestFlight build; the locally generated game module is not distributed |
 
 The combat-only right-stick mapping has passed a hands-on physical-iPad retest,
 including the required menu/gameplay behavior. The current evidence, remaining
 acceptance rows, and known rendering debt are tracked in
 [the goal loop](docs/GOAL-LOOP.md), [project status](docs/STATUS.md), and
 [technical debt](docs/TECH-DEBT.md).
+
+The accepted Preview 1 performance debt and the retained physical-device
+measurements are summarized in
+[the physical-iPad thermal slowdown record](docs/artifacts/2026-09-03/preview1-physical-ipad-thermal-slowdown.md).
 
 ## Requirements
 
