@@ -1656,17 +1656,26 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
         [NSHomeDirectory() stringByAppendingPathComponent:@"Library/Application Support"];
     NSString *currentRoot = [applicationSupportRoot stringByAppendingPathComponent:@"MeleePad"];
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    if ([fileManager fileExistsAtPath:currentRoot])
+    NSString *currentImage =
+        [currentRoot stringByAppendingPathComponent:@"GameData/GALE01.iso"];
+    NSString *currentExecutable =
+        [currentRoot stringByAppendingPathComponent:@"GameData/GALE01/sys/main.dol"];
+    if ([fileManager fileExistsAtPath:currentImage] &&
+        [fileManager fileExistsAtPath:currentExecutable]) {
         return currentRoot;
+    }
 
     // Product renames must not strand a user's imported image or saves. When
     // this app container has exactly one earlier support folder containing a
-    // complete GALE01 import, rename that folder atomically before boot.
+    // complete GALE01 import, move its non-conflicting contents before boot.
+    // Diagnostics may already have created the current Logs directory.
     NSMutableArray<NSString *> *candidates = [NSMutableArray array];
     NSArray<NSString *> *entries =
         [fileManager contentsOfDirectoryAtPath:applicationSupportRoot error:nil];
     for (NSString *entry in entries) {
         NSString *candidate = [applicationSupportRoot stringByAppendingPathComponent:entry];
+        if ([candidate isEqualToString:currentRoot])
+            continue;
         NSString *candidateImage =
             [candidate stringByAppendingPathComponent:@"GameData/GALE01.iso"];
         NSString *candidateExecutable =
@@ -1678,14 +1687,29 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     }
 
     if (candidates.count == 1) {
-        NSError *migrationError = nil;
-        if ([fileManager moveItemAtPath:candidates.firstObject
-                                 toPath:currentRoot
-                                  error:&migrationError]) {
+        [fileManager createDirectoryAtPath:currentRoot
+               withIntermediateDirectories:YES attributes:nil error:nil];
+        NSString *candidate = candidates.firstObject;
+        NSArray<NSString *> *candidateEntries =
+            [fileManager contentsOfDirectoryAtPath:candidate error:nil];
+        for (NSString *entry in candidateEntries) {
+            NSString *source = [candidate stringByAppendingPathComponent:entry];
+            NSString *destination = [currentRoot stringByAppendingPathComponent:entry];
+            if ([fileManager fileExistsAtPath:destination])
+                continue;
+            NSError *migrationError = nil;
+            if (![fileManager moveItemAtPath:source
+                                      toPath:destination
+                                       error:&migrationError]) {
+                MeleePadLog(@"support data migration failed entry=%@: %@", entry,
+                            migrationError.localizedDescription);
+            }
+        }
+        if ([fileManager fileExistsAtPath:currentImage] &&
+            [fileManager fileExistsAtPath:currentExecutable]) {
             MeleePadLog(@"support data migrated to current product directory");
         } else {
-            MeleePadLog(@"support data migration failed: %@",
-                        migrationError.localizedDescription);
+            MeleePadLog(@"support data migration incomplete");
         }
     } else if (candidates.count > 1) {
         MeleePadLog(@"support data migration skipped reason=ambiguous candidates=%lu",

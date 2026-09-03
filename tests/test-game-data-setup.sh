@@ -42,7 +42,8 @@ for text in ('- (NSString *)meleePadSupportRoot',
              'contentsOfDirectoryAtPath:applicationSupportRoot',
              '@"GameData/GALE01.iso"',
              '@"GameData/GALE01/sys/main.dol"',
-             'moveItemAtPath:candidates.firstObject',
+             'if ([candidate isEqualToString:currentRoot])',
+             'moveItemAtPath:source',
              'if (candidates.count == 1)'):
     if text not in source:
         raise SystemExit(f"missing product-rename data migration: {text}")
