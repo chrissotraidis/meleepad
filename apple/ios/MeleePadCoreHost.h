@@ -31,12 +31,14 @@ NS_ASSUME_NONNULL_BEGIN
  * synchronized boot data is installed and the netplay runtime has started. */
 - (void)beginNetplayHostingWithNickname:(NSString *)nickname
                                    port:(uint16_t)port
+                         usingTraversal:(BOOL)usingTraversal
                         automaticBuffer:(BOOL)automaticBuffer
                            bufferFrames:(NSUInteger)bufferFrames
                              completion:(void (^)(NSString *_Nullable error))completion;
 - (void)beginNetplayJoiningAddress:(NSString *)address
                           nickname:(NSString *)nickname
                               port:(uint16_t)port
+                    usingTraversal:(BOOL)usingTraversal
                    automaticBuffer:(BOOL)automaticBuffer
                       bufferFrames:(NSUInteger)bufferFrames
                         completion:(void (^)(NSString *_Nullable error))completion;

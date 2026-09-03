@@ -1,5 +1,46 @@
 # meleepad status
 
+## 2026-09-03 — Preview 2 release contract
+
+Preview 2 packages the current networking work as version `0.1.0`, build `5`.
+It includes Private Room codes backed by Dolphin's public traversal rendezvous,
+Direct IP, strict compatibility/desync handling, and the native Public Games
+development UI. Public Games remains disabled without a configured production
+HTTPS discovery endpoint; there is no automatic matchmaking, relay fallback,
+ranked play, or Slippi rollback.
+
+The public asset is deliberately named
+`MeleePad-v0.1.0-preview.2-module-free-unsigned.ipa`. It is an unsigned ARM64
+iPhoneOS 16+ app shell, not a playable bundled game. The reproducible package
+has SHA-256
+`797a4d9c218650bd6f7377f07d798d5f06ff46abcfee33c8cdbe44248a552519`
+and excludes the user-generated GALE01 module, game data, saves, signing
+material, development paths, and local configuration. Playable builds still
+require local generation from the exact supported GALE01 USA revision-0 image.
+
+## 2026-09-03 — Build 5 installed on the physical iPad for testing
+
+The signed `0.1.0` build 5 candidate is installed in place over
+build 4 on the connected iPad Pro, and launches successfully. The install kept
+the existing `com.ssbmpad.SsbmPad` identity so it reused the established app
+container instead of creating a second installation.
+
+Before installation, the mutable GC save, configuration, and preferences were
+copied to a local temporary backup. A readback before first launch showed the
+save, every configuration file, and preferences were byte-identical; the
+1,459,978,240-byte GALE01 image and all 1,214 extracted game files remained in
+the container. A second save readback after launch was also byte-identical.
+The installed-app record reports version `0.1.0`, build `5`, and the MeleePad
+process is running.
+
+The complete repository gate and strict signature verification pass. This is
+installation, startup, and data-preservation proof, not physical gameplay or
+Internet-match acceptance. No production public-lobby endpoint is bundled, so
+Public Games remains unavailable on this build; Private Room can use the
+existing Dolphin traversal-backed room-code path. See
+[`build5-physical-ipad-install.md`](artifacts/2026-09-03/build5-physical-ipad-install.md)
+and [`PUBLIC-LOBBY-GOAL-LOOP.md`](PUBLIC-LOBBY-GOAL-LOOP.md).
+
 ## 2026-09-03 — Preview 1 release decision and accepted physical-iPad debt
 
 MeleePad v0.1.0 Preview 1 is the first completed developer-preview milestone.
@@ -18,8 +59,61 @@ remains performance debt rather than a release blocker. See
 
 Preview 1 is a source release. A playable iOS app still requires a locally
 generated GALE01 ARM64 module and a user-supplied supported disc image; neither
-belongs in the repository or release assets. Experimental multiplayer remains
-at the direct-connection preview boundary described below.
+belongs in the repository or release assets. The released Preview 1 remains at
+the direct-connection boundary; Preview 2 contains the Internet-room vertical
+slice described below.
+
+## 2026-09-03 — public lobby development slice reaches traversal join
+
+The Preview 2 native Online Play sheet has Public Games, Private Room, and
+Direct IP modes. Public cards expose host, region, occupancy, state,
+MeleePad version/build, GALE01 revision, and compatibility; Join remains
+disabled for mismatches. Host/Join, preset quick chat, Hide, and Report are
+wired to a new bounded standard-library lobby service. Public listings omit
+the traversal code and an exact-compatible authenticated Join is required to
+receive it.
+
+Ten service tests, focused source contracts, and a clean Simulator build
+pass. A live end-to-end development run published a fresh Dolphin traversal
+host through the local service; the iPad Simulator discovered it, authorized
+Join, and reached the native two-player compatible lobby at 54 ms. This proves
+the discovery-to-traversal path, not production availability.
+
+The first live quick-chat attempt exposed a guest-membership expiry after the
+20-second reservation. Authenticated guest heartbeats now renew presence every
+15 seconds; a repeated joined-lobby check delivered and rendered `Hello!`
+after the original expiry window.
+
+The reverse public-discovery direction also passes: the iPad Simulator hosted
+and published, a compatible Mac discovery session received the code only from
+Join, and the native host showed both peers compatible at 59 ms. Host Cancel
+removed the listing immediately.
+
+No lobby endpoint was deployed or bundled. HTTPS operations, durable
+moderation/report storage, monitoring, backups, abuse contact, physical-device
+and independent-network acceptance remain gates. See
+`docs/artifacts/2026-09-03/public-lobby-vertical-slice.md`.
+
+## 2026-09-03 — public Internet room vertical slice passes in both directions
+
+MeleePad-to-MeleePad Internet play is now possible in the retained engineering
+test. Dolphin's public traversal service is live, issued fresh eight-character
+codes, and connected Mac/iPad Simulator pairs with each endpoint hosting once.
+Both public-service sessions launched the synchronized game runtime and held
+roughly 4,700 rendered frames without canonical mismatch or disconnect. Direct
+cross-platform runs also crossed the old frame-120 failure in both directions.
+
+The old `timebase,ram` result was stale-build contamination: it disappeared
+after clean core/module/package rebuilds without tolerance, RAM exclusion, or
+timing changes. The new regional RAM and signed-timebase diagnostics remain.
+The native form now defaults to Internet Room, displays/accepts a room code,
+and keeps Direct IP available as an adjacent advanced path.
+
+This is not the friends-beta or release gate. Independent outside networks,
+physical devices, full matches/results/rematches, lifecycle failures, NAT
+success rate, security/privacy, and a supported service-operations decision
+remain open. See
+`docs/artifacts/2026-09-03/g9-public-internet-room-pass.md`.
 
 ## 2026-09-03 — reconciled netplay beta stop checkpoint
 

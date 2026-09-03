@@ -1,0 +1,210 @@
+diff --git a/tools/moderngekko_run.cpp b/tools/moderngekko_run.cpp
+--- a/tools/moderngekko_run.cpp
++++ b/tools/moderngekko_run.cpp
+@@ -37,7 +37,8 @@
+                "       [--graphics <backend>] [--audio <backend>]\n"
+                "       [--mods <directory>] [--no-mods]\n"
+                "       [--wayland] [-X11] [--headless] [--allow-interpreter]\n"
+-               "       [--netplay-host | --netplay-join <host>] "
++               "       [--netplay-host | --netplay-join <host> |\n"
++               "        --netplay-room-host | --netplay-room-join <code>] "
+                "[--netplay-port <port>]\n"
+                "       [--nickname <name>] [--buffer <auto|1-20>] "
+                "[--controller <device>]...\n"
+@@ -132,6 +133,7 @@
+   std::filesystem::path module_path;
+   bool use_default_mods = true;
+   std::optional<moderngekko::frontend::NetplayRole> netplay_role;
++  bool netplay_use_traversal = false;
+   std::string netplay_address;
+   std::optional<std::uint16_t> netplay_port;
+   std::string netplay_nickname;
+@@ -175,6 +177,13 @@
+     else if (arg == "--netplay-join") {
+       netplay_role = moderngekko::frontend::NetplayRole::Join;
+       netplay_address = value("--netplay-join");
++    } else if (arg == "--netplay-room-host") {
++      netplay_role = moderngekko::frontend::NetplayRole::Host;
++      netplay_use_traversal = true;
++    } else if (arg == "--netplay-room-join") {
++      netplay_role = moderngekko::frontend::NetplayRole::Join;
++      netplay_use_traversal = true;
++      netplay_address = value("--netplay-room-join");
+     } else if (arg == "--netplay-port") {
+       const std::string port_value = value("--netplay-port");
+       unsigned int port = 0;
+@@ -317,6 +326,7 @@
+   if (netplay_role) {
+     moderngekko::frontend::NetplayOptions options;
+     options.role = *netplay_role;
++    options.use_traversal = netplay_use_traversal;
+     options.address = netplay_address.empty() ? frontend_config.netplay_address
+                                               : netplay_address;
+     options.port = netplay_port.value_or(frontend_config.netplay_port);
+diff --git a/tools/netplay_session.cpp b/tools/netplay_session.cpp
+--- a/tools/netplay_session.cpp
++++ b/tools/netplay_session.cpp
+@@ -149,6 +149,9 @@
+   std::vector<ControllerOption> available = EnumerateControllers();
+   const bool auto_ready = EnvironmentEnabled("MELEEPAD_NETPLAY_AUTO_READY");
+   const bool auto_start = EnvironmentEnabled("MELEEPAD_NETPLAY_AUTO_START");
++  const bool trace_room_code =
++      EnvironmentEnabled("MELEEPAD_NETPLAY_TRACE_ROOM_CODE");
++  bool room_code_reported = false;
+   auto last_refresh = std::chrono::steady_clock::now();
+   bool running = true;
+   while (running) {
+@@ -162,6 +165,10 @@
+     }
+ 
+     const NetplayLobbySnapshot snapshot = session.Snapshot();
++    if (trace_room_code && !room_code_reported && !snapshot.room_code.empty()) {
++      std::cerr << "netplay: room code: " << snapshot.room_code << '\n';
++      room_code_reported = true;
++    }
+     const std::vector<NetplayPlayerSnapshot> &players = snapshot.players;
+     const u8 assigned = snapshot.assigned_controllers;
+     if (assigned > 0 && options.controllers.size() > assigned) {
+@@ -186,14 +193,26 @@
+                  ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove |
+                      ImGuiWindowFlags_NoSavedSettings);
+     const bool hosting = options.role == NetplayRole::Host;
+-    ImGui::TextUnformatted(hosting ? "Hosting direct-IP netplay"
+-                                   : "Connected to direct-IP host");
++    ImGui::TextUnformatted(options.use_traversal
++                               ? (hosting ? "Hosting Internet room"
++                                          : "Connected to Internet room")
++                               : (hosting ? "Hosting direct-IP netplay"
++                                          : "Connected to direct-IP host"));
+     if (hosting) {
+-      ImGui::Text("UDP port: %u", snapshot.port);
+-      for (const auto &[interface_name, address] : snapshot.interfaces)
+-        ImGui::Text("%s: %s", interface_name.c_str(), address.c_str());
++      if (options.use_traversal)
++        ImGui::Text("Room code: %s", snapshot.room_code.empty()
++                                         ? "Connecting..."
++                                         : snapshot.room_code.c_str());
++      else {
++        ImGui::Text("UDP port: %u", snapshot.port);
++        for (const auto &[interface_name, address] : snapshot.interfaces)
++          ImGui::Text("%s: %s", interface_name.c_str(), address.c_str());
++      }
+     } else {
+-      ImGui::Text("Host: %s:%u", options.address.c_str(), options.port);
++      if (options.use_traversal)
++        ImGui::Text("Room code: %s", options.address.c_str());
++      else
++        ImGui::Text("Host: %s:%u", options.address.c_str(), options.port);
+     }
+     ImGui::Text("Input buffer: %u frames%s", snapshot.buffer_frames,
+                 hosting && snapshot.adaptive_buffer ? " (auto)" : "");
+diff --git a/tools/netplay_session.hpp b/tools/netplay_session.hpp
+--- a/tools/netplay_session.hpp
++++ b/tools/netplay_session.hpp
+@@ -31,6 +31,7 @@
+ 
+ struct NetplayOptions {
+   NetplayRole role = NetplayRole::Join;
++  bool use_traversal = false;
+   std::string address = "127.0.0.1";
+   std::uint16_t port = 2626;
+   std::string nickname = "Player";
+@@ -62,6 +63,7 @@
+   NetplayState state = NetplayState::Idle;
+   NetplayRole role = NetplayRole::Join;
+   std::uint16_t port = 0;
++  std::string room_code;
+   std::vector<std::pair<std::string, std::string>> interfaces;
+   std::vector<NetplayPlayerSnapshot> players;
+   std::uint8_t assigned_controllers = 0;
+diff --git a/tools/netplay_session_core.cpp b/tools/netplay_session_core.cpp
+--- a/tools/netplay_session_core.cpp
++++ b/tools/netplay_session_core.cpp
+@@ -2,6 +2,7 @@
+ 
+ #include "netplay_compatibility.hpp"
+ 
++#include "Common/TraversalClient.h"
+ #include "Core/Boot/Boot.h"
+ #include "Core/IOS/FS/FileSystem.h"
+ #include "Core/NetPlay/NetPlayClient.h"
+@@ -18,6 +19,10 @@
+ namespace moderngekko::frontend {
+ namespace {
+ 
++constexpr std::string_view TRAVERSAL_HOST = "stun.dolphin-emu.org";
++constexpr u16 TRAVERSAL_PORT = 6262;
++constexpr u16 TRAVERSAL_PORT_ALT = 6226;
++
+ class SessionUI final : public NetPlay::NetPlayUI {
+ public:
+   explicit SessionUI(std::shared_ptr<UICommon::GameFile> game)
+@@ -123,9 +128,22 @@
+     m_error = message;
+   }
+   void OnTraversalError(Common::TraversalClient::FailureReason) override {
+-    OnConnectionError("Direct connection failed");
++    OnConnectionError("Internet room connection failed");
+   }
+-  void OnTraversalStateChanged(Common::TraversalClient::State) override {}
++  void OnTraversalStateChanged(Common::TraversalClient::State state) override {
++    std::lock_guard lock(m_mutex);
++    switch (state) {
++    case Common::TraversalClient::State::Connecting:
++      m_status = "Connecting to the Internet room service";
++      break;
++    case Common::TraversalClient::State::Connected:
++      m_status = "Internet room is ready";
++      break;
++    case Common::TraversalClient::State::Failure:
++      m_status = "Internet room service is unavailable";
++      break;
++    }
++  }
+   void OnGameStartAborted() override {
+     std::lock_guard lock(m_mutex);
+     m_error = "Game start was aborted";
+@@ -257,10 +275,13 @@
+       CompatibilityFingerprint(impl->runtime_config, *inspected.metadata));
+   impl->ui = std::make_unique<SessionUI>(impl->game);
+   const NetPlay::NetTraversalConfig direct{};
++  const NetPlay::NetTraversalConfig traversal{
++      impl->options.use_traversal, std::string(TRAVERSAL_HOST), TRAVERSAL_PORT,
++      TRAVERSAL_PORT_ALT};
+   if (impl->options.role == NetplayRole::Host) {
+     impl->ui->SetHosting(true);
+     impl->server = std::make_unique<NetPlay::NetPlayServer>(
+-        impl->options.port, false, impl->ui.get(), direct);
++        impl->options.port, false, impl->ui.get(), traversal);
+     if (!impl->server->is_connected)
+       return {};
+     impl->server->SetControllerFamily(NetPlay::ControllerFamily::GameCube);
+@@ -278,7 +299,7 @@
+   } else {
+     impl->client = std::make_unique<NetPlay::NetPlayClient>(
+         impl->options.address, impl->options.port, impl->ui.get(),
+-        impl->options.nickname, direct,
++        impl->options.nickname, traversal,
+         static_cast<u8>(impl->options.controllers.size()));
+   }
+ 
+@@ -325,8 +346,17 @@
+   if (m_impl->server) {
+     snapshot.port = m_impl->server->GetPort();
+     snapshot.can_start = m_impl->server->CanStart();
+-    for (const std::string &name : m_impl->server->GetInterfaceSet())
+-      snapshot.interfaces.emplace_back(name, m_impl->server->GetInterfaceHost(name));
++    if (m_impl->options.use_traversal) {
++      if (Common::g_TraversalClient && Common::g_TraversalClient->IsConnected()) {
++        const Common::TraversalHostId host_id =
++            Common::g_TraversalClient->GetHostID();
++        if (host_id[0] != '\0')
++          snapshot.room_code.assign(host_id.begin(), host_id.end());
++      }
++    } else {
++      for (const std::string &name : m_impl->server->GetInterfaceSet())
++        snapshot.interfaces.emplace_back(name, m_impl->server->GetInterfaceHost(name));
++    }
+   } else {
+     snapshot.port = m_impl->options.port;
+   }

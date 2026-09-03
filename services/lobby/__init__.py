@@ -1,0 +1,1 @@
+"""MeleePad public-lobby service."""

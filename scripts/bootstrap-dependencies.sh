@@ -150,6 +150,7 @@ netplay_timebase_status_patch="$ROOT/patches/moderngekko/0016-netplay-timebase-s
 executable_boot_caller_idle_patch="$ROOT/patches/moderngekko/0017-executable-boot-caller-idle-config.patch"
 netplay_canonical_boundary_test_patch="$ROOT/patches/moderngekko/0018-netplay-canonical-boundary-test.patch"
 netplay_canonical_status_patch="$ROOT/patches/moderngekko/0019-netplay-canonical-status-history.patch"
+netplay_internet_rooms_patch="$ROOT/patches/moderngekko/0020-netplay-internet-rooms.patch"
 render_log_patch="$ROOT/patches/moderngekko-dolphin/0002-buffer-render-time-logging.patch"
 idle_patch="$ROOT/patches/moderngekko-dolphin/0003-gale01r0-staticrecomp-idle.patch"
 memory_watcher_patch="$ROOT/patches/moderngekko-dolphin/0004-static-recomp-memory-watcher.patch"
@@ -344,6 +345,9 @@ apply_patch_once_or_marker "$MG" "$netplay_canonical_boundary_test_patch" \
 apply_patch_once_or_marker "$MG" "$netplay_canonical_status_patch" \
   tools/netplay_session_core.cpp \
   'message.starts_with("netplay-canonical")'
+apply_patch_once_or_marker "$MG" "$netplay_internet_rooms_patch" \
+  tools/netplay_session_core.cpp \
+  'stun.dolphin-emu.org'
 verify_patch_scope "$MG" "$mg_patch" "$ROOT"/patches/moderngekko/*.patch -- \
   vendor/dolphin
 verify_patch_scope "$MG/vendor/dolphin" "$dolphin_patch" "$mg_patch" \

@@ -489,6 +489,7 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
                      address:(NSString *)address
                     nickname:(NSString *)nickname
                         port:(uint16_t)port
+              usingTraversal:(BOOL)usingTraversal
              automaticBuffer:(BOOL)automaticBuffer
                 bufferFrames:(NSUInteger)bufferFrames
                   completion:(void (^)(NSString *_Nullable))completion {
@@ -537,6 +538,7 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
 
         moderngekko::frontend::NetplayOptions options;
         options.role = role;
+        options.use_traversal = usingTraversal;
         options.address = address.UTF8String ?: "";
         options.port = port;
         options.nickname = nickname.UTF8String ?: "Player";
@@ -566,11 +568,13 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
 
 - (void)beginNetplayHostingWithNickname:(NSString *)nickname
                                    port:(uint16_t)port
+                         usingTraversal:(BOOL)usingTraversal
                         automaticBuffer:(BOOL)automaticBuffer
                            bufferFrames:(NSUInteger)bufferFrames
                              completion:(void (^)(NSString *_Nullable))completion {
     [self beginNetplayWithRole:moderngekko::frontend::NetplayRole::Host
                        address:@"127.0.0.1" nickname:nickname port:port
+                usingTraversal:usingTraversal
                automaticBuffer:automaticBuffer bufferFrames:bufferFrames
                     completion:completion];
 }
@@ -578,11 +582,13 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
 - (void)beginNetplayJoiningAddress:(NSString *)address
                           nickname:(NSString *)nickname
                               port:(uint16_t)port
+                    usingTraversal:(BOOL)usingTraversal
                    automaticBuffer:(BOOL)automaticBuffer
                       bufferFrames:(NSUInteger)bufferFrames
                         completion:(void (^)(NSString *_Nullable))completion {
     [self beginNetplayWithRole:moderngekko::frontend::NetplayRole::Join
                        address:address nickname:nickname port:port
+                usingTraversal:usingTraversal
                automaticBuffer:automaticBuffer bufferFrames:bufferFrames
                     completion:completion];
 }
@@ -623,6 +629,7 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
             @"buffer": @(snapshot.buffer_frames),
             @"automaticBuffer": @(snapshot.adaptive_buffer),
             @"canStart": @(snapshot.can_start),
+            @"roomCode": snapshot.room_code.empty() ? @"" : @(snapshot.room_code.c_str()),
             @"status": snapshot.status.empty() ? @"" : @(snapshot.status.c_str()),
             @"error": snapshot.error.empty() ? @"" : @(snapshot.error.c_str()),
             @"connectionLost": @(snapshot.connection_lost),

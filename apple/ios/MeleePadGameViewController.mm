@@ -240,6 +240,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
                            gamepad:(GCExtendedGamepad *)gamepad;
 - (void)reconcileControllersForReason:(NSString *)reason;
 - (NSString *)resolvedImportTestPath:(NSString *)requestedPath;
+- (void)startAutomatedNetplayIfRequested;
 - (void)showGameDataSetupState;
 - (NSString *)meleePadSupportRoot;
 @end
@@ -265,6 +266,9 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     MeleePadOnlinePlayViewController *_onlinePlayController;
     dispatch_source_t _onlinePlayPollTimer;
     BOOL _onlinePlaySessionRequested;
+    BOOL _automatedNetplay;
+    BOOL _automatedNetplayStartRequested;
+    BOOL _automatedNetplayRoomCodeReported;
 }
 
 - (BOOL)shouldAutorotate {
@@ -385,6 +389,72 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     [self startGameIfProvisioned];
     [self startInputConsumer];
     [self observeControllers];
+    [self startAutomatedNetplayIfRequested];
+}
+
+- (void)startAutomatedNetplayIfRequested {
+#if TARGET_OS_SIMULATOR
+    NSDictionary<NSString *, NSString *> *environment = NSProcessInfo.processInfo.environment;
+    NSString *role = environment[@"MELEEPAD_NETPLAY_AUTO_ROLE"].lowercaseString;
+    if ([role isEqualToString:@"ui"]) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self gameOverlayRequestsOnlinePlay:self->_overlay];
+        });
+        return;
+    }
+    if (![role isEqualToString:@"host"] && ![role isEqualToString:@"join"])
+        return;
+
+    NSString *nickname = environment[@"MELEEPAD_NETPLAY_AUTO_NICKNAME"] ?: @"Simulator";
+    NSString *address = environment[@"MELEEPAD_NETPLAY_AUTO_ADDRESS"] ?: @"127.0.0.1";
+    NSInteger requestedPort = [environment[@"MELEEPAD_NETPLAY_AUTO_PORT"] integerValue];
+    uint16_t port = requestedPort >= 1 && requestedPort <= UINT16_MAX
+        ? (uint16_t)requestedPort : 2626;
+    BOOL usingTraversal =
+        [environment[@"MELEEPAD_NETPLAY_AUTO_TRAVERSAL"] boolValue];
+    _automatedNetplay = YES;
+    _onlinePlaySessionRequested = YES;
+    MeleePadLog(@"netplay automation requested role=%@ mode=%@ port=%u", role,
+              usingTraversal ? @"internet-room" : @"direct", port);
+
+    __weak MeleePadGameViewController *weakSelf = self;
+    _coreHost.onNetplayMatchStarted = ^{
+        MeleePadGameViewController *strongSelf = weakSelf;
+        if (strongSelf == nil)
+            return;
+        MeleePadLog(@"netplay automation match started");
+        if (strongSelf->_onlinePlayPollTimer != nil) {
+            dispatch_source_cancel(strongSelf->_onlinePlayPollTimer);
+            strongSelf->_onlinePlayPollTimer = nil;
+        }
+    };
+    _coreHost.onNetplayMatchEnded = ^{
+        MeleePadLog(@"netplay automation match ended");
+    };
+
+    void (^completion)(NSString *) = ^(NSString *error) {
+        MeleePadGameViewController *strongSelf = weakSelf;
+        if (strongSelf == nil)
+            return;
+        if (error.length > 0) {
+            MeleePadLog(@"netplay automation failed: %@", error);
+            return;
+        }
+        [strongSelf->_coreHost setNetplayReady:YES];
+        [strongSelf startOnlinePlayPolling];
+    };
+    if ([role isEqualToString:@"host"]) {
+        [_coreHost beginNetplayHostingWithNickname:nickname port:port
+                                    usingTraversal:usingTraversal
+                                   automaticBuffer:YES bufferFrames:2
+                                         completion:completion];
+    } else {
+        [_coreHost beginNetplayJoiningAddress:address nickname:nickname port:port
+                               usingTraversal:usingTraversal
+                              automaticBuffer:YES bufferFrames:2
+                                    completion:completion];
+    }
+#endif
 }
 
 // Physical-device launches cannot refer to the host's /tmp. devicectl copies
@@ -1123,10 +1193,31 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     __weak MeleePadGameViewController *weakSelf = self;
     dispatch_source_set_event_handler(_onlinePlayPollTimer, ^{
         MeleePadGameViewController *strongSelf = weakSelf;
-        if (strongSelf == nil || strongSelf->_onlinePlayController == nil)
+        if (strongSelf == nil ||
+            (strongSelf->_onlinePlayController == nil && !strongSelf->_automatedNetplay))
             return;
         [strongSelf->_coreHost pollNetplayWithCompletion:^(NSDictionary<NSString *,id> *snapshot) {
             MeleePadOnlinePlayViewController *lobby = strongSelf->_onlinePlayController;
+            if (strongSelf->_automatedNetplay) {
+                NSString *error = snapshot[@"error"];
+                if (error.length > 0)
+                    MeleePadLog(@"netplay automation session error: %@", error);
+                NSString *roomCode = snapshot[@"roomCode"];
+                BOOL traceRoomCode = [NSProcessInfo.processInfo.environment[
+                    @"MELEEPAD_NETPLAY_TRACE_ROOM_CODE"] boolValue];
+                if (traceRoomCode && !strongSelf->_automatedNetplayRoomCodeReported &&
+                    roomCode.length > 0) {
+                    strongSelf->_automatedNetplayRoomCodeReported = YES;
+                    MeleePadLog(@"netplay automation room code=%@", roomCode);
+                }
+                if ([snapshot[@"role"] isEqualToString:@"host"] &&
+                    [snapshot[@"canStart"] boolValue] &&
+                    !strongSelf->_automatedNetplayStartRequested) {
+                    strongSelf->_automatedNetplayStartRequested = YES;
+                    MeleePadLog(@"netplay automation starting synchronized match");
+                    [strongSelf->_coreHost requestNetplayStart];
+                }
+            }
             if (lobby == nil)
                 return;
             NSString *error = snapshot[@"error"];
@@ -1144,6 +1235,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
                        bufferFrames:[snapshot[@"buffer"] unsignedIntegerValue]
                     automaticBuffer:[snapshot[@"automaticBuffer"] boolValue]
                            canStart:[snapshot[@"canStart"] boolValue]
+                           roomCode:snapshot[@"roomCode"]
                              status:snapshot[@"status"]];
         }];
     });
@@ -1153,6 +1245,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 - (void)onlinePlayViewController:(MeleePadOnlinePlayViewController *)controller
                      requestsHostWithNickname:(NSString *)nickname
                                          port:(uint16_t)port
+                                 internetRoom:(BOOL)internetRoom
                               automaticBuffer:(BOOL)automaticBuffer
                                  bufferFrames:(NSUInteger)bufferFrames {
     if (_coreHost == nil) {
@@ -1163,6 +1256,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     [controller showConnectingWithMessage:@"Creating lobby…"];
     __weak MeleePadGameViewController *weakSelf = self;
     [_coreHost beginNetplayHostingWithNickname:nickname port:port
+                                usingTraversal:internetRoom
                                automaticBuffer:automaticBuffer
                                   bufferFrames:bufferFrames
                                     completion:^(NSString *error) {
@@ -1178,6 +1272,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
                      requestsJoinWithNickname:(NSString *)nickname
                                       address:(NSString *)address
                                          port:(uint16_t)port
+                                 internetRoom:(BOOL)internetRoom
                               automaticBuffer:(BOOL)automaticBuffer
                                  bufferFrames:(NSUInteger)bufferFrames {
     if (_coreHost == nil) {
@@ -1188,6 +1283,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     [controller showConnectingWithMessage:@"Connecting to host…"];
     __weak MeleePadGameViewController *weakSelf = self;
     [_coreHost beginNetplayJoiningAddress:address nickname:nickname port:port
+                           usingTraversal:internetRoom
                           automaticBuffer:automaticBuffer
                              bufferFrames:bufferFrames
                                completion:^(NSString *error) {

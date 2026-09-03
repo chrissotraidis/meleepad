@@ -7,6 +7,8 @@ OVERLAY_HEADER="$ROOT/apple/ios/MeleePadGameOverlay.h"
 CONTROLLER="$ROOT/apple/ios/MeleePadGameViewController.mm"
 LOBBY="$ROOT/apple/ios/MeleePadOnlinePlayViewController.mm"
 LOBBY_HEADER="$ROOT/apple/ios/MeleePadOnlinePlayViewController.h"
+PUBLIC_CLIENT="$ROOT/apple/ios/MeleePadPublicLobbyClient.m"
+PUBLIC_CLIENT_HEADER="$ROOT/apple/ios/MeleePadPublicLobbyClient.h"
 PROJECT="$ROOT/MeleePad.xcodeproj/project.pbxproj"
 CORE="$ROOT/apple/ios/MeleePadCoreHost.mm"
 CORE_HEADER="$ROOT/apple/ios/MeleePadCoreHost.h"
@@ -14,7 +16,7 @@ BUILD_CORE="$ROOT/scripts/ios-build-core.sh"
 PROVISION="$ROOT/scripts/ios-provision.sh"
 INFO="$ROOT/apple/ios/Info.plist"
 
-for file in "$LOBBY" "$LOBBY_HEADER"; do
+for file in "$LOBBY" "$LOBBY_HEADER" "$PUBLIC_CLIENT" "$PUBLIC_CLIENT_HEADER"; do
   [[ -f "$file" ]] || {
     echo "native Online Play lobby is missing: $file" >&2
     exit 1
@@ -39,19 +41,25 @@ for contract in \
 done
 
 for contract in \
-  '@"Experimental Multiplayer"' \
-  '@"Direct Peer Connection"' \
-  'Each device runs the same Melee match locally and exchanges controller input' \
-  'There are no room codes or matchmaking servers yet' \
-  'complete matches are not yet reliable.' \
+  '@"Online Play"' \
+  '@"Play MeleePad Together"' \
+  '@"Public Games"' \
+  '@"Private Room"' \
+  'eight-character room code' \
+  '@"Direct IP"' \
+  'address = address.lowercaseString' \
+  'hexadecimal characters' \
   '@"Host"' \
   '@"Join"' \
   '@"Nickname"' \
   '@"Host IP or hostname"' \
   '@"UDP port (default 2626)"' \
-  "2626 is Dolphin's standard direct-NetPlay UDP port, not a server address." \
+  "Dolphin's public traversal service" \
   '@"Automatic input buffer"' \
   '@"Players"' \
+  '@"Quick chat"' \
+  '@"Hide Player"' \
+  '@"Report Offensive Name"' \
   'Compatibility: %@' \
   '@"Ready"' \
   '@"Start Match"' \
@@ -66,10 +74,25 @@ fi
 
 grep -Fq 'MeleePadOnlinePlayViewController.mm in Sources' "$PROJECT"
 grep -Fq 'MeleePadOnlinePlayViewController.h' "$PROJECT"
+grep -Fq 'MeleePadPublicLobbyClient.m in Sources' "$PROJECT"
+grep -Fq 'MeleePadPublicLobbyClient.h' "$PROJECT"
+
+for contract in \
+  'moderngekko-netplay-8' \
+  'MELEEPAD_LOBBY_BASE_URL' \
+  'ephemeralSessionConfiguration' \
+  'HTTPCookieAcceptPolicyNever' \
+  'https' \
+  '127.0.0.1' \
+  '/v1/rooms' \
+  'traversal_code'; do
+  grep -Fq "$contract" "$PUBLIC_CLIENT"
+done
 
 for contract in \
   'beginNetplayHostingWithNickname:' \
   'beginNetplayJoiningAddress:' \
+  'usingTraversal:' \
   'pollNetplayWithCompletion:' \
   'setNetplayReady:' \
   'requestNetplayStart' \
@@ -90,6 +113,10 @@ grep -Fq 'MODERNGEKKO_GAMECUBE_CONTROLLERS=ON' "$BUILD_CORE"
 grep -Fq '<key>NSLocalNetworkUsageDescription</key>' "$INFO"
 if grep -Fq 'native session bridge is not connected' "$CONTROLLER"; then
   echo "Online Play still exposes the disconnected bridge placeholder" >&2
+  exit 1
+fi
+if grep -Fq 'There are no room codes or matchmaking servers yet' "$LOBBY"; then
+  echo "Online Play still claims Internet rooms do not exist" >&2
   exit 1
 fi
 

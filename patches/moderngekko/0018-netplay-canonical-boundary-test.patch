@@ -23,6 +23,7 @@ diff --git a/tests/netplay_protocol_test.cpp b/tests/netplay_protocol_test.cpp
 +      .paired_state_hash = 4,
 +      .ram_hash = 5,
 +  };
++  canonical.ram_region_hashes.fill(6);
 +  if (!NetPlay::CanonicalStateMatches(canonical, canonical))
 +    return 20;
 +  auto changed = canonical;
@@ -45,6 +46,15 @@ diff --git a/tests/netplay_protocol_test.cpp b/tests/netplay_protocol_test.cpp
 +  changed.ram_hash ^= 1;
 +  if (NetPlay::CanonicalStateMatches(canonical, changed))
 +    return 25;
++  changed = canonical;
++  changed.ram_region_hashes[3] ^= 1;
++  if (NetPlay::CanonicalStateMatches(canonical, changed))
++    return 26;
++  if (NetPlay::CanonicalRamFirstDifferingRegion(canonical, changed) != 3)
++    return 27;
++  if (NetPlay::CanonicalRamFirstDifferingRegion(canonical, canonical) !=
++      NetPlay::CANONICAL_RAM_REGION_COUNT)
++    return 28;
 +
    moderngekko::GameMetadata metadata;
    metadata.disc_id = "TEST01";

@@ -35,8 +35,10 @@ tests/test-game-data-setup.sh
 tests/test-ios-audio-diagnostics.sh
 tests/test-ios-external-pipe-input.sh
 tests/test-ios-online-play-lobby.sh
+tests/test-public-lobby.sh
 tests/test-netplay-timebase-telemetry.sh
 tests/test-netplay-canonical-boundary.sh
+tests/test-netplay-internet-rooms.sh
 tests/test-cross-platform-idle-policy.sh
 tests/test-static-recomp-loop-hoists.sh
 tests/test-frame-workload-attribution.sh

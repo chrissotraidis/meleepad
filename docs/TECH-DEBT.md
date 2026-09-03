@@ -257,13 +257,14 @@ uncertainty. The iPhone/iPad app already links ENet/SFML and already publishes
 touch/controller state through the GameCube pipe that netplay polls. Dolphin's
 CC0 traversal server and eight-character room-code protocol are also present.
 
-The current iOS form is now labeled **Experimental Multiplayer** and explains
-its actual boundary: there are no MeleePad matchmaking servers or room codes,
-one player hosts a direct peer connection, and same-LAN or private-VPN testing
-is the practical starting point. Complete matches remain unreliable. Direct IP
-does not remove Internet NAT work; a broadly usable peer-to-peer flow still
-needs traversal and possibly relay infrastructure, plus the determinism gates
-below. Do not market the current form as finished online multiplayer.
+The unreleased iOS candidate now offers a real Internet Room path backed by
+Dolphin's live public traversal service, with Direct IP retained for advanced
+use. Both Mac/iPad Simulator host directions create/resolve codes and sustain
+synchronized execution. This proves feasibility, not a finished beta: public
+service support is not controlled by MeleePad, complete physical-device matches
+and real outside-network NAT behavior remain unmeasured, and strict NAT may
+still require relay or a narrower scope. Do not market the current form as
+finished online multiplayer.
 
 The first defect is now closed by canonical outer patches: the pre-fix
 GameCube assertion failed with exit `19`, while the candidate passes explicit
