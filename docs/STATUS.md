@@ -1,6 +1,6 @@
 # ssbmpad status
 
-## 2026-09-02 — G9 B1 canonical-boundary candidate is partial
+## 2026-09-02 — G9 B1 canonical comparator matches live combat
 
 The first B1 candidate now captures exact netplay state at SsbmPad's symmetric
 caller-qualified guest idle boundary rather than at the asynchronous Pixel
@@ -11,13 +11,16 @@ callback fields as context, and the packet protocol is bumped to version 7.
 
 Fail-first/source contracts, injected integer/FPR/paired/timebase/RAM mismatch
 checks, protocol/session tests, patch replay, a rebuilt iOS core, and a Release
-iPad Simulator link pass. A fresh isolated two-Mac control synchronized through
-opening, title, menus, and two-human VS character select with independent
-input and no error. It did not complete character/stage selection or combat,
-so no canonical pair record was reached and B1 remains PARTIAL. Next obtain an
-interpretable same-Mac combat record, then run iPad-host/Mac-join and reverse
-host. See
-`docs/artifacts/2026-09-02/g9-canonical-boundary-candidate.md`.
+iPad Simulator link pass. A fresh isolated two-Mac control then reached live
+Mario/Bowser Fountain combat with independent input and emitted four exact
+canonical matches with no mismatch, unpaired record, desync, or crash.
+
+The rerun also found and gated a stale macOS package resource: the package
+test now requires the current main idle PC plus caller-qualified PC/LR instead
+of accepting the obsolete idle-only setting. B1 remains PARTIAL until two
+consecutive five-minute Mac/iPad matches pass in both host directions with
+results and rematch. See
+`docs/artifacts/2026-09-02/g9-canonical-boundary-live-control.md`.
 
 ## 2026-09-02 — G9 beta product loop replaces the direct-IP staging plan
 

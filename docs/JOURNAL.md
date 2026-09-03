@@ -6136,3 +6136,21 @@ Append-only execution ledger. Claims are limited to observed evidence.
   Play.
 - Evidence:
   `docs/artifacts/2026-09-02/g9-canonical-boundary-candidate.md`.
+
+## 2026-09-02 — NET-296 live canonical control and package gate
+
+- Repair the paired route's menu lockout by using an analog VS selection and
+  twelve-second dual-emulator transition waits; focused controller tests pass.
+- Find that the isolated wrapper copied an obsolete idle-only `GALE01r0.ini`,
+  leaving the compiled comparator unarmed. Make the macOS package regression
+  require main idle `0x80348814` plus caller `0x80019550/0x801A4064`.
+- Re-run two isolated endpoints with those settings. Both report the canonical
+  caller boundary, accept independent P1/P2 input, and enter Mario/Bowser
+  Fountain combat.
+- Retain four exact canonical matches (sequences 598200, 946800, 958800, and
+  982200) with no mismatch, unpaired record, desync, or crash.
+- Decision: accept the comparator for cross-platform testing, keep B1 PARTIAL,
+  and proceed to iPad-host/Mac-join then reverse-host five-minute matches. Do
+  not weaken exact comparison or begin room-code UI work.
+- Evidence:
+  `docs/artifacts/2026-09-02/g9-canonical-boundary-live-control.md`.

@@ -293,6 +293,14 @@ First experiment:
 
 No room service or consumer UI work may conceal a B1 failure.
 
+**Current status: PARTIAL.** The corrected two-Mac control reached live
+Fountain combat and emitted four exact canonical matches with no mismatch,
+unpaired record, desync, or crash. The package gate now rejects stale builds
+without the caller-qualified boundary settings. Continue with iPad-host/Mac-
+join and reverse-host; the two consecutive five-minute results/rematch gate is
+unchanged. See
+`docs/artifacts/2026-09-02/g9-canonical-boundary-live-control.md`.
+
 ### B2 — Session and lifecycle resilience
 
 Pass host/join/start/match/stop twice in one process plus: cancel while
