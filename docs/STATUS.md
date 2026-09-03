@@ -22,6 +22,14 @@ consecutive five-minute Mac/iPad matches pass in both host directions with
 results and rematch. See
 `docs/artifacts/2026-09-02/g9-canonical-boundary-live-control.md`.
 
+The first current Release iPad-host/Mac-join run then reproduced a clean
+fail-closed stop at frame 120. Diagnostic status retention and a compact
+component summary classify canonical sequence 6780 as
+`differences=timebase,ram`; PC and all CPU hash families match. Next subdivide
+the sparse MEM1 digest to locate the first differing guest region, without
+tolerance or timing changes. See
+`docs/artifacts/2026-09-02/g9-cross-platform-canonical-classification.md`.
+
 ## 2026-09-02 — G9 beta product loop replaces the direct-IP staging plan
 
 The native Online Play form is correctly reclassified as a Direct Connection

@@ -1,0 +1,31 @@
+diff --git a/Source/Core/Core/NetPlay/NetPlayServer.cpp b/Source/Core/Core/NetPlay/NetPlayServer.cpp
+--- a/Source/Core/Core/NetPlay/NetPlayServer.cpp
++++ b/Source/Core/Core/NetPlay/NetPlayServer.cpp
+@@ -1163,8 +1163,25 @@ unsigned int NetPlayServer::OnData(sf::Packet& packet, Client& player)
+       {
+         // This replaces the legacy "netplay-timebase frame=" decision, whose
+         // host-callback sample was not a shared emulated boundary.
+-        std::string mismatch =
+-            "netplay-canonical sequence=" + std::to_string(canonical.sequence);
++        const CanonicalStateSnapshot& reference = timebases[0].canonical;
++        std::string differences;
++        const auto add_difference = [&](std::string_view name, bool differs) {
++          if (!differs)
++            return;
++          if (!differences.empty())
++            differences += ',';
++          differences += name;
++        };
++        add_difference("pc", canonical.guest_pc != reference.guest_pc);
++        add_difference("timebase", canonical.timebase != reference.timebase);
++        add_difference("state", canonical.state_hash != reference.state_hash);
++        add_difference("integer", canonical.integer_state_hash != reference.integer_state_hash);
++        add_difference("fpr", canonical.fpr_state_hash != reference.fpr_state_hash);
++        add_difference("paired", canonical.paired_state_hash != reference.paired_state_hash);
++        add_difference("ram", canonical.ram_hash != reference.ram_hash);
++        std::string mismatch = "netplay-canonical sequence=" +
++                               std::to_string(canonical.sequence) +
++                               " differences=" + differences;
+         for (const TimeBaseRecord& record : timebases)
+         {
+           mismatch += " pid=" + std::to_string(record.pid) +

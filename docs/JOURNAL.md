@@ -6154,3 +6154,21 @@ Append-only execution ledger. Claims are limited to observed evidence.
   not weaken exact comparison or begin room-code UI work.
 - Evidence:
   `docs/artifacts/2026-09-02/g9-canonical-boundary-live-control.md`.
+
+## 2026-09-02 — NET-297 cross-platform canonical classification
+
+- Reject a stale installed Release whose UI still predates the B0 truth reset;
+  rebuild, reinstall, and visibly confirm Direct Connection Preview.
+- Run iPad-host/Mac-join at 0–1 ms with matching compatibility, GC 1/GC 2,
+  both ready, and synchronized DOL start. Reproduce a clean stop at frame 120.
+- Add ModernGekko patch 0019 so `netplay-canonical` history survives the
+  generic desync callback. Add Dolphin patch 0045 so the component list appears
+  before verbose peer records and remains visible through accessibility.
+- Rebuild the iOS core and Release app and reproduce sequence 6780 with
+  `differences=timebase,ram`. PC, integer, FPR, paired-single/FPSCR, and
+  combined CPU hashes match at the first classified failure.
+- Decision: keep B1 PARTIAL and exact. Next add bounded hierarchical MEM1
+  hashes plus a signed timebase delta; do not add tolerance or start room-code
+  work.
+- Evidence:
+  `docs/artifacts/2026-09-02/g9-cross-platform-canonical-classification.md`.

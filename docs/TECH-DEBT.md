@@ -283,6 +283,15 @@ candidate yet: two consecutive five-minute Mac/iPad matches, results, rematch,
 and both host directions remain open. If cross-platform records differ, use
 the named component rather than restoring live-PC tolerance.
 
+The current iPad-host/Mac-join candidate does differ at canonical sequence
+6780/frame 120, but only in emulated timebase and the sparse MEM1 digest; PC,
+integer, FPR, paired-single/FPSCR, and combined CPU hashes match. Patches
+0019/0045 preserve that classification in the native error instead of losing
+it behind the generic desync message. The RAM hash is still aggregate and
+cannot distinguish gameplay state from presentation/audio or nondeterministic
+scratch memory. Add bounded hierarchical MEM1 hashes and a signed timebase
+delta next; exclude a range only after the hierarchy proves it is irrelevant.
+
 The same-M1 two-process NL3 run was commonly 12-21 FPS during final combat;
 zero network wait separates that host-emulation contention from network delay.
 The latest cross-platform fingerprint run showed roughly 39–41 FPS on the iPad
