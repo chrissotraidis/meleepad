@@ -116,12 +116,14 @@ extracts the data required by the runtime. The game data stays on your device.
 
 ### How do I install it?
 
-Preview 1 is published as a source release. There is no App Store or TestFlight
-build. A playable iPhone or iPad app must be built locally because its ARM64
-game module is generated from the user's own supported disc image and is not a
-redistributable repository or release asset. Developers can build it on an
-Apple Silicon Mac with Xcode and sign it using their own Apple development
-account. Start with the [requirements](#requirements), follow the
+Preview 1 is published as
+[a source release](https://github.com/chrissotraidis/meleepad/releases/tag/v0.1.0-preview.1).
+There is no App Store or TestFlight build. A playable iPhone or iPad app must be
+built locally because its ARM64 game module is generated from the user's own
+supported disc image and is not a redistributable repository or release asset.
+Developers can build it on an Apple Silicon Mac with Xcode and sign it using
+their own Apple development account. Start with the
+[requirements](#requirements), follow the
 [physical-device build steps](#build-for-a-physical-iphone-or-ipad), and then
 complete [first-launch game-data import](#first-launch-on-iphone-or-ipad).
 
