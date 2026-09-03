@@ -1,4 +1,9 @@
-# SsbmPad Online Play goal-based loop
+# SsbmPad Online Play goal-based loop (superseded)
+
+> The active, beta-complete loop is
+> [`NETPLAY-BETA-GOAL-LOOP.md`](NETPLAY-BETA-GOAL-LOOP.md). This file is retained
+> as the original engineering sequence and historical gate record. Do not use
+> its deferred-room-code ordering as the product plan.
 
 Status: active
 

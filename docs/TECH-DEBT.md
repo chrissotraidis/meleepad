@@ -256,10 +256,23 @@ Dolphin's stop decision. Remaining product debt is Mac-host/mobile-join, every
 exact failure family, host/client loss, background teardown, repeated
 open/cancel, iPhone interaction/layout, and a decision on whether the
 initialization delay needs a warmer boundary.
-NL5 then requires a complete Mac/iPadOS Simulator touch-controlled match. Only
-after that should the project deploy a private SsbmPad traversal service and
-pursue room-code, physical-device, NAT, lifecycle, privacy, security, and
-reliability acceptance.
+The product staging above is superseded by
+`docs/NETPLAY-BETA-GOAL-LOOP.md`. The direct-address form is a Preview, not the
+beta. B1 first requires a canonical same-boundary CPU/RAM comparison and two
+complete Mac/iPad direct matches. B2 closes lifecycle/error resilience. B3
+then integrates the pinned traversal client/server as a local room-code
+vertical slice, and B4 replaces the engineering form with the complete native
+Host a Game / Join a Game / room lobby flow. Operated service, physical-device,
+NAT, security/privacy, and release gates follow without deferring their product
+contracts.
+
+Do not select a static semantic fix from the current different-live-PC record
+alone. `SendTimeBase()` runs from the CPU-thread Pixel Engine finish event, not
+the Video Interface field callback, and the fingerprint reads the live static
+guest at a native dispatch boundary. First create a
+canonical boundary record and prove whether CPU state or selected RAM actually
+diverges. The comparator must still reject deliberately injected mismatch
+families; no tolerance may hide a real error.
 
 The same-M1 two-process NL3 run was commonly 12-21 FPS during final combat;
 zero network wait separates that host-emulation contention from network delay.

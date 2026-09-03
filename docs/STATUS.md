@@ -1,5 +1,21 @@
 # ssbmpad status
 
+## 2026-09-02 — G9 beta product loop replaces the direct-IP staging plan
+
+The native Online Play form is correctly reclassified as a Direct Connection
+Preview, not a beta. The active product loop now makes private room codes the
+primary experience, moves addresses/ports under Advanced, specifies the full
+host/join/lobby/match/failure/lifecycle UX, and gates service operations, NAT
+success, privacy/security, physical devices, and claim language.
+
+B0 passes as a contract/truth reset. B1 is current: establish canonical
+same-boundary CPU/RAM comparison and complete two direct five-minute Mac/iPad
+matches before adding a consumer room UI. The existing live-PC fingerprint is
+sampled from a CPU-thread PE-finish callback and is not yet canonical state
+proof. See
+`docs/NETPLAY-BETA-GOAL-LOOP.md` and
+`docs/artifacts/2026-09-02/g9-beta-loop-reorientation.md`.
+
 ## 2026-09-02 — G8 observer-induced sub-55 interval reversed
 
 An unchanged ordinary Release emitted one 54.2 FPS / 54.3 VPS / 0.917-speed

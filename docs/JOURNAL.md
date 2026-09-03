@@ -6083,3 +6083,32 @@ Append-only execution ledger. Claims are limited to observed evidence.
   amplification.
 - Evidence:
   `docs/artifacts/2026-09-02/g8-computer-use-audio-overload-reversal.md`.
+
+## 2026-09-02 — NET-294 Online Play beta-loop reset
+
+- Review the actual iPad form, headless session, direct two-Mac pass, failed
+  Mac/iPad pair, pinned traversal source, and existing feasibility design.
+- Reject the current product framing: a direct-address form that says room
+  codes arrive later is an engineering preview, not a friends beta.
+- Identify a verification weakness before another semantic change: the added
+  PC/register fingerprint is read live at a native dispatch boundary when
+  `SendTimeBase()` is called from the CPU-thread Pixel Engine finish event, not
+  the Video Interface field callback. Different live PCs therefore need
+  canonical same-boundary CPU/RAM evidence before being classified as
+  deterministic divergence.
+- Add `NETPLAY-BETA-GOAL-LOOP.md` with a concrete consumer flow, serialized
+  state/ownership model, traversal service boundary, NAT/security/privacy
+  decisions, B0-B10 gates, sixteen-row matrix, evidence rules, and beta claim.
+- Relabel the current native sheet `Direct Connection Preview` with `Advanced
+  Direct Connection`, explicitly state that room-code play is unavailable in
+  this build, and add a regression rejecting the old deferred-goal copy. Do not
+  add fake room actions.
+- Build the Release iPad Simulator target, install the exact executable, and
+  visibly verify the title, heading, truth copy, and existing direct controls.
+  Retain executable SHA-256
+  `935e30ec3577719c1c2f9fc404c287b593dab3959de736a134c6ee58de8466dc`;
+  keep the live-game screenshot outside Git.
+- Decision: B0 passes. Begin B1 canonical Mac/mobile determinism; do not expose
+  fake room actions or weaken desync checks. The user explicitly reprioritized
+  isolated netplay work while the G8 human gate awaits manual input.
+- Evidence: `docs/artifacts/2026-09-02/g9-beta-loop-reorientation.md`.

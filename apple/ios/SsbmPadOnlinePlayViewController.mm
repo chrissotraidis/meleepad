@@ -25,7 +25,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.title = @"Online Play";
+    self.title = @"Direct Connection Preview";
     self.view.backgroundColor = [UIColor colorWithRed:0.035 green:0.055 blue:0.10 alpha:1.0];
 
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc]
@@ -33,12 +33,12 @@
                target:self action:@selector(cancel:)];
 
     UILabel *intro = [UILabel new];
-    intro.text = @"Play directly with a friend";
+    intro.text = @"Advanced Direct Connection";
     intro.textColor = UIColor.whiteColor;
     intro.font = [UIFont systemFontOfSize:24.0 weight:UIFontWeightBold];
 
     UILabel *detail = [UILabel new];
-    detail.text = @"Use the same game revision and SsbmPad build. Room codes arrive in a later goal; this screen currently uses direct host addresses.";
+    detail.text = @"Developer preview for compatible SsbmPad builds. Host or join with a direct address. Room-code Online Play is not available in this build yet.";
     detail.textColor = [UIColor colorWithWhite:0.82 alpha:1.0];
     detail.font = [UIFont systemFontOfSize:14.0 weight:UIFontWeightRegular];
     detail.numberOfLines = 0;

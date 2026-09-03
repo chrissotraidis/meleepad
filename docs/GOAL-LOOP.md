@@ -15,7 +15,15 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 - **G6. Simulator core boots.** iPad Simulator, then iPhone Simulator, boot to gameplay with the no-JIT/interpreter/software-vertex-loader configuration. (PRD D3)
 - **G7. Shell ported.** SunPad touch overlay + menu + diagnostics + settings running as ssbmpad in the iPad Simulator, driving gameplay. (PRD D4)
 - **G8. Test matrix green.** All 15 rows in PRD Section 10, with evidence. (PRD D5, D6)
-- **G9. Netplay working.** The ssbmpad shell exposes native Online Play with Host and Join; two isolated instances complete a synchronized match without desync, with at least one endpoint running iPadOS. Retain connection, gameplay, completion, and diagnostic evidence. A macOS-only connection smoke test does not meet this goal. The public mobile-online claim additionally requires physical iPhone/iPad and real-internet evidence. Execute `docs/NETPLAY-GOAL-LOOP.md` NL0 through NL8 and use `docs/NETPLAY-FEASIBILITY.md` as the design; do not call dormant launcher buttons a feature.
+- **G9. Netplay working.** The ssbmpad shell exposes native Online Play with
+  Friends; two isolated instances complete synchronized matches without desync,
+  with at least one endpoint running iPadOS. Retain connection, gameplay,
+  completion, and diagnostic evidence. A macOS-only connection smoke test does
+  not meet this goal. The public beta additionally requires room-code
+  traversal, physical iPhone/iPad, real-internet, lifecycle, NAT, privacy, and
+  operational evidence. Execute `docs/NETPLAY-BETA-GOAL-LOOP.md` B0 through B10
+  and use `docs/NETPLAY-FEASIBILITY.md` as the architecture; do not call the
+  direct-address preview or dormant room buttons a beta.
 
 G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance. If you are stuck on G5, the loop below still applies: measure, research, change one thing, re-measure.
 

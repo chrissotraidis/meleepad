@@ -39,6 +39,9 @@ for contract in \
 done
 
 for contract in \
+  '@"Direct Connection Preview"' \
+  '@"Advanced Direct Connection"' \
+  'Room-code Online Play is not available in this build yet.' \
   '@"Host"' \
   '@"Join"' \
   '@"Nickname"' \
@@ -52,6 +55,11 @@ for contract in \
   '@"Cancel"'; do
   grep -Fq "$contract" "$LOBBY"
 done
+
+if grep -Fq 'Room codes arrive in a later goal' "$LOBBY"; then
+  echo "Online Play still exposes deferred-goal placeholder copy" >&2
+  exit 1
+fi
 
 grep -Fq 'SsbmPadOnlinePlayViewController.mm in Sources' "$PROJECT"
 grep -Fq 'SsbmPadOnlinePlayViewController.h' "$PROJECT"
