@@ -22,22 +22,120 @@ universal performance guarantee.*
 > or TestFlight, and online play is not yet reliable between Apple platforms.
 > You must build the app from source and supply your own supported game image.
 
-## About MeleePad
+## How MeleePad works
 
-MeleePad combines a
-[DolRecomp-generated](https://github.com/encounter/dolrecomp) GALE01 game module
-with a ModernGekko/Dolphin-derived compatibility runtime. Covered PowerPC code
-runs as ahead-of-time-compiled Apple ARM64 code, while Dolphin's Metal backend
-renders into native Apple app surfaces.
+MeleePad does not depend on a completed source-code decompilation of Melee.
+Instead, it uses **static recompilation**: translating the original game's
+compiled PowerPC instructions into code that can be compiled for a different
+processor before the app runs.
 
-The iPhone and iPad app imports a user-supplied game image from Files and
-provides customizable touch controls plus Apple GameController support. The
-macOS app provides a native launcher, Metal rendering, keyboard and controller
-input, local settings, and developer-facing netplay controls.
+The build pipeline works in five stages:
 
-This repository contains Apple-platform integration, source patches, tests,
-and reproducible build tooling. It does **not** contain Melee, a disc image,
-extracted Nintendo assets, saves, signing material, or a generated game module.
+1. You provide your own supported `GALE01` revision 0 disc image locally.
+2. The tooling verifies that exact image and extracts its executable and game
+   data. Nothing is downloaded from Nintendo or committed to this repository.
+3. [DolRecomp](https://github.com/ExpansionPak/DolRecomp) reads the GameCube
+   executable, decodes its PowerPC instructions, and emits portable C in
+   manageable generated chunks.
+4. Apple Clang compiles those generated chunks ahead of time into an ARM64 game
+   module. The iPhone or iPad does not translate that code while you play.
+5. [ModernGekko](https://github.com/ExpansionPak/ModernGekko), built on a
+   Dolphin-derived runtime, supplies the console environment around that code:
+   memory, timing, disc access, graphics, audio, and controller interfaces.
+   MeleePad connects that runtime to UIKit, Metal, Apple audio, touch controls,
+   and GameController.
+
+The result is a native ARM64 Apple app running ahead-of-time-compiled game code.
+Static recompilation replaces the runtime CPU translation layer; the
+Dolphin-derived compatibility layer still models the GameCube hardware and
+services the game expects. This is therefore most accurately described as a
+**native static-recompilation compatibility port**, not a traditional
+source-code port and not a stock Dolphin frontend.
+
+The iPhone and iPad app imports a user-supplied game image from Files. The macOS
+app provides a native launcher, Metal rendering, keyboard and controller input,
+local settings, and developer-facing netplay controls. This repository contains
+the Apple integration, source patches, tests, and reproducible build tooling.
+It does **not** contain Melee, a disc image, extracted Nintendo assets, saves,
+signing material, or a generated game module.
+
+## Frequently asked questions
+
+### Is this possible without a completed Melee decompilation?
+
+Yes. A traditional decompilation project reconstructs human-readable source
+code and data structures from a compiled game. Static recompilation solves a
+different problem: DolRecomp converts the existing PowerPC machine instructions
+into generated code that a modern compiler can turn into ARM64 instructions.
+That makes execution on a new CPU possible without claiming to have recovered
+the game's original source code.
+
+### Is MeleePad truly native on iPhone and iPad?
+
+Yes, in the platform and execution sense. The installed app and generated game
+module are ARM64 binaries, rendering uses Metal, and the app uses native Apple
+interfaces for its window, touch controls, controllers, audio lifecycle, file
+import, and settings. It does not require a just-in-time compiler or a browser.
+
+“Native” does not mean that every part of the GameCube was rewritten by hand.
+MeleePad still needs a compatibility runtime to provide the hardware behavior
+the recompiled game expects. Calling it a native static-recompilation port makes
+both parts of the architecture clear.
+
+### Is this an emulator?
+
+It shares substantial runtime technology with Dolphin, particularly for the
+GameCube memory model, graphics, audio, input, and operating-system services.
+The major difference is CPU execution: covered Melee PowerPC code is translated
+and compiled ahead of time instead of being handled by Dolphin's normal runtime
+CPU emulation or JIT path. It is best understood as a game-specific static
+recompilation joined to a Dolphin-derived compatibility runtime.
+
+### Does MeleePad need JIT or special runtime permissions?
+
+No. The game module is compiled to ARM64 before installation, so normal gameplay
+does not generate executable code on the device. A locally signed build still
+needs ordinary Apple development provisioning, just like other apps installed
+from Xcode.
+
+### Why does MeleePad require an exact disc revision?
+
+Static recompilation depends on the executable's exact instruction layout,
+addresses, and data. Even another legitimate regional or revision build can
+differ at those locations. MeleePad currently validates and supports only the
+USA `GALE01` revision 0 image used to generate and test this module.
+
+### Does the repository or app include Melee?
+
+No. The repository contains no game image, extracted game assets, saves, or
+generated game module. On first launch, you select your own supported image.
+MeleePad validates it, retains a private local copy in the app container, and
+extracts the data required by the runtime. The game data stays on your device.
+
+### How do I install it?
+
+There is no public App Store, TestFlight, or downloadable binary release yet.
+Developers can build it from source on an Apple Silicon Mac with Xcode and sign
+the iPhone or iPad build using their own Apple development account. Start with
+the [requirements](#requirements), follow the
+[physical-device build steps](#build-for-a-physical-iphone-or-ipad), and then
+complete [first-launch game-data import](#first-launch-on-iphone-or-ipad).
+
+### Does multiplayer work?
+
+Not reliably across Apple platforms yet. One direct two-Mac match has completed,
+but Mac/iPad sessions currently stop at a synchronization safety check. Room
+codes, traversal, relay, public matchmaking, and a consumer-ready online flow
+are not implemented. The [Experimental multiplayer](#experimental-multiplayer)
+section explains exactly what exists and what remains.
+
+### What works on physical hardware today?
+
+The game launches and plays on a physical iPad with Metal rendering, touch
+controls, supported physical controllers, persistent game data and saves, and
+the native settings menu. Observed solo play has repeatedly held close to 60
+FPS at 2x resolution. Serious water, reflection, and shadow rendering defects
+remain, and the complete device acceptance matrix is still in progress.
 
 ## Current status
 
@@ -99,10 +197,31 @@ xcodebuild -project MeleePad.xcodeproj -scheme MeleePad \
   CODE_SIGNING_ALLOWED=NO build
 ```
 
-A physical iPhone or iPad build also requires your own Apple development
-signing configuration. Generated sources, extracted game data, app packages,
-profiles, saves, and locally recompiled modules are ignored and must not be
-committed.
+### Build for a physical iPhone or iPad
+
+First build the device core and locally generated game module:
+
+```sh
+./scripts/ios-build-core-device.sh
+open MeleePad.xcodeproj
+```
+
+Then, in Xcode:
+
+1. Select the **MeleePad** target and open **Signing & Capabilities**.
+2. Select your Apple development team. If Xcode reports that the bundle
+   identifier is unavailable, change it to a unique reverse-DNS identifier
+   owned by your team.
+3. Connect and unlock the iPhone or iPad, enable Developer Mode if required,
+   and select that device as the run destination.
+4. Choose **Product → Run** to build, sign, install, and launch MeleePad.
+
+Keep the same bundle identifier for later updates if you want iOS to preserve
+the app's private game data, saves, controller settings, and preferences.
+Changing the identifier creates a separate app container.
+
+Generated sources, extracted game data, app packages, profiles, saves, and
+locally recompiled modules are ignored and must not be committed.
 
 ## First launch on iPhone or iPad
 
