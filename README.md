@@ -205,7 +205,7 @@ the exact boundary.
 
 Not yet. Melee supports four local controller ports, but MeleePad's retained
 online evidence covers two connected endpoints. Four-player rooms need explicit
-protocol, controller-slot, host-migration, disconnect, latency, lobby, and
+protocol, controller-slot, host-loss, disconnect, latency, lobby, and
 physical-device testing before they can be offered or claimed.
 
 The planned public-room design should show four seats and allow a host to set a
