@@ -14,7 +14,7 @@ late Dolphin submission, and display-side deferral.
 
 All runs used the same arm64 PGO runner module (`bd0893031a28e94b...af26f5a`),
 Metal, Cubeb, the same Fountain savestate, and zero interpreter fallbacks.
-`SSBMPAD_METAL_FORCE_DISPLAY_SYNC=1` changed only
+`MELEEPAD_METAL_FORCE_DISPLAY_SYNC=1` changed only
 `CAMetalLayer.displaySyncEnabled`; Dolphin VSync, CPU `SleepUntil`, and the
 scheduled-handler presentation path remained unchanged. The actual-time logger
 and override were default-off diagnostics in a disposable signed app. No ROM,
@@ -90,7 +90,7 @@ combined CPU-GPU/presenter thread reached Metal late.
 The diagnostic logger and environment override were then stripped. Two
 reproducible patches add an opt-in ModernGekko macOS policy and force only the
 Metal layer's `displaySyncEnabled` property; `package-macos-app.sh` enables the
-policy for SsbmPad. The package regression failed against the old canonical
+policy for MeleePad. The package regression failed against the old canonical
 runner, then passed after rebuilding. The rebuilt arm64 app is strictly
 ad-hoc signed, its runner SHA-256 is
 `93ebc4626307486602ed4525276ea9ed2c309b13c9a7805257981d3616563cd5`,

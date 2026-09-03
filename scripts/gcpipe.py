@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Drive SsbmPad's GameCube controller through ModernGekko's FIFO backend."""
+"""Drive MeleePad's GameCube controller through ModernGekko's FIFO backend."""
 
 from __future__ import annotations
 
@@ -14,13 +14,13 @@ from pathlib import Path
 
 
 DEFAULT_PIPE = (
-    Path.home() / "Library/Application Support/SsbmPad/Pipes/ssbmpad"
+    Path.home() / "Library/Application Support/MeleePad/Pipes/meleepad"
 )
 
 
 def default_pipe_path(memory_user_dir: Path | None = None) -> Path:
     if memory_user_dir is not None:
-        return memory_user_dir / "Pipes/ssbmpad"
+        return memory_user_dir / "Pipes/meleepad"
     return DEFAULT_PIPE
 
 

@@ -20,7 +20,7 @@ Metal attribution. It recorded:
 - callback registration time; and
 - `MTLDrawable.presentedTime` supplied by the display path.
 
-The hook activated only when `SSBMPAD_METAL_PRESENT_LOG` named a private CSV.
+The hook activated only when `MELEEPAD_METAL_PRESENT_LOG` named a private CSV.
 It used no phase logger. The signed disposable runner SHA-256 was
 `2e558b1f48f261e80a9ef4b64ce64f38c39255cccb1b813ab8d47437c380ad09`;
 the unchanged current-PGO module remained

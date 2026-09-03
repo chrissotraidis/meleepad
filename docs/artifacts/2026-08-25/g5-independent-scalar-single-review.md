@@ -26,7 +26,7 @@ large inline expansion is therefore not accepted as the product direction.
 ## Verified corrections to the working diagnosis
 
 - Adjacent `.png` frames 176-184 in
-  `/private/tmp/ssbmpad-normal-demo-adjacent-2-20260825` show Peach's hair and
+  `/private/tmp/meleepad-normal-demo-adjacent-2-20260825` show Peach's hair and
   arms stretched into impossible blade/spike shapes, changing over several
   frames and recovering by frame 186.
 - `0x80374174` is a lockstep comparison/return point, not the instruction that

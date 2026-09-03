@@ -6,8 +6,8 @@ LAUNCHER="$ROOT/ref/ModernGekko/tools/moderngekko_launcher.cpp"
 
 for contract in \
   'ExportDiagnosticReport(' \
-  'Latest-SsbmPad-Diagnostic.log' \
-  'SsbmPad Diagnostic Report v1' \
+  'Latest-MeleePad-Diagnostic.log' \
+  'MeleePad Diagnostic Report v1' \
   '<absolute-path>' \
   '--export-diagnostics' \
   'ImGui::Button("Export Diagnostics")'; do

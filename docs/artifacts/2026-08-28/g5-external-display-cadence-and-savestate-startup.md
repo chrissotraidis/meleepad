@@ -24,7 +24,7 @@ PERF-122 reproduced the failure deliberately by sending the opt-in diagnostic
 The request was consumed immediately, and Dolphin stopped at
 `DVDThread.cpp:175`, `WaitUntilIdle`, because the CPU lifecycle was not ready
 for a state load. The fresh crash report is
-`SsbmPadRunner.real-2026-08-28-140738.ips`, SHA-256
+`MeleePadRunner.real-2026-08-28-140738.ips`, SHA-256
 `5b8299eec21c409a52801dd47a74c3e6ea5125d91ddf96619c6a14dc6312750c`.
 
 The smallest fix is in canonical patch 0013. `Platform::UpdateRunningFlag`
@@ -45,14 +45,14 @@ The prior `MTLDrawable.addPresentedHandler` observer changed the work being
 measured, so it remains rejected. Instruments' stock Metal and Animation
 Hitches templates also saturated or produced impractically large captures.
 
-A local Instruments template named `SsbmPad Display Cadence` was therefore
+A local Instruments template named `MeleePad Display Cadence` was therefore
 created with only the Display instrument. Its local path is:
 
-`~/Library/Application Support/Instruments/Templates/SsbmPad Display Cadence.tracetemplate`
+`~/Library/Application Support/Instruments/Templates/MeleePad Display Cadence.tracetemplate`
 
 PERF-121 proved a bounded ten-second capture contains the required
 `displayed-surfaces-interval`, `display-vsyncs-interval`, and
-`display-surface-swap` tables without any callback inside SsbmPad.
+`display-surface-swap` tables without any callback inside MeleePad.
 
 ## PERF-124 full Fountain result
 
@@ -109,7 +109,7 @@ must not count duplicated stale content as a new game frame.
 
 Raw evidence remains local under:
 
-`/private/tmp/ssbmpad-perf114-115-gamemode.1aRWbj/run-124-display-full-fountain`
+`/private/tmp/meleepad-perf114-115-gamemode.1aRWbj/run-124-display-full-fountain`
 
 Key SHA-256 values:
 
@@ -132,7 +132,7 @@ crash report is committed.
 ## Checkpoint validation
 
 - Canonical patch 0013 applies/reverses cleanly against the pinned checkout.
-- `SsbmPadRunner` rebuild: pass.
+- `MeleePadRunner` rebuild: pass.
 - Applicable CTest entries: 40/40 pass (three unbuilt upstream benchmark/
   fuzzer executables and one disabled upstream test excluded as before).
 - Controller-pipe Python tests: 16/16 pass.

@@ -26,7 +26,7 @@ The underlying implementation is farther along than the UI suggests:
 - native iPad host/join/ready/start/cancel uses the real session.
 
 But Mac/iPad still stops around frames 6,180/6,240, iPhone is compile-only, and
-there is no SsbmPad-operated traversal service or room-code client path. This
+there is no MeleePad-operated traversal service or room-code client path. This
 cannot be described as a working mobile beta.
 
 ## Diagnostic correction

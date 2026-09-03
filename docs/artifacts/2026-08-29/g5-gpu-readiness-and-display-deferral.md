@@ -115,7 +115,7 @@ the documented reference-parity artifact.
 ## Reversal and decision
 
 The entire private recorder was removed. The canonical runner rebuilt
-successfully and contains neither `SSBMPAD_METAL_GPU_PRESENT_LOG` nor the
+successfully and contains neither `MELEEPAD_METAL_GPU_PRESENT_LOG` nor the
 recorder marker. No presentation, renderer, ROM, save, module, app, CSV, or
 screenshot is committed.
 

@@ -81,7 +81,7 @@ diff --git a/tools/moderngekko_launcher.cpp b/tools/moderngekko_launcher.cpp
 +    return false;
 +  }
 +
-+  const fs::path destination = directory / "Latest-SsbmPad-Diagnostic.log";
++  const fs::path destination = directory / "Latest-MeleePad-Diagnostic.log";
 +  std::ofstream report(destination, std::ios::binary | std::ios::trunc);
 +  if (!report)
 +  {
@@ -89,8 +89,8 @@ diff --git a/tools/moderngekko_launcher.cpp b/tools/moderngekko_launcher.cpp
 +      *error = "can't write diagnostic report";
 +    return false;
 +  }
-+  report << "SsbmPad Diagnostic Report v1\n"
-+            "issuesURL=https://github.com/chrissotraidis/ssbmpad/issues\n\n"
++  report << "MeleePad Diagnostic Report v1\n"
++            "issuesURL=https://github.com/chrissotraidis/meleepad/issues\n\n"
 +            "[Current Runner Log]\n"
 +         << log;
 +  if (!report)

@@ -4,9 +4,9 @@ Date: 2026-08-28
 
 Verdict: **G5 FAIL; startup diagnostic crash fixed**
 
-- PERF-117 proved Instruments Display tables identify SsbmPad's actual
+- PERF-117 proved Instruments Display tables identify MeleePad's actual
   onscreen surfaces.
-- PERF-121 proved the minimal `SsbmPad Display Cadence` template captures the
+- PERF-121 proved the minimal `MeleePad Display Cadence` template captures the
   required tables without an in-process drawable callback.
 - PERF-122 reproduced the supplied startup crash by requesting a state load at
   `emulated_frame=0` while Core was Starting.

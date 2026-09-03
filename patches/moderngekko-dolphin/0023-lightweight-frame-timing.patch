@@ -185,7 +185,7 @@ index ec7aca1107..6116da09a3 100644
 +
 +  if (m_log_name == "render_times.txt")
 +  {
-+    const char* const output_path = std::getenv("SSBMPAD_LIGHTWEIGHT_FRAME_LOG");
++    const char* const output_path = std::getenv("MELEEPAD_LIGHTWEIGHT_FRAME_LOG");
 +    if (output_path && output_path[0] != '\0')
 +      m_lightweight_frame_timing.emplace(std::string{output_path});
 +  }

@@ -4,7 +4,7 @@ Status: **PASS**
 
 ## Proof route
 
-- Clean packaged `SsbmPad.app`, ad-hoc signature verified.
+- Clean packaged `MeleePad.app`, ad-hoc signature verified.
 - Native `arm64` frontend, runner, and generated GALE01 module;
   `sysctl.proc_translated` reported `0`.
 - Character Select: player 1 Kirby, CPU Samus.

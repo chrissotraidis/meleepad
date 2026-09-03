@@ -77,9 +77,9 @@ diff --git a/Source/Core/VideoCommon/Present.cpp b/Source/Core/VideoCommon/Prese
 +                "cache_control_dcbi,cache_control_icbi,efb_vram_pipeline_misses,"
 +                "efb_vram_shader_ms,efb_vram_pipeline_ms,efb_ram_pipeline_misses,"
 +                "efb_ram_shader_ms,efb_ram_pipeline_ms\n";
-       if (const char* start_frame = std::getenv("SSBMPAD_FRAME_PHASE_SLOW_START_FRAME"))
+       if (const char* start_frame = std::getenv("MELEEPAD_FRAME_PHASE_SLOW_START_FRAME"))
          m_slow_start_frame = std::strtoull(start_frame, nullptr, 10);
-       if (const char* arm_path = std::getenv("SSBMPAD_FRAME_PHASE_SLOW_ARM_FILE"))
+       if (const char* arm_path = std::getenv("MELEEPAD_FRAME_PHASE_SLOW_ARM_FILE"))
 @@ -141,6 +143,14 @@ public:
             << ','
             << totals.static_recomp_cache_control_icbi -

@@ -34,7 +34,7 @@ def main() -> None:
     identity_patch_text = IDENTITY_PATCH.read_text()
     index_activation_patch_text = INDEX_ACTIVATION_PATCH.read_text()
     required_activation_fragments = (
-        'std::getenv("SSBMPAD_LIGHTWEIGHT_FRAME_LOG")',
+        'std::getenv("MELEEPAD_LIGHTWEIGHT_FRAME_LOG")',
         "inline bool IsEmulatedFrameIndexEnabled()",
         "if (Common::FramePhaseTiming::IsEmulatedFrameIndexEnabled())",
     )
@@ -44,7 +44,7 @@ def main() -> None:
     header_path = "Source/Core/VideoCommon/LightweightFrameTimingRecorder.h"
     source_path = "Source/Core/VideoCommon/LightweightFrameTimingRecorder.cpp"
 
-    with tempfile.TemporaryDirectory(prefix="ssbmpad-light-timing-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="meleepad-light-timing-") as temporary:
         root = pathlib.Path(temporary)
         include_dir = root / "Source/Core/VideoCommon"
         include_dir.mkdir(parents=True)

@@ -28,7 +28,7 @@ Private evidence hashes:
 
 ## Visible-control mechanism and gameplay
 
-A separate default-off `SSBMPAD_TRACE_BUTTON_EDGES=1` replay tested the title
+A separate default-off `MELEEPAD_TRACE_BUTTON_EDGES=1` replay tested the title
 behavior without changing controller data. Every visible touch generated a
 complete delivered FIFO edge, including `0x0000 -> 0x1000 -> 0x0000` for START
 and `0x0000 -> 0x0200 -> 0x0000` for B. A direct one-shot pipe START was also
@@ -84,7 +84,7 @@ claim:
   reproduces it with SHA-256
   `908272b7c3953031cc73a4e1c4ea46693159b7b00cfd1fcd2e1fe9d454a53aa9`.
 
-That reflection is reference parity, not an ssbmpad rendering defect. The real
+That reflection is reference parity, not an meleepad rendering defect. The real
 fighter-mesh issue was independently fixed by the scalar-single/`frsp`
 correction and closed after a 402.7-second, 2,110-frame matched corpus. Current
 iPad exact-Fountain and Classic captures show coherent real fighter meshes.
@@ -102,6 +102,6 @@ lowest-overhead phase boundary needed to distinguish guest compute from host
 descheduling, then reverse only that measured mechanism. Physical-iPad
 promotion and G9 remain closed.
 
-The app was stopped and `SSBMPAD_TRACE_BUTTON_EDGES` was removed. Exactly one
+The app was stopped and `MELEEPAD_TRACE_BUTTON_EDGES` was removed. Exactly one
 Simulator remains booted with no game process. ROM, generated source/module,
 saves, logs, recordings, and private paths remain untracked.

@@ -1,6 +1,6 @@
 # App icon provenance
 
-The SsbmPad app icon is an original AI-generated controller emblem created for
+The MeleePad app icon is an original AI-generated controller emblem created for
 this project on 2026-09-03 with OpenAI's built-in image generation tool. The
 prompt requested a centered analog-stick gate with a four-direction cutout and
 one restrained coral-to-amber impact line on an opaque midnight-navy

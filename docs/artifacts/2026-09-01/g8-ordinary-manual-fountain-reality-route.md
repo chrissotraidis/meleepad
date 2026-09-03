@@ -16,7 +16,7 @@ performance mode?
 ## Product and controls
 
 - one booted iPad Pro 13-inch (M5) Simulator, iOS 26.5;
-- ordinary `com.ssbmpad.SsbmPad` Release launch and stable default profile;
+- ordinary `com.meleepad.MeleePad` Release launch and stable default profile;
 - P1 Samus, level-1 CPU Kirby, Stock/04, 05:00;
 - Fountain of Dreams selected and confirmed visibly before each qualifying
   attempt;

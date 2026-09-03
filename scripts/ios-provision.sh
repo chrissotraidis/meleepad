@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SsbmPad iOS/iPadOS provisioning: assembles the locally built ModernGekko /
+# MeleePad iOS/iPadOS provisioning: assembles the locally built ModernGekko /
 # Dolphin-derived core into a linker response file for either the Simulator or
 # a physical device, and records the dev-only game-data + module locations.
 # Keeping the component archives intact avoids an
@@ -18,15 +18,15 @@ PLATFORM="${1:-simulator}"
 
 case "$PLATFORM" in
   simulator)
-    IOS_BUILD="$MG/build-ios-iphonesimulator-ssbmpad-static"
+    IOS_BUILD="$MG/build-ios-iphonesimulator-meleepad-static"
     LIBS_DIR="$OUT/iphonesimulator/libs"
-    MODULE="/tmp/ssbmpad-module-ios-simulator/gGALE01_recomp.dylib"
+    MODULE="/tmp/meleepad-module-ios-simulator/gGALE01_recomp.dylib"
     DEVICE_MODULE_ENTRY=""
     ;;
   device)
-    IOS_BUILD="$MG/build-ios-iphoneos-ssbmpad-static"
+    IOS_BUILD="$MG/build-ios-iphoneos-meleepad-static"
     LIBS_DIR="$OUT/iphoneos/libs"
-    MODULE="/tmp/ssbmpad-module-ios-device/gGALE01_recomp.dylib"
+    MODULE="/tmp/meleepad-module-ios-device/gGALE01_recomp.dylib"
     DEVICE_MODULE_ENTRY=$'\t<key>DeviceModuleRelativePath</key>\n\t<string>gGALE01_recomp.dylib</string>'
     ;;
   *)
@@ -98,7 +98,7 @@ if (( ${#MISSING[@]} )); then
   exit 1
 fi
 
-LINKER_RESPONSE="$LIBS_DIR/SsbmPadCore.rsp"
+LINKER_RESPONSE="$LIBS_DIR/MeleePadCore.rsp"
 : > "$LINKER_RESPONSE"
 for lib in "${LIBS[@]}"; do
   printf '%s\n' "-Wl,-force_load,$lib" >> "$LINKER_RESPONSE"

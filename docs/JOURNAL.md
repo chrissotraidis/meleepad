@@ -1,4 +1,4 @@
-# ssbmpad journal
+# meleepad journal
 
 Append-only execution ledger. Claims are limited to observed evidence.
 
@@ -70,7 +70,7 @@ Append-only execution ledger. Claims are limited to observed evidence.
   Attract battles are not gameplay evidence. Cubeb initialization is proven;
   audible output is not.
 - Restored state: shipped Quartz Application Support profile, background input
-  false, zero SsbmPad processes, zero booted Simulators.
+  false, zero MeleePad processes, zero booted Simulators.
 - Evidence: `docs/artifacts/2026-08-24/g4-input-investigation.md`.
 
 ## 2026-08-24 — G4 clean controlled match
@@ -92,7 +92,7 @@ Append-only execution ledger. Claims are limited to observed evidence.
 
 - User requirement: add working netplay as an explicit end-of-loop deliverable.
 - Result: added G9 after the existing test-matrix gate. Acceptance requires the
-  ssbmpad Host/Join shell and a completed synchronized two-instance match with
+  meleepad Host/Join shell and a completed synchronized two-instance match with
   at least one iPadOS endpoint; macOS-only button or connection evidence is not
   sufficient.
 
@@ -436,7 +436,7 @@ Append-only execution ledger. Claims are limited to observed evidence.
 ## 2026-08-25 — G5 Fountain reference-parity correction
 
 - Goal: decide whether the reported Fountain lower-surface distortion is an
-  ssbmpad renderer defect or reference behavior.
+  meleepad renderer defect or reference behavior.
 - Work: ran the pinned runtime without a generated module using
   `--allow-interpreter`; then fetched, signature-checked, and ran official
   Dolphin 2606a from a temporary non-installed app copy. Both controls used
@@ -462,7 +462,7 @@ Append-only execution ledger. Claims are limited to observed evidence.
 
 - Goal: test the remaining fighter-body morph report with time-adjacent native
   gameplay evidence instead of a single overlap frame.
-- Work: recorded only the SsbmPad window for 29.985 seconds, retained a 9.8
+- Work: recorded only the MeleePad window for 29.985 seconds, retained a 9.8
   second 640x480 gameplay clip, and sampled the interaction interval at 5 FPS.
   The 49-frame dense sheet covers movement, attacks, jumps, specials, CPU
   overlap, hit sparks, and damage. The prelaunch MemoryWatcher also exposed one
@@ -475,7 +475,7 @@ Append-only execution ledger. Claims are limited to observed evidence.
   character select; full cold-route replay remains required before calling the
   memory-gated sequence deterministic.
 - Cleanup: the 94 MiB source recording was moved outside Git to
-  `/private/tmp/ssbmpad-g5-fountain-real-mesh-capture-original.mov`; the 6.2 MiB
+  `/private/tmp/meleepad-g5-fountain-real-mesh-capture-original.mov`; the 6.2 MiB
   compressed clip and dense sheet are the committable evidence. No runner or
   Simulator remains, and Jump Desktop Audio was restored.
 - Evidence: `docs/artifacts/2026-08-25/g5-fountain-real-mesh-capture.m4v`,
@@ -547,7 +547,7 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Result: **NOT RETAINED; ROUTE STILL OPEN**. The freshly linked runner then
   hung while CoreAudio instantiated Jump Desktop Audio. Its window close did
   not terminate the process, so a subsequent launch briefly created a second
-  runner. The two exact SsbmPad PIDs were detected and terminated immediately.
+  runner. The two exact MeleePad PIDs were detected and terminated immediately.
 - Cleanup: the unverified direct-read source was restored, both processes and
   the driver are gone, Simulator remains off, and Jump Desktop Audio is again
   the default output. The bootstrap patch-scope audit was simplified so all
@@ -2133,7 +2133,7 @@ Append-only execution ledger. Claims are limited to observed evidence.
   about 1 ns/call available from one fixed short-range inline, far too little
   to explain 4.2 ms/frame. Reject before module/source change.
 - The validated candidate is installed locally as
-  `build-macos/SsbmPad-PGO.app`; canonical `SsbmPad.app` is unchanged. Strict
+  `build-macos/MeleePad-PGO.app`; canonical `MeleePad.app` is unchanged. Strict
   signature, package layout, architecture, minimum OS, and no-game-data scan
   pass.
 - Decision: **no static one-site candidate; G5 open; G6 blocked.** Preserve
@@ -2304,7 +2304,7 @@ Append-only execution ledger. Claims are limited to observed evidence.
 
 - Removed the actual-time/acquisition logger and diagnostic environment
   override from product source. Patches 0009/0017 add one opt-in macOS-only
-  ModernGekko policy; SsbmPad's package enables it and the package regression
+  ModernGekko policy; MeleePad's package enables it and the package regression
   requires the compiled policy identity.
 - The package regression failed against the old runner, then the reproducible
   build passed bootstrap, layout, arm64, and strict ad-hoc signing. Runner and
@@ -3309,7 +3309,7 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Goal: determine whether the current-PGO Fountain severe tail survives
   without the detailed phase logger's per-slice thread-CPU observations.
 - Harness: two independent private user/app copies enabled only Dolphin's
-  buffered render-time logger. `SSBMPAD_FRAME_PHASE_LOG` was absent. Both used
+  buffered render-time logger. `MELEEPAD_FRAME_PHASE_LOG` was absent. Both used
   the same verified Fountain state, balanced input, one native process, no
   Simulator, and the updater still `Ts` at 0% CPU.
 - PERF-145: final presented rows `1413..3413` measure 16.666682 ms mean,
@@ -3551,7 +3551,7 @@ Append-only execution ledger. Claims are limited to observed evidence.
 
 - Goal: verify the fastest reusable local PGO package is current and eligible
   for the next confirmed Game Mode G5 run.
-- Audit: canonical `SsbmPad.app` passed the Game Mode-aware layout check. The
+- Audit: canonical `MeleePad.app` passed the Game Mode-aware layout check. The
   ignored PGO app remained signed and retained module `bd089303...`, but its
   stale `Info.plist` lacked both the games category and `LSSupportsGameMode`,
   so package layout failed.
@@ -3577,7 +3577,7 @@ Append-only execution ledger. Claims are limited to observed evidence.
   user tree, Metal/Cubeb/fullscreen/prewarm, one game, and no Simulator.
 - Exclusion: the first stream command selected zsh's `log` builtin and failed
   before launch. The corrected command used `/usr/bin/log`.
-- Result: Game Policy found `SsbmPadRunner` via Info.plist, acquired identified-
+- Result: Game Policy found `MeleePadRunner` via Info.plist, acquired identified-
   game/frontmost/fullscreen/console grants, activated a fullscreen gaming
   session, logged `Game mode enabled`, enabled DPS, and reported `Game mode
   status is now on`. The initial paused state preceded the fullscreen grant.
@@ -4407,7 +4407,7 @@ Append-only execution ledger. Claims are limited to observed evidence.
   Simulator, while running exactly one Simulator at a time.
 - Build: add the arm64 iOS Simulator toolchain, static ModernGekko core build,
   GALE01 module cross-build, component-archive linker response, Xcode project,
-  and the SsbmPad iOS/shared shell sources derived from the pinned reference.
+  and the MeleePad iOS/shared shell sources derived from the pinned reference.
 - Metal: guard macOS-only `displaySyncEnabled` access and disable framebuffer
   fetch on Simulator after its Metal shader compiler rejected render-target
   reads despite the advertised Apple GPU-family capability.
@@ -4428,7 +4428,7 @@ Append-only execution ledger. Claims are limited to observed evidence.
 
 ## 2026-08-30 — SHELL-217 iPad shell parity and diagnostic privacy
 
-- Goal: exercise the ported SsbmPad shell over a live iPad Simulator game and
+- Goal: exercise the ported MeleePad shell over a live iPad Simulator game and
   close D4 without promoting untested G8 rows.
 - Live menu: 2x rendering changed the EFB to 1280x1056; experimental 16:9
   changed the projection; the FPS label appeared; controller mapping and
@@ -4489,7 +4489,7 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Persistence: terminate and relaunch without the test hook; the sandbox copy
   booted visibly and recreated the runtime.
 - Files route: stage the same ISO in the app's Files-visible Documents folder,
-  choose `Import from SsbmPad Folder`, and observe another successful atomic
+  choose `Import from MeleePad Folder`, and observe another successful atomic
   activation, runtime creation, and visible boot. Active hash/count remained
   exact.
 - Cleanup: remove the temporary Files source, retain the original ISO and
@@ -4527,7 +4527,7 @@ Append-only execution ledger. Claims are limited to observed evidence.
   Entry, and visibly recover `CODX`.
 - macOS: create `CODM`, close the runner normally, start a new process, and
   visibly recover `CODM` in the Rumble settings name list. Close and relaunch
-  the SsbmPad frontend and read back its checked FPS-title setting.
+  the MeleePad frontend and read back its checked FPS-title setting.
 - Save evidence: the macOS GCI changed from
   `5fd9152de18e51987f237b871189adeaacfeafed90f2c45b1e4d2aa43d36fd74`
   to `812c246dcdcd24e3f04316b09ab8a1b1b80a741dd04726454ee023b953e7af39`;
@@ -4618,7 +4618,7 @@ Append-only execution ledger. Claims are limited to observed evidence.
   disc-image names, memory-card files, or saves occur in the report. The
   private generated report remains outside Git.
 - Decision: G8 row 12 PASS across iPad and macOS. Close the launcher; leave no
-  SsbmPad process or booted Simulator.
+  MeleePad process or booted Simulator.
 - Evidence: `docs/artifacts/2026-08-30/g8-macos-diagnostics-export.md`.
 
 ## 2026-08-30 — BATTLE-228 four-player Battlefield completion
@@ -4649,9 +4649,9 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Goal: restore a sensible out-of-box keyboard path after the user found WASD
   and the other macOS controls inert.
 - Cause: the app shipped a valid Quartz profile, but a prior automation run
-  persisted `Pipe/0/ssbmpad` in both `GCPadNew.ini` and `config.ini`; the wrapper
+  persisted `Pipe/0/meleepad` in both `GCPadNew.ini` and `config.ini`; the wrapper
   then preserved those files indefinitely.
-- Fix: migrate only SsbmPad's exact internal pipe selector in both persistent
+- Fix: migrate only MeleePad's exact internal pipe selector in both persistent
   files, retain arbitrary custom keyboard/SDL profiles, add Space as an X/jump
   binding, and publish a compact control table in the README.
 - Regression: a synthetic app bundle proves first install, two-file pipe
@@ -4665,7 +4665,7 @@ Append-only execution ledger. Claims are limited to observed evidence.
 - Boundary: a 1 kHz read-only probe saw none of Computer Use's synthetic
   Return/W/Space taps in the Quartz held-key API. Do not treat those taps as a
   gameplay failure or success; a physical-key in-game check remains pending.
-- Cleanup: close the runner and launcher normally; no SsbmPad process or
+- Cleanup: close the runner and launcher normally; no MeleePad process or
   Simulator remains.
 - Evidence:
   `docs/artifacts/2026-08-30/macos-default-keyboard-controls.md`.
@@ -4826,8 +4826,8 @@ Append-only execution ledger. Claims are limited to observed evidence.
   confirmation, and confirm. The runtime logs stop requested then stored data
   removed; `GameData` is absent, the legal first-run chooser is visible, and
   the separate memory-card GCI remains present.
-- Clone the verified backup into the Files-visible SsbmPad folder and select
-  `Import from SsbmPad Folder`. Observe validation/extraction progress and
+- Clone the verified backup into the Files-visible MeleePad folder and select
+  `Import from MeleePad Folder`. Observe validation/extraction progress and
   visible reboot. Verify the activated image's exact size/hash, exactly 1,209
   files, zero staging directories, and the activation breadcrumb.
 - Remove only the temporary Files-folder duplicate after matching its hash;
@@ -4963,7 +4963,7 @@ Append-only execution ledger. Claims are limited to observed evidence.
   byte-identical for all three PGO objects, and a blanket inline clamp makes
   all three representative ThinLTO mini-links larger.
 - Use Instruments UI, not the already-rejected CLI attach route, for a bounded
-  four-second Apple M1 all-process trace. Filter to SsbmPad PID 75863 during
+  four-second Apple M1 all-process trace. Filter to MeleePad PID 75863 during
   visibly verified 31.1 FPS four-character Brinstar gameplay: instruction
   delivery 42.22%, processing 21.22%, discarded 6.66%, useful 30.03%.
 - Treat this as crowded-combat host front-end attribution only. It is not a
@@ -4996,14 +4996,14 @@ Append-only execution ledger. Claims are limited to observed evidence.
 ## 2026-08-31 — PERF-245 literal-Fountain delivery-latency split
 
 - Correct the private automation precondition: without
-  `SSBMPAD_EXTERNAL_PIPE_INPUT=1`, the product's normal 60 Hz publisher
+  `MELEEPAD_EXTERNAL_PIPE_INPUT=1`, the product's normal 60 Hz publisher
   overwrites scripted pipe commands with neutral snapshots. Discard the
   unguarded cursor probes and replay from a cold guarded process.
 - Visibly verify P1 Yoshi versus level-1 CPU Zelda, the literal `Fountain of
   Dreams` highlight, and coherent live combat at 47.7 FPS. This lighter route
   remains an absolute product failure and is diagnostic-only.
 - Retain a rolling 4-second `Instruction Delivery Bottlenecks` Run 2 and
-  explicitly filter/select SsbmPad PID 88916. The process summary reports
+  explicitly filter/select MeleePad PID 88916. The process summary reports
   5,881,669,124 cycles, 41.74% instruction-delivery latency, and 7.35%
   delivery bandwidth.
 - Interpret this as stage-matched latency dominance, not cache attribution,
@@ -5040,7 +5040,7 @@ Append-only execution ledger. Claims are limited to observed evidence.
   selection/loading, and combat each fail independently from the first moving
   game content. Distinguish presentation-only FPS loss from FPS+VPS emulation
   loss and never average either into a warmed screen.
-- Stop the app, remove `SSBMPAD_EXTERNAL_PIPE_INPUT` from the Simulator launch
+- Stop the app, remove `MELEEPAD_EXTERNAL_PIPE_INPUT` from the Simulator launch
   environment, and restore all private configuration.
 - Evidence:
   `docs/artifacts/2026-08-31/g8-ios-normal-launch-menu-failure.md`.
@@ -5350,7 +5350,7 @@ Append-only execution ledger. Claims are limited to observed evidence.
 ## 2026-09-01 — PERF-262 synchronized dual-core exact Fountain reversal
 
 - Repair the existing diagnostic invocation, not product code: a 49-byte short
-  symlink resolves to the exact normal SsbmPad user directory, allowing the
+  symlink resolves to the exact normal MeleePad user directory, allowing the
   already-guarded MemoryWatcher socket and `gcpipe.py` to share one valid root.
 - Complete the exact Samus/level-1-CPU-Kirby, Stock/04/05:00 Fountain route
   twice on the unchanged PERF-261 executable. Both matches reach results with
@@ -5839,7 +5839,7 @@ Append-only execution ledger. Claims are limited to observed evidence.
   prevents iPadOS from synthesizing a rectangular selected state during menu
   dismissal.
 - Adopt the matching Display, Controls, and icon-labelled Game Data hierarchy;
-  retain SsbmPad diagnostic sharing and the removal of Experimental
+  retain MeleePad diagnostic sharing and the removal of Experimental
   Performance Mode.
 - Pass the focused regression and Release Simulator build. Install, open, and
   dismiss the menu on the booted iPad Simulator; retain both UI states, stop
@@ -5851,7 +5851,7 @@ Append-only execution ledger. Claims are limited to observed evidence.
 ## 2026-09-01 — NET-286 Online Play product/architecture re-audit
 
 - Re-read the complete prior feasibility plan and reconcile it with the current
-  product: SsbmPad now has a native iPhone/iPad shell, Objective-C++ runtime
+  product: MeleePad now has a native iPhone/iPad shell, Objective-C++ runtime
   host, 60 Hz touch/GameController pipe input, and linked ENet/SFML archives.
 - Confirm the first implementation defect still exists: customized server
   capacity, assignment, controller-count changes, lobby labels, and start gate
@@ -5863,14 +5863,14 @@ Append-only execution ledger. Claims are limited to observed evidence.
   plaintext ENet packets, and timebase/desync path.
 - Review primary Dolphin, Apple, ENet, and Project Slippi sources. Decide on
   private room-code friend play first; public matchmaking and rollback remain
-  out of scope. Plan a SsbmPad-operated CC0 traversal service rather than relying
+  out of scope. Plan a MeleePad-operated CC0 traversal service rather than relying
   on Dolphin's public service.
 - Specify the native three-dot-menu Online Play flow, state machine, session API,
   touch/controller contract, lifecycle and privacy behavior, NP-0 through NP-8
   work packages, 25-44 engineer-day estimate, relay decision, and physical
   iPhone/iPad acceptance thresholds in `docs/NETPLAY-FEASIBILITY.md`.
 - Next falsifiable implementation step after this documentation checkpoint:
-  NP-0, a regression that fails because connected SsbmPad clients receive no
+  NP-0, a regression that fails because connected MeleePad clients receive no
   GameCube slot. Keep it isolated from the installed G8 product.
 
 ## 2026-09-01 — NET-287 GameCube transport correction
@@ -5883,7 +5883,7 @@ Append-only execution ledger. Claims are limited to observed evidence.
   a locked GameCube lobby snapshot and correct desktop labels from Wii to GC.
 - Pass exact GameCube `PadData` relay for every controller field, count change,
   disconnect cleanup, reconnect, the legacy Wii payload, and the rebuilt
-  `SsbmPadRunner` target.
+  `MeleePadRunner` target.
 - Store the result as ordered outer patches `0039` and `0013`; reverse-apply
   checks, bootstrap syntax, and outer diff checks pass. Do not touch the
   installed app, canonical G8 package, ordinary save, ROM, or module.
@@ -6067,7 +6067,7 @@ Append-only execution ledger. Claims are limited to observed evidence.
   draws/four primitives and 67.4%/6.6% CPU/video thread usage.
 - Correlate the host timeline: a Codex Computer Use `UserIsActive` assertion
   begins 0.849 seconds before the low row; Core Audio reports an overload for
-  SsbmPad 21 ms after the row. Generic idle-service jetsam activity is present
+  MeleePad 21 ms after the row. Generic idle-service jetsam activity is present
   but is not sufficient by itself.
 - Run a fresh 180-second ordinary control with no UI observation, recording,
   diagnostics, savestate, external input, or live log reads. All 16 reports

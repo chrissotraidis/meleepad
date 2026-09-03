@@ -29,7 +29,7 @@ Computer Use then visibly verified:
    Mario third, Pikachu fourth, and all four KO/fall totals visible.
 
 The runner exited normally after the results proof. It reported zero static
-fallbacks and `smc_failed=0`; no SsbmPad process or booted Simulator remained.
+fallbacks and `smc_failed=0`; no MeleePad process or booted Simulator remained.
 
 ## Exact build and private boundaries
 

@@ -6,13 +6,13 @@ Status: **FASTEST LOCAL PACKAGE REFRESHED; GAME MODE ELIGIBILITY RESTORED; G5 OP
 
 ## Question
 
-Is the reusable `build-macos/SsbmPad-PGO.app` still a valid current product
+Is the reusable `build-macos/MeleePad-PGO.app` still a valid current product
 package for the next G5 acceptance run, or has its ignored local bundle drifted
 behind the repository's retained Game Mode/package requirements?
 
 ## Audit result
 
-The ordinary canonical `SsbmPad.app` passed the current package-layout test and
+The ordinary canonical `MeleePad.app` passed the current package-layout test and
 contained both:
 
 - `LSApplicationCategoryType=public.app-category.games`; and
@@ -33,7 +33,7 @@ ISO and the existing private profile whose SHA-256 is
 
 ```text
 scripts/package-local-pgo-app.sh <validated-revision-0-ISO>
-  <private-current-idle-fountain.profdata> build-macos/SsbmPad-PGO.app
+  <private-current-idle-fountain.profdata> build-macos/MeleePad-PGO.app
 ```
 
 The script validated the ISO and profile, selected the hash-keyed PGO module,
@@ -42,7 +42,7 @@ built the current launcher/runner, packaged from the current canonical
 the bundle, and restored the canonical `active-module.txt` on exit.
 
 The previous stale bundle is retained locally as
-`build-macos/SsbmPad-PGO.app.previous.20260829-104114`. It is recoverable and
+`build-macos/MeleePad-PGO.app.previous.20260829-104114`. It is recoverable and
 was not deleted.
 
 ## Verified refreshed package

@@ -7,7 +7,7 @@ Status: **WHOLE-PROCESS BLOCKING ACTIVITY REJECTED; HOST EXECUTION LOSS RETAINED
 ## Question
 
 Do Final Destination's remaining 12-25 ms wall-minus-thread gaps coincide
-with extra blocking/system activity inside SsbmPad, or does the whole app
+with extra blocking/system activity inside MeleePad, or does the whole app
 receive less execution during the slow rows?
 
 The supplied PERF-106 attachment was first reconciled as historical. Its
@@ -25,7 +25,7 @@ callback rather than CPU-thread protection. Private APIs were not used.
 Patch 0022 therefore extends the already default-dormant phase logger with
 one supported `TASK_EVENTS_INFO` snapshot per presented frame. It records
 whole-task context switches plus Mach and Unix syscall deltas only while
-`SSBMPAD_FRAME_PHASE_LOG` is enabled. Non-Apple builds return zeros.
+`MELEEPAD_FRAME_PHASE_LOG` is enabled. Non-Apple builds return zeros.
 
 An initial per-CPU-slice placement compiled after replacing the unavailable
 `RUSAGE_THREAD` selector, but PERF-138/139 exposed hundreds to thousands of

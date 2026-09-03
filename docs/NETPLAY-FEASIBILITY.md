@@ -1,4 +1,4 @@
-# ssbmpad netplay feasibility and delivery plan
+# meleepad netplay feasibility and delivery plan
 
 Status: product and architecture plan complete; implementation and gameplay acceptance not started
 
@@ -13,7 +13,7 @@ Active execution loop: `docs/NETPLAY-GOAL-LOOP.md`
 
 ## Decision
 
-Netplay is feasible on the current stack and can be a final ssbmpad feature,
+Netplay is feasible on the current stack and can be a final meleepad feature,
 but the Host/Join controls in the current macOS package are not a working
 Melee implementation.
 
@@ -21,7 +21,7 @@ The reusable parts already exist: Dolphin's ENet transport, lobby protocol,
 fixed-delay input queues, settings/save synchronization, compatibility checks,
 desync reporting, and ModernGekko boot-session handoff. The blocking defect is
 specific and falsifiable: ModernGekko generates GameCube controller profiles
-for ssbmpad, while its customized netplay server assigns every requested slot
+for meleepad, while its customized netplay server assigns every requested slot
 to Dolphin's Wii Remote map. Melee therefore starts without the networked
 GameCube pad mapping it needs.
 
@@ -50,7 +50,7 @@ and real-internet evidence; a Simulator-only match is not enough for that claim.
 
 The packaged frontend already exposes `Host Netplay` and `Join Netplay`.
 Nickname, host/IP, UDP port, and automatic or manual buffer settings are saved
-in `config.ini`. The frontend launches `SsbmPadRunner` with one of:
+in `config.ini`. The frontend launches `MeleePadRunner` with one of:
 
 ```text
 --netplay-host
@@ -115,9 +115,9 @@ tests without committing live game state.
 
 ### iOS substrate
 
-SsbmPad now has a functioning native iOS/iPadOS shell:
+MeleePad now has a functioning native iOS/iPadOS shell:
 
-- the Release app embeds the ModernGekko runtime behind `SsbmPadCoreHost`;
+- the Release app embeds the ModernGekko runtime behind `MeleePadCoreHost`;
 - the iOS core already compiles Dolphin `core` and `uicommon`;
 - provisioning already force-loads ENet plus SFML network/system archives;
 - UIKit touch and GameController input are merged at 60 Hz and published to a
@@ -152,7 +152,7 @@ runtime, Melee, or a completed match.
 
 The test has passed in the recent G5 checkpoint suite, which proves that the
 existing protocol still builds and its current Wii-oriented contract works. It
-does not prove ssbmpad netplay.
+does not prove meleepad netplay.
 
 ### B3. Session ownership is coupled to the desktop lobby
 
@@ -250,7 +250,7 @@ GameCube slot under the current implementation.
 ### N1. Make controller-family assignment explicit
 
 Add a controller-family setting to the customized server/session path. For
-ssbmpad it selects `m_pad_map`; Wii products retain `m_wiimote_map`. Apply the
+meleepad it selects `m_pad_map`; Wii products retain `m_wiimote_map`. Apply the
 same selection to connection capacity, slot assignment, count changes,
 readiness, lobby display, disconnect cleanup, and start eligibility.
 
@@ -345,7 +345,7 @@ package, solo-game, controller, lifecycle, and netplay regressions.
 
 ### Executive answer and difficulty
 
-SsbmPad can credibly support online friend play without inventing a networking
+MeleePad can credibly support online friend play without inventing a networking
 engine. The pinned Dolphin fork already supplies ENet transport, reliable
 ordered channels, fixed-delay GameCube input queues, timebase desync detection,
 strict settings/save synchronization, direct-IP connections, an eight-character
@@ -356,7 +356,7 @@ GameController state into the same local `GCPadStatus` path netplay polls.
 The remaining project is still substantial because none of those pieces form a
 safe mobile product today. The GameCube slots are assigned to the wrong map,
 session ownership is tied to SDL/ImGui, the app always boots solo, UIKit has no
-lobby, no SsbmPad traversal service is deployed, lifecycle teardown is not
+lobby, no MeleePad traversal service is deployed, lifecycle teardown is not
 netplay-aware, the transport is not encrypted, strict NAT has no relay fallback,
 and no complete two-endpoint Melee match has been retained.
 
@@ -384,7 +384,7 @@ cross-platform determinism, not the UIKit screen.
 
 The first public promise should be:
 
-> **Online Play with Friends (Beta):** host or join a private SsbmPad room with
+> **Online Play with Friends (Beta):** host or join a private MeleePad room with
 > a short code. Mac, iPhone, and iPad players can use touch controls or a
 > connected controller. Online play uses delay-based synchronization, so nearby
 > players and stable networks work best.
@@ -401,7 +401,7 @@ iPhone completes the real-internet acceptance matrix.
 2. **Cross-platform alpha — direct connection:** Mac and iPad Simulator complete
    a match using touch. This meets the technical G9 minimum only after every
    written gate passes.
-3. **Friends beta — room code:** SsbmPad clients use an SsbmPad-operated
+3. **Friends beta — room code:** MeleePad clients use an MeleePad-operated
    traversal server and eight-character invite code. Physical iPhone and iPad
    join from a different network.
 4. **Public beta hardening:** connection-success, latency, lifecycle, privacy,
@@ -412,7 +412,7 @@ iPhone completes the real-internet acceptance matrix.
 
 ### Native three-dot-menu flow
 
-Use UIKit controls and the current SsbmPad visual language. The lobby is a
+Use UIKit controls and the current MeleePad visual language. The lobby is a
 full-screen sheet/navigation flow above the Metal surface, not an ImGui window
 and not another game overlay. Entering it stops the solo runtime cleanly before
 network services start; there is never a solo and netplay runtime alive
@@ -570,7 +570,7 @@ boot-data transfer, and serialized teardown.
 ### Code architecture and exact seams
 
 ```text
-SsbmPad Online UIKit                  macOS lobby adapter
+MeleePad Online UIKit                  macOS lobby adapter
           |                                  |
           +---- Objective-C++ wrapper -------+
                           |
@@ -579,12 +579,12 @@ SsbmPad Online UIKit                  macOS lobby adapter
                           |
           Dolphin NetPlayServer + NetPlayClient
                     /                 \
-      SsbmPad traversal           direct IP
+      MeleePad traversal           direct IP
         room-code service          UDP 2626
                           |
        existing fixed-delay PadData/GCPadStatus
                           |
-       existing SsbmPad virtual GameCube pipe
+       existing MeleePad virtual GameCube pipe
                           |
             touch mixer or GameController
 ```
@@ -594,7 +594,7 @@ Required durable source changes:
 - ModernGekko: split `tools/netplay_session.cpp` into a platform-neutral
   session target and a desktop SDL/ImGui adapter.
 - Dolphin patch: make requested controller family explicit and use
-  `m_pad_map` for SsbmPad capacity, assignment, count changes, readiness,
+  `m_pad_map` for MeleePad capacity, assignment, count changes, readiness,
   display, cleanup, and start eligibility.
 - Dolphin client: add a locked `GetPadMappingSnapshot()` counterpart to the
   existing Wii snapshot and retain exact `PadData` validation.
@@ -603,11 +603,11 @@ Required durable source changes:
 - iOS core build: compile/link the platform-neutral session owner. The app
   already links `core`, `uicommon`, ENet, SFML network/system, curl, and mbedTLS;
   do not add a second networking library for version 1.
-- SsbmPadCoreHost: own start/stop for solo or netplay, never both; publish
+- MeleePadCoreHost: own start/stop for solo or netplay, never both; publish
   session snapshots to the main queue; attach the runtime for stop/desync.
-- SsbmPadGameViewController: present Online home/lobby, route lifecycle events,
+- MeleePadGameViewController: present Online home/lobby, route lifecycle events,
   and restart solo play after a session ends.
-- SsbmPadGameOverlay: add one `Online Play…` action and the small in-match
+- MeleePadGameOverlay: add one `Online Play…` action and the small in-match
   status/leave submenu. Do not put nickname, code, or lobby tables directly in
   the `UIMenu`.
 - Info.plist: add a plain-language `NSLocalNetworkUsageDescription` before the
@@ -623,8 +623,8 @@ The normal iPhone/iPad publisher already runs at 60 Hz:
 
 ```text
 UIKit touch + GCController
-  -> SsbmPadInputMixer::consumeMergedState
-  -> SsbmPadCoreHost::publishInput
+  -> MeleePadInputMixer::consumeMergedState
+  -> MeleePadCoreHost::publishInput
   -> Dolphin pipe device / Pad::GetStatus
   -> NetPlayClient::PollLocalPad
   -> PadData containing GCPadStatus
@@ -644,11 +644,11 @@ executable and an eight-character host-ID protocol. The service coordinates UDP
 hole punching; gameplay remains peer-to-peer and does not flow through it.
 That is the correct first online-connectivity layer.
 
-Deploy a SsbmPad-controlled instance rather than depending on Dolphin's public
+Deploy a MeleePad-controlled instance rather than depending on Dolphin's public
 infrastructure without an explicit service agreement:
 
 - one small Linux service with UDP 6262 and alternate UDP 6226;
-- configurable hostname compiled/persisted as the SsbmPad default;
+- configurable hostname compiled/persisted as the MeleePad default;
 - health check, process supervision, restart policy, metrics, and alerts;
 - rate limits/firewall limits against packet floods and host-ID enumeration;
 - no permanent room list, accounts, chat, or matchmaking database;
@@ -665,7 +665,7 @@ Strict or symmetric NAT can defeat hole punching. Version 1 therefore keeps
 Advanced Direct Connection and documents port forwarding. Before a broad
 release, measure connection success across the physical-device matrix. If fewer
 than 90% of intended friend-pair attempts connect without router configuration,
-the product needs a SsbmPad UDP relay fallback before dropping the Beta label.
+the product needs a MeleePad UDP relay fallback before dropping the Beta label.
 A relay is a separate operational/security project; it is not part of the CC0
 traversal server.
 
@@ -873,8 +873,8 @@ have changed the same ModernGekko files.
 - `ref/sunpad/scripts/ios-provision.sh` and
   `ref/sunpad/apple/ios/SunPadCoreHost.mm` — available iOS network libraries and
   virtual GameCube pipe controller integration.
-- `apple/ios/SsbmPadCoreHost.mm` and
-  `apple/ios/SsbmPadGameViewController.mm` — current Objective-C++ runtime,
+- `apple/ios/MeleePadCoreHost.mm` and
+  `apple/ios/MeleePadGameViewController.mm` — current Objective-C++ runtime,
   lifecycle, touch/GameController mixer, and 60 Hz GameCube pipe publication.
 - `scripts/ios-provision.sh` — current iOS link closure, including ENet and SFML
   network/system archives.
@@ -886,7 +886,7 @@ have changed the same ModernGekko files.
 
 The project does not need new gameplay netcode from scratch. It needs one
 correct GameCube mapping path, a reusable session boundary, native Online Play
-screens, a SsbmPad traversal service, and proof that the existing deterministic
+screens, a MeleePad traversal service, and proof that the existing deterministic
 input model survives complete Melee matches across Mac and physical iPhone/iPad.
 That is a bounded, credible G9 project. Until NP-3, NP-5, and NP-7 pass, the
 existing Host/Join controls remain dormant infrastructure rather than a shipped

@@ -8,7 +8,7 @@ Status: **retained product correction; physical-key live check pending**
 
 The app already shipped a Quartz keyboard profile, but a prior automation run
 left both of the real persistent input selectors on the internal
-`Pipe/0/ssbmpad` transport:
+`Pipe/0/meleepad` transport:
 
 - `Config/GCPadNew.ini` selected the pipe device;
 - `config.ini` selected the same pipe device as controller 1.
@@ -19,7 +19,7 @@ window with no usable keyboard input.
 
 ## Correction
 
-The macOS wrapper now recognizes only SsbmPad's exact internal pipe device and
+The macOS wrapper now recognizes only MeleePad's exact internal pipe device and
 migrates both persistent selectors to the shipped Quartz profile. Arbitrary
 custom keyboard and SDL controller profiles remain byte-for-byte unchanged.
 The default profile maps:

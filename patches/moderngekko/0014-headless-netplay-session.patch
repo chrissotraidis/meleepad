@@ -1229,7 +1229,7 @@ index 0000000..a3d413c
 +    host_options.role = NetplayRole::Host;
 +    host_options.port = 0;
 +    host_options.nickname = "Host";
-+    host_options.controllers = {"Pipe/0/ssbmpad-host"};
++    host_options.controllers = {"Pipe/0/meleepad-host"};
 +    std::unique_ptr<NetplaySession> host =
 +        NetplaySession::Create(runtime, host_options);
 +    if (!host)
@@ -1240,7 +1240,7 @@ index 0000000..a3d413c
 +    join_options.role = NetplayRole::Join;
 +    join_options.port = host->Snapshot().port;
 +    join_options.nickname = "Join";
-+    join_options.controllers = {"Pipe/0/ssbmpad-join"};
++    join_options.controllers = {"Pipe/0/meleepad-join"};
 +    std::unique_ptr<NetplaySession> join =
 +        NetplaySession::Create(runtime, join_options);
 +    if (!join || !LobbyReady(*host, *join))

@@ -1,4 +1,4 @@
-SsbmPad iPad Simulator combined host + game-module PGO summary
+MeleePad iPad Simulator combined host + game-module PGO summary
 Date: 2026-08-30
 Platform: iPad Pro 13-inch (M5), iOS 26.5 Simulator, arm64
 

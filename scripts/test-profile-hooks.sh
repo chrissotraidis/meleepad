@@ -28,7 +28,7 @@ if [[ -n "$release_module" ]]; then
   fi
 fi
 
-profile_dir=$(mktemp -d /private/tmp/ssbmpad-profile-hooks.XXXXXX)
+profile_dir=$(mktemp -d /private/tmp/meleepad-profile-hooks.XXXXXX)
 trap 'rm -rf "$profile_dir"' EXIT
 
 env LLVM_PROFILE_FILE="$profile_dir/hook-%p.profraw" swift -e '

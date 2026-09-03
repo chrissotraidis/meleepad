@@ -1,7 +1,7 @@
 Canonical product smoke
 runner_sha256=93ebc4626307486602ed4525276ea9ed2c309b13c9a7805257981d3616563cd5
 module_sha256=44366f2e5392c331fa72871ef829af86813da383dce4957aa8c445d8d4505b90
-[staticrecomp] module loaded: build-macos/SsbmPad.app/Contents/MacOS/gGALE01_recomp.dylib entry=0x8000522C
+[staticrecomp] module loaded: build-macos/MeleePad.app/Contents/MacOS/gGALE01_recomp.dylib entry=0x8000522C
 metal layer display sync: product policy enabled
 [nogui] SIGUSR2: loading state from slot 1
 [staticrecomp] shutdown: native=71819620 fallback=0 native_exc=9433 hook_fb=842 smc_failed=0 verifications=204 reverify_events=44 bursts=800034 cycles=1644521754
@@ -9,7 +9,7 @@ controller configuration: using existing controller profile
 audio backend: Cubeb
 
 Canonical synchronized short diagnostic
-[staticrecomp] module loaded: build-macos/SsbmPad.app/Contents/MacOS/gGALE01_recomp.dylib entry=0x8000522C
+[staticrecomp] module loaded: build-macos/MeleePad.app/Contents/MacOS/gGALE01_recomp.dylib entry=0x8000522C
 metal layer display sync: diagnostic override enabled
 [nogui] SIGUSR2: loading state from slot 1
 [staticrecomp] shutdown: native=142288860 fallback=0 native_exc=23205 hook_fb=2022 smc_failed=0 verifications=211 reverify_events=49 bursts=2054004 cycles=3685694115
@@ -17,7 +17,7 @@ controller configuration: using existing controller profile
 audio backend: Cubeb
 
 Canonical synchronized full-match diagnostic
-[staticrecomp] module loaded: build-macos/SsbmPad.app/Contents/MacOS/gGALE01_recomp.dylib entry=0x8000522C
+[staticrecomp] module loaded: build-macos/MeleePad.app/Contents/MacOS/gGALE01_recomp.dylib entry=0x8000522C
 metal layer display sync: diagnostic override enabled
 [nogui] SIGUSR2: loading state from slot 1
 [staticrecomp] shutdown: native=852154901 fallback=0 native_exc=159987 hook_fb=13740 smc_failed=0 verifications=245 reverify_events=68 bursts=14244936 cycles=24275316353

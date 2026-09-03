@@ -21,7 +21,7 @@ a performance result.
 Canonical patch 0021 adds `host_frame_end_unix_ns` to the default-dormant
 phase CSV. It reconstructs the wall-clock time at the already measured
 `frame_end` from adjacent steady/system clock reads. When
-`SSBMPAD_FRAME_PHASE_LOG` is absent, no new code executes in the frame path.
+`MELEEPAD_FRAME_PHASE_LOG` is absent, no new code executes in the frame path.
 
 PERF-126 used the exact retained Fountain state, isolated `user-114`, Game
 Mode/fullscreen, native resolution, the prewarmed frontend-PGO module, and the
@@ -115,10 +115,10 @@ cause. Final Destination and G6 remain blocked.
 ## Retained evidence
 
 PERF-126 raw root:
-`/private/tmp/ssbmpad-perf114-115-gamemode.1aRWbj/run-126-display-host-time`
+`/private/tmp/meleepad-perf114-115-gamemode.1aRWbj/run-126-display-host-time`
 
 PERF-127 raw root:
-`/private/tmp/ssbmpad-perf114-115-gamemode.1aRWbj/run-127-display-logger-free`
+`/private/tmp/meleepad-perf114-115-gamemode.1aRWbj/run-127-display-logger-free`
 
 PERF-127 SHA-256 values:
 

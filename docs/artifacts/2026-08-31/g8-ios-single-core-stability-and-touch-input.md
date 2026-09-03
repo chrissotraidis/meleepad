@@ -138,7 +138,7 @@ disconnect regression into a physical acceptance claim.
 - `screenshots/2026-08-31/g8-touch-controls-live-evidence.mp4` — SHA-256
   `21b08a955f8849ee02fa2a7ddb0d42a55e2d7be3e0f0cfe9e0a5999f2509ce8e`;
 - crash report inspected locally as
-  `SsbmPad-2026-08-31-010309.ips`; it is not committed;
+  `MeleePad-2026-08-31-010309.ips`; it is not committed;
 - exact rebuilt app executable SHA-256:
   `1e37399dd8852c9ef9487e279878ff0eda1f2ebb5d67407da2fb882457d018de`.
 

@@ -87,8 +87,8 @@ mesh, and Fountain timing evidence is retained in
 Local-only diagnostic screenshots (not publication-quality because the
 foreground macOS microphone permission sheet contaminated them):
 
-- `/private/tmp/ssbmpad-g5-r0-route-after-start.png` — visible Main Menu.
-- `/private/tmp/ssbmpad-g5-r0-five-second-route.png` — visible VS CSS.
+- `/private/tmp/meleepad-g5-r0-route-after-start.png` — visible Main Menu.
+- `/private/tmp/meleepad-g5-r0-five-second-route.png` — visible VS CSS.
 
 The permission request was not accepted. The runner and controller process
 were stopped by exact session, no Simulator was booted, and Jump Desktop Audio

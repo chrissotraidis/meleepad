@@ -103,7 +103,7 @@ and continuously growing DMA underruns.
 
 The previously rejected `xctrace` CLI attach route was not repeated.
 Instruments UI recorded a four-second, host-wide Apple M1 `CPU Counters`
-trace and filtered it to the exact Simulator app PID 75863. The SsbmPad track
+trace and filtered it to the exact Simulator app PID 75863. The MeleePad track
 reports:
 
 | Apple CPU Bottlenecks class | Share |

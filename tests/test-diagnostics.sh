@@ -8,12 +8,12 @@ mkdir -p "$TEMP_DIR/home"
 
 clang++ -x objective-c++ -std=gnu++2b -fobjc-arc -framework Foundation \
   -I"$ROOT/apple/shared" \
-  "$ROOT/apple/shared/SsbmPadDiagnostics.mm" \
-  "$ROOT/tests/SsbmPadDiagnosticsTests.mm" \
-  -o "$TEMP_DIR/SsbmPadDiagnosticsTests"
-CFFIXED_USER_HOME="$TEMP_DIR/home" "$TEMP_DIR/SsbmPadDiagnosticsTests"
+  "$ROOT/apple/shared/MeleePadDiagnostics.mm" \
+  "$ROOT/tests/MeleePadDiagnosticsTests.mm" \
+  -o "$TEMP_DIR/MeleePadDiagnosticsTests"
+CFFIXED_USER_HOME="$TEMP_DIR/home" "$TEMP_DIR/MeleePadDiagnosticsTests"
 
-OVERLAY="$ROOT/apple/ios/SsbmPadGameOverlay.mm"
+OVERLAY="$ROOT/apple/ios/MeleePadGameOverlay.mm"
 FORM="$ROOT/.github/ISSUE_TEMPLATE/bug_report.yml"
 for field in report-id revision platform performance-profile summary context frequency; do
   grep -Fq "queryItemWithName:@\"$field\"" "$OVERLAY"

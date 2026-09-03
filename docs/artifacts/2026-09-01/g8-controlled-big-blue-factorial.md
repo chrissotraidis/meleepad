@@ -16,7 +16,7 @@ Blue projection hash `002a81fb84e3f68f`. The next run stopped relying on
 attract selection.
 
 The on-screen touch publisher initially neutralized external analog commands.
-The existing diagnostic-only `SSBMPAD_EXTERNAL_PIPE_INPUT=1` boundary gave the
+The existing diagnostic-only `MELEEPAD_EXTERNAL_PIPE_INPUT=1` boundary gave the
 FIFO route sole control. The route visibly reached VS character select and
 Stage Select. The ordinary Simulator GCI had Big Blue locked, so the current
 GCI was backed up byte-for-byte and the already-retained isolated ROM-safe

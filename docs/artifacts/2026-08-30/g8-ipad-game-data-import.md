@@ -10,7 +10,7 @@ The iPad Pro 13-inch (M5) Simulator on iOS 26.5 imported the user's exact
 GALE01 revision-0 disc, validated its identity, extracted and activated the
 Melee data atomically, and booted visible game frames from the retained
 sandbox image. A subsequent ordinary launch without the test hook booted from
-the sandbox again. A same-filename reimport from the Files-visible SsbmPad
+the sandbox again. A same-filename reimport from the Files-visible MeleePad
 Documents folder repeated validation, extraction, activation, runtime creation,
 and visible boot successfully.
 
@@ -18,7 +18,7 @@ and visible boot successfully.
 
 The first live import correctly rejected the image, revealing that the port
 still embedded Sunshine's SHA-256. The selected file independently matched all
-of the already-pinned SsbmPad invariants:
+of the already-pinned MeleePad invariants:
 
 - size: 1,459,978,240 bytes;
 - SHA-256: `2393aadd346c23e3e44291e7bb7e16dbc4970bc703028261659a87cde9d90484`;
@@ -27,7 +27,7 @@ of the already-pinned SsbmPad invariants:
 - revision: 0.
 
 Source inspection then found two more Sunshine-only activation checks: 174
-files and `AudioRes/mSound.asn` / `data/common.szs`. The SsbmPad app now uses
+files and `AudioRes/mSound.asn` / `data/common.szs`. The MeleePad app now uses
 the pinned GALE01 hash, requires 1,209 regular game files, and checks Melee
 anchors including `GmRegEnd.dat`, character/stage-select data, Fox data, and a
 stage archive. The repository regression rejects reintroduction of all three
@@ -47,7 +47,7 @@ system/game anchors. Logs recorded:
 - `input pipe connected attempt=1`.
 
 The normal relaunch repeated sandbox boot and runtime creation without the
-`-ssbmpadImportTest` hook. The Files-visible same-filename reimport then
+`-meleepadImportTest` hook. The Files-visible same-filename reimport then
 activated the image again at 05:14:14 and created the replacement runtime at
 05:14:28. The active image remained byte-identical and the extracted file
 count remained 1,209.

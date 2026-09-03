@@ -1,4 +1,4 @@
-# SsbmPad Online Play goal-based loop (superseded)
+# MeleePad Online Play goal-based loop (superseded)
 
 > The active, beta-complete loop is
 > [`NETPLAY-BETA-GOAL-LOOP.md`](NETPLAY-BETA-GOAL-LOOP.md). This file is retained
@@ -13,7 +13,7 @@ Companion design: `docs/NETPLAY-FEASIBILITY.md`
 
 ## Objective
 
-Ship native **Online Play with Friends** for SsbmPad. A player opens the
+Ship native **Online Play with Friends** for MeleePad. A player opens the
 three-dot menu, hosts or joins with a short room code, and completes synchronized
 Melee matches between Mac, iPhone, and iPad using the existing touch controls or
 a connected controller.
@@ -27,7 +27,7 @@ Work only the lowest unmet goal. A build, connection, first frame, or automated
 smoke does not satisfy a gameplay goal. Every pass requires retained evidence.
 
 - **NL0 — Baseline frozen.** Record protocol/source pins, the passing legacy
-  Wii-oriented test, and a failing regression proving SsbmPad receives no
+  Wii-oriented test, and a failing regression proving MeleePad receives no
   GameCube slot on current code.
 - **NL1 — GameCube transport correct.** Make controller family explicit. Two
   clients receive correct `m_pad_map` slots and transmit every `GCPadStatus`
@@ -44,7 +44,7 @@ smoke does not satisfy a gameplay goal. Every pass requires retained evidence.
 - **NL5 — Mac/mobile gameplay proof.** Mac and iPadOS Simulator complete a full
   touch-controlled match with no desync. This is the minimum technical G9
   cross-platform proof, not the public mobile claim.
-- **NL6 — Room-code internet path.** A SsbmPad-controlled traversal service
+- **NL6 — Room-code internet path.** A MeleePad-controlled traversal service
   produces an eight-character room code and connects two outside networks.
   Advanced direct IP remains available. Strict NAT fails clearly.
 - **NL7 — Physical iPhone/iPad beta.** Physical iPhone and iPad complete
@@ -141,7 +141,7 @@ Repeat until NL8 passes:
 
 ## Product correctness rules
 
-- `m_pad_map` is the Melee GameCube ownership source. Do not make SsbmPad appear
+- `m_pad_map` is the Melee GameCube ownership source. Do not make MeleePad appear
   to work by translating touch into Wii packets.
 - Preserve the existing touch pipeline. UIKit publishes the local virtual
   GameCube controller; Dolphin owns network packet encoding.
@@ -193,7 +193,7 @@ Lower evidence explains but never promotes a failed higher gate.
   test`; do not claim mobile online support.
 - After NL7: `Online Play with Friends beta works on tested physical Apple
   devices and networks`, with strict-NAT/plaintext limitations disclosed.
-- Only after NL8: `SsbmPad supports Online Play with Friends`.
+- Only after NL8: `MeleePad supports Online Play with Friends`.
 
 ## Stop conditions
 

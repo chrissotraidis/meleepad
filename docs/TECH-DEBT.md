@@ -1,4 +1,4 @@
-# ssbmpad technical debt
+# meleepad technical debt
 
 Last updated: 2026-09-03
 
@@ -234,7 +234,7 @@ touch/controller state through the GameCube pipe that netplay polls. Dolphin's
 CC0 traversal server and eight-character room-code protocol are also present.
 
 The current iOS form is now labeled **Experimental Multiplayer** and explains
-its actual boundary: there are no SsbmPad matchmaking servers or room codes,
+its actual boundary: there are no MeleePad matchmaking servers or room codes,
 one player hosts a direct peer connection, and same-LAN or private-VPN testing
 is the practical starting point. Complete matches remain unreliable. Direct IP
 does not remove Internet NAT work; a broadly usable peer-to-peer flow still

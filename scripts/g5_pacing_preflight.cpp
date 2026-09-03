@@ -59,7 +59,7 @@ public:
   StrictDispatchTimer()
   {
     m_semaphore = dispatch_semaphore_create(0);
-    m_queue = dispatch_queue_create("com.ssbmpad.g5-pacing-timer", DISPATCH_QUEUE_SERIAL);
+    m_queue = dispatch_queue_create("com.meleepad.g5-pacing-timer", DISPATCH_QUEUE_SERIAL);
     m_timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, DISPATCH_TIMER_STRICT, m_queue);
     dispatch_set_context(m_timer, m_semaphore);
     dispatch_source_set_event_handler_f(m_timer, [](void* context) {

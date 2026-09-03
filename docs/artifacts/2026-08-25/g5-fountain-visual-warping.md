@@ -65,7 +65,7 @@ on Fountain at native scale. That portion of the observation is normal
 reference behavior and is closed as `VISUAL-001A`.
 
 The EFB-to-RAM and non-deferred-copy controls were therefore testing an effect
-that was not an ssbmpad defect. Both were reverted; accurate RAM copies are far
+that was not an meleepad defect. Both were reverted; accurate RAM copies are far
 too slow to retain. The user's separate report that the actual fighter bodies
 morph is tracked as `VISUAL-001B`. The supplied single frame contains a
 Bowser/DK intersection that can be a legal grab/hit pose and cannot prove
@@ -90,7 +90,7 @@ adjacent frames or a matched reference sequence classify it.
   `g5-fountain-real-mesh-dense-contact-sheet.jpeg`
   (`5b2935b016781f7f6a9c40c1be6b7983d7cc54228557eef7e998176c67557279`)
 - The lossless 29.985-second window recording is retained locally outside Git
-  at `/private/tmp/ssbmpad-g5-fountain-real-mesh-capture-original.mov`, SHA-256
+  at `/private/tmp/meleepad-g5-fountain-real-mesh-capture-original.mov`, SHA-256
   `50dfcadff8d98038030a4ea3901e2f6d62632fb1791939b201369dfaf051ccdd`.
 - Fresh four-player recurrence:
   `g5-fp-fast-path-attract-mesh-warp.jpeg`

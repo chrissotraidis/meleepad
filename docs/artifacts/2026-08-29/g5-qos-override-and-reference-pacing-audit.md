@@ -18,7 +18,7 @@ and all overrides.
 That contract rejects a permanent game-loop override for two independent
 reasons:
 
-1. SsbmPad has no separate pending user-interactive work item waiting on the
+1. MeleePad has no separate pending user-interactive work item waiting on the
    combined thread for the duration of gameplay. Manufacturing one would
    misrepresent the dependency and leak/elevate resources if not paired.
 2. The prior rejected scheduler reversal already requested
@@ -44,7 +44,7 @@ Upstream Dolphin and Slippi are byte-identical in `CoreTiming.cpp` and
 framebuffer metadata fields and an initializer-order change. Both retain the
 same `Throttle`, `PrecisionTimer::SleepUntil`, presentation sleep,
 `GetUpdatedPresentationTime`, `nextDrawable`, and `presentDrawable` flow used
-by this checkout before SsbmPad's default-dormant observers and retained Metal
+by this checkout before MeleePad's default-dormant observers and retained Metal
 display-sync policy.
 
 Primary-source SHA-256 identities:
@@ -56,7 +56,7 @@ Primary-source SHA-256 identities:
 | `Present.cpp` | `b729e0f2...869` | `24a30dd2...93e` |
 
 There is no unported reference pacing/scheduler implementation to transfer.
-This is a source comparison, not proof that the references meet SsbmPad's
+This is a source comparison, not proof that the references meet MeleePad's
 strict D2 gate.
 
 ## Compiler recheck

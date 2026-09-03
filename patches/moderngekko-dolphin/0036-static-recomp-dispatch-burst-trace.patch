@@ -142,7 +142,7 @@ diff --git a/Source/Core/Common/FramePhaseTiming.h b/Source/Core/Common/FramePha
 @@ -74,7 +74,9 @@
  {
    static const bool enabled = [] {
-     const char* path = std::getenv("SSBMPAD_LIGHTWEIGHT_FRAME_LOG");
+     const char* path = std::getenv("MELEEPAD_LIGHTWEIGHT_FRAME_LOG");
 -    return IsEnabled() || (path != nullptr && path[0] != '\0');
 +    const char* burst_path = std::getenv("STATICRECOMP_DISPATCH_BURST_LOG");
 +    return IsEnabled() || (path != nullptr && path[0] != '\0') ||

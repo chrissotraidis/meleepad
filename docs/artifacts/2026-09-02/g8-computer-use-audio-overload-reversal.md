@@ -32,9 +32,9 @@ The host log supplies a synchronized external event chain:
   assertion labelled `Codex Computer Use interaction`;
 - 11:21:08.456: the host removed an idle service with
   `JETSAM_REASON_MEMORY_IDLE_EXIT`;
-- 11:21:09.282: SsbmPad emitted the 54.2/54.3 report; and
+- 11:21:09.282: MeleePad emitted the 54.2/54.3 report; and
 - 11:21:09.303: Core Audio reported an `overload` for
-  `HostApplicationDisplayID=com.ssbmpad.SsbmPad`, with a 14.548 ms I/O
+  `HostApplicationDisplayID=com.meleepad.MeleePad`, with a 14.548 ms I/O
   duration against an 11.354 ms budget.
 
 The active Computer Use assertion begins 0.849 seconds before the low report,

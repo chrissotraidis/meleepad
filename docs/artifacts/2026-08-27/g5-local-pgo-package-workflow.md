@@ -18,7 +18,7 @@ only the profile-consuming build/package bridge.
 ## Workflow
 
 `scripts/prepare-game.sh` now accepts an optional second argument (or
-`SSBMPAD_PGO_PROFILE`) containing private LLVM profile data. It validates the
+`MELEEPAD_PGO_PROFILE`) containing private LLVM profile data. It validates the
 profile before dependency work, then passes it to the already-retained
 `moderngekko-port --pgo-profile` path. The default one-argument behavior is
 unchanged.
@@ -41,7 +41,7 @@ Usage:
 scripts/package-local-pgo-app.sh \
   /path/to/GALE01-revision-0.iso \
   /private/path/current-idle-fountain.profdata \
-  /private/output/SsbmPad-PGO.app
+  /private/output/MeleePad-PGO.app
 ```
 
 ## End-to-end proof

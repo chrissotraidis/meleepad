@@ -8,7 +8,7 @@ diff --git a/Source/Core/Common/FramePhaseTiming.h b/Source/Core/Common/FramePha
 +inline bool IsEmulatedFrameIndexEnabled()
 +{
 +  static const bool enabled = [] {
-+    const char* path = std::getenv("SSBMPAD_LIGHTWEIGHT_FRAME_LOG");
++    const char* path = std::getenv("MELEEPAD_LIGHTWEIGHT_FRAME_LOG");
 +    return IsEnabled() || (path != nullptr && path[0] != '\0');
 +  }();
 +  return enabled;

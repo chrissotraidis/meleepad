@@ -70,8 +70,8 @@ binary.
 
 Raw summarized measurements are retained at
 `docs/evidence/g5-c-flag-matrix-preflight/results.csv`. Private executables and
-generated source remain under `/private/tmp/ssbmpad-cflag-matrix.EzXdrf` and
-`/private/tmp/ssbmpad-llvm-slice.siHMxr` only.
+generated source remain under `/private/tmp/meleepad-cflag-matrix.EzXdrf` and
+`/private/tmp/meleepad-llvm-slice.siHMxr` only.
 
 ## Research reconciliation
 

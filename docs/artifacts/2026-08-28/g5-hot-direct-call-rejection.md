@@ -132,7 +132,7 @@ Checkpoint validation passed repository safety, dependency bootstrap and patch
 state, 40/40 applicable CTest entries, 16/16 `gcpipe` tests, canonical macOS
 package layout, arm64 identity, and strict deep signing. The three optional
 upstream benchmark/fuzzer executables are not produced by the tools-only build
-and the upstream `playTests` row remains disabled. No SsbmPad process or
+and the upstream `playTests` row remains disabled. No MeleePad process or
 Simulator remains active. The unrelated untracked netplay document was not
 touched.
 

@@ -17,7 +17,7 @@ desktop SDL/ImGui lobby if one serialized iOS owner controls UICommon lifetime,
 session actions, synchronized boot handoff, and runtime attachment.
 
 The new source contract initially failed because
-`SsbmPadOnlinePlayViewController.mm` did not exist. It now checks the three-dot
+`MeleePadOnlinePlayViewController.mm` did not exist. It now checks the three-dot
 entry, native host/join controls, player/compatibility/ready/start state, input
 neutralization, real session methods, synchronized boot handoff, mobile library
 linkage, and the absence of the disconnected-bridge placeholder.
@@ -33,7 +33,7 @@ linkage, and the absence of the disconnected-bridge placeholder.
 - The iOS core build now enables GameCube controllers, builds
   `libmoderngekko_netplay_session.a`, provisions it into the linker response,
   and supplies the same architecture definitions as CMake.
-- `SsbmPadCoreHost` owns the session on one serial queue. Connecting stops solo
+- `MeleePadCoreHost` owns the session on one serial queue. Connecting stops solo
   emulation first; host/join/ready/start delegate to `NetplaySession`; snapshots
   feed UIKit; synchronized boot data is installed before the runtime starts;
   the runtime is attached/finished at its real lifetime boundaries.

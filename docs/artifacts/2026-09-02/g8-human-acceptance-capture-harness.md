@@ -17,10 +17,10 @@ operator-controlled run.
 `scripts/run-g8-human-acceptance.sh` now:
 
 - requires one booted Simulator, or an explicitly selected booted UDID;
-- rejects forwarded SsbmPad and DYLD diagnostic environment;
+- rejects forwarded MeleePad and DYLD diagnostic environment;
 - identifies and hashes the already-installed executable;
 - terminates the prior app, begins HEVC recording before launch, and launches
-  the ordinary `com.ssbmpad.SsbmPad` product;
+  the ordinary `com.meleepad.MeleePad` product;
 - performs no screenshot, accessibility query, UI polling, private input,
   savestate, MemoryWatcher, or profiler action;
 - waits at an interactive terminal while the person supplies every input;

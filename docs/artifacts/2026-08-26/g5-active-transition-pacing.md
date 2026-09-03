@@ -12,7 +12,7 @@ difference actually follow application focus inside one unchanged process?
 
 The restored normal signed package used the corrected module and the existing
 MemoryWatcher route to reach verified VS CSS. In that single process, Computer
-Use raised SsbmPad, raised Activity Monitor to obscure it, and raised SsbmPad
+Use raised MeleePad, raised Activity Monitor to obscure it, and raised MeleePad
 again. Each state was held for at least two minutes. Because the phase writer
 is buffered, the retained comparison uses only the final 3,600 complete rows
 from snapshots taken at the end of each stable state.

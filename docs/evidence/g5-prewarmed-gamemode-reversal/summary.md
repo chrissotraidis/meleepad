@@ -2,7 +2,7 @@
 
 All private raw phase logs, samplers, Game Policy extracts, app bundles,
 profiled module, and savestate remain under
-`/private/tmp/ssbmpad-perf114-115-gamemode.1aRWbj`; no game data is committed.
+`/private/tmp/meleepad-perf114-115-gamemode.1aRWbj`; no game data is committed.
 
 Exact common combat work for every run:
 

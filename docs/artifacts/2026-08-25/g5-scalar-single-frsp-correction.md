@@ -36,7 +36,7 @@ forms. This audit caught and excluded one initially stale generation tree.
 
 The portable profile-free macOS 14 arm64 module is retained outside Git at:
 
-`/private/tmp/ssbmpad-scalar-frsp-module-v2/GALE01/0f09e240e37586a996b2bcbc8904fb589cf2d7cfa79c916e33a7cf1c316a2448-e02b042a2f09321f/gGALE01_recomp-macos14.dylib`
+`/private/tmp/meleepad-scalar-frsp-module-v2/GALE01/0f09e240e37586a996b2bcbc8904fb589cf2d7cfa79c916e33a7cf1c316a2448-e02b042a2f09321f/gGALE01_recomp-macos14.dylib`
 
 SHA-256: `455de1474ee935e279273c25a56f6d537794765c1c755b93e9c0ff64d922a5e1`.
 It is arm64, has macOS 14 minimum deployment, valid ad-hoc signing, and the
@@ -58,7 +58,7 @@ excluded from match evidence.
 The corrected profile-free module produced 200 consecutive app-window PNGs at
 about four captures per second in:
 
-`/private/tmp/ssbmpad-frsp-demo.HjbC6b/adjacent-200`
+`/private/tmp/meleepad-frsp-demo.HjbC6b/adjacent-200`
 
 The four contact sheets are under that run's `contact-sheets/` directory. The
 corpus includes 42 gameplay frames with Peach and a complete Peach cinematic;

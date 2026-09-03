@@ -21,7 +21,7 @@ This is a diagnostic reliability repair, not a game-speed change.
 
 ## Valid measurements
 
-Both samples selected only the live SsbmPad process and were taken inside the
+Both samples selected only the live MeleePad process and were taken inside the
 state-verified exact match. Counts are hardware-counter totals; displayed
 instruction rows are sampling counts and are not substituted for raw totals.
 

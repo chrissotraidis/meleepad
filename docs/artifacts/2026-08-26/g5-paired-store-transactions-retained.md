@@ -51,7 +51,7 @@ source-built runner remained byte-identical and the packaged module hash was
 the canonical value, proving the candidate code was absent. Every metric from
 that run is excluded from candidate evidence. Its temporary CSVs were moved
 recoverably to
-`~/.Trash/ssbmpad-invalid-paired-store-canonical-run-20260826/` and nothing
+`~/.Trash/meleepad-invalid-paired-store-canonical-run-20260826/` and nothing
 from it is committed as candidate evidence.
 
 This exposed a real reproducibility defect: `moderngekko-port` keyed modules

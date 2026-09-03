@@ -30,15 +30,15 @@ Through the visible three-dot menu:
 4. Select the destructive `Remove` action.
 
 The app logged `runtime stop requested` followed by `stored game data removed`.
-The complete `GameData` directory was absent afterward. SsbmPad remained open
+The complete `GameData` directory was absent afterward. MeleePad remained open
 and showed its legal first-run state: no bundled game files and a visible
 `Choose ISO or GCM` action. The memory-card file remained under the separate
 `GC/USA/Card A` directory.
 
 ## Live folder reimport result
 
-The verified backup was cloned into the Files-visible SsbmPad Documents folder.
-Through the visible menu, `Import from SsbmPad Folder` found the sole image and
+The verified backup was cloned into the Files-visible MeleePad Documents folder.
+Through the visible menu, `Import from MeleePad Folder` found the sole image and
 entered the real validation/copy/extraction flow. The progress alert advanced
 through live file names and then dismissed into visible game boot.
 
@@ -66,7 +66,7 @@ Combined retained evidence now observes every row-10 entry:
   explanation; final value restored to off;
 - controller mapping sheet;
 - touch settings, layout edit, and reset;
-- document-picker import/reimport, SsbmPad-folder import, and stored-data
+- document-picker import/reimport, MeleePad-folder import, and stored-data
   removal/recovery;
 - privacy-bounded Report a Problem share sheet.
 

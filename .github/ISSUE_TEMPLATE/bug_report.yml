@@ -1,14 +1,14 @@
 name: Bug report
-description: Share an SsbmPad diagnostic report and the smallest useful visual evidence
+description: Share a MeleePad diagnostic report and the smallest useful visual evidence
 title: "[Bug]: "
 labels: [bug]
 body:
   - type: markdown
     attributes:
       value: |
-        SsbmPad can fill most of this form: choose **••• → Report a Problem… → Report on GitHub** in the app.
+        MeleePad can fill most of this form: choose **••• → Report a Problem… → Report on GitHub** in the app.
 
-        Attach `On My iPhone/iPad → SsbmPad → Diagnostics → Latest-SsbmPad-Diagnostic.log`. If the problem is visual, also attach a screenshot or short video. Never upload game images, extracted assets, generated modules, saves, signing material, or an entire device container.
+        Attach `On My iPhone/iPad → MeleePad → Diagnostics → Latest-MeleePad-Diagnostic.log`. If the problem is visual, also attach a screenshot or short video. Never upload game images, extracted assets, generated modules, saves, signing material, or an entire device container.
   - type: input
     id: report-id
     attributes:
@@ -17,7 +17,7 @@ body:
   - type: input
     id: revision
     attributes:
-      label: SsbmPad revision
+      label: MeleePad revision
     validations:
       required: true
   - type: dropdown
@@ -50,7 +50,7 @@ body:
   - type: upload
     id: diagnostic-report
     attributes:
-      label: SsbmPad diagnostic report
+      label: MeleePad diagnostic report
       accept: ".log,.txt"
   - type: upload
     id: visual-evidence

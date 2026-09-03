@@ -17,7 +17,7 @@ matched-PGO, and visual-closure actions were completed before this diagnostic.
 
 ## Diagnostic change
 
-The default-off `SSBMPAD_FRAME_PHASE_LOG` path now classifies every instruction
+The default-off `MELEEPAD_FRAME_PHASE_LOG` path now classifies every instruction
 fallback as `mfspr`, `mtspr`, cache, or other, and subdivides cache fallbacks by
 XO into `dcbst`, `dcbf`, `dcbi`, and `icbi`. The aggregate and subclass counters
 are retained together so both invariants can be checked per trace:
@@ -26,7 +26,7 @@ are retained together so both invariants can be checked per trace:
 - `cache == dcbst + dcbf + dcbi + icbi`
 
 The canonical Dolphin patch applies cleanly after the pinned prerequisite
-stack, and the native `SsbmPadRunner` incremental build passed. A 658-row boot
+stack, and the native `MeleePadRunner` incremental build passed. A 658-row boot
 smoke populated every expected column and both invariants. It also showed why
 the subdivision was necessary: cache was dominant, but only 85 of 10,857,256
 cache calls were `icbi`.

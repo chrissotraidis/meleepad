@@ -75,7 +75,7 @@ ROM-safe screenshots are retained.
   `2fe01870bfa0fbedc51aa20105ba0738c3b367e98c9566629001a8236e2fa1b3`;
 - runner and module both declare macOS 14.0 minimum; the canonical packager
   preserved the prior app at
-  `build-macos/SsbmPad.app.previous.20260827-001935`;
+  `build-macos/MeleePad.app.previous.20260827-001935`;
 - no booted Simulator.
 
 ## Decision and next experiment

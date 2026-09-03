@@ -23,9 +23,9 @@ repeat therefore prohibited all UI observation until after termination.
 - device: the sole booted iPad Pro 13-inch (M5), iOS 26.5 Simulator
 - installed executable SHA-256:
   `ac4be9ae00f6b3f163785d092a161f423dfaa24f87da0ce0e07d15ebac194cd4`
-- ordinary `com.ssbmpad.SsbmPad` Release launch
+- ordinary `com.meleepad.MeleePad` Release launch
 - persisted stable profile, 1x render scale, native 60-FPS mode
-- no `SSBMPAD_*` environment, savestate, profiler, external pipe, recording,
+- no `MELEEPAD_*` environment, savestate, profiler, external pipe, recording,
   screenshot, accessibility query, or Computer Use polling
 - run from 10:56:16 through 10:59:37 local; terminate first, inspect second
 - retained source log SHA-256 at inspection:

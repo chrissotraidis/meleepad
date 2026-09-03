@@ -16,7 +16,7 @@ frame-time tail on a verified Fountain of Dreams match?
 - the window title held approximately 59.9 FPS during the verified match
 - no Simulator was booted
 
-The dependency-only logger is enabled by `SSBMPAD_FRAME_PHASE_LOG`. It buffers
+The dependency-only logger is enabled by `MELEEPAD_FRAME_PHASE_LOG`. It buffers
 CSV rows at the real present boundary and records present-to-present time,
 static-recompiler CPU-loop wall time, configured guest-idle time, throttle
 sleep, video construction, backbuffer presentation, and audio mixing. It does

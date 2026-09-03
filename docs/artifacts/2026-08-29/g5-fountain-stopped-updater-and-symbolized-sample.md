@@ -29,7 +29,7 @@ disposable app used the retained current-PGO runner and module:
 Two setup attempts are excluded and preserved privately. The first lacked the
 required `Pipes` parent; the second had the directory but no named FIFO. Source
 inspection confirmed that the FIFO backend opens an existing entry. The
-accepted run pre-created private FIFO `Pipes/ssbmpad`, used the balanced
+accepted run pre-created private FIFO `Pipes/meleepad`, used the balanced
 43.2-second controller sequence, and installed unconditional process cleanup.
 
 Fresh endpoints visually bind coherent Fountain combat from 1:44.88 to 0:59.04.

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
-BUNDLE_ID="com.ssbmpad.SsbmPad"
+BUNDLE_ID="com.meleepad.MeleePad"
 
 usage() {
   cat <<'EOF'
@@ -34,8 +34,8 @@ if [[ ! -t 0 ]]; then
   echo "human acceptance requires an interactive terminal" >&2
   exit 2
 fi
-if env | grep -Eq '^SIMCTL_CHILD_(SSBMPAD_|DYLD_)'; then
-  echo "refusing forwarded SsbmPad or DYLD diagnostic environment" >&2
+if env | grep -Eq '^SIMCTL_CHILD_(MELEEPAD_|DYLD_)'; then
+  echo "refusing forwarded MeleePad or DYLD diagnostic environment" >&2
   exit 2
 fi
 
@@ -57,7 +57,7 @@ else
 fi
 
 APP_BUNDLE="$(xcrun simctl get_app_container "$UDID" "$BUNDLE_ID" app)"
-APP_EXECUTABLE="$APP_BUNDLE/SsbmPad"
+APP_EXECUTABLE="$APP_BUNDLE/MeleePad"
 [[ -x "$APP_EXECUTABLE" ]] || {
   echo "installed Release executable is missing: $APP_EXECUTABLE" >&2
   exit 2
@@ -67,7 +67,7 @@ if [[ -n "${G8_EVIDENCE_DIR:-}" ]]; then
   EVIDENCE_DIR="$G8_EVIDENCE_DIR"
   mkdir -p "$EVIDENCE_DIR"
 else
-  EVIDENCE_DIR="$(mktemp -d /private/tmp/ssbmpad-g8-human-acceptance.XXXXXX)"
+  EVIDENCE_DIR="$(mktemp -d /private/tmp/meleepad-g8-human-acceptance.XXXXXX)"
 fi
 
 VIDEO="$EVIDENCE_DIR/route.mov"
@@ -145,7 +145,7 @@ xcrun simctl terminate "$UDID" "$BUNDLE_ID" >/dev/null 2>&1 || true
 app_launched=0
 
 APP_DATA="$(xcrun simctl get_app_container "$UDID" "$BUNDLE_ID" data)"
-RUNTIME_SOURCE="$APP_DATA/Library/Application Support/SsbmPad/Logs/runtime.log"
+RUNTIME_SOURCE="$APP_DATA/Library/Application Support/MeleePad/Logs/runtime.log"
 [[ -s "$RUNTIME_SOURCE" ]] || {
   echo "same-session runtime log is missing: $RUNTIME_SOURCE" >&2
   exit 1

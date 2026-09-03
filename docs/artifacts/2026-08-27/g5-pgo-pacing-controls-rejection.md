@@ -21,7 +21,7 @@ steady p95 is primarily host pacing after longer sleeps, not M1 saturation.
 ## Low-overhead buffered control
 
 Dolphin's existing buffered `render_times.txt` logger was enabled in a
-disposable PGO user tree without `SSBMPAD_FRAME_PHASE_LOG`. MemoryWatcher was
+disposable PGO user tree without `MELEEPAD_FRAME_PHASE_LOG`. MemoryWatcher was
 bound before launch, counted 1,001 advancing fields before `SIGUSR2`, observed
 post-load revision-0 `GameState=0x02020102`, then counted 500 more fields. The
 final 440 render intervals measured:

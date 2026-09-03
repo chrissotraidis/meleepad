@@ -27,7 +27,7 @@ queue tail remains outside the recompiled on-core path.
 
 - `patches/moderngekko-dolphin/0020-efb-vram-prewarm.patch` adds default-
   dormant UID logging and opt-in prewarm of R4, RGBA8, XFB, and half-scale XFB.
-- `apple/macos/SsbmPad` enables the bounded prewarm in the packaged product.
+- `apple/macos/MeleePad` enables the bounded prewarm in the packaged product.
 - `apple/macos/Info.plist` declares the app's games category and current
   `LSSupportsGameMode` eligibility key. A three-bundle screen did not prove a
   causal Game Mode performance benefit.

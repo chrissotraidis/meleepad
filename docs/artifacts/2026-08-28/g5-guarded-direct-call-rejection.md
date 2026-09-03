@@ -143,7 +143,7 @@ After removing the experiment, the restored desktop-tools build passed all
 checks, package layout, arm64 identity, strict deep signing, `git diff
 --check`, shell syntax, and 16/16 `gcpipe` tests. Its frontend, runner, and
 module SHA-256 values are respectively `4b6cc111...fcad3`,
-`93ebc462...63cd5`, and `44366f2e...5b90`. No SsbmPad process or booted
+`93ebc462...63cd5`, and `44366f2e...5b90`. No MeleePad process or booted
 Simulator remained after validation.
 
 ## Evidence

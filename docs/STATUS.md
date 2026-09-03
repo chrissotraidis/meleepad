@@ -1,4 +1,4 @@
-# ssbmpad status
+# meleepad status
 
 ## 2026-09-03 — reconciled netplay beta stop checkpoint
 
@@ -20,7 +20,7 @@ digests and a signed timebase delta. See
 
 ## 2026-09-02 — G9 B1 canonical comparator matches live combat
 
-The first B1 candidate now captures exact netplay state at SsbmPad's symmetric
+The first B1 candidate now captures exact netplay state at MeleePad's symmetric
 caller-qualified guest idle boundary rather than at the asynchronous Pixel
 Engine host callback. Every sixtieth boundary includes sequence, timebase,
 CPU-component hashes, and a sparse digest spanning every MEM1 page. The server
@@ -68,7 +68,7 @@ proof. See
 
 An unchanged ordinary Release emitted one 54.2 FPS / 54.3 VPS / 0.917-speed
 report on a trivial two-draw workload. Host evidence aligns it with a live
-Codex Computer Use assertion and a Core Audio overload for SsbmPad; CPU/video
+Codex Computer Use assertion and a Core Audio overload for MeleePad; CPU/video
 were not saturated. A fresh 180-second run with no UI observation retained 16
 reports at 59.7-60.0 FPS/VPS, 0.989 minimum speed, and only one underrun, even
 while later reaching 171.4% aggregate app CPU.
@@ -212,7 +212,7 @@ The known controller-family defect is corrected in durable outer patches.
 The control Wii protocol test remains green. A pre-fix GameCube assertion
 failed with exit `19` because a client advertised three assigned controllers
 but owned no `m_pad_map` slots. The candidate explicitly selects GameCube for
-SsbmPad, assigns/counts/cleans/starts through that map, and exposes a locked
+MeleePad, assigns/counts/cleans/starts through that map, and exposes a locked
 lobby snapshot.
 
 The focused candidate passes two-client capacity and assignment, exact buttons,
@@ -232,7 +232,7 @@ requested controller slots are assigned through Dolphin's Wii map while Melee
 polls the GameCube map. The protocol test likewise proves only Wii payloads.
 
 The re-audit now covers the current iPhone/iPad shell, native touch path,
-three-dot-menu flow, platform-neutral session owner, SsbmPad-operated
+three-dot-menu flow, platform-neutral session owner, MeleePad-operated
 eight-character traversal service, strict-NAT/relay decision, privacy and save
 sync, iOS lifecycle, security limitations, physical-device matrix, thresholds,
 and a 25-44 engineer-day estimate. The recommended first claim is private
@@ -244,7 +244,7 @@ still waits for the required gates. See `docs/NETPLAY-FEASIBILITY.md`.
 
 The clean sibling SunPad checkout was fast-forwarded to Preview 7 `2608265`.
 Its `792f0e7` fix identifies the three-dot defect precisely: iPadOS can create
-a rectangular selected state while dismissing a primary-action menu. SsbmPad
+a rectangular selected state while dismissing a primary-action menu. MeleePad
 now uses SunPad's fixed circular button configuration and matching Display,
 Controls, and icon-labelled Game Data hierarchy while retaining diagnostic
 sharing and keeping Experimental Performance Mode absent.
@@ -629,7 +629,7 @@ their calls. `-fno-unroll-loops` is an exact no-op; a blanket inline clamp
 grows all three bounded mini-links. A valid four-second Instruments UI trace
 of separate visible 31.1 FPS four-character Brinstar gameplay reports 42.22%
 instruction-delivery, 21.22% processing, 6.66% discarded, and 30.03% useful
-cycles for the exact SsbmPad process. This does not quantify literal Fountain
+cycles for the exact MeleePad process. This does not quantify literal Fountain
 or a physical iPad. Next test mixed-LTO strict PGO only if its binary preflight
 shrinks the named functions and whole module before another fixed Fountain
 reversal. See
@@ -650,7 +650,7 @@ Fountain phase before naming another source candidate. See
 PERF-245 confirms the next narrower mechanism on literal Fountain without
 authorizing a candidate. A guarded private-pipe product route visibly reaches
 P1 Yoshi versus level-1 CPU Zelda on Fountain at 47.7 FPS. The process-selected
-SsbmPad PID 88916 counter summary assigns 41.74% to instruction-delivery
+MeleePad PID 88916 counter summary assigns 41.74% to instruction-delivery
 latency and 7.35% to delivery bandwidth over 5.882B cycles. The two-character
 route is diagnostic-only; it cannot replace the four-character manual failure
 or pass row 7. The row-7 loop now begins each optimization cycle with a cold,
@@ -701,7 +701,7 @@ actual live disconnect/reconnect. The full repository gate passes.
 MENU-237 closes row 10. The live destructive Game Data action stopped the
 runtime, removed the retained image/extracted files, preserved the separate
 memory-card path, and showed the legal first-run chooser. A verified private
-backup was then imported through `Import from SsbmPad Folder`; the app retained
+backup was then imported through `Import from MeleePad Folder`; the app retained
 the exact pinned hash, extracted 1,209 files, left no staging directory, and
 visibly rebooted. The restart-required performance action was toggled on/off
 and restored to off. Combined with G7, import, and diagnostics evidence, every
@@ -758,7 +758,7 @@ separate open defect and is not hidden by this progression pass. See
 
 KEYBOARD-229 repairs a macOS playability regression. The default WASD profile
 was present in the app, but prior automation left both persistent controller
-selectors on `Pipe/0/ssbmpad`, so a normal launch had no keyboard controls.
+selectors on `Pipe/0/meleepad`, so a normal launch had no keyboard controls.
 The wrapper now migrates only that exact internal profile to Quartz in both
 files, keeps arbitrary custom profiles unchanged, and adds Space as a jump
 key. Focused functional/package regressions and the full repository suite pass;
@@ -777,7 +777,7 @@ gates. See `docs/artifacts/2026-08-30/g8-clean-clone-build.md`.
 
 SAVE-223 passes G8 row 8 on macOS and the iPad Simulator. Live Melee name
 entry created `CODM` and `CODX`; both were visibly recovered after normal
-termination and fresh-process relaunch. SsbmPad's FPS setting was also read
+termination and fresh-process relaunch. MeleePad's FPS setting was also read
 back after relaunch on both platforms. Private game data and saves remain
 untracked, both app processes are stopped, and the sole Simulator is shut
 down. See
@@ -810,11 +810,11 @@ required files. The corrected app strictly validated the pinned GALE01
 revision-0 image, retained the exact 1,459,978,240-byte ISO, extracted 1,209
 Melee files, activated them atomically, booted visible frames, survived a
 normal sandbox relaunch, and passed same-filename reimport from the
-Files-visible SsbmPad folder. The temporary Files source was removed; private
+Files-visible MeleePad folder. The temporary Files source was removed; private
 active data remains for later tests. See
 `docs/artifacts/2026-08-30/g8-ipad-game-data-import.md`.
 
-MOBILE-216 passes G6. The same arm64 IOSSIMULATOR SsbmPad app and locally
+MOBILE-216 passes G6. The same arm64 IOSSIMULATOR MeleePad app and locally
 generated ahead-of-time GALE01 module booted sequentially on an iPad Pro
 13-inch (M5) and iPhone 17 Pro Simulator, both on iOS 26.5. Actual touch input
 drove title/menu navigation, fighter selection, and live Classic-mode combat.
@@ -1201,7 +1201,7 @@ blocked. See
 `docs/artifacts/2026-08-29/g5-current-gamemode-activation-probe.md`.
 
 PERF-171 restores Game Mode eligibility to the fastest known local package.
-The ignored `SsbmPad-PGO.app` still had the correct `bd089303...` PGO module
+The ignored `MeleePad-PGO.app` still had the correct `bd089303...` PGO module
 but stale metadata without the games category or `LSSupportsGameMode`, and it
 failed the current package-layout gate. The supported private-profile workflow
 refreshed the bundle with current metadata and runner `e1f3c1d8...`, preserved
@@ -1785,7 +1785,7 @@ ThinLTO remarks now explain that gain as 44,741 selective inlines led by
 41,671 FP-availability sites; hot thresholds are 3,000 while cold sites remain
 325/45. The hottest isolated short long-load is only a roughly 1 ns/call
 opportunity and was rejected before a module build. The validated candidate is
-installed locally as `build-macos/SsbmPad-PGO.app`; the reproducible canonical
+installed locally as `build-macos/MeleePad-PGO.app`; the reproducible canonical
 app remains unchanged.
 
 PERF-062 fixes a real signed-package workload defect. The app now builds with
@@ -2090,7 +2090,7 @@ provisionally accepted by the user's explicit external-display waiver and must
 be replayed later on suitable hardware.
 
 POLISH-225 adds a first-class ROM-safe root README and replaces the inherited
-sun icon with an original controller-free charcoal/silver/crimson SsbmPad
+sun icon with an original controller-free charcoal/silver/crimson MeleePad
 arena-impact emblem. The touch R shoulder now uses the same compact standard
 button and width as L, with matching digital-plus-255/0 trigger semantics. The
 focused layout regression, a fresh Release build, and a live iPad Simulator
@@ -2729,7 +2729,7 @@ remains separately open. See
   `docs/artifacts/2026-08-27/g5-packaged-idle-config-retained.md`.
 - **VISUAL-001A (closed as reference parity):** The blurred/blocky Fountain
   floor reflection appears in PGO, profile-free, no-module, and signed official
-  Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an ssbmpad visual
+  Dolphin 2606a JIT64 SC + Metal native-scale runs. It is not an meleepad visual
   regression. EFB-to-RAM and non-deferred-copy controls were reverted.
 - **VISUAL-001B (closed; recurrence rule remains):** Adjacent `.png` frames 176-184 showed
   Peach's hair and arms deforming into impossible spike/blade shapes over
@@ -2882,7 +2882,7 @@ remains separately open. See
   Slippi expose no distinct supported scheduler route beyond already-rejected
   QoS/dual-core/affinity mechanisms. The clean run changed no pipeline UID
   cache after its pre-run mtime; retained sampling gives shader compilation
-  only 15/12,067 samples. SsbmPad boots a directory blob, so Dolphin's
+  only 15/12,067 samples. MeleePad boots a directory blob, so Dolphin's
   file-disc `LoadGameIntoMemory` wrapper is inert, and FastDisc already failed.
   No shader/DVD/affinity product experiment was justified or launched. G5
   remains open, Final Destination and G6 blocked. Evidence:

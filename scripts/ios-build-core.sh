@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Builds the ModernGekko / Dolphin-derived compatibility runtime for the iOS
-# Simulator (arm64) and provisions the SsbmPad iOS/iPadOS app.
+# Simulator (arm64) and provisions the MeleePad iOS/iPadOS app.
 #
 # Product path: ahead-of-time statically recompiled game code through the
 # compatibility runtime. The product path never enables the compiled PowerPC
@@ -12,8 +12,8 @@ ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 MG="$ROOT/ref/ModernGekko"
 TPL="$ROOT/ref/ModernGekko-Template"
 TOOLCHAIN="$ROOT/scripts/ios-simulator-toolchain.cmake"
-BUILD="$MG/build-ios-iphonesimulator-ssbmpad-static"
-MODULE_BUILD="/tmp/ssbmpad-module-ios-simulator"
+BUILD="$MG/build-ios-iphonesimulator-meleepad-static"
+MODULE_BUILD="/tmp/meleepad-module-ios-simulator"
 
 "$ROOT/scripts/bootstrap-dependencies.sh"
 

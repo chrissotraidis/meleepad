@@ -1,4 +1,4 @@
-# ssbmpad PRD: Super Smash Bros. Melee, native on Apple platforms
+# meleepad PRD: Super Smash Bros. Melee, native on Apple platforms
 
 Status: approved for autonomous execution. Written 24 Aug 2026.
 Audience: an autonomous agentic system with full control of a macOS machine.
@@ -8,13 +8,13 @@ Companion document: `docs/GOAL-LOOP.md` (the operating loop). Read both before d
 
 ## 1. Objective
 
-Build **ssbmpad**: a native ARM64 port of Super Smash Bros. Melee (GameCube, GALE01) for Apple platforms, using static recompilation of the retail `main.dol` (DolRecomp) running against the ModernGekko runtime (Dolphin-derived: GX video via Metal, audio, DVD, PAD, HLE). This is the exact stack that already shipped Super Mario Sunshine as **sunpad**, which is your reference implementation and lives in `ref/sunpad`.
+Build **meleepad**: a native ARM64 port of Super Smash Bros. Melee (GameCube, GALE01) for Apple platforms, using static recompilation of the retail `main.dol` (DolRecomp) running against the ModernGekko runtime (Dolphin-derived: GX video via Metal, audio, DVD, PAD, HLE). This is the exact stack that already shipped Super Mario Sunshine as **sunpad**, which is your reference implementation and lives in `ref/sunpad`.
 
 Order of delivery:
 
 1. Melee running natively on **macOS** (Apple Silicon), playable, sustained 60 fps.
 2. The same core running in the **iPadOS and iOS Simulators** (no JIT, interpreter fallback for uncovered code, software vertex loader).
-3. **SunPad's touch controls and menu system ported over** as the ssbmpad shell: touch overlay, three-dot menu, settings, game data import, and diagnostics logging.
+3. **SunPad's touch controls and menu system ported over** as the meleepad shell: touch overlay, three-dot menu, settings, game data import, and diagnostics logging.
 4. **End-to-end testing** per Section 10, with dated evidence for every claim.
 5. **Online friend play** from the macOS and iPhone/iPad shells, using the
    existing Dolphin-derived fixed-delay protocol, native touch/controller
@@ -111,7 +111,7 @@ Melee-specific reference material (symbols and ground truth, NOT build inputs):
 
 | Repo | What you take from it |
 |---|---|
-| `github.com/doldecomp/melee` (branch `master`) | Symbol names, function map, splits for GALE01. ~90% matched per the 24 Aug sweep. No LICENSE file at root: use for symbols/understanding only, do not vendor its code into ssbmpad. |
+| `github.com/doldecomp/melee` (branch `master`) | Symbol names, function map, splits for GALE01. ~90% matched per the 24 Aug sweep. No LICENSE file at root: use for symbols/understanding only, do not vendor its code into meleepad. |
 | `github.com/akaneia/m-ex` | Headers with function names, addresses, struct definitions for main.dol. Also indirect SMC evidence (Section 6). |
 | `github.com/project-slippi/dolphin` | `Source/Core/Core/Slippi/SlippiSavestate.cpp`, `initBackupLocs()`: a hand-verified map of which GALE01 memory is mutable per frame, plus an exclude list. Also proof Melee's simulation is frame-deterministic at fixed 60 Hz. Reference only. |
 | `github.com/Ploaj/HSDLib` | Understanding the DAT/HSD archive format if data-side debugging is needed. |
@@ -133,7 +133,7 @@ The pipeline is ModernGekko-Template's, the same one sunpad used:
 1. `make tools` (builds DolRecomp and ModernGekko), then `make run ISO=/path/to/melee.iso`. The template extracts to `extracted/<slug>/`, recompiles the DOL to C (default backend; `make llvm-run` for the LLVM backend later, when optimizing), compiles a native module cached by DOL hash and toolchain identity, and launches. After first extraction, use `GAME=<slug>`.
 2. Controller config: ModernGekko has no in-app controller configuration UI. Hand-author or copy a working `GCPadNew.ini` into `~/.local/share/moderngekko/Config/` (Dolphin format). `ref/sunpad/apple/macos/default-GCPadNew.ini` and `default-config.ini` are working starting points; keyboard bindings are enough for bring-up.
 3. Bring-up ladder, each rung with evidence: process launches and renders anything at all; intro/title screen; menus navigable with input; character select; 1v1 match on Final Destination; audio present and continuous.
-4. Then package as a proper macOS app following `ref/sunpad/scripts/package-macos-app.sh` and `apple/macos/`, adapted to ssbmpad naming.
+4. Then package as a proper macOS app following `ref/sunpad/scripts/package-macos-app.sh` and `apple/macos/`, adapted to meleepad naming.
 
 Reaching the title screen already exceeds all public GameCube-recomp prior art except sunpad itself (the most advanced public GameCube recomp, sp00nznet/ww, is stuck on its title screen). Do not treat early instability as evidence the route is wrong.
 
@@ -174,13 +174,13 @@ Build both destinations, one Simulator at a time (see GOAL-LOOP.md): an iPad Sim
 
 ### 9.2 Porting the SunPad touch controls and menu
 
-Port the shell from `ref/sunpad/apple/`, renaming SunPad → SsbmPad/ssbmpad throughout:
+Port the shell from `ref/sunpad/apple/`, renaming SunPad → MeleePad/meleepad throughout:
 
 - `apple/shared/`: `SunPadSettings`, `SunPadInputState`, `SunPadInputMixer`, `SunPadControllerMapping`, `SunPadInputPipeEncoder`, `SunPadDiagnostics`. These are platform-neutral; port nearly as-is. Input reaches Dolphin via the pipe-input bridge (Dolphin Pipes device).
 - `apple/ios/`: `SunPadGameOverlay` (touch overlay: main stick, C-stick, A/B/X/Y/Z/Start/L/R, D-pad), `SunPadGameViewController`, `SunPadCoreHost`, `SunPadDiscExtractor`, app delegate, Info.plist, PrivacyInfo.
 - Melee-specific layout work, the only real design task: Melee's control demands differ from Sunshine's (C-stick smashes, L/R analog shielding with digital click, wavedash-era timing). Start from the sunpad landscape layout (left: movement stick, D-pad, L; right: C-stick, A/B/X/Y diamond, Z, R, Start) and adjust for Melee; keep the R pressure slider concept for analog shield, and add the same for L. Keep Move-mode drag customization, opacity/size settings, reset, and auto-hide on physical controller connect.
 - Three-dot menu: render scale 1x-4x (live via `Config::GFX_EFB_SCALE`), aspect (original 4:3 default; 16:9 and Fill as experimental), FPS counter, controller mapping, touch layout edit/reset, Game Data & Saves (import/reimport/remove via Files), Share Diagnostic Log, and Report a Problem. Do not expose performance experiments as product settings.
-- Logging: replicate sunpad's diagnostics wholesale. Breadcrumbs (boot, display, controller, lifecycle, memory warnings, input-pipe, runtime warnings/errors, screenshot markers, runtime exit) to the unified log and `Library/Application Support/SsbmPad/Logs/runtime.log`; privacy-bounded export that excludes game images, extracted data, and saves.
+- Logging: replicate sunpad's diagnostics wholesale. Breadcrumbs (boot, display, controller, lifecycle, memory warnings, input-pipe, runtime warnings/errors, screenshot markers, runtime exit) to the unified log and `Library/Application Support/MeleePad/Logs/runtime.log`; privacy-bounded export that excludes game images, extracted data, and saves.
 - Developer-only performance experiments may use explicit launch arguments and must log their active identity. Melee is natively 60 FPS; normal launches always use the stable 100% clock profile, and experimental clock or scheduling policies must not appear in the product menu.
 - GameController framework support with sunpad's slot semantics (slot retention, player-1 reclaim, held-input clearing on removal, touch auto-hide). Melee is a 4-player game: preserve sunpad's multi-slot handling and verify at least 2 physical/virtual controllers map to P1/P2.
 
@@ -221,7 +221,7 @@ Follow sunpad's HANDOFF.md rule: "Do not convert configured or source-inspected 
 
 ## 12. Legal, provenance, and wording
 
-- The runtime is GPL-3.0-or-later (Dolphin-derived, like sunpad). Distribution is sideload; GPL is acceptable for this program and not a blocker. ssbmpad carries the same license and THIRD_PARTY_NOTICES pattern as sunpad.
+- The runtime is GPL-3.0-or-later (Dolphin-derived, like sunpad). Distribution is sideload; GPL is acceptable for this program and not a blocker. meleepad carries the same license and THIRD_PARTY_NOTICES pattern as sunpad.
 - `doldecomp/melee` has no LICENSE file at root: symbols and understanding only; do not vendor its code.
 - The repo and all artifacts you produce must contain no Nintendo-owned material: no ROM, no extracted assets, no generated module with game code, no saves. Port sunpad's `audit-ios-package.sh` / repository-check pattern to enforce this mechanically.
 - Approved description wording, mandatory whenever the project describes itself (README, About screen): this is a static recompilation of the retail GameCube executable, running against a Dolphin-derived runtime for graphics, audio, and HLE. The user supplies their own legally obtained disc image. Unofficial; no Nintendo affiliation or endorsement. Do not describe it as an emulator, and do not describe it as emulator-free.

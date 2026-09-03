@@ -8,7 +8,7 @@ Status: **APPLE RECOMMENDED LIFECYCLE ALREADY SATISFIED; NO OPACITY/RETAIN CANDI
 
 Apple's current Metal guidance says blocking `nextDrawable` can be aggravated
 when an application acquires a drawable too early, retains it too long, or
-prevents direct-to-display presentation. Does SsbmPad violate one of those
+prevents direct-to-display presentation. Does MeleePad violate one of those
 conditions in a way that explains PERF-207's drawable waits?
 
 Primary references:

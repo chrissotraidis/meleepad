@@ -7,7 +7,7 @@
 int main()
 {
   using namespace std::chrono_literals;
-  if (setenv("SSBMPAD_FRAME_PHASE_LOG", "/private/tmp/ssbmpad-phase-preflight.csv", 1) != 0)
+  if (setenv("MELEEPAD_FRAME_PHASE_LOG", "/private/tmp/meleepad-phase-preflight.csv", 1) != 0)
     return 1;
 
   const auto before = Common::FramePhaseTiming::GetTotals();

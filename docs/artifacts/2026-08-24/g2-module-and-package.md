@@ -16,8 +16,8 @@ Status: **PASS**
 
 ## App bundle
 
-- `SsbmPadFrontend`, `SsbmPadRunner`, and the module are arm64.
-- Bundle identifier: `com.ssbmpad.SsbmPad.macos`.
+- `MeleePadFrontend`, `MeleePadRunner`, and the module are arm64.
+- Bundle identifier: `com.meleepad.MeleePad.macos`.
 - `codesign --verify --deep --strict` passes with ad-hoc signing.
 - No `.iso`, `.dol`, `.wbfs`, or `.rvz` exists in the app bundle.
 - The extracted retail game remains under Application Support and is ignored

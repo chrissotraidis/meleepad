@@ -94,7 +94,7 @@ A local direct-MEM1 read experiment compiled and removed those panic lines,
 but its freshly linked runner then hung while CoreAudio instantiated the Jump
 Desktop output device. Closing that window did not terminate the runner; a
 second launch briefly created two runner processes before the stale PID was
-noticed. Both exact SsbmPad PIDs were terminated, all experimental source was
+noticed. Both exact MeleePad PIDs were terminated, all experimental source was
 restored, Jump Desktop Audio was restored, and no runner or Simulator remains.
 
 The next watcher experiment must first expose a unit-testable static-recomp

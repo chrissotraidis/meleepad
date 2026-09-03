@@ -142,7 +142,7 @@ hashes were restored again, and no runner or Simulator remains active.
 ## Attribution correction: the motivating sample was not combat
 
 The pre-candidate sample at
-`/private/tmp/SsbmPadRunner_2026-08-25_033056_8jXn.sample.txt` was captured at
+`/private/tmp/MeleePadRunner_2026-08-25_033056_8jXn.sample.txt` was captured at
 03:30:57. Its dominant generated address was `0x80331940` (176 of 685 CPU
 samples). The revision-0 symbol map places that address inside
 `__THPDecompressiMCURow640x480` (`0x80331470-0x80332E7C`), Melee's THP video

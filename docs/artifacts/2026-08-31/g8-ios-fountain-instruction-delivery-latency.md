@@ -18,7 +18,7 @@ single-core settings. No live log stream ran during the accepted route.
 
 The first private-pipe attempt exposed a harness error rather than a product
 result. `startInputConsumer` publishes a neutral product snapshot at 60 Hz
-unless `SSBMPAD_EXTERNAL_PIPE_INPUT=1` is set before launch, so unguarded pipe
+unless `MELEEPAD_EXTERNAL_PIPE_INPUT=1` is set before launch, so unguarded pipe
 commands are immediately overwritten. The route was restarted with that
 documented private diagnostic guard, and only the guarded run is retained.
 
@@ -36,10 +36,10 @@ acceptance workload and cannot pass row 7.
 Instruments used the Apple M1 host, all-process recording, the guided
 `Instruction Delivery Bottlenecks` mode, and a rolling capture-last-five-second
 window. Run 2 retained 4 seconds while live Fountain combat remained active.
-The recorded track was then filtered and selected as `SsbmPad` PID 88916;
+The recorded track was then filtered and selected as `MeleePad` PID 88916;
 the process-specific summary was:
 
-| Metric | SsbmPad Run 2 |
+| Metric | MeleePad Run 2 |
 |---|---:|
 | Cycles | 5,881,669,124 |
 | Instruction Delivery Latency | 41.74% |
@@ -52,7 +52,7 @@ Private evidence hashes:
 
 - live Fountain image:
   `24960642a6f5e3be617aab2000e5f4e8a00934583ee83c47c1b860976c911db4`;
-- selected SsbmPad process summary:
+- selected MeleePad process summary:
   `494d656761d946684eccbabac59f46eabb57703767e5e2d94b714dd3a7cfa1ed`.
 
 ## Interpretation
@@ -84,6 +84,6 @@ new causal attribution.
   complete cold routes, the five-minute manual route, and the four-character
   failure reversal.
 
-The app was stopped and `SSBMPAD_EXTERNAL_PIPE_INPUT` was unset. No ROM,
+The app was stopped and `MELEEPAD_EXTERNAL_PIPE_INPUT` was unset. No ROM,
 generated module, trace, profile, save, extracted data, or private path is
 committed.

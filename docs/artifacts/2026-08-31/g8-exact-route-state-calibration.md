@@ -28,7 +28,7 @@ time limit. Rebooting Simulator reset those rules to the two-minute default.
 
 The retained calibration runtime log is private and contains no ROM data:
 
-- path: `/private/tmp/ssbmpad-perf248-calibration.log`
+- path: `/private/tmp/meleepad-perf248-calibration.log`
 - SHA-256:
   `1b5247e5e7b26f9709b9cb3bbbcc91bdd4670c5c18e38946ec56f7d0900bf13a`
 

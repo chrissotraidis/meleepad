@@ -14,7 +14,7 @@ coherent before the next falsifiable performance investigation.
 ## Command
 
 ```sh
-ctest --test-dir ref/ModernGekko/build-desktop-app-ssbmpad \
+ctest --test-dir ref/ModernGekko/build-desktop-app-meleepad \
   --output-on-failure -R '^moderngekko\.' -j 4
 ```
 

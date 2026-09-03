@@ -5,7 +5,7 @@ Date: 2026-08-25
 ## Controller-path result
 
 Temporary, default-off traces in the vendored Pipe, GCPad, and SI paths proved
-one complete input edge. The active device was `Pipe/0/ssbmpad`; the A binding
+one complete input edge. The active device was `Pipe/0/meleepad`; the A binding
 resolved exactly one control; the same `PipeInput` address received `PRESS A`
 and returned `1.0`; `GCPadStatus` produced `0x0100`; and SI observed the same
 button value. No controller implementation change was required.

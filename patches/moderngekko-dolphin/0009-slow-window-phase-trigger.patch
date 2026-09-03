@@ -13,9 +13,9 @@ index aee78c0299..9f6688be8f 100644
 @@ -56,17 +57,24 @@ public:
                  "fallback_other,cache_controls,cache_control_dcbst,cache_control_dcbf,"
                  "cache_control_dcbi,cache_control_icbi\n";
-+      if (const char* start_frame = std::getenv("SSBMPAD_FRAME_PHASE_SLOW_START_FRAME"))
++      if (const char* start_frame = std::getenv("MELEEPAD_FRAME_PHASE_SLOW_START_FRAME"))
 +        m_slow_start_frame = std::strtoull(start_frame, nullptr, 10);
-+      if (const char* arm_path = std::getenv("SSBMPAD_FRAME_PHASE_SLOW_ARM_FILE"))
++      if (const char* arm_path = std::getenv("MELEEPAD_FRAME_PHASE_SLOW_ARM_FILE"))
 +      {
 +        m_slow_arm_path = arm_path;
 +        m_slow_armed = false;
@@ -57,7 +57,7 @@ index aee78c0299..9f6688be8f 100644
 +      m_rolling_count = std::min(m_rolling_count + 1, m_rolling_frame_ms.size());
 +
 +      constexpr double slow_window_ms = 60.0 * 1000.0 / 55.0;
-+      const char* marker_path = std::getenv("SSBMPAD_FRAME_PHASE_SLOW_MARKER");
++      const char* marker_path = std::getenv("MELEEPAD_FRAME_PHASE_SLOW_MARKER");
 +      if (marker_path && m_rolling_count == m_rolling_frame_ms.size() &&
 +          m_rolling_total_ms > slow_window_ms)
 +      {

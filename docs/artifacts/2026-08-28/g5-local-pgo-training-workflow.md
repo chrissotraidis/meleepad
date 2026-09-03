@@ -88,7 +88,7 @@ The first text difference occurs inside `func_80345940`; 127,816 bytes differ
 across 16,115 small regions within that one enormous generated function. This
 is a valid profile-directed code-layout difference, not evidence that either
 module is semantically wrong. The locally trained binary therefore remains a
-diagnostic product and does not replace `build-macos/SsbmPad-PGO.app`.
+diagnostic product and does not replace `build-macos/MeleePad-PGO.app`.
 
 Validation found that the reusable oracle app still carried its older
 pre-display-sync runner. Repackaging it through PERF-071 selected the cached
@@ -129,7 +129,7 @@ recorded tail is the acceptance result. This reproduces the PGO compute class
 but fails the absolute G5 p95/p99/worst requirement.
 
 The supplied incident `7B988C01-591F-412F-89BB-A16A913E5680` belongs to the
-older disposable `SsbmPad-FPCFG-Instrument.app` and traps in `ImGui::GetIO`
+older disposable `MeleePad-FPCFG-Instrument.app` and traps in `ImGui::GetIO`
 while `Emuthread - Starting`. It is not a crash of this locally trained app.
 The report alone does not establish which external action triggered it; the
 retained harness rule is still to withhold state-load signals until an

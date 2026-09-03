@@ -1,4 +1,4 @@
-SsbmPad iPad Simulator combat sample summary
+MeleePad iPad Simulator combat sample summary
 Date: 2026-08-30
 Source: 10-second /usr/bin/sample capture during live four-character combat
 Platform: arm64 iOS Simulator
@@ -21,4 +21,4 @@ CPU-GPU thread sample count and is not the primary limiter in this capture.
 
 The raw sample is intentionally not committed because it contains private
 absolute Simulator/container paths. Counts above can be reproduced from the
-retained private capture /tmp/ssbmpad-ipad-combat-20260830.sample.txt.
+retained private capture /tmp/meleepad-ipad-combat-20260830.sample.txt.

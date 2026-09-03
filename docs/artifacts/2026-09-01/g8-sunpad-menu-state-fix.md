@@ -18,14 +18,14 @@ dismissed. SunPad prevents it by assigning one explicit circular
 The pinned `ref/sunpad` dependency remains unchanged. This is a narrow source
 transfer, not an unreviewed dependency upgrade.
 
-## SsbmPad change
+## MeleePad change
 
 - use the same immutable circular configuration for the ellipsis button;
 - retain the white glyph and existing dark translucent appearance;
 - group render/aspect actions under `Display`;
 - group controller/touch actions under `Controls`;
 - add the upstream-style icon to `Game Data & Saves`;
-- retain SsbmPad's `Share Diagnostic Log…` and `Report a Problem…` actions;
+- retain MeleePad's `Share Diagnostic Log…` and `Report a Problem…` actions;
 - keep Experimental Performance Mode absent.
 
 `tests/test-experimental-performance-config.sh` now rejects loss of the fixed

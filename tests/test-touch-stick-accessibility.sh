@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
-OVERLAY="$ROOT/apple/ios/SsbmPadGameOverlay.mm"
+OVERLAY="$ROOT/apple/ios/MeleePadGameOverlay.mm"
 
 grep -Fq 'configureAccessibilityWithLabel:@"Move stick"' "$OVERLAY"
 grep -Fq 'configureAccessibilityWithLabel:@"C stick"' "$OVERLAY"

@@ -15,7 +15,7 @@ that has not already been tested?
 
 SunPad's Apple performance research explicitly identifies shader-worker
 competition as a possible cold-scene cause, but its scheduling remedies are
-the same QoS and CPU/video split already rejected in SsbmPad. Its retained
+the same QoS and CPU/video split already rejected in MeleePad. Its retained
 dual-core route produced FIFO desynchronization and is not transferable as a
 safe default.
 
@@ -62,7 +62,7 @@ stall window. No A/B was launched.
 
 ## Extracted-disc streaming screen
 
-SsbmPad boots `sys/main.dol` through Dolphin's `DirectoryBlobReader` over the
+MeleePad boots `sys/main.dol` through Dolphin's `DirectoryBlobReader` over the
 already extracted private game tree. `MAIN_LOAD_GAME_INTO_MEMORY` only wraps a
 file-backed disc `BlobReader` in `CreateDiscForCore`; it is not applied to this
 directory-blob boot path. A retained 12,067-sample profile gives the DVD worker

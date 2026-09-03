@@ -12,7 +12,7 @@ confirmed in macOS Game Mode before state load?
 
 ## Controlled run
 
-PERF-173 copied the ignored local `SsbmPad-PGO.app` into a disposable signed
+PERF-173 copied the ignored local `MeleePad-PGO.app` into a disposable signed
 LaunchServices bundle. The wrapper stayed parent of:
 
 - runner SHA-256

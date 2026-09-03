@@ -70,7 +70,7 @@ The runner emitted, in order:
 The start occurred only when the watcher verified the main-menu route state.
 The dump occurred when the same route entered VS CSS and the predicate became
 false. The raw profile is retained outside Git at
-`/private/tmp/ssbmpad-pgo-idle-combat.ILpAsI/profiles/run-50941.profraw`,
+`/private/tmp/meleepad-pgo-idle-combat.ILpAsI/profiles/run-50941.profraw`,
 SHA-256
 `6c8cf1291d888ef165500780d9e3ec7d362423e5878d8e905d45ecf82f1a8110`.
 Its merged profile contains one dump call. The process then reported that the

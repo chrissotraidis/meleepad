@@ -204,7 +204,7 @@ argument written down.
 | Memory/FP helper layer (`g_mem_write_journal` test per store) | `ref/ModernGekko/vendor/dolphin/GXRuntime/include/core/cpu.h` |
 | Runtime config (no `MAIN_CPU_THREAD`; shader mode; audio) | `ref/ModernGekko/src/runtime/dolphin_runtime.cpp:487-533` |
 | Single-core default | `ref/ModernGekko/vendor/dolphin/Source/Core/Core/Config/MainSettings.cpp:61-65` |
-| App thread/QoS/idle-PC/config | `apple/ios/SsbmPadCoreHost.mm` |
+| App thread/QoS/idle-PC/config | `apple/ios/MeleePadCoreHost.mm` |
 | Simulator FB-fetch, audio diag, fallback opcode counters | `patches/moderngekko-dolphin/0027-…`, `0028-…`, `0006-…` |
 | iOS underrun/prebuffer behavior | `ref/ModernGekko/vendor/dolphin/Source/Core/AudioCommon/Mixer.cpp:560-660` |
 

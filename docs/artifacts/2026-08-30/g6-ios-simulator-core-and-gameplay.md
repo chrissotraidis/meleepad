@@ -4,7 +4,7 @@ Date: 2026-08-30
 
 ## Decision
 
-G6 passes. The same SsbmPad application and ahead-of-time GALE01 module booted
+G6 passes. The same MeleePad application and ahead-of-time GALE01 module booted
 through the no-JIT iOS Simulator runtime on an iPad Simulator and then an
 iPhone Simulator. Both reached live Classic-mode combat using the on-screen
 controller. G7 is now the active goal.
@@ -15,7 +15,7 @@ shell/control/settings/diagnostics matrix.
 
 ## Product path
 
-- The app target is `com.ssbmpad.SsbmPad`, arm64 `IOSSIMULATOR`, minimum iOS
+- The app target is `com.meleepad.MeleePad`, arm64 `IOSSIMULATOR`, minimum iOS
   16.0.
 - The locally generated `gGALE01_recomp.dylib` is also arm64
   `IOSSIMULATOR`, minimum iOS 16.0. The tested module was 82,821,272 bytes.

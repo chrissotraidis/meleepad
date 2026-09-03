@@ -30,7 +30,7 @@ gate.
 
 The full report supplied on 2026-08-27 is incident
 `9AE31C76-671C-42F8-89AF-D64EE5BA5059`, process 24720 from the disposable
-`SsbmPad-fp-inline.app`. It trapped on the main thread 27.86 seconds after
+`MeleePad-fp-inline.app`. It trapped on the main thread 27.86 seconds after
 launch while the emulation thread was still named `Emuthread - Starting` and
 waiting for asynchronous shader compilation. The executable UUID
 `40F7BF02-D790-3451-A619-755F50B2120C` matches the retained disposable app.

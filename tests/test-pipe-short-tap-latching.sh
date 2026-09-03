@@ -9,7 +9,7 @@ trap 'rm -rf "$TEMP_DIR"' EXIT
 clang++ -std=c++20 \
   -I"$DOLPHIN/Source/Core" \
   -I"$DOLPHIN/Externals/fmt/fmt/include" \
-  "$ROOT/tests/SsbmPadPipeShortTapTests.cpp" \
-  -o "$TEMP_DIR/SsbmPadPipeShortTapTests"
+  "$ROOT/tests/MeleePadPipeShortTapTests.cpp" \
+  -o "$TEMP_DIR/MeleePadPipeShortTapTests"
 
-"$TEMP_DIR/SsbmPadPipeShortTapTests"
+"$TEMP_DIR/MeleePadPipeShortTapTests"

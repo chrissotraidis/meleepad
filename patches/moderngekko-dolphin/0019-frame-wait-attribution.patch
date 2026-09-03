@@ -372,9 +372,9 @@ diff --git a/Source/Core/VideoCommon/Present.cpp b/Source/Core/VideoCommon/Prese
 +
 +    if (!m_spike_captured)
 +    {
-+      const char* marker_path = std::getenv("SSBMPAD_FRAME_PHASE_SPIKE_MARKER");
-+      const char* threshold_text = std::getenv("SSBMPAD_FRAME_PHASE_SPIKE_MS");
-+      const char* min_frame_text = std::getenv("SSBMPAD_FRAME_PHASE_SPIKE_MIN_EMULATED_FRAME");
++      const char* marker_path = std::getenv("MELEEPAD_FRAME_PHASE_SPIKE_MARKER");
++      const char* threshold_text = std::getenv("MELEEPAD_FRAME_PHASE_SPIKE_MS");
++      const char* min_frame_text = std::getenv("MELEEPAD_FRAME_PHASE_SPIKE_MIN_EMULATED_FRAME");
 +      const double threshold_ms = threshold_text ? std::strtod(threshold_text, nullptr) : 33.0;
 +      const u64 min_emulated_frame = min_frame_text ? std::strtoull(min_frame_text, nullptr, 10) : 0;
 +      if (marker_path && emulated_frame >= min_emulated_frame && total_ms > threshold_ms)

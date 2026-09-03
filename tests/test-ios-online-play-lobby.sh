@@ -2,14 +2,14 @@
 set -euo pipefail
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
-OVERLAY="$ROOT/apple/ios/SsbmPadGameOverlay.mm"
-OVERLAY_HEADER="$ROOT/apple/ios/SsbmPadGameOverlay.h"
-CONTROLLER="$ROOT/apple/ios/SsbmPadGameViewController.mm"
-LOBBY="$ROOT/apple/ios/SsbmPadOnlinePlayViewController.mm"
-LOBBY_HEADER="$ROOT/apple/ios/SsbmPadOnlinePlayViewController.h"
-PROJECT="$ROOT/SsbmPad.xcodeproj/project.pbxproj"
-CORE="$ROOT/apple/ios/SsbmPadCoreHost.mm"
-CORE_HEADER="$ROOT/apple/ios/SsbmPadCoreHost.h"
+OVERLAY="$ROOT/apple/ios/MeleePadGameOverlay.mm"
+OVERLAY_HEADER="$ROOT/apple/ios/MeleePadGameOverlay.h"
+CONTROLLER="$ROOT/apple/ios/MeleePadGameViewController.mm"
+LOBBY="$ROOT/apple/ios/MeleePadOnlinePlayViewController.mm"
+LOBBY_HEADER="$ROOT/apple/ios/MeleePadOnlinePlayViewController.h"
+PROJECT="$ROOT/MeleePad.xcodeproj/project.pbxproj"
+CORE="$ROOT/apple/ios/MeleePadCoreHost.mm"
+CORE_HEADER="$ROOT/apple/ios/MeleePadCoreHost.h"
 BUILD_CORE="$ROOT/scripts/ios-build-core.sh"
 PROVISION="$ROOT/scripts/ios-provision.sh"
 INFO="$ROOT/apple/ios/Info.plist"
@@ -29,7 +29,7 @@ for contract in \
 done
 
 for contract in \
-  'SsbmPadOnlinePlayViewController' \
+  'MeleePadOnlinePlayViewController' \
   'presentViewController:navigation' \
   'clearInputFromTouch:YES' \
   'clearInputFromTouch:NO' \
@@ -64,8 +64,8 @@ if grep -Fq 'Room codes arrive in a later goal' "$LOBBY"; then
   exit 1
 fi
 
-grep -Fq 'SsbmPadOnlinePlayViewController.mm in Sources' "$PROJECT"
-grep -Fq 'SsbmPadOnlinePlayViewController.h' "$PROJECT"
+grep -Fq 'MeleePadOnlinePlayViewController.mm in Sources' "$PROJECT"
+grep -Fq 'MeleePadOnlinePlayViewController.h' "$PROJECT"
 
 for contract in \
   'beginNetplayHostingWithNickname:' \

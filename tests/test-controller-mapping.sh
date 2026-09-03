@@ -2,14 +2,14 @@
 set -euo pipefail
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
-OUT="$(mktemp /tmp/ssbmpad-controller-mapping.XXXXXX)"
+OUT="$(mktemp /tmp/meleepad-controller-mapping.XXXXXX)"
 trap 'rm -f "$OUT"' EXIT
-CORE="$ROOT/apple/ios/SsbmPadCoreHost.mm"
+CORE="$ROOT/apple/ios/MeleePadCoreHost.mm"
 
 xcrun clang++ -std=c++20 -fobjc-arc -framework Foundation \
   -I"$ROOT/apple/shared" \
-  "$ROOT/tests/SsbmPadControllerMappingTests.mm" \
-  "$ROOT/apple/shared/SsbmPadControllerMapping.mm" \
+  "$ROOT/tests/MeleePadControllerMappingTests.mm" \
+  "$ROOT/apple/shared/MeleePadControllerMapping.mm" \
   -o "$OUT"
 "$OUT"
 

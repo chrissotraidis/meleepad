@@ -5,7 +5,7 @@ Date: 2026-08-30
 ## Decision
 
 G7 passes. On the iPad Pro 13-inch (M5) Simulator running iOS 26.5, the
-SsbmPad touch overlay and three-dot menu remained responsive over live Melee,
+MeleePad touch overlay and three-dot menu remained responsive over live Melee,
 changed render resolution and aspect ratio live, edited and reset the touch
 layout, exposed the controller/game-data/report actions, toggled the FPS
 overlay, and generated a privacy-bounded diagnostic file. G6 already proved
@@ -33,9 +33,9 @@ target/scene rows still require their own evidence.
 - `Controller Button Mapping` opened against the Simulator's connected
   `Gamepad` and showed GameCube A/B/X/Y/Z mappings.
 - `Game Data & Saves` exposed import/reimport, import from the Files-visible
-  SsbmPad folder, and removal. The destructive removal was not invoked; the
+  MeleePad folder, and removal. The destructive removal was not invoked; the
   full import/removal matrix belongs to G8.
-- `Report a Problem` produced `Latest-SsbmPad-Diagnostic.log` and presented
+- `Report a Problem` produced `Latest-MeleePad-Diagnostic.log` and presented
   the system share sheet without transmitting the file.
 
 Retained visual evidence:
@@ -67,7 +67,7 @@ graphics, performance, lifecycle, runtime, and `native-60-fps` context.
 
 ## Regression gate
 
-The repository gate now compiles and runs SsbmPad-native focused tests for:
+The repository gate now compiles and runs MeleePad-native focused tests for:
 
 - input-pipe encoding and zero-initialized controller snapshots;
 - physical-controller mapping and corrupt-setting fallback;

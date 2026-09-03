@@ -10,7 +10,7 @@ Does the persistently busy root-owned Logitech Options+ updater cause the
 remaining Final Destination wall-minus-thread tail?
 
 The updater had repeatedly consumed about 25-31% of one CPU while PERF-140
-showed that slow rows lost whole-process execution rather than adding SsbmPad
+showed that slow rows lost whole-process execution rather than adding MeleePad
 blocking or syscall activity. The user explicitly authorized stopping that
 exact process. PID 276 was verified as the single
 `com.logi.optionsplus.updater` launch daemon and entered state `Ts` at 0% CPU.
@@ -71,6 +71,6 @@ a same-session A/B/A reversal because the user directed that the Logitech
 process remain stopped, so do not claim exclusive causality for the tail
 improvement.
 
-Retain no SsbmPad product change and do not optimize Logitech behavior inside
+Retain no MeleePad product change and do not optimize Logitech behavior inside
 the repository. Continue G5 from the residual required-stage pacing failure;
 G6 remains blocked.

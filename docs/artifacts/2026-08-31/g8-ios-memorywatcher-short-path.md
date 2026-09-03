@@ -27,7 +27,7 @@ the original long destination.
 
 ## Smallest retained change
 
-`SsbmPadCoreHost` now recognizes `SSBMPAD_RUNTIME_USER_DIRECTORY` only in a
+`MeleePadCoreHost` now recognizes `MELEEPAD_RUNTIME_USER_DIRECTORY` only in a
 Simulator build. The override is accepted only when:
 
 1. resolving symlinks yields the exact normal app user directory; and

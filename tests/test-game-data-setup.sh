@@ -2,8 +2,8 @@
 set -euo pipefail
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
-CONTROLLER="$ROOT/apple/ios/SsbmPadGameViewController.mm"
-OVERLAY="$ROOT/apple/ios/SsbmPadGameOverlay.mm"
+CONTROLLER="$ROOT/apple/ios/MeleePadGameViewController.mm"
+OVERLAY="$ROOT/apple/ios/MeleePadGameOverlay.mm"
 
 python3 - "$CONTROLLER" <<'PY'
 from pathlib import Path

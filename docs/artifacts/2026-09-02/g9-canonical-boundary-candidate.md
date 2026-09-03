@@ -14,7 +14,7 @@ different native dispatch boundaries, so its PC/register differences cannot
 alone prove emulated divergence.
 
 Patch `0044-netplay-canonical-boundary.patch` instead captures state at the
-configured caller-qualified guest idle boundary. SsbmPad configures the same
+configured caller-qualified guest idle boundary. MeleePad configures the same
 PC/LR pair on macOS and iPadOS. If no caller-qualified boundary exists, the
 configured main-idle PC is the fallback. Capture is dormant outside netplay.
 

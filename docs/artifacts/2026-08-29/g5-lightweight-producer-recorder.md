@@ -18,7 +18,7 @@ Patch `0023-lightweight-frame-timing.patch` adds an opt-in recorder at
 `PerformanceTracker::Count()`. It reuses Dolphin's existing steady-clock
 timestamp and performs one `CLOCK_THREAD_CPUTIME_ID` read for each accepted
 render interval. Records stay in a pre-reserved vector and are written once
-during destruction to the exact path in `SSBMPAD_LIGHTWEIGHT_FRAME_LOG`.
+during destruction to the exact path in `MELEEPAD_LIGHTWEIGHT_FRAME_LOG`.
 Only the `render_times.txt` tracker can enable it.
 
 The ordinary product does not set that environment variable. With it absent,

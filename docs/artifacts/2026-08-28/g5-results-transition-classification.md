@@ -72,7 +72,7 @@ coalescing, or the fixed 59.94-to-60 panel-conversion branch.
 ## Raw evidence
 
 Local root:
-`/private/tmp/ssbmpad-perf114-115-gamemode.1aRWbj/run-131-transition-profile`
+`/private/tmp/meleepad-perf114-115-gamemode.1aRWbj/run-131-transition-profile`
 
 - `phase.csv` SHA-256:
   `74361afd5dd36639573251a7e286a06494de914c700ede345709b0a563607da7`

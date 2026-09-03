@@ -6,7 +6,7 @@ set -euo pipefail
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 ISO=${1:-}
-OUTPUT=${2:-$ROOT/build-macos/SsbmPad-PGO-Training.app}
+OUTPUT=${2:-$ROOT/build-macos/MeleePad-PGO-Training.app}
 ACTIVE="$ROOT/ref/ModernGekko-Template/build/modules-macos14/GALE01/active-module.txt"
 
 if [[ -z "$ISO" ]]; then
@@ -14,7 +14,7 @@ if [[ -z "$ISO" ]]; then
   exit 2
 fi
 
-active_backup=$(mktemp "${TMPDIR:-/tmp}/ssbmpad-active-module.XXXXXX")
+active_backup=$(mktemp "${TMPDIR:-/tmp}/meleepad-active-module.XXXXXX")
 had_active=0
 if [[ -f "$ACTIVE" ]]; then
   cp "$ACTIVE" "$active_backup"
@@ -56,7 +56,7 @@ for section in __llvm_covfun __llvm_covmap; do
   fi
 done
 
-SSBMPAD_MACOS_OUTPUT="$OUTPUT" "$ROOT/scripts/package-macos-app.sh"
+MELEEPAD_MACOS_OUTPUT="$OUTPUT" "$ROOT/scripts/package-macos-app.sh"
 "$ROOT/scripts/test-macos-package-layout.sh" "$OUTPUT"
 codesign --verify --deep --strict "$OUTPUT"
 

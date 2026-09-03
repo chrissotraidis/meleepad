@@ -14,7 +14,7 @@ acceptance signal; merely finding a save file is not sufficient.
 
 - Target: iPad Pro 13-inch (M5), iOS 26.5, UDID
   `68016FEA-1887-4E05-A7F4-B26EC8572B8A`.
-- The live SsbmPad menu enabled `Show FPS`. After normal termination and
+- The live MeleePad menu enabled `Show FPS`. After normal termination and
   relaunch, the FPS label returned and the sandbox preference remained true.
   The temporary test setting was restored to false afterward.
 - Melee's live Name Entry screen created `CODX`. The card file changed from
@@ -39,7 +39,7 @@ acceptance signal; merely finding a save file is not sufficient.
 - The retained name screenshot is
   `screenshots/2026-08-30/g8-macos-name-entry-after-relaunch.jpg`, SHA-256
   `40f99e387ba593ac16cd8eb8f2a1306fc42a5fcaf3f7447fe68d2bf910287d9e`.
-- The SsbmPad launcher was then closed and started as a new frontend process.
+- The MeleePad launcher was then closed and started as a new frontend process.
   Its persisted `Show FPS in window title` setting returned checked, matching
   `show_fps_in_title=true` in the launcher configuration.
 - The retained settings screenshot is

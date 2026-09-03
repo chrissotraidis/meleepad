@@ -35,7 +35,7 @@ new game frame.
 
 The observer-free external PERF-127 trace independently bounds how close the
 product already is to that rate-conversion expectation. In its stable 20-100 second
-window, 4,794 SsbmPad surfaces were queued and 4,788 were eventually displayed;
+window, 4,794 MeleePad surfaces were queued and 4,788 were eventually displayed;
 six were not selected. Pure `60000/1001` to 60 Hz conversion predicts 4.795
 accumulated frame differences in 80 seconds, or a five-hold integer conversion
 expectation. The product is one hold above that expectation in the selected

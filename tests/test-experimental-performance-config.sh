@@ -2,21 +2,21 @@
 set -euo pipefail
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
-OUT="$(mktemp /tmp/ssbmpad-performance-config.XXXXXX)"
+OUT="$(mktemp /tmp/meleepad-performance-config.XXXXXX)"
 trap 'rm -f "$OUT"' EXIT
 
 clang++ -std=c++23 -I "$ROOT/ref/ModernGekko/include" \
-  "$ROOT/tests/SsbmPadExperimentalPerformanceConfigTests.cpp" -o "$OUT"
+  "$ROOT/tests/MeleePadExperimentalPerformanceConfigTests.cpp" -o "$OUT"
 "$OUT"
 
-HOST="$ROOT/apple/ios/SsbmPadCoreHost.mm"
-SETTINGS="$ROOT/apple/shared/SsbmPadSettings.mm"
-SETTINGS_HEADER="$ROOT/apple/shared/SsbmPadSettings.h"
-OVERLAY="$ROOT/apple/ios/SsbmPadGameOverlay.mm"
+HOST="$ROOT/apple/ios/MeleePadCoreHost.mm"
+SETTINGS="$ROOT/apple/shared/MeleePadSettings.mm"
+SETTINGS_HEADER="$ROOT/apple/shared/MeleePadSettings.h"
+OVERLAY="$ROOT/apple/ios/MeleePadGameOverlay.mm"
 for contract in \
-  '-ssbmpadExperimentalPerformanceMode' \
-  '-ssbmpadExperimentalPerformance95' \
-  '-ssbmpadExperimentalPerformanceQoSOnly' \
+  '-meleepadExperimentalPerformanceMode' \
+  '-meleepadExperimentalPerformance95' \
+  '-meleepadExperimentalPerformanceQoSOnly' \
   'QOS_CLASS_USER_INITIATED' \
   'experimental-single-core-90' \
   'experimental-single-core-95' \
@@ -43,7 +43,7 @@ grep -Fq 'Config::SetBase(Config::GFX_HACK_SKIP_DUPLICATE_XFBS, false);' \
 # Experimental clock/QoS variants remain explicit developer launch arguments,
 # never a user-facing product mode. Remove the old persisted preference during
 # settings initialization so an existing install cannot remain at 90% clock.
-grep -Fq 'removeObjectForKey:@"SsbmPadExperimentalPerformanceMode"' "$SETTINGS"
+grep -Fq 'removeObjectForKey:@"MeleePadExperimentalPerformanceMode"' "$SETTINGS"
 if grep -Fq 'experimentalPerformanceMode' "$SETTINGS_HEADER" "$SETTINGS" "$HOST" "$OVERLAY"; then
   echo "experimental performance preference remains in product code" >&2
   exit 1

@@ -5,18 +5,18 @@ ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 TEMP_DIR="$(mktemp -d)"
 trap 'rm -rf "$TEMP_DIR"' EXIT
 
-clang++ -std=c++23 "$ROOT/tests/SsbmPadControllerSlotsTests.cpp" \
-  -o "$TEMP_DIR/SsbmPadControllerSlotsTests"
-"$TEMP_DIR/SsbmPadControllerSlotsTests"
+clang++ -std=c++23 "$ROOT/tests/MeleePadControllerSlotsTests.cpp" \
+  -o "$TEMP_DIR/MeleePadControllerSlotsTests"
+"$TEMP_DIR/MeleePadControllerSlotsTests"
 
 clang++ -x objective-c++ -std=gnu++2b -fobjc-arc -framework Foundation \
   -I"$ROOT/apple/shared" \
-  "$ROOT/apple/shared/SsbmPadInputMixer.mm" \
-  "$ROOT/tests/SsbmPadControllerDisconnectTests.mm" \
-  -o "$TEMP_DIR/SsbmPadControllerDisconnectTests"
-"$TEMP_DIR/SsbmPadControllerDisconnectTests"
+  "$ROOT/apple/shared/MeleePadInputMixer.mm" \
+  "$ROOT/tests/MeleePadControllerDisconnectTests.mm" \
+  -o "$TEMP_DIR/MeleePadControllerDisconnectTests"
+"$TEMP_DIR/MeleePadControllerDisconnectTests"
 
-CONTROLLER="$ROOT/apple/ios/SsbmPadGameViewController.mm"
+CONTROLLER="$ROOT/apple/ios/MeleePadGameViewController.mm"
 for contract in \
   'GCController.controllers' \
   'startWirelessControllerDiscoveryWithCompletionHandler' \
@@ -25,13 +25,13 @@ for contract in \
   'indexOfObjectIdenticalTo:controller' \
   'reconcileControllersForReason:@"foreground"' \
   'reconcileControllersForReason:@"periodic"' \
-  'controller.playerIndex = SsbmPadPlayerIndexForSlot(slot);' \
+  'controller.playerIndex = MeleePadPlayerIndexForSlot(slot);' \
   'clearInputFromTouch:NO' \
   '[_overlay refreshControllerVisibility]'; do
   grep -Fq "$contract" "$CONTROLLER"
 done
 
-OVERLAY="$ROOT/apple/ios/SsbmPadGameOverlay.mm"
+OVERLAY="$ROOT/apple/ios/MeleePadGameOverlay.mm"
 visibility_block="$(sed -n '/^- (void)applyControllerVisibility {/,/^- (void)refreshControllerVisibility {/p' "$OVERLAY")"
 if grep -Fq '#if !TARGET_OS_SIMULATOR' <<<"$visibility_block"; then
   echo "Simulator controllers must participate in touch-overlay visibility" >&2
@@ -39,7 +39,7 @@ if grep -Fq '#if !TARGET_OS_SIMULATOR' <<<"$visibility_block"; then
 fi
 for contract in \
   'for (GCController *controller in GCController.controllers)' \
-  '[SsbmPadSettings sharedSettings].hideTouchControlsWhenControllerConnected' \
+  '[MeleePadSettings sharedSettings].hideTouchControlsWhenControllerConnected' \
   '[self clearTouchInput]'; do
   grep -Fq "$contract" <<<"$visibility_block"
 done

@@ -36,7 +36,7 @@ them live across former dispatch boundaries, and synchronize only dirty fields
 at a real exit. QEMU documents extended basic blocks, translation-block
 temporaries, CPU-state optimization, and direct block chaining; Dolphin's
 ARM64 JIT implements an explicit guest-register cache. This is the closest
-match to ssbmpad's measured instruction-delivery, CPUState traffic, and
+match to meleepad's measured instruction-delivery, CPUState traffic, and
 approximately 116,750 dispatches/frame.
 
 The first preflight must be data-free and bounded. It will select a hot path

@@ -21,7 +21,7 @@ def main() -> None:
             raise RuntimeError(f"caller-qualified idle patch is missing: {fragment}")
     if "m_guest.pc == m_caller_idle_pc ||" in patch:
         raise RuntimeError("caller-qualified idle may not ignore the LR guard")
-    host = (ROOT / "apple/ios/SsbmPadCoreHost.mm").read_text()
+    host = (ROOT / "apple/ios/MeleePadCoreHost.mm").read_text()
     host_required = (
         "MAIN_STATICRECOMP_CALLER_IDLE_PC, 0x80019550u",
         "MAIN_STATICRECOMP_CALLER_IDLE_LR, 0x801A4064u",

@@ -14,7 +14,7 @@ warm-specific training run could justify another module build?
 
 The current signed PGO module is unchanged:
 
-- `build-macos/SsbmPad-PGO.app/Contents/MacOS/gGALE01_recomp.dylib`;
+- `build-macos/MeleePad-PGO.app/Contents/MacOS/gGALE01_recomp.dylib`;
 - SHA-256
   `bd0893031a28e94ba0b9f7eb84cc41d08daa10639759fdb7c1b71feb7af26f5a`.
 

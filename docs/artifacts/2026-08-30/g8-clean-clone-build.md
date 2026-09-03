@@ -37,10 +37,10 @@ ran this ordered pipeline:
 ```text
 scripts/bootstrap-dependencies.sh
 scripts/check-repository.sh
-SSBMPAD_JOBS=8 scripts/prepare-game.sh <private GALE01 revision-0 ISO>
-SSBMPAD_JOBS=8 scripts/package-macos-app.sh
-scripts/test-macos-package-layout.sh build-macos/SsbmPad.app
-codesign --verify --deep --strict build-macos/SsbmPad.app
+MELEEPAD_JOBS=8 scripts/prepare-game.sh <private GALE01 revision-0 ISO>
+MELEEPAD_JOBS=8 scripts/package-macos-app.sh
+scripts/test-macos-package-layout.sh build-macos/MeleePad.app
+codesign --verify --deep --strict build-macos/MeleePad.app
 scripts/bootstrap-dependencies.sh
 scripts/check-repository.sh
 ```
@@ -57,7 +57,7 @@ Observed results:
 - the macOS runner and launcher each rebuilt in a separate clean product build
   directory;
 - package layout passed, and strict deep code-sign verification passed with an
-  ad-hoc `com.ssbmpad.SsbmPad.macos` signature;
+  ad-hoc `com.meleepad.MeleePad.macos` signature;
 - the final repository suite passed after packaging.
 
 ## Output identity
@@ -66,8 +66,8 @@ All three packaged binaries are arm64 Mach-O files:
 
 | File | Bytes |
 |---|---:|
-| `SsbmPadFrontend` | 21,900,480 |
-| `SsbmPadRunner` | 22,005,984 |
+| `MeleePadFrontend` | 21,900,480 |
+| `MeleePadRunner` | 22,005,984 |
 | `gGALE01_recomp.dylib` | 81,865,632 |
 
 The generated module targets macOS 14.0 with SDK 26.5 and has SHA-256

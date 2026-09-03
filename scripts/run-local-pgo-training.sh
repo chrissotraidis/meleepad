@@ -5,19 +5,19 @@
 set -euo pipefail
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
-APP=${1:-$ROOT/build-macos/SsbmPad-PGO-Training.app}
+APP=${1:-$ROOT/build-macos/MeleePad-PGO-Training.app}
 USER_DIR=${2:-}
 RAW_DIR=${3:-}
-TRIGGER=${SSBMPAD_PGO_TRIGGER:-80477D68,ffffffff,02020102}
+TRIGGER=${MELEEPAD_PGO_TRIGGER:-80477D68,ffffffff,02020102}
 GAME="$ROOT/ref/ModernGekko-Template/extracted/Super-Smash-Bros-Melee-GALE01-r0"
 
 if [[ -z "$USER_DIR" || -z "$RAW_DIR" ]]; then
   echo "usage: $0 training.app private-user-dir private-raw-profile-dir" >&2
   exit 2
 fi
-if [[ ! -x "$APP/Contents/MacOS/SsbmPadRunner" ||
+if [[ ! -x "$APP/Contents/MacOS/MeleePadRunner" ||
       ! -f "$APP/Contents/MacOS/gGALE01_recomp.dylib" ||
-      ! -f "$GAME/.ssbmpad-source-sha256" ]]; then
+      ! -f "$GAME/.meleepad-source-sha256" ]]; then
   echo "training app or private extracted game is unavailable" >&2
   exit 2
 fi
@@ -30,13 +30,13 @@ fi
 echo "PGO trigger: $TRIGGER"
 echo "Complete or leave the triggered match, then quit the app normally."
 env \
-  LLVM_PROFILE_FILE="$RAW_DIR/ssbmpad-%p.profraw" \
+  LLVM_PROFILE_FILE="$RAW_DIR/meleepad-%p.profraw" \
   STATICRECOMP_PROFILE_TRIGGER="$TRIGGER" \
   MODERNGEKKO_ENABLE_SAVESTATE_SIGNALS=1 \
-  "$APP/Contents/MacOS/SsbmPadRunner" \
+  "$APP/Contents/MacOS/MeleePadRunner" \
     --game "$GAME" \
     --module "$APP/Contents/MacOS/gGALE01_recomp.dylib" \
     --user-dir "$USER_DIR" \
-    --title "SsbmPad PGO Training" \
+    --title "MeleePad PGO Training" \
     --graphics Metal \
     --audio Cubeb

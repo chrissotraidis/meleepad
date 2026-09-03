@@ -53,7 +53,7 @@ Metal subphase counter deltas.
 
 Exact-window phase CSV:
 
-- path: `/private/tmp/ssbmpad-perf090-precision-run.ykmFOK/perf090-precision.phase.csv`
+- path: `/private/tmp/meleepad-perf090-precision-run.ykmFOK/perf090-precision.phase.csv`
 - SHA-256: `fb5329dec09db1848ac73fd90bddc1121b604e0b67b7e9df047707c79315b1b2`
 - runner-log SHA-256:
   `1e8300c4743fbf05006ad4866e225063068b838bdeeed4f0c079c4922925051b`
@@ -107,7 +107,7 @@ video-build mean. Flush/rectangle, XFB, and UI average only 0.001, 0.004, and
 0.009 ms.
 
 - CSV:
-  `/private/tmp/ssbmpad-perf092-present-phases.qjwRcr/perf092-present-phases.csv`
+  `/private/tmp/meleepad-perf092-present-phases.qjwRcr/perf092-present-phases.csv`
 - CSV SHA-256:
   `293f2d1cab3b4f1c035c0077bf5fffa3ca85a5ea37ad311c0ab9701144822e84`
 - runner-log SHA-256:
@@ -141,7 +141,7 @@ by itself proof of an onscreen missed refresh: retained stripped-product
 at 440/440 compliant while display pacing moved into Metal.
 
 - CSV:
-  `/private/tmp/ssbmpad-perf093-metal-bind.XRHlCJ/perf093-metal-bind.csv`
+  `/private/tmp/meleepad-perf093-metal-bind.XRHlCJ/perf093-metal-bind.csv`
 - CSV SHA-256:
   `7da757261dc7559bc3b7f4ce7153df4fdc6c2e7bc0cef3ccbd3e478f8e2cfebb`
 - runner-log SHA-256:

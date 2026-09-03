@@ -6,8 +6,8 @@ ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 MG="$ROOT/ref/ModernGekko"
 TPL="$ROOT/ref/ModernGekko-Template"
 TOOLCHAIN="$ROOT/scripts/ios-device-toolchain.cmake"
-BUILD="$MG/build-ios-iphoneos-ssbmpad-static"
-MODULE_BUILD="/tmp/ssbmpad-module-ios-device"
+BUILD="$MG/build-ios-iphoneos-meleepad-static"
+MODULE_BUILD="/tmp/meleepad-module-ios-device"
 
 "$ROOT/scripts/bootstrap-dependencies.sh"
 

@@ -1,11 +1,11 @@
-# ssbmpad performance ledger
+# meleepad performance ledger
 
 G5 is active. G4 passed with a clean controlled 1v1 on 2026-08-24.
 
 PERF-287 attributes and reverses a new ordinary 54.2 FPS / 54.3 VPS / 0.917
 speed interval. The failing two-draw workload used only 67.4% CPU-thread and
 6.6% video-thread time. A Codex Computer Use assertion began 0.849 seconds
-before the row, and Core Audio reported a SsbmPad overload 21 ms afterward.
+before the row, and Core Audio reported a MeleePad overload 21 ms afterward.
 A fresh 180-second no-observer control retains 16 reports at 59.7-60.0 FPS/VPS,
 0.989 minimum speed, and one underrun; it later holds 59.9 FPS at 171.4%
 aggregate app CPU. Keep the product unchanged and exclude Computer Use from
@@ -390,7 +390,7 @@ selective inlines, led by 41,671 FP-availability sites. Hot call sites use a
 the hottest isolated short long-load to revision-0 PC `0x8036E8B4`, but the
 retained host preflight leaves only about 1 ns/call for that one site, so no
 single-site module was built. The validated candidate is retained locally as
-`build-macos/SsbmPad-PGO.app`; it is not the reproducible product module and
+`build-macos/MeleePad-PGO.app`; it is not the reproducible product module and
 does not satisfy G5.
 
 A subsequent current-PGO pacing screen rules out three more routes. The

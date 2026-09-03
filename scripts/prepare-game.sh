@@ -5,7 +5,7 @@ set -euo pipefail
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 ISO=${1:-}
-PGO_INPUT=${2:-${SSBMPAD_PGO_PROFILE:-}}
+PGO_INPUT=${2:-${MELEEPAD_PGO_PROFILE:-}}
 PGO_PROFILE=
 PGO_GENERATE=0
 EXPECTED_SIZE=1459978240
@@ -42,7 +42,7 @@ if [[ "$actual_size" != "$EXPECTED_SIZE" || "$actual_sha" != "$EXPECTED_SHA256" 
       "$game_id" != GALE01 || "$disc_number" != 0 || "$revision" != 0 ]]; then
   echo "unsupported disc image" >&2
   echo "  size=$actual_size sha256=$actual_sha id=$game_id disc=$disc_number revision=$revision" >&2
-  echo "ssbmpad currently targets the exact GALE01 revision 0 image documented in STATUS.md." >&2
+  echo "meleepad currently targets the exact GALE01 revision 0 image documented in STATUS.md." >&2
   exit 1
 fi
 
@@ -52,8 +52,8 @@ MG="$ROOT/ref/ModernGekko"
 TPL="$ROOT/ref/ModernGekko-Template"
 GAME="$TPL/extracted/Super-Smash-Bros-Melee-GALE01-r0"
 MODULES="$TPL/build/modules-macos14"
-MARKER="$GAME/.ssbmpad-source-sha256"
-BUILD="$MG/build-desktop-tools-ssbmpad"
+MARKER="$GAME/.meleepad-source-sha256"
+BUILD="$MG/build-desktop-tools-meleepad"
 
 cmake -S "$MG" -B "$BUILD" -G Ninja \
   -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_DEPLOYMENT_TARGET=14.0 \
@@ -63,7 +63,7 @@ cmake -S "$MG" -B "$BUILD" -G Ninja \
   -DUSE_MGBA=OFF -DUSE_RETRO_ACHIEVEMENTS=OFF -DENABLE_AUTOUPDATE=OFF \
   -DENABLE_ANALYTICS=OFF -DUSE_UPNP=OFF
 cmake --build "$BUILD" --target moderngekko-port moderngekko-run \
-  -j"${SSBMPAD_JOBS:-8}"
+  -j"${MELEEPAD_JOBS:-8}"
 # moderngekko-port's POST_BUILD copy does not rerun when only its dolrecomp
 # dependency changes. Refresh the executable beside moderngekko-port explicitly
 # so source edits cannot generate a module with a stale code generator.
@@ -81,7 +81,7 @@ else
   "$BUILD/dolrecomp" extract "$ISO" "$staging"
   [[ -f "$staging/sys/boot.bin" && -f "$staging/sys/main.dol" ]]
   [[ "$(find "$staging/files" -type f | wc -l | tr -d ' ')" == "$EXPECTED_FILES" ]]
-  printf '%s\n' "$EXPECTED_SHA256" > "$staging/.ssbmpad-source-sha256"
+  printf '%s\n' "$EXPECTED_SHA256" > "$staging/.meleepad-source-sha256"
   mv "$staging" "$GAME"
   trap - EXIT
 fi

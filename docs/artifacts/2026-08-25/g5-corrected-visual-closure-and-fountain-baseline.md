@@ -56,7 +56,7 @@ Retained contact sheets:
 | `g5-corrected-visual-closure/extended-four-player.jpg` | `c7882b29327bb9ada22857b6ca8bcc9950c08926b0495e0ef596c772a373d7f3` |
 
 The full 106 MB first corpus and its extension remain local under
-`/private/tmp/ssbmpad-frsp-recurrence.x4E08E`; no ROM or generated module is
+`/private/tmp/meleepad-frsp-recurrence.x4E08E`; no ROM or generated module is
 stored in Git.
 
 ## Clean corrected Fountain baseline
@@ -96,7 +96,7 @@ the retained tail distribution.
 
 Two setup attempts were discarded before gameplay because the isolated input
 directory lacked, respectively, the SI-device selection and the named FIFO.
-The valid run required `SIDevice0 = 6` plus a pre-created `Pipes/ssbmpad` FIFO.
+The valid run required `SIDevice0 = 6` plus a pre-created `Pipes/meleepad` FIFO.
 The old all-in-one route then reached CSS but failed because its P2 cursor
 assumptions were stale. The live correction was visually checked step by step;
 only the subsequently verified Fountain bracket is retained.

@@ -72,7 +72,7 @@ index 0000000000..6c793ed42a
 +inline bool IsEnabled()
 +{
 +  static const bool enabled = [] {
-+    const char* path = std::getenv("SSBMPAD_FRAME_PHASE_LOG");
++    const char* path = std::getenv("MELEEPAD_FRAME_PHASE_LOG");
 +    return path != nullptr && path[0] != '\0';
 +  }();
 +  return enabled;
@@ -379,7 +379,7 @@ index 7c62730667..1cbe685233 100644
 +
 +    if (!m_file.is_open())
 +    {
-+      const char* path = std::getenv("SSBMPAD_FRAME_PHASE_LOG");
++      const char* path = std::getenv("MELEEPAD_FRAME_PHASE_LOG");
 +      m_file.open(path, std::ios_base::out);
 +      if (!m_file.is_open())
 +        return;

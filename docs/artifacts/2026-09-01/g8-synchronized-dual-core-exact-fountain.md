@@ -17,7 +17,7 @@ row-7 pass.
 
 The app-container MemoryWatcher socket exceeds Darwin's 104-byte Unix-domain
 socket limit. The existing guarded Simulator override works when a short path
-resolves to the exact normal SsbmPad user directory and both the app and
+resolves to the exact normal MeleePad user directory and both the app and
 `gcpipe.py` use that same path. The corrected socket path was 49 bytes. No
 product source change was needed.
 

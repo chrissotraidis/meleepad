@@ -15,7 +15,7 @@ visibly verified P1 Pikachu, level-1 CPU Donkey Kong, the explicit `Fountain of
 Dreams` label, coherent live combat, Cubeb audio, and results. The window title
 held 59.8-59.9 FPS during active combat and read 59.9 FPS at results.
 
-This run did not set `SSBMPAD_FRAME_PHASE_LOG`, so the title is not promoted to
+This run did not set `MELEEPAD_FRAME_PHASE_LOG`, so the title is not promoted to
 a strict G5 bracket. It is nevertheless direct falsifying evidence against the
 previous claim that the DK roster deterministically causes 50 FPS. The prior
 600-row 50.605 FPS interval remains valid evidence of a real slowdown, but its

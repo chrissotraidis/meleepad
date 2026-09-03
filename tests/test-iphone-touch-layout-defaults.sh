@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
-OVERLAY="$ROOT/apple/ios/SsbmPadGameOverlay.mm"
+OVERLAY="$ROOT/apple/ios/MeleePadGameOverlay.mm"
 for contract in \
   'UIUserInterfaceIdiomPhone' \
   '0.1234722222, 0.7803490991' \
@@ -10,7 +10,7 @@ for contract in \
   '0.0812777778, 0.4677364865' \
   '1.158457040786743' \
   'savedScales[identifier] != nil' \
-  'SsbmPadGameButton *button = [SsbmPadGameButton buttonWithType:UIButtonTypeSystem]' \
+  'MeleePadGameButton *button = [MeleePadGameButton buttonWithType:UIButtonTypeSystem]' \
   'CGRectGetMaxX(safe) - margin - shoulderWidth, shoulderY' \
   'CGRectGetMaxX(safe) - margin - large' \
   '0.1310395315, 0.7905894519' \

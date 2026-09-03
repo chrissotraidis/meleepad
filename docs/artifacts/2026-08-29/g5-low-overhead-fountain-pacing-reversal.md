@@ -29,7 +29,7 @@ PERF-145 and its independent PERF-146 repeat used:
 The private user trees enabled Dolphin's existing buffered
 `LogRenderTimeToFile` path. Patch 0002 writes one presented-frame interval per
 line without flushing the stream on every frame. Crucially,
-`SSBMPAD_FRAME_PHASE_LOG` was absent, so the CPU loop performed no phase-wall,
+`MELEEPAD_FRAME_PHASE_LOG` was absent, so the CPU loop performed no phase-wall,
 thread-CPU, static-work, or task-event observations. This is a measurement
 change only; no product source or packaged app changed.
 

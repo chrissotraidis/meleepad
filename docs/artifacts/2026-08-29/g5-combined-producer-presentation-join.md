@@ -19,7 +19,7 @@ clocks are recorded in the same run?
 
 ## Disposable diagnostic and boundary
 
-A default-dormant `SSBMPAD_COMBINED_PRESENT_LOG` hook retained, in memory, the
+A default-dormant `MELEEPAD_COMBINED_PRESENT_LOG` hook retained, in memory, the
 current emulated/present frame identity plus command-buffer scheduled, GPU
 start/end, completion, and drawable `presentedTime` values. It wrote once at
 clean shutdown. The existing detailed phase logger supplied producer wall and

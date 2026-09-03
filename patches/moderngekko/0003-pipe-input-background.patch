@@ -7,7 +7,7 @@ diff --git a/tests/frontend_config_test.cpp b/tests/frontend_config_test.cpp
    const std::string controller = "SDL/0/Test Controller";
 +  if (moderngekko::frontend::ControllerRequiresBackgroundInput(controller) ||
 +      !moderngekko::frontend::ControllerRequiresBackgroundInput(
-+          "Pipe/0/ssbmpad"))
++          "Pipe/0/meleepad"))
 +    return 14;
    if (!moderngekko::frontend::SaveConfig(directory, "1920x1080", false,
                                           controller, &error))

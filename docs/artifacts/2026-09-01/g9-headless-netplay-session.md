@@ -50,7 +50,7 @@ The lifecycle test passes two consecutive cycles in one process. Each cycle:
 8. rejects ready/start actions after returning to `Idle`.
 
 The existing exact GameCube/Wii protocol test still passes, and
-`SsbmPadRunner` rebuilds against the new adapter. The standalone session library
+`MeleePadRunner` rebuilds against the new adapter. The standalone session library
 also compiles successfully with the iPhone Simulator arm64 toolchain, proving
 the core does not depend on the desktop window adapter.
 

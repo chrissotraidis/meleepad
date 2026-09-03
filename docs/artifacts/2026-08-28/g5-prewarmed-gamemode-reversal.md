@@ -41,7 +41,7 @@ proved can coexist with exact 60 Hz display cadence.
 
 A signed topology harness preserved the real product relationship:
 LaunchServices owned the bundle wrapper, the wrapper remained as PID 47523,
-and fullscreen `SsbmPadRunner` PID 47528 ran as its child. Game Policy logged
+and fullscreen `MeleePadRunner` PID 47528 ran as its child. Game Policy logged
 the wrapper app, then a fullscreen gaming session and Game Mode on while the
 child runner advanced gameplay. The existing frontend/runner architecture
 therefore transfers Game Mode correctly; no helper bundle or launcher rewrite

@@ -95,7 +95,7 @@ Patch `0018-efb-pipeline-phase-timing.patch` adds default-dormant counters to
 the existing frame-phase logger. On a cache miss it records shader-generation /
 Metal-library time and render-pipeline creation time separately for VRAM and
 RAM EFB copies. It performs no logging or atomics unless the existing
-`SSBMPAD_FRAME_PHASE_LOG` diagnostic is enabled. The focused counter regression
+`MELEEPAD_FRAME_PHASE_LOG` diagnostic is enabled. The focused counter regression
 passes, the native runner rebuilds, bootstrap and patch-scope checks pass, and
 the signed package passes strict layout/signing checks.
 

@@ -5,7 +5,7 @@ ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 MIXER_H="$ROOT/ref/ModernGekko/vendor/dolphin/Source/Core/AudioCommon/Mixer.h"
 MIXER_CPP="$ROOT/ref/ModernGekko/vendor/dolphin/Source/Core/AudioCommon/Mixer.cpp"
 COREAUDIO_CPP="$ROOT/ref/ModernGekko/vendor/dolphin/Source/Core/AudioCommon/CoreAudioSoundStream.cpp"
-CORE_HOST="$ROOT/apple/ios/SsbmPadCoreHost.mm"
+CORE_HOST="$ROOT/apple/ios/MeleePadCoreHost.mm"
 
 for source in "$MIXER_H" "$MIXER_CPP" "$COREAUDIO_CPP" "$CORE_HOST"; do
   [[ -f "$source" ]] || { echo "missing source: $source" >&2; exit 1; }

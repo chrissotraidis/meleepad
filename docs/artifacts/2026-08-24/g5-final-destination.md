@@ -4,7 +4,7 @@ Date: 2026-08-24
 
 ## ROM-safe unlock setup
 
-The retail image was not modified. The existing SsbmPad GCI was backed up
+The retail image was not modified. The existing MeleePad GCI was backed up
 before any experiment and restored byte-for-byte afterward at SHA-256
 `5ea943cfc3e2325244d2d28f6cde2293b2a2de99747ca959e609a67a646ea97e`.
 

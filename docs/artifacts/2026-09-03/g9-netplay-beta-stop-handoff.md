@@ -51,7 +51,7 @@ reflection, and shadow corruption remains open.
 
 - `git diff c62bcd0..fa9c763 --check`: pass.
 - `./scripts/check-repository.sh`: pass after reconciliation.
-- Runtime/process audit: no SsbmPad, ModernGekko, netplay, Xcode build, or
+- Runtime/process audit: no MeleePad, ModernGekko, netplay, Xcode build, or
   Simulator game process active at the stopping point.
 
 No gameplay launch was performed for this stop-only checkpoint; earlier live

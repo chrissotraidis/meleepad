@@ -17,7 +17,7 @@ from the runner. On the combined `CPU-GPU thread`:
 
 | Inclusive frame | Samples |
 | --- | ---: |
-| `StaticRecompCore::Run` in `SsbmPadRunner` | 9,279 |
+| `StaticRecompCore::Run` in `MeleePadRunner` | 9,279 |
 | child `chassis_dispatch` in `gGALE01_recomp.dylib` | 9,030 |
 | runner-only maximum | 249 |
 
@@ -28,7 +28,7 @@ hooks and unavoidable call/return/control work. Real PGO cannot do that.
 
 The hot generated functions and module-local PowerPC helpers remain under
 `chassis_dispatch`; they are already compiled with the current frontend
-profile and would not be changed by profiling `SsbmPadRunner` or Dolphin's
+profile and would not be changed by profiling `MeleePadRunner` or Dolphin's
 `core` target.
 
 ## Decision

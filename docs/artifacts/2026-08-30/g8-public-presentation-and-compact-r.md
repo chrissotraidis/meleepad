@@ -10,7 +10,7 @@ This checkpoint addresses three product-quality gaps without promoting mobile
 performance or input rows beyond their evidence:
 
 - add a public, ROM-safe repository landing page;
-- replace the inherited sun icon with an original SsbmPad identity;
+- replace the inherited sun icon with an original MeleePad identity;
 - make the touch R shoulder a compact digital control matching L instead of
   inheriting SunPad's long analog-pressure slider.
 

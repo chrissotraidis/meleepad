@@ -13,7 +13,7 @@ ANALYZER = ROOT / "scripts" / "analyze-triggered-native-pcs.py"
 
 
 def main() -> None:
-    with tempfile.TemporaryDirectory(prefix="ssbmpad-native-pc-analysis-test-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="meleepad-native-pc-analysis-test-") as temporary:
         work = pathlib.Path(temporary)
         phase = work / "phase.csv"
         samples = work / "samples.csv"

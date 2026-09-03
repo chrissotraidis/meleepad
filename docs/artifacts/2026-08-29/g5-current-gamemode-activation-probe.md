@@ -18,7 +18,7 @@ and executable to a short wrapper. LaunchServices owned that wrapper while it
 kept the exact current runner as its child:
 
 ```text
-wrapper PID 18597 -> SsbmPadRunner PID 18631
+wrapper PID 18597 -> MeleePadRunner PID 18631
 ```
 
 The runner used:
@@ -48,7 +48,7 @@ The initial `paused` status occurred before the fullscreen grant. Within about
 0.47 seconds, the complete transition was:
 
 ```text
-Found game GameProcess(Optional("SsbmPadRunner"), ... labelReason=infoPlist)
+Found game GameProcess(Optional("MeleePadRunner"), ... labelReason=infoPlist)
 Acquired ... IdentifiedGameGrant
 Acquired ... FrontmostGrant
 Acquired ... FullScreenGrant
@@ -56,7 +56,7 @@ Full screen gaming session is now active
 Game mode is now available
 Acquired ... ConsoleModeGrant
 Game mode enabled
-Enabled DPS for SsbmPadRunner
+Enabled DPS for MeleePadRunner
 Game mode status is now on
 ```
 

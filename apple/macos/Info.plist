@@ -5,17 +5,17 @@
   <key>CFBundleDevelopmentRegion</key>
   <string>en</string>
   <key>CFBundleDisplayName</key>
-  <string>SsbmPad</string>
+  <string>MeleePad</string>
   <key>CFBundleExecutable</key>
-  <string>SsbmPad</string>
+  <string>MeleePad</string>
   <key>CFBundleIconFile</key>
   <string>AppIcon.png</string>
   <key>CFBundleIdentifier</key>
-  <string>com.ssbmpad.SsbmPad.macos</string>
+  <string>com.meleepad.MeleePad.macos</string>
   <key>CFBundleInfoDictionaryVersion</key>
   <string>6.0</string>
   <key>CFBundleName</key>
-  <string>SsbmPad</string>
+  <string>MeleePad</string>
   <key>CFBundlePackageType</key>
   <string>APPL</string>
   <key>CFBundleShortVersionString</key>

@@ -85,9 +85,9 @@ diff --git a/Source/Core/VideoCommon/Present.cpp b/Source/Core/VideoCommon/Prese
 -                "efb_ram_shader_ms,efb_ram_pipeline_ms\n";
 +                "efb_ram_shader_ms,efb_ram_pipeline_ms,xfb_output_requests,"
 +                "xfb_swap_queued,xfb_swap_executed,xfb_duplicates,xfb_presents\n";
-       if (const char* start_frame = std::getenv("SSBMPAD_FRAME_PHASE_SLOW_START_FRAME"))
+       if (const char* start_frame = std::getenv("MELEEPAD_FRAME_PHASE_SLOW_START_FRAME"))
          m_slow_start_frame = std::strtoull(start_frame, nullptr, 10);
-       if (const char* arm_path = std::getenv("SSBMPAD_FRAME_PHASE_SLOW_ARM_FILE"))
+       if (const char* arm_path = std::getenv("MELEEPAD_FRAME_PHASE_SLOW_ARM_FILE"))
 @@ -244,7 +245,11 @@
             << ',' << totals.efb_ram_pipeline_misses - m_previous_totals.efb_ram_pipeline_misses
             << ',' << counter_ms(totals.efb_ram_shader_ns, m_previous_totals.efb_ram_shader_ns)

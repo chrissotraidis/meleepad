@@ -1,4 +1,4 @@
-SsbmPad iPad Simulator host-runtime PGO live summary
+MeleePad iPad Simulator host-runtime PGO live summary
 Date: 2026-08-30
 Platform: iPad Pro 13-inch (M5), iOS 26.5 Simulator, arm64
 Game module: unchanged 82,821,272-byte non-PGO control

@@ -1,4 +1,4 @@
-# SsbmPad Online Play with Friends beta loop
+# MeleePad Online Play with Friends beta loop
 
 Status: paused at B1 (2026-09-03 stop checkpoint)
 Written: 2026-09-02  
@@ -12,7 +12,7 @@ earned only by B10.
 
 ## Goal
 
-Ship a real friends-only Online Play beta inside SsbmPad. A person opens the
+Ship a real friends-only Online Play beta inside MeleePad. A person opens the
 three-dot menu, creates or joins a private room with a short code, sees who is
 connected and whether the builds match, then completes synchronized Melee
 matches on Mac, iPhone, and iPad using touch controls or a connected
@@ -36,7 +36,7 @@ The beta exists only when one unchanged candidate proves all of the following:
    GameCube input mixer. Simultaneous stick plus shield/attack and disconnect
    neutralization are visibly proven.
 4. **Internet path:** room codes connect devices on two independent outside
-   networks through the SsbmPad traversal service. Direct IP remains available
+   networks through the MeleePad traversal service. Direct IP remains available
    under Advanced.
 5. **Honest NAT behavior:** the tested connection-success rate is at least 90%.
    If traversal misses that floor, a relay or a narrower disclosed beta scope
@@ -70,7 +70,7 @@ matchmaking, a public lobby, spectating, or anonymous pairing.
 | Mac/iPad gameplay | begins together, stops around frames 6,180/6,240 | fail |
 | iPhone interaction | compile coverage only | missing |
 | Room-code client | Dolphin source exists but is not in `NetplaySession` | missing |
-| Traversal service | pinned CC0 source exists; nothing operated by SsbmPad | missing |
+| Traversal service | pinned CC0 source exists; nothing operated by MeleePad | missing |
 | Relay | no implementation or measured need decision | missing |
 | Real internet/device beta | no evidence | missing |
 
@@ -128,7 +128,7 @@ Automatic delay: 2 frames
 
 - Display uppercase `XXXX-XXXX`; transmit normalized lowercase eight hex
   characters required by Dolphin's traversal protocol.
-- Copy/Share contains only the code and a short SsbmPad instruction.
+- Copy/Share contains only the code and a short MeleePad instruction.
 - Start remains disabled until two controller slots exist, every build/game/
   setting fingerprint matches, host save sync succeeds, and all players are
   ready.
@@ -212,7 +212,7 @@ NetplaySession commands + snapshots
         |
 Dolphin NetPlayServer / NetPlayClient
         |
-TraversalClient ---- SsbmPad traversal service UDP 6262/6226
+TraversalClient ---- MeleePad traversal service UDP 6262/6226
         |
 peer-to-peer ENet gameplay
 ```

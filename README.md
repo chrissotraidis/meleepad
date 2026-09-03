@@ -1,4 +1,4 @@
-# SsbmPad
+# MeleePad
 
 <p align="center">
   <strong>Super Smash Bros. Melee on iPhone, iPad, and Apple Silicon Mac through ahead-of-time recompilation and Metal.</strong><br>
@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-  <img src="apple/ios/Assets.xcassets/AppIcon.appiconset/AppIcon.png" width="180" alt="SsbmPad navy, ivory, and coral analog-gate app icon">
+  <img src="apple/ios/Assets.xcassets/AppIcon.appiconset/AppIcon.png" width="180" alt="MeleePad navy, ivory, and coral analog-gate app icon">
 </p>
 
 <p align="center">
@@ -17,9 +17,9 @@
   <img alt="Game data not included" src="https://img.shields.io/badge/game%20data-not%20included-FF453A">
 </p>
 
-![SsbmPad running Melee Classic mode with touch controls on iPad](docs/evidence/g6/ipad-classic-combat-touch-input.png)
+![MeleePad running Melee Classic mode with touch controls on iPad](docs/evidence/g6/ipad-classic-combat-touch-input.png)
 
-SsbmPad wraps a [DolRecomp](https://github.com/encounter/dolrecomp)-generated
+MeleePad wraps a [DolRecomp](https://github.com/encounter/dolrecomp)-generated
 GALE01 game module in a ModernGekko/Dolphin-derived compatibility runtime.
 Covered PowerPC code runs as ahead-of-time-compiled Apple ARM64 code; Dolphin's
 Metal backend renders into native Apple app surfaces. The mobile app imports a
@@ -34,7 +34,7 @@ extracted Nintendo assets, saves, signing material, or a generated game module.
 
 ## Current status
 
-SsbmPad is an engineering preview, not a finished release. The native macOS app
+MeleePad is an engineering preview, not a finished release. The native macOS app
 boots and plays coherent matches at approximately the original 59.94 Hz cadence
 in established warm scenes, though strict worst-frame and remaining acceptance
 work is still tracked. The same ahead-of-time game module boots on iPad and
@@ -55,7 +55,7 @@ matrix has not passed. The evidence-first loop and exact open rows live in
 | macOS | Native arm64 launcher/runner, Metal, keyboard/controller profiles, coherent live matches, saves/settings | Strict final acceptance rows and suitable-display replay |
 | iPad/iPhone | Native app shell, Metal gameplay, touch overlay, menu, exact-image import, persistent saves/settings, diagnostics, accepted physical-iPad right-stick/menu behavior, and a locally signed in-place build holding near 60 FPS at 2x in observed solo play | Water/reflection/shadow repair, remaining control-matrix coverage, long-session audio/lifecycle checks, and formal physical-device acceptance |
 | Recompiler | 237-chunk GALE01 module, exact-source PGO workflow, clean-clone regeneration | Remaining mobile producer deficit |
-| Netplay | Fixed-delay protocol, traversal code, compatibility fingerprint, [implementation plan](docs/NETPLAY-FEASIBILITY.md), and [active beta loop](docs/NETPLAY-BETA-GOAL-LOOP.md) | Canonical Mac/mobile determinism, room-code traversal, consumer UI, physical-device beta matrix |
+| Experimental multiplayer | Direct-IP fixed-delay transport, native Host/Join lobby, compatibility fingerprint, and one completed two-Mac direct match | Mac/iPad currently fails the canonical-state synchronization gate; room codes, traversal service, matchmaking, reliable physical-device matches, and the consumer beta UI remain unimplemented. Work is [paused at B1](docs/NETPLAY-BETA-GOAL-LOOP.md). |
 | Distribution | ROM-safe source repository, ad-hoc local builds, and verified Apple Development-signed device installation | Public signing, TestFlight, and App Store release |
 
 ## Build from source
@@ -78,7 +78,7 @@ Build the local Apple Silicon macOS app:
 
 ```sh
 ./scripts/package-macos-app.sh
-open build-macos/SsbmPad.app
+open build-macos/MeleePad.app
 ```
 
 Build the iOS Simulator core and app:
@@ -86,7 +86,7 @@ Build the iOS Simulator core and app:
 ```sh
 ./scripts/ios-build-core.sh
 ./scripts/ios-provision.sh
-xcodebuild -project SsbmPad.xcodeproj -scheme SsbmPad \
+xcodebuild -project MeleePad.xcodeproj -scheme MeleePad \
   -configuration Release \
   -destination 'platform=iOS Simulator,name=iPad Pro 13-inch (M5)' \
   CODE_SIGNING_ALLOWED=NO build
@@ -97,9 +97,9 @@ and locally recompiled modules are ignored and must not be committed.
 
 ## First launch on iPhone or iPad
 
-SsbmPad never downloads or bundles game data.
+MeleePad never downloads or bundles game data.
 
-1. Launch SsbmPad and open the **•••** menu.
+1. Launch MeleePad and open the **•••** menu.
 2. Choose **Game Data & Saves → Import or Reimport Game Data**.
 3. Select your supported raw ISO/GCM image in Files.
 4. Leave the app open while it validates, extracts, and atomically activates
@@ -132,19 +132,28 @@ controller profile. The built-in keyboard controls are:
 | Grab | O |
 | Start / pause | Return |
 
-Launching the macOS app automatically replaces SsbmPad's internal automation
+Launching the macOS app automatically replaces MeleePad's internal automation
 pipe profile with this interactive keyboard profile. Existing custom keyboard
 and physical-controller profiles are preserved.
 
 ## Experimental multiplayer
 
-The current iPhone/iPad screen is a developer-facing direct connection, not a
-finished online service and not game streaming. Both players need the same
-SsbmPad build and supported game revision. Each device runs the match locally;
-the netplay transport exchanges synchronized controller input, and the joining
-player is assigned another GameCube controller port.
+Experimental Multiplayer is currently a developer-facing **Direct Connection
+Preview**, not usable online multiplayer, a public beta, or game streaming.
+Both players need the same MeleePad build and supported game revision. Each
+device runs the match locally while the fixed-delay transport exchanges
+synchronized controller input; the joining player is assigned another
+GameCube controller port.
 
-To test it today:
+The underlying direct connection has completed a two-Mac match. The current
+Mac/iPad path does not: it fails closed at the canonical-state synchronization
+gate, so it cannot yet complete a reliable cross-platform match. The next task
+is to isolate that deterministic state difference before adding the planned
+room-code experience. Exact evidence and the restart point are recorded in the
+[paused B1 goal loop](docs/NETPLAY-BETA-GOAL-LOOP.md).
+
+Developers can exercise the current lobby as follows, but should expect the
+cross-platform match to stop when synchronization fails:
 
 1. Start on the same Wi-Fi network or a low-latency private VPN.
 2. The host chooses **Host**, leaves UDP port **2626**, and creates the lobby.
@@ -158,9 +167,9 @@ Port 2626 is [Dolphin's standard direct-NetPlay listen port](https://github.com/
 not a matchmaking server. Same-network play normally needs no router changes.
 Across the public internet, direct hosting can require UDP port forwarding;
 Dolphin's [Netplay guide](https://dolphin-emu.org/docs/guides/netplay-guide/)
-explains the same direct-versus-traversal distinction. SsbmPad does not yet
+explains the same direct-versus-traversal distinction. MeleePad does not yet
 expose Dolphin traversal room codes, a public lobby, relay fallback, or
-matchmaking, and complete physical-device matches are not yet accepted.
+matchmaking. No physical-device online match has passed the acceptance matrix.
 
 The closest architectural next step is Dolphin's existing traversal protocol:
 it supplies short room codes and helps peers connect without carrying gameplay
@@ -201,5 +210,5 @@ declares acceptance; the video and every phase still require review.
 See [`docs/PRD.md`](docs/PRD.md) for the acceptance contract and
 [`docs/JOURNAL.md`](docs/JOURNAL.md) for the chronological engineering record.
 
-SsbmPad is an independent compatibility project and is not affiliated with or
+MeleePad is an independent compatibility project and is not affiliated with or
 endorsed by Nintendo, HAL Laboratory, or the Dolphin project.

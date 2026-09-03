@@ -20,7 +20,7 @@ phase?
 - Visible overlay presses traversed the opening/title, main menu, VS menu, Melee
   menu, and character select.
 - The complete private runtime log is retained outside Git as
-  `/private/tmp/ssbmpad-perf246-normal-touch-route.log`, SHA-256
+  `/private/tmp/meleepad-perf246-normal-touch-route.log`, SHA-256
   `f260b625f521aac1a252079aabb8ab8df41bd18ca4068d2a010b7413582cea3f`.
   No game image, module, save, or private path is committed.
 
@@ -69,6 +69,6 @@ tail can combine the two failures into a pass.
 
 ## Cleanup
 
-The app was stopped and `SSBMPAD_EXTERNAL_PIPE_INPUT` was removed from the
+The app was stopped and `MELEEPAD_EXTERNAL_PIPE_INPUT` was removed from the
 Simulator launch environment. The product configuration and private Dolphin
 settings were restored; this step changes documentation only.

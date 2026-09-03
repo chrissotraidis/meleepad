@@ -1,6 +1,6 @@
-# ssbmpad goal-based loop
+# meleepad goal-based loop
 
-Operating loop for the autonomous build of ssbmpad. The requirements live in `docs/PRD.md`; this document is how you run. Written 24 Aug 2026.
+Operating loop for the autonomous build of meleepad. The requirements live in `docs/PRD.md`; this document is how you run. Written 24 Aug 2026.
 
 ## The goal stack
 
@@ -13,9 +13,9 @@ Work the lowest unmet goal. A goal is met only when its evidence exists in `docs
 - **G4. macOS playable.** CSS → 1v1 completes with audio. (PRD D1)
 - **G5. macOS 60 fps.** Worst-case ≤ 16.7 ms incl audio on Final Destination and Fountain of Dreams. (PRD D2)
 - **G6. Simulator core boots.** iPad Simulator, then iPhone Simulator, boot to gameplay with the no-JIT/interpreter/software-vertex-loader configuration. (PRD D3)
-- **G7. Shell ported.** SunPad touch overlay + menu + diagnostics + settings running as ssbmpad in the iPad Simulator, driving gameplay. (PRD D4)
+- **G7. Shell ported.** SunPad touch overlay + menu + diagnostics + settings running as meleepad in the iPad Simulator, driving gameplay. (PRD D4)
 - **G8. Test matrix green.** All 15 rows in PRD Section 10, with evidence. (PRD D5, D6)
-- **G9. Netplay working.** The ssbmpad shell exposes native Online Play with
+- **G9. Netplay working.** The meleepad shell exposes native Online Play with
   Friends; two isolated instances complete synchronized matches without desync,
   with at least one endpoint running iPadOS. Retain connection, gameplay,
   completion, and diagnostic evidence. A macOS-only connection smoke test does
@@ -416,7 +416,7 @@ Sunshine SHA/file-layout checks. After replacing them with the pinned GALE01
 revision-0 hash, 1,209-file count, and Melee anchors, the app validated,
 copied, extracted, atomically activated, and visibly booted the user's image.
 Normal sandbox relaunch and same-filename reimport from the Files-visible
-SsbmPad folder also passed. Retain the private active import for the remaining
+MeleePad folder also passed. Retain the private active import for the remaining
 save/control rows; do not commit it. See
 `docs/artifacts/2026-08-30/g8-ipad-game-data-import.md`.
 
@@ -463,7 +463,7 @@ gate before live play. See
 
 SAVE-223 passes G8 row 8. Live Melee name entry created `CODX` on the iPad
 Simulator and `CODM` on macOS; both names were visibly present after normal
-termination and fresh-process relaunch. SsbmPad's FPS setting was also read
+termination and fresh-process relaunch. MeleePad's FPS setting was also read
 back after relaunch on both platforms. The iPad preference was restored to its
 prior off state after proof. No ROM, module, save, or preference file is
 committed, and the sole Simulator is shut down. Continue with the remaining
@@ -483,7 +483,7 @@ with the remaining interaction/performance rows; reproducible construction is
 not gameplay proof. See
 `docs/artifacts/2026-08-30/g8-clean-clone-build.md`.
 
-POLISH-225 retains a ROM-safe public README, a SsbmPad-specific app icon, and
+POLISH-225 retains a ROM-safe public README, a MeleePad-specific app icon, and
 the requested compact R shoulder. The new icon uses an abstract charcoal,
 silver-white, crimson, and restrained-blue arena-impact motif with no
 controller, text, characters, or copied logo. R now uses the same standard
@@ -523,8 +523,8 @@ core producer deficit remains open. See
 
 KEYBOARD-229 repairs the macOS interactive-launch path. The shipped WASD
 profile existed, but prior automation had persisted both controller selectors
-as `Pipe/0/ssbmpad`, and the wrapper preserved that internal profile forever.
-The wrapper now migrates only SsbmPad's exact pipe transport to the Quartz
+as `Pipe/0/meleepad`, and the wrapper preserved that internal profile forever.
+The wrapper now migrates only MeleePad's exact pipe transport to the Quartz
 keyboard profile in both files, preserves custom keyboard/SDL profiles, and
 adds Space as an X/jump binding. Focused migration/package regressions and the
 full repository gate pass; the real launcher visibly reports the Quartz
@@ -929,7 +929,7 @@ Require the same activation line before the next combat state load. See
 `docs/artifacts/2026-08-29/g5-current-gamemode-activation-probe.md`.
 
 PERF-171 repairs a stale ignored local PGO bundle before another live run. The
-known PGO module was intact, but `SsbmPad-PGO.app` lacked the games category and
+known PGO module was intact, but `MeleePad-PGO.app` lacked the games category and
 `LSSupportsGameMode`, so it failed the current package-layout test. The
 pointer-safe private-profile packaging workflow refreshed it with the current
 runner and canonical metadata while preserving the old bundle and restoring
@@ -1022,7 +1022,7 @@ Repeat until G9 is met:
 
 When blocked, escalate through these in order. Journal each rung you use.
 
-1. **Read the actual error.** Full log, not the last line. ssbmpad's own runtime.log breadcrumbs (once the shell exists) and the unified log are first sources.
+1. **Read the actual error.** Full log, not the last line. meleepad's own runtime.log breadcrumbs (once the shell exists) and the unified log are first sources.
 2. **Check the reference implementation.** How does `ref/sunpad` handle this exact thing? The patches directory, the scripts, and docs/KNOWN_ISSUES.md + TECH-DEBT.md + AUDIO_ISSUE.md are a catalog of already-solved problems on this exact stack. Most blockers you hit, sunpad hit first.
 3. **Check the toolchain source.** DolRecomp, ModernGekko, RecompCore, and the vendored Dolphin sources are all in `ref/`. Read the code that produced the error. The doldecomp/melee + m-ex symbol map turns anonymous crash addresses into named Melee functions; use it every time a fault lands in generated code.
 4. **Research.** Web search: Dolphin issue tracker and source history, Slippi's dolphin fork (their GALE01 memory map and determinism work), decomp community material, DolRecomp/ModernGekko issues, StrikersRecomp as a second worked example. Time-limited: research to answer a specific question, then come back and act.
@@ -1681,7 +1681,7 @@ cold 325/45. Coverage resolved the hottest isolated short long-load to
 revision-0 `0x8036E8B4`, but host preflight leaves only about 1 ns/call and
 rejects a one-site module build. Do not replace PGO with blanket inlining or a
 large derived address list. The validated faster local app is retained as
-`build-macos/SsbmPad-PGO.app`; canonical packaging remains reproducible and
+`build-macos/MeleePad-PGO.app`; canonical packaging remains reproducible and
 unchanged. G5 remains open and G6 blocked.
 
 Fresh pacing controls on that exact PGO app are also complete. A low-overhead
@@ -2005,7 +2005,7 @@ G6 remain blocked until Fountain worst actual interval is at most 16.7 ms. See
 PERF-117 through PERF-124 complete that actual-display measurement and ingest
 the supplied PERF-106 crash report. A custom Display-only Instruments template
 observes the WindowServer surface stream without the rejected in-process
-drawable callback. PERF-124 retains 6,862 consecutive SsbmPad display
+drawable callback. PERF-124 retains 6,862 consecutive MeleePad display
 intervals over 114.964458 seconds: p95/p99 are both 16.666417 ms, but 15
 intervals are 33.333 ms and one match/results transition is 366.660 ms. Sixteen
 intervals exceed 16.7 ms, including misses during combat, so ordinary output is
@@ -2095,7 +2095,7 @@ G5 remains open and G6 remains blocked. See
 `docs/artifacts/2026-08-28/g5-final-destination-off-core-reversal.md`.
 
 PERF-138 through PERF-140 test whether hidden blocking/system activity inside
-SsbmPad explains that wall-minus-thread loss. macOS has no supported
+MeleePad explains that wall-minus-thread loss. macOS has no supported
 per-thread context-switch counter, so default-dormant patch 0022 records one
 supported task-event snapshot per presented frame. The first per-CPU-slice
 placement generated hundreds to thousands of Mach queries per frame and is
@@ -2293,7 +2293,7 @@ do not re-enable Dolphin dual-core. See
 MENU-237 passes G8 row 10. A verified private backup made the destructive
 boundary recoverable; the live `Remove Stored Game Data` confirmation stopped
 the runtime, removed only `GameData`, preserved the separate memory-card path,
-and exposed the legal first-run chooser. `Import from SsbmPad Folder` then
+and exposed the legal first-run chooser. `Import from MeleePad Folder` then
 validated, copied, extracted exactly 1,209 files, atomically activated the
 pinned image, and visibly rebooted with zero staging leftovers. The temporary
 Files source was removed, the private backup remains outside Git, and the
@@ -2346,7 +2346,7 @@ calls, consistent with aggressive helper inlining. Unroll suppression is an
 exact no-op and a blanket inline clamp grows bounded mini-links, so both are
 rejected. A valid four-second Instruments UI trace of separate visible 31.1
 FPS four-character Brinstar gameplay reports 42.22% instruction-delivery,
-21.22% processing, 6.66% discarded, and 30.03% useful cycles for SsbmPad PID
+21.22% processing, 6.66% discarded, and 30.03% useful cycles for MeleePad PID
 75863. This proves crowded-combat front-end pressure on the M1 host, not the
 literal Fountain ratio or iPad-device performance. Next test strict PGO
 generated chunks as native non-ThinLTO objects while retaining ThinLTO only
@@ -2371,12 +2371,12 @@ four-character Fountain. See
 PERF-245 provides a literal-Fountain process-filtered split without promoting
 a new binary. A guarded private-pipe route visibly reaches P1 Yoshi versus
 level-1 CPU Zelda on Fountain at 47.7 FPS. A rolling 4-second Instruments Run
-2 filtered to SsbmPad PID 88916 reports 41.74% instruction-delivery latency
+2 filtered to MeleePad PID 88916 reports 41.74% instruction-delivery latency
 versus 7.35% delivery bandwidth across 5,881,669,124 cycles. This confirms
 latency-dominated instruction delivery on a lighter stage-matched workload,
 not four-character acceptance. The unguarded automation attempt is discarded
 because the normal 60 Hz publisher overwrote its pipe commands; private pipe
-routes must set `SSBMPAD_EXTERNAL_PIPE_INPUT=1` before launch and restore it
+routes must set `MELEEPAD_EXTERNAL_PIPE_INPUT=1` before launch and restore it
 afterward. Before another module build, repeat matched Fountain windows with
 instruction-address-translation and discarded-sampling modes. See
 `docs/artifacts/2026-08-31/g8-ios-fountain-instruction-delivery-latency.md`.
@@ -2772,7 +2772,7 @@ no Computer Use polling. See
   experiments use explicit developer-only build or launch identities and never
   silently change the stable path. Do not expose failed or diagnostic-only
   performance variants in the player-facing three-dot menu.
-- **Scripts as templates:** bootstrap-dependencies.sh (pin + patch), prepare-game.sh (validate + extract + module), ios-build-core.sh (Simulator module build), package-macos-app.sh, stage1-run.sh / sunpad-capture.py (automated run + capture). Port them to ssbmpad names rather than inventing new mechanisms; the build must reproduce from a clean clone via scripts alone (matrix row 15).
+- **Scripts as templates:** bootstrap-dependencies.sh (pin + patch), prepare-game.sh (validate + extract + module), ios-build-core.sh (Simulator module build), package-macos-app.sh, stage1-run.sh / sunpad-capture.py (automated run + capture). Port them to meleepad names rather than inventing new mechanisms; the build must reproduce from a clean clone via scripts alone (matrix row 15).
 
 ## Session start checklist
 

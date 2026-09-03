@@ -2,27 +2,27 @@
 set -euo pipefail
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
-FIXTURE="$(mktemp -d "${TMPDIR:-/tmp}/ssbmpad-keyboard-profile.XXXXXX")"
+FIXTURE="$(mktemp -d "${TMPDIR:-/tmp}/meleepad-keyboard-profile.XXXXXX")"
 trap 'rm -rf "$FIXTURE"' EXIT
 
-CONTENTS="$FIXTURE/SsbmPad.app/Contents"
+CONTENTS="$FIXTURE/MeleePad.app/Contents"
 mkdir -p "$CONTENTS/MacOS" "$CONTENTS/Resources" "$FIXTURE/home"
-cp "$ROOT/apple/macos/SsbmPad" "$CONTENTS/MacOS/SsbmPad"
+cp "$ROOT/apple/macos/MeleePad" "$CONTENTS/MacOS/MeleePad"
 cp "$ROOT/apple/macos/default-config.ini" "$CONTENTS/Resources/default-config.ini"
 cp "$ROOT/apple/macos/default-GCPadNew.ini" \
   "$CONTENTS/Resources/default-GCPadNew.ini"
 
-cat >"$CONTENTS/MacOS/SsbmPadFrontend" <<'EOF'
+cat >"$CONTENTS/MacOS/MeleePadFrontend" <<'EOF'
 #!/usr/bin/env bash
 exit 0
 EOF
-chmod +x "$CONTENTS/MacOS/SsbmPad" "$CONTENTS/MacOS/SsbmPadFrontend"
+chmod +x "$CONTENTS/MacOS/MeleePad" "$CONTENTS/MacOS/MeleePadFrontend"
 
 run_launcher() {
-  HOME="$FIXTURE/home" "$CONTENTS/MacOS/SsbmPad"
+  HOME="$FIXTURE/home" "$CONTENTS/MacOS/MeleePad"
 }
 
-PAD_DIR="$FIXTURE/home/Library/Application Support/SsbmPad/Config"
+PAD_DIR="$FIXTURE/home/Library/Application Support/MeleePad/Config"
 PAD_CONFIG="$PAD_DIR/GCPadNew.ini"
 
 run_launcher
@@ -32,16 +32,16 @@ grep -Fqx 'Buttons/X = U | Space' "$PAD_CONFIG"
 
 cat >"$PAD_CONFIG" <<'EOF'
 [GCPad1]
-Device = Pipe/0/ssbmpad
+Device = Pipe/0/meleepad
 Buttons/A = `Button A`
 EOF
 sed -E -i '' \
-  's|^controller1=.*$|controller1=Pipe/0/ssbmpad|' \
-  "$FIXTURE/home/Library/Application Support/SsbmPad/config.ini"
+  's|^controller1=.*$|controller1=Pipe/0/meleepad|' \
+  "$FIXTURE/home/Library/Application Support/MeleePad/config.ini"
 run_launcher
 cmp "$ROOT/apple/macos/default-GCPadNew.ini" "$PAD_CONFIG"
 grep -Fqx 'controller1=Quartz/0/Keyboard & Mouse' \
-  "$FIXTURE/home/Library/Application Support/SsbmPad/config.ini"
+  "$FIXTURE/home/Library/Application Support/MeleePad/config.ini"
 
 cat >"$PAD_CONFIG" <<'EOF'
 [GCPad1]

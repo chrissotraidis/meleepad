@@ -192,11 +192,11 @@ retained frame.
 reproducible product module. G5 remains open; Final Destination is not run;
 G6 remains blocked.** No game process or Simulator remains.
 
-A validated local copy is installed at `build-macos/SsbmPad-PGO.app` so the
+A validated local copy is installed at `build-macos/MeleePad-PGO.app` so the
 best-known native build remains runnable on this machine. Its module is the
 signed `bd089303...` candidate above; package layout, deep strict signing,
 arm64 identity, macOS 14 minimum, and a no-game-data extension scan pass. The
-canonical reproducible `build-macos/SsbmPad.app` remains unchanged.
+canonical reproducible `build-macos/MeleePad.app` remains unchanged.
 
 ## Evidence
 

@@ -11,7 +11,7 @@ Was observer overhead the reason the promoted product remained near 52 FPS?
 ## Crash-report reconciliation
 
 The supplied incident `9AE31C76-671C-42F8-89AF-D64EE5BA5059` is the already
-recorded 03:05 crash from temporary `SsbmPad-fp-inline.app`, process 24720. It
+recorded 03:05 crash from temporary `MeleePad-fp-inline.app`, process 24720. It
 occurred when slot 1 was requested while Dolphin's emulation thread was still
 starting. It is not a crash from the promoted scalar-FMA package. The retained
 harness now waits for emulated frame 1,000 before `SIGUSR2`; every run below
@@ -20,7 +20,7 @@ loaded cleanly.
 ## Normal-path control
 
 The signed promoted runner and module were launched with no
-`SSBMPAD_FRAME_PHASE_LOG`, using a disposable copy of the same user tree and
+`MELEEPAD_FRAME_PHASE_LOG`, using a disposable copy of the same user tree and
 the retained Fountain slot. Direct UI inspection observed a real four-player
 Brinstar attract scene at 22.9 FPS, then the loaded Pikachu/CPU-Fox Fountain
 scene at 55.0 FPS and 53.3 FPS after a ten-second native sample. A reversal

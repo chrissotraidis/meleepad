@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Recreate ssbmpad's ignored public dependency tree at reviewed revisions.
+# Recreate meleepad's ignored public dependency tree at reviewed revisions.
 # This script never downloads game data.
 set -euo pipefail
 
@@ -223,7 +223,7 @@ apply_patch_once_or_marker "$MG/vendor/dolphin" "$gxruntime_scalar_patch" \
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$cache_control_patch" \
   Source/Core/Common/FramePhaseTiming.h s_static_recomp_cache_controls
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$slow_window_patch" \
-  Source/Core/VideoCommon/Present.cpp SSBMPAD_FRAME_PHASE_SLOW_MARKER
+  Source/Core/VideoCommon/Present.cpp MELEEPAD_FRAME_PHASE_SLOW_MARKER
 apply_patch_once "$MG/vendor/dolphin" "$dispatch_counts_patch"
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$dispatch_frame_patch" \
   Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp \
@@ -259,13 +259,13 @@ apply_patch_once_or_marker "$MG/vendor/dolphin" "$efb_pipeline_timing_patch" \
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$frame_wait_attribution_patch" \
   Source/Core/Common/FramePhaseTiming.h s_cpu_precision_throttle_calls
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$efb_vram_prewarm_patch" \
-  Source/Core/VideoCommon/ShaderCache.cpp SSBMPAD_PREWARM_EFB_VRAM
+  Source/Core/VideoCommon/ShaderCache.cpp MELEEPAD_PREWARM_EFB_VRAM
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$frame_phase_host_timestamp_patch" \
   Source/Core/VideoCommon/Present.cpp host_frame_end_unix_ns
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$frame_task_event_patch" \
   Source/Core/VideoCommon/Present.cpp task_context_switches
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$lightweight_frame_timing_patch" \
-  Source/Core/VideoCommon/PerformanceTracker.cpp SSBMPAD_LIGHTWEIGHT_FRAME_LOG
+  Source/Core/VideoCommon/PerformanceTracker.cpp MELEEPAD_LIGHTWEIGHT_FRAME_LOG
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$lightweight_frame_identity_patch" \
   Source/Core/VideoCommon/LightweightFrameTimingRecorder.cpp emulated_frame
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$lightweight_frame_index_activation_patch" \
@@ -351,4 +351,4 @@ verify_patch_scope "$MG/vendor/dolphin" "$dolphin_patch" "$mg_patch" \
 verify_patch_scope "$MG/vendor/dolphin/DolRecomp" \
   "$ROOT"/patches/dolrecomp/*.patch --
 
-echo "ssbmpad dependencies are pinned and patched."
+echo "meleepad dependencies are pinned and patched."

@@ -14,7 +14,7 @@ netplay timing?
 Apple defines `maximumDrawableCount` as the number of Metal drawables in the
 resource pool managed by Core Animation:
 <https://developer.apple.com/documentation/quartzcore/cametallayer>.
-The current Dolphin Metal backend does not override it. No retained SsbmPad
+The current Dolphin Metal backend does not override it. No retained MeleePad
 experiment had tested this native layer boundary; PERF-168 tested a separate
 application queue and does not answer the same question.
 

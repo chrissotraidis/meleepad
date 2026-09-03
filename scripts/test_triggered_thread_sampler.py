@@ -120,7 +120,7 @@ def main() -> None:
         capture_output=True,
         text=True,
     ).stdout.strip()
-    with tempfile.TemporaryDirectory(prefix="ssbmpad-triggered-sampler-test-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="meleepad-triggered-sampler-test-") as temporary:
         work = pathlib.Path(temporary)
         sampler = work / "sampler"
         target_source = work / "target.cpp"

@@ -6,7 +6,7 @@ Goal: NL0 and NL1
 
 ## Question
 
-Does SsbmPad's existing fixed-delay stack assign Melee clients to GameCube
+Does MeleePad's existing fixed-delay stack assign Melee clients to GameCube
 slots and relay the complete GameCube controller payload, without regressing
 the customized Wii transport?
 
@@ -35,7 +35,7 @@ changing the installed app.
 - Route capacity, connection assignment, controller-count changes, and the
   start gate through the selected family map.
 - Add a locked GameCube mapping snapshot for lobby/session consumers.
-- Make the SsbmPad desktop session explicitly select GameCube and label slots
+- Make the MeleePad desktop session explicitly select GameCube and label slots
   `GC 1` through `GC 4`.
 - Store the dependency changes as ordered outer patches `0039` and `0013`, and
   teach bootstrap to apply and recognize them.
@@ -53,7 +53,7 @@ The focused test passes and covers:
 - disconnect cleanup; and
 - a new client reconnecting and receiving two freed GameCube slots.
 
-The desktop `SsbmPadRunner` target also rebuilds successfully with the corrected
+The desktop `MeleePadRunner` target also rebuilds successfully with the corrected
 GameCube lobby snapshot and labels. Both outer patches pass reverse-apply
 checks against the live nested worktrees, bootstrap passes shell syntax, and
 the outer checkout passes `git diff --check`.

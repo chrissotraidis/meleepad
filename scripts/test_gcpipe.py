@@ -278,9 +278,9 @@ class SequenceTests(unittest.TestCase):
         self.assertEqual(watcher.pumped, [5.0, 0.5, 0.3])
 
     def test_isolated_user_dir_uses_its_fifo_by_default(self) -> None:
-        user_dir = Path("/private/tmp/ssbmpad-test/user")
+        user_dir = Path("/private/tmp/meleepad-test/user")
         self.assertEqual(
-            gcpipe.default_pipe_path(user_dir), user_dir / "Pipes/ssbmpad"
+            gcpipe.default_pipe_path(user_dir), user_dir / "Pipes/meleepad"
         )
 
     def test_collects_revision_zero_memory_address(self) -> None:

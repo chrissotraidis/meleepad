@@ -8,13 +8,13 @@ Status: **G8 row 12 pass**
 
 The shared iPad diagnostic report already passed its live export and privacy
 scan, but the macOS launcher only redirected runner output into
-`Logs/SsbmPad.log`; it exposed no export action. The retained ModernGekko patch
+`Logs/MeleePad.log`; it exposed no export action. The retained ModernGekko patch
 adds one bounded product path:
 
 - a visible **Export Diagnostics** launcher action;
 - a matching `--export-diagnostics` automation route through the exact same
   exporter;
-- a `Diagnostics/Latest-SsbmPad-Diagnostic.log` report containing the current
+- a `Diagnostics/Latest-MeleePad-Diagnostic.log` report containing the current
   runner log, capped at the newest 1 MiB;
 - known game-root, user-directory, home, and temporary-path replacement plus a
   conservative macOS absolute-path fallback;
@@ -45,5 +45,5 @@ into the report.
   ISO/WBFS/RVZ names.
 
 The private generated report remains outside Git. The launcher was closed and
-no SsbmPad process or booted Simulator remained after verification. Together
+no MeleePad process or booted Simulator remained after verification. Together
 with the retained iPad export, this closes both platforms required by row 12.

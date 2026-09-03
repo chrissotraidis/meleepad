@@ -24,7 +24,7 @@ for contract in \
   'simctl launch --terminate-running-process' \
   'app_launched=0' \
   'exit 130' \
-  'Library/Application Support/SsbmPad/Logs/runtime.log' \
+  'Library/Application Support/MeleePad/Logs/runtime.log' \
   "grep ' performance fps='" \
   'reports_below_59_fps' \
   'reports_below_59_vps' \
@@ -37,7 +37,7 @@ for contract in \
   grep -Fq "$contract" "$HARNESS"
 done
 
-if grep -Eq 'simctl io .*screenshot|get_app_state|MemoryWatcher|savestate|gcpipe|SIMCTL_CHILD_SSBMPAD_' "$HARNESS"; then
+if grep -Eq 'simctl io .*screenshot|get_app_state|MemoryWatcher|savestate|gcpipe|SIMCTL_CHILD_MELEEPAD_' "$HARNESS"; then
   echo "G8 human acceptance harness contains a forbidden observer or diagnostic path" >&2
   exit 1
 fi

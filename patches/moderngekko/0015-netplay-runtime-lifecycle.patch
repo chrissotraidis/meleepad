@@ -46,14 +46,14 @@ diff --git a/tests/frontend_config_test.cpp b/tests/frontend_config_test.cpp
 @@ -102,6 +102,25 @@
      return 5;
    }
-+  const std::array pipe_controllers = {std::string("Pipe/0/ssbmpad")};
++  const std::array pipe_controllers = {std::string("Pipe/0/meleepad")};
 +  if (!moderngekko::frontend::GenerateControllerConfig(
 +          directory, pipe_controllers, &error))
 +    return 15;
 +  std::ifstream pipe_input(directory / "Config" / CONTROLLER_CONFIG_NAME);
 +  const std::string pipe_generated{std::istreambuf_iterator<char>(pipe_input),
 +                                   std::istreambuf_iterator<char>()};
-+  if (!pipe_generated.contains("Device = Pipe/0/ssbmpad\n") ||
++  if (!pipe_generated.contains("Device = Pipe/0/meleepad\n") ||
 +      !pipe_generated.contains("Buttons/Z = `Button Z`\n") ||
 +      !pipe_generated.contains("Buttons/Start = `Button START`\n") ||
 +      !pipe_generated.contains("Main Stick/Up = `Axis MAIN Y -`\n") ||
@@ -102,8 +102,8 @@ diff --git a/tools/netplay_session.cpp b/tools/netplay_session.cpp
      return false;
  
    std::vector<ControllerOption> available = EnumerateControllers();
-+  const bool auto_ready = EnvironmentEnabled("SSBMPAD_NETPLAY_AUTO_READY");
-+  const bool auto_start = EnvironmentEnabled("SSBMPAD_NETPLAY_AUTO_START");
++  const bool auto_ready = EnvironmentEnabled("MELEEPAD_NETPLAY_AUTO_READY");
++  const bool auto_start = EnvironmentEnabled("MELEEPAD_NETPLAY_AUTO_START");
    auto last_refresh = std::chrono::steady_clock::now();
    bool running = true;
    while (running) {

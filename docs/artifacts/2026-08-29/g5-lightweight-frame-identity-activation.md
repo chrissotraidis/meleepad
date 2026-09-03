@@ -10,7 +10,7 @@ default path?
 
 Patch 0024 added `emulated_frame` to the lightweight CSV, but
 `VideoInterface.cpp` advanced the shared index only when
-`SSBMPAD_FRAME_PHASE_LOG` was enabled. A lightweight-only smoke therefore
+`MELEEPAD_FRAME_PHASE_LOG` was enabled. A lightweight-only smoke therefore
 recorded zero for every frame. A regression was made to fail on that missing
 activation before the implementation changed.
 

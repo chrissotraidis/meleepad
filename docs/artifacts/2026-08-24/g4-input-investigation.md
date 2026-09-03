@@ -20,13 +20,13 @@ screen demos, not user-controlled matches.
 3. A unique Quartz Start key plus explicit window focus and temporary external
    background-input sampling did not reliably reproduce a title/menu edge.
 4. The reference FIFO backend was configured exactly as SunPad documents.
-   `SsbmPadRunner` opened the expected FIFO read-only, the writer was connected
+   `MeleePadRunner` opened the expected FIFO read-only, the writer was connected
    both after boot and before boot and held open, and documented
    `PRESS START`/`RELEASE START` edges were sent. The emulated pad did not
    change.
 
 All temporary Application Support settings were restored to the shipped
-Quartz profile (`Start = Return`, background input false), and all SsbmPad
+Quartz profile (`Start = Return`, background input false), and all MeleePad
 processes were stopped.
 
 ## Next falsifiable experiment

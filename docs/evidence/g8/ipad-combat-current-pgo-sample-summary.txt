@@ -1,4 +1,4 @@
-SsbmPad iPad Simulator fresh-PGO residual sample summary
+MeleePad iPad Simulator fresh-PGO residual sample summary
 Date: 2026-08-30
 Source: 10-second /usr/bin/sample capture during live four-character combat
 Platform: arm64 iOS Simulator
@@ -26,4 +26,4 @@ material optimization target.
 The raw sample is intentionally not committed because it contains private
 absolute Simulator/container paths. Counts above can be reproduced from the
 retained private capture
-/tmp/ssbmpad-ipad-combat-pgo-current-20260830.sample.txt.
+/tmp/meleepad-ipad-combat-pgo-current-20260830.sample.txt.
