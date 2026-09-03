@@ -6172,3 +6172,17 @@ Append-only execution ledger. Claims are limited to observed evidence.
   work.
 - Evidence:
   `docs/artifacts/2026-09-02/g9-cross-platform-canonical-classification.md`.
+## 2026-09-03 — NET-298 reconciled beta stop checkpoint
+
+- Fast-forward local `main` to GitHub merge `fa9c763`, which combines the
+  physical-iPad controller/menu/icon commit with the canonical-netplay branch.
+- Run the complete repository gate on that merged tree; all checks pass.
+- Preserve `scripts/summarize-phase-window.py` as an untracked local analysis
+  helper and leave all runtimes stopped.
+- Pause G9 at B1. Keep the product labelled Experimental Multiplayer / Direct
+  Connection Preview; no room-code, cross-platform-completion, physical-device
+  Internet, or public beta claim has passed.
+- Resume with hierarchical MEM1 digests and a signed timebase delta around
+  canonical sequence 6780/frame 120; do not repeat B0 or the passing two-Mac
+  live-combat control.
+- Evidence: `docs/artifacts/2026-09-03/g9-netplay-beta-stop-handoff.md`.

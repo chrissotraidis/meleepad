@@ -1,5 +1,23 @@
 # ssbmpad status
 
+## 2026-09-03 — reconciled netplay beta stop checkpoint
+
+GitHub `main` now contains both the accepted physical-iPad controller/menu/icon
+work and the isolated netplay diagnostic work. The complete repository gate
+passes after the merge, no game or build process is active, and the existing
+untracked phase-analysis helper remains outside the checkpoint.
+
+Netplay development is paused at B1, not complete or abandoned. Direct
+two-Mac play has a completed-match proof and the canonical comparator matches
+in live combat. The current iPad-host/Mac-join path still fails closed at frame
+120: canonical sequence 6780 differs in timebase and aggregate MEM1 while PC
+and every CPU hash family match. The shipped UI therefore remains
+**Experimental Multiplayer / Direct Connection Preview**; room codes,
+cross-platform completed matches, physical-device/Internet validation, and the
+public friends-beta claim remain open. Resume with bounded hierarchical MEM1
+digests and a signed timebase delta. See
+`docs/artifacts/2026-09-03/g9-netplay-beta-stop-handoff.md`.
+
 ## 2026-09-02 — G9 B1 canonical comparator matches live combat
 
 The first B1 candidate now captures exact netplay state at SsbmPad's symmetric

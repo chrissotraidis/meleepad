@@ -1,9 +1,14 @@
 # SsbmPad Online Play with Friends beta loop
 
-Status: active  
+Status: paused at B1 (2026-09-03 stop checkpoint)
 Written: 2026-09-02  
 Supersedes: `NETPLAY-GOAL-LOOP.md`  
 Companion architecture: `NETPLAY-FEASIBILITY.md`
+
+Work may resume from B1 without repeating B0 or the passing two-Mac control.
+The current app remains **Experimental Multiplayer / Direct Connection
+Preview**; “Online Play with Friends (Beta)” is still the acceptance claim
+earned only by B10.
 
 ## Goal
 
