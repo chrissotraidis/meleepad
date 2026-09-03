@@ -3,6 +3,10 @@
 **Super Smash Bros. Melee on iPhone, iPad, and Apple Silicon Mac through
 ahead-of-time recompilation and Metal.**
 
+MeleePad turns a supported copy of Melee into a native Apple app you build
+yourself. It uses touch controls, physical controllers, Metal rendering, and a
+Dolphin-derived compatibility runtime—without requiring JIT on iPhone or iPad.
+
 <p align="center">
   <img alt="Requires iOS or iPadOS 16 or later" src="https://img.shields.io/badge/iOS%20%2F%20iPadOS-16%2B-0A84FF?logo=apple">
   <img alt="Requires macOS 14 or later" src="https://img.shields.io/badge/macOS-14%2B-0A84FF?logo=apple">
@@ -17,6 +21,10 @@ ahead-of-time recompilation and Metal.**
 by scene and device; this image is evidence from one observed match, not a
 universal performance guarantee.*
 
+**[How it works](#how-meleepad-works) · [Current status](#current-status) ·
+[FAQ](#faq) · [Build it](#build-from-source) ·
+[Online play](#experimental-multiplayer) · [Get help](#reporting-issues)**
+
 > [!IMPORTANT]
 > MeleePad v0.1.0 Preview 2 adds experimental private Internet rooms, Direct IP,
 > compatibility checks, and the development public-lobby UI. It is not an
@@ -25,6 +33,17 @@ universal performance guarantee.*
 > unsigned, module-free app shell and is **not playable as downloaded**. A
 > playable build must be generated locally from your own exact supported game
 > image. Performance and rendering still vary by scene and device.
+
+### At a glance
+
+| | What to expect |
+|---|---|
+| **Platforms** | iPhone, iPad, and Apple Silicon Mac |
+| **Game input** | Your own exact USA `GALE01` revision 0 disc image |
+| **Distribution** | Source plus an unsigned, non-playable IPA shell; playable builds are generated and signed locally |
+| **Controls** | Touch, supported physical controllers, and keyboard on Mac |
+| **Online play** | Experimental MeleePad-to-MeleePad private rooms and Direct IP; not yet a public beta |
+| **Not included** | Melee, game assets, saves, signing material, or a generated game module |
 
 ## How MeleePad works
 
@@ -63,54 +82,64 @@ the Apple integration, source patches, tests, and reproducible build tooling.
 It does **not** contain Melee, a disc image, extracted Nintendo assets, saves,
 signing material, or a generated game module.
 
-## Frequently asked questions
+## FAQ
 
-### Is this possible without a completed Melee decompilation?
+<details>
+<summary>Is this possible without a completed Melee decompilation?</summary>
 
-Yes. A traditional decompilation project reconstructs human-readable source
-code and data structures from a compiled game. Static recompilation solves a
-different problem: DolRecomp converts the existing PowerPC machine instructions
-into generated code that a modern compiler can turn into ARM64 instructions.
-That makes execution on a new CPU possible without claiming to have recovered
-the game's original source code.
+Yes. A traditional decompilation reconstructs human-readable source code.
+MeleePad takes a different route: DolRecomp converts the game's existing
+PowerPC instructions into generated code that Apple Clang compiles for ARM64.
+That makes native execution possible without claiming to have recovered the
+game's original source code.
 
-### Is MeleePad truly native on iPhone and iPad?
+</details>
+
+<details>
+<summary>Is MeleePad truly native on iPhone and iPad?</summary>
 
 Yes, in the platform and execution sense. The installed app and generated game
-module are ARM64 binaries, rendering uses Metal, and the app uses native Apple
-interfaces for its window, touch controls, controllers, audio lifecycle, file
-import, and settings. It does not require a just-in-time compiler or a browser.
+module are ARM64 binaries. Rendering uses Metal, and the app uses native Apple
+interfaces for touch, controllers, audio, file import, settings, and lifecycle.
+It does not need a browser or just-in-time compiler.
 
-“Native” does not mean that every part of the GameCube was rewritten by hand.
-MeleePad still needs a compatibility runtime to provide the hardware behavior
-the recompiled game expects. Calling it a native static-recompilation port makes
-both parts of the architecture clear.
+“Native” does not mean the entire GameCube was rewritten by hand. ModernGekko's
+Dolphin-derived runtime still provides the hardware behavior that Melee expects.
+The most accurate description is a **native static-recompilation compatibility
+port**.
 
-### Is this an emulator?
+</details>
 
-It shares substantial runtime technology with Dolphin, particularly for the
-GameCube memory model, graphics, audio, input, and operating-system services.
-The major difference is CPU execution: covered Melee PowerPC code is translated
-and compiled ahead of time instead of being handled by Dolphin's normal runtime
-CPU emulation or JIT path. It is best understood as a game-specific static
-recompilation joined to a Dolphin-derived compatibility runtime.
+<details>
+<summary>Is this an emulator?</summary>
 
-### Does MeleePad need JIT or special runtime permissions?
+MeleePad shares substantial runtime technology with Dolphin for graphics,
+audio, memory, input, and GameCube system behavior. The important difference is
+CPU execution: supported Melee code is converted and compiled ahead of time
+instead of going through Dolphin's normal runtime JIT or interpreter.
+
+It is best understood as a game-specific static recompilation joined to a
+Dolphin-derived compatibility runtime—not a stock Dolphin frontend and not a
+from-scratch source port.
+
+</details>
+
+<details>
+<summary>Does MeleePad need JIT or special runtime permissions?</summary>
 
 No. The game module is compiled to ARM64 before installation, so normal gameplay
-does not generate executable code on the device. A locally signed build still
-needs ordinary Apple development provisioning, just like other apps installed
-from Xcode.
+does not generate executable code on the device. A locally installed build still
+needs ordinary Apple development signing, just like other apps run from Xcode.
 
-### Why does MeleePad require an exact disc revision?
+</details>
 
-Static recompilation depends on the executable's exact instruction layout,
-addresses, and data. Even another legitimate regional or revision build can
-differ at those locations. MeleePad currently validates and supports only the
-USA `GALE01` revision 0 image used to generate and test this module.
+<details>
+<summary>Why does MeleePad require one exact disc revision?</summary>
 
-The supported input is the original uncompressed USA disc image commonly
-described as Melee v1.00:
+Static recompilation depends on the executable's exact instructions, addresses,
+and data. Even legitimate regional or revision releases differ at those
+locations. MeleePad currently supports only the original uncompressed USA
+`GALE01` revision 0 image commonly called Melee v1.00.
 
 | Property | Required value |
 |---|---|
@@ -123,55 +152,97 @@ described as Melee v1.00:
 | SHA-256 | `2393aadd346c23e3e44291e7bb7e16dbc4970bc703028261659a87cde9d90484` |
 
 Revision 1/v1.01, revision 2/v1.02, PAL, and Japanese images are not supported.
-Renaming another image to `GALE01.iso` does not make it compatible; the build
-and import paths verify its bytes.
+Renaming another image to `GALE01.iso` does not make it compatible; MeleePad
+verifies the file's contents.
 
-### Does the repository or app include Melee?
+</details>
+
+<details>
+<summary>Does the repository or app include Melee?</summary>
 
 No. The repository contains no game image, extracted game assets, saves, or
-generated game module. On first launch, you select your own supported image.
-MeleePad validates it, retains a private local copy in the app container, and
-extracts the data required by the runtime. The game data stays on your device.
+generated game module. You select your own supported image on first launch.
+MeleePad validates it, keeps a private local copy in the app container, and
+extracts the data the runtime needs. That data stays on your device.
 
-### How do I install it?
+</details>
 
-The [Preview 2 prerelease](https://github.com/chrissotraidis/meleepad/releases/tag/v0.1.0-preview.2)
-contains source plus an unsigned, module-free IPA for inspection and
-signing-workflow development. There is no App Store or TestFlight build. The
-public IPA deliberately excludes the generated
-`gGALE01_recomp.dylib`; importing an ISO into that shell cannot create the
-ahead-of-time module on iOS, so the public IPA alone cannot play the game.
+<details>
+<summary>Can I download a playable IPA?</summary>
 
-A playable iPhone or iPad app must be built locally because its ARM64 game
-module is generated from the user's own supported disc image and is not a
-repository or release asset. Developers can build it on an Apple Silicon Mac
-with Xcode and sign it using their own Apple development account. Start with the
-[requirements](#requirements), follow the
-[physical-device build steps](#build-for-a-physical-iphone-or-ipad), and then
-complete [first-launch game-data import](#first-launch-on-iphone-or-ipad).
+No. The [Preview 2 prerelease](https://github.com/chrissotraidis/meleepad/releases/tag/v0.1.0-preview.2)
+includes source and an unsigned, module-free IPA shell for inspection and
+signing-workflow development. It deliberately excludes
+`gGALE01_recomp.dylib`, so importing an ISO into that IPA cannot make it
+playable.
 
-### Does multiplayer work?
+A playable iPhone or iPad build must be generated locally from your own
+supported disc image on an Apple Silicon Mac, then signed with your Apple
+development account. Start with the [requirements](#requirements), follow the
+[physical-device build steps](#build-for-a-physical-iphone-or-ipad), and finish
+with [first-launch game-data import](#first-launch-on-iphone-or-ipad).
 
-Yes, experimentally, in Preview 2. Private Room uses Dolphin's public traversal
-rendezvous to create an eight-character code; players still need to exchange
-that code with one another. Mac and iPad Simulator peers have hosted and joined
-in both directions and sustained synchronized play. Direct IP also remains
-available. There is no deployed public game browser or automatic matchmaking,
-and no MeleePad gameplay server or relay. Physical-device Internet matches,
-independent outside networks, complete cross-platform matches/rematches, NAT
-success rate, and failure recovery remain unverified. The
-[Experimental multiplayer](#experimental-multiplayer) section gives the exact
-boundary.
+</details>
 
-### What works on physical hardware today?
+<details>
+<summary>Does multiplayer work?</summary>
+
+Experimentally. Preview 2 can create private eight-character room codes through
+Dolphin's public traversal service, and Direct IP remains available. Retained
+Mac/iPad Simulator tests connected and ran synchronized gameplay in both host
+directions.
+
+This is not yet a public multiplayer beta. Physical-device Internet matches,
+independent outside networks, complete cross-platform matches and rematches,
+real-world NAT success, lifecycle recovery, and a production public-game browser
+remain unverified. See [Experimental multiplayer](#experimental-multiplayer) for
+the exact boundary.
+
+</details>
+
+<details>
+<summary>Does online play support four players?</summary>
+
+Not yet. Melee supports four local controller ports, but MeleePad's retained
+online evidence covers two connected endpoints. Four-player rooms need explicit
+protocol, controller-slot, host-migration, disconnect, latency, lobby, and
+physical-device testing before they can be offered or claimed.
+
+The planned public-room design should show four seats and allow a host to set a
+two-, three-, or four-player limit. That is a product direction, not a feature
+available in Preview 2.
+
+</details>
+
+<details>
+<summary>Why doesn't Slippi work with MeleePad?</summary>
+
+No. Slippi is not a service that MeleePad can simply turn on. It combines a
+different Melee revision, extensive injected game code, a customized Dolphin
+runtime, rollback networking, accounts, and private matchmaking services.
+
+MeleePad currently supports Melee v1.00 and uses its own fixed-delay protocol.
+Slippi supports Melee v1.02 and expects Slippi's game modifications and network
+protocol. The two systems are not compatible, so MeleePad users cannot join the
+normal Slippi player pool. Supporting that would require a major separate port
+and cooperation from Project Slippi; it is not planned for MeleePad.
+
+</details>
+
+<details>
+<summary>What works on a physical iPhone or iPad today?</summary>
 
 The game launches and plays on a physical iPad with Metal rendering, touch
 controls, supported physical controllers, persistent game data and saves, and
-the native settings menu. Observed solo play can hold close to 60 FPS at 2x
-resolution, but a later physical-iPad run also captured a sustained 46-57 FPS
-slowdown under serious thermal pressure after an extended in-game pause.
-Serious water, reflection, and shadow rendering defects remain, and the
-complete device acceptance matrix is still in progress.
+the native settings menu. One observed solo run held close to 60 FPS at 2x
+resolution; another later run sustained 46–57 FPS under serious thermal
+pressure after an extended in-game pause.
+
+Serious water, reflection, and shadow rendering defects remain, and the full
+device acceptance matrix is still in progress. Physical-device online play has
+not passed its release gates.
+
+</details>
 
 ## Current status
 
@@ -323,9 +394,18 @@ physical-controller profiles are preserved.
 
 ## Experimental multiplayer
 
-**Online play is not ready for general use.** Preview 2 contains working
-private room codes, Direct IP, and a locally verified public-room browser. It
-is an engineering preview, not a deployed public multiplayer beta.
+> [!WARNING]
+> **Online play is not ready for general use.** Preview 2 contains experimental
+> private rooms and Direct IP. Its Public Games interface has passed local
+> development testing, but no production public-game service is deployed.
+
+| Available in Preview 2 | Not available yet |
+|---|---|
+| Private eight-character room codes | Production public-game browser |
+| Direct IP for advanced testing | Automatic or ranked matchmaking |
+| Two-player Mac/iPad Simulator evidence | Verified four-player online rooms |
+| Compatibility checks and desync shutdown | Relay fallback or encrypted gameplay |
+| Native Host, Join, Ready, and Start flow | Physical-device Internet beta evidence |
 
 ### What a player can do in Preview 2
 
@@ -339,12 +419,22 @@ is an engineering preview, not a deployed public multiplayer beta.
 6. Both players verify the compatibility state, mark Ready, and the host starts
    the match.
 
-This flow depends on Dolphin's public traversal rendezvous being reachable.
-The code helps peers find each other; it is not a password, identity check, or
-end-to-end-encryption guarantee. There is no in-app list of strangers to play
-in the shipped configuration.
+This flow depends on Dolphin's public traversal service. There is no in-app
+list of strangers to play in the shipped configuration.
 
-### How the current preview works
+### Safety and privacy today
+
+- Play only with people you trust.
+- A room code helps two devices find each other. It is not a password, identity
+  check, or encryption key.
+- Gameplay travels directly between peers and is currently plaintext.
+- Some routers and firewalls will reject a connection because there is no relay
+  fallback.
+- Exported diagnostics should never include full IP addresses, room codes, game
+  data, saves, or signing material.
+
+<details>
+<summary>How does Preview 2 connect the players?</summary>
 
 - Both players run the match locally; MeleePad exchanges synchronized
   controller input rather than streaming video.
@@ -358,6 +448,8 @@ in the shipped configuration.
 - The joining player is assigned another GameCube controller port.
 - A synchronization mismatch stops the session instead of allowing the two
   games to continue in different states.
+
+</details>
 
 ### What has been verified
 
@@ -376,30 +468,20 @@ the [multiplayer goal loop](docs/NETPLAY-BETA-GOAL-LOOP.md).
 
 ### Private Room, Public Games, and Direct IP
 
-**Private Room** is the working Internet-room preview. It uses Dolphin's public
-traversal rendezvous to create an eight-character code, but MeleePad does not
-operate or guarantee that service. Players find one another elsewhere and
-exchange the code privately.
+- **Private Room** is the working Internet-room preview. Players arrange a game
+  elsewhere and exchange an ephemeral room code privately.
+- **Public Games** is the planned discovery layer. Its native UI can show
+  compatible room cards and supports preset quick chat, Hide, and Report in
+  local development tests. No production endpoint is deployed.
+- **Direct IP** bypasses discovery and traversal. It is intended for local
+  networks and advanced testing.
 
-**Public Games** is the future discovery/matchmaking layer. Its native UI has
-version-aware room cards, Host/Join, preset quick chat, and Hide/Report. A
-public list never contains the traversal code; only an authenticated,
-compatible Join response discloses it. The release has no configured production
-endpoint, so Public Games reports that it is unavailable instead of showing a
-fake or unsafe player population.
+The public browser is designed so room listings never reveal traversal codes.
+Only an authorized, compatible Join response discloses the connection code.
+Release builds fail closed when no production service is configured.
 
-**Direct IP** bypasses both discovery and traversal. It is intended for local
-networks and advanced testing. Across the Internet it may require UDP port
-forwarding or a trusted private VPN.
-
-The public browser needs a configured HTTPS MeleePad lobby endpoint. No such
-production endpoint is bundled or deployed yet, so release builds fail closed
-to the still-working Private Room and Direct IP paths. The local service and
-Simulator instructions are in
-[services/lobby/README.md](services/lobby/README.md); the remaining gates are
-in the [public lobby goal loop](docs/PUBLIC-LOBBY-GOAL-LOOP.md).
-
-### Direct connection details for developers
+<details>
+<summary>How does Direct IP work for developers?</summary>
 
 Developers can inspect the current lobby on the same local network:
 
@@ -416,13 +498,12 @@ testing across the public internet may require UDP port forwarding or a private
 VPN. The current gameplay channel is plaintext, so use it only with trusted
 people on a private test network. Do not expose it as a public service.
 
-MeleePad does not currently operate its own traversal service. Preview 2 uses
-Dolphin's public traversal service for room introduction and has no service
-guarantee, accounts, relay fallback, automatic matchmaking, spectating, or
-ranked play. The development discovery service only indexes compatible
-MeleePad traversal rooms and never proxies gameplay. Slippi is an established
-Melee-specific rollback and matchmaking system, but it is not a drop-in server
-for this build and would require a separate integration project.
+</details>
+
+Local service and Simulator instructions are in
+[services/lobby/README.md](services/lobby/README.md). The remaining discovery,
+moderation, and deployment gates are in the
+[public lobby goal loop](docs/PUBLIC-LOBBY-GOAL-LOOP.md).
 
 ### Plan after Preview 2
 
@@ -441,7 +522,8 @@ The next-preview plan is deliberately staged:
 The detailed gates and stop rules are in the
 [public lobby goal loop](docs/PUBLIC-LOBBY-GOAL-LOOP.md).
 
-### What is required before a beta claim
+<details>
+<summary>What must pass before this can be called a beta?</summary>
 
 Before the UI can be called **Online Play with Friends (Beta)**, one unchanged
 build must complete full Mac/iPad, Mac/iPhone, and iPad/iPhone matches; pass
@@ -449,6 +531,12 @@ disconnect, backgrounding, save, input, performance, and privacy checks; and
 connect across separate networks through a working short room-code flow. The
 [multiplayer beta plan](docs/NETPLAY-BETA-GOAL-LOOP.md) defines the complete
 acceptance matrix.
+
+Four-player online play has additional gates: four stable controller slots,
+four-seat room state, coordinated match start, peer-loss behavior, latency and
+buffer policy, full-match determinism, and physical-device thermal testing.
+
+</details>
 
 ## Reporting issues
 
