@@ -1,0 +1,25 @@
+diff --git a/tools/netplay_session_core.cpp b/tools/netplay_session_core.cpp
+--- a/tools/netplay_session_core.cpp
++++ b/tools/netplay_session_core.cpp
+@@ -69,6 +69,9 @@ public:
+     std::lock_guard lock(m_mutex);
+-    if (message.starts_with("netplay-timebase") &&
+-        m_status.starts_with("netplay-timebase")) {
++    const bool is_determinism_record = message.starts_with("netplay-timebase") ||
++                                       message.starts_with("netplay-canonical");
++    const bool has_determinism_record = m_status.starts_with("netplay-timebase") ||
++                                        m_status.starts_with("netplay-canonical");
++    if (is_determinism_record && has_determinism_record) {
+       const std::size_t separator = m_status.find("; ");
+       if (separator != std::string::npos)
+         m_status.erase(0, separator + 2);
+@@ -101,7 +105,8 @@ public:
+       m_error = "Desync at frame " + std::to_string(frame);
+       if (!player.empty())
+         m_error += " reported for " + player;
+-      if (m_status.starts_with("netplay-timebase"))
++      if (m_status.starts_with("netplay-timebase") ||
++          m_status.starts_with("netplay-canonical"))
+         m_error += ": " + m_status;
+     }
+     StopGame();

@@ -1,0 +1,51 @@
+diff --git a/tests/netplay_protocol_test.cpp b/tests/netplay_protocol_test.cpp
+--- a/tests/netplay_protocol_test.cpp
++++ b/tests/netplay_protocol_test.cpp
+@@ -3,6 +3,7 @@
+ #include "Core/HW/WiimoteEmu/DesiredWiimoteState.h"
+ #include "Core/IOS/FS/FileSystem.h"
+ #include "Core/NetPlay/NetPlayClient.h"
++#include "Core/NetPlay/NetPlayCommon.h"
+ #include "Core/NetPlay/NetPlayServer.h"
+ #include "UICommon/UICommon.h"
+ #include "moderngekko/cpu_state.h"
+@@ -149,6 +150,39 @@ bool WaitFor(const auto &condition) {
+ }
+ 
+ int main() {
++  NetPlay::CanonicalStateSnapshot canonical{
++      .sequence = 60,
++      .guest_pc = 0x80348814,
++      .timebase = 1000,
++      .state_hash = 1,
++      .integer_state_hash = 2,
++      .fpr_state_hash = 3,
++      .paired_state_hash = 4,
++      .ram_hash = 5,
++  };
++  if (!NetPlay::CanonicalStateMatches(canonical, canonical))
++    return 20;
++  auto changed = canonical;
++  changed.integer_state_hash ^= 1;
++  if (NetPlay::CanonicalStateMatches(canonical, changed))
++    return 21;
++  changed = canonical;
++  changed.fpr_state_hash ^= 1;
++  if (NetPlay::CanonicalStateMatches(canonical, changed))
++    return 22;
++  changed = canonical;
++  changed.paired_state_hash ^= 1;
++  if (NetPlay::CanonicalStateMatches(canonical, changed))
++    return 23;
++  changed = canonical;
++  changed.timebase ^= 1;
++  if (NetPlay::CanonicalStateMatches(canonical, changed))
++    return 24;
++  changed = canonical;
++  changed.ram_hash ^= 1;
++  if (NetPlay::CanonicalStateMatches(canonical, changed))
++    return 25;
++
+   moderngekko::GameMetadata metadata;
+   metadata.disc_id = "TEST01";
+   metadata.dol_sha256 = "dol";

@@ -6112,3 +6112,63 @@ Append-only execution ledger. Claims are limited to observed evidence.
   fake room actions or weaken desync checks. The user explicitly reprioritized
   isolated netplay work while the G8 human gate awaits manual input.
 - Evidence: `docs/artifacts/2026-09-02/g9-beta-loop-reorientation.md`.
+
+## 2026-09-02 — NET-295 B1 canonical-boundary candidate
+
+- Add a fail-first canonical-boundary contract, Dolphin patch 0044, and
+  ModernGekko comparator regression patch 0018.
+- Capture every sixtieth netplay-only caller-qualified idle boundary with exact
+  sequence/timebase, CPU component hashes, and a sparse digest spanning every
+  MEM1 page. Keep PE-finish live state as context only and bump the packet
+  suffix to `moderngekko-netplay-7`.
+- Prove equal snapshots match and injected integer, FPR, paired-single,
+  timebase, and RAM differences fail. Pass protocol/session targets, patch
+  reverse checks, complete bootstrap replay, rebuilt Simulator core,
+  reprovisioning, and Release iPad Simulator link.
+- Run an isolated same-build two-Mac control. Both endpoints synchronize from
+  boot through title/main-menu/two-human VS character select and accept
+  independent P1/P2 input with no desync or crash. The scripted route does not
+  complete selection/stage/combat, so it reaches no canonical record and is
+  ineligible for B1.
+- Decision: B1 remains PARTIAL. Repair the deterministic paired combat route,
+  retain the first same-Mac canonical record, then run both Mac/iPad host
+  directions. Do not start room-code UI/service work or claim mobile Online
+  Play.
+- Evidence:
+  `docs/artifacts/2026-09-02/g9-canonical-boundary-candidate.md`.
+
+## 2026-09-02 — NET-296 live canonical control and package gate
+
+- Repair the paired route's menu lockout by using an analog VS selection and
+  twelve-second dual-emulator transition waits; focused controller tests pass.
+- Find that the isolated wrapper copied an obsolete idle-only `GALE01r0.ini`,
+  leaving the compiled comparator unarmed. Make the macOS package regression
+  require main idle `0x80348814` plus caller `0x80019550/0x801A4064`.
+- Re-run two isolated endpoints with those settings. Both report the canonical
+  caller boundary, accept independent P1/P2 input, and enter Mario/Bowser
+  Fountain combat.
+- Retain four exact canonical matches (sequences 598200, 946800, 958800, and
+  982200) with no mismatch, unpaired record, desync, or crash.
+- Decision: accept the comparator for cross-platform testing, keep B1 PARTIAL,
+  and proceed to iPad-host/Mac-join then reverse-host five-minute matches. Do
+  not weaken exact comparison or begin room-code UI work.
+- Evidence:
+  `docs/artifacts/2026-09-02/g9-canonical-boundary-live-control.md`.
+
+## 2026-09-02 — NET-297 cross-platform canonical classification
+
+- Reject a stale installed Release whose UI still predates the B0 truth reset;
+  rebuild, reinstall, and visibly confirm Direct Connection Preview.
+- Run iPad-host/Mac-join at 0–1 ms with matching compatibility, GC 1/GC 2,
+  both ready, and synchronized DOL start. Reproduce a clean stop at frame 120.
+- Add ModernGekko patch 0019 so `netplay-canonical` history survives the
+  generic desync callback. Add Dolphin patch 0045 so the component list appears
+  before verbose peer records and remains visible through accessibility.
+- Rebuild the iOS core and Release app and reproduce sequence 6780 with
+  `differences=timebase,ram`. PC, integer, FPR, paired-single/FPSCR, and
+  combined CPU hashes match at the first classified failure.
+- Decision: keep B1 PARTIAL and exact. Next add bounded hierarchical MEM1
+  hashes plus a signed timebase delta; do not add tolerance or start room-code
+  work.
+- Evidence:
+  `docs/artifacts/2026-09-02/g9-cross-platform-canonical-classification.md`.

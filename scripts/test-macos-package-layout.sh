@@ -24,7 +24,11 @@ strings "$APP/Contents/MacOS/SsbmPadRunner" | grep -F \
 strings "$APP/Contents/MacOS/SsbmPadRunner" | grep -F \
   "SSBMPAD_PREWARM_EFB_VRAM" >/dev/null
 test -f "$SYS/GameSettings/GALE01r0.ini"
-grep -Eq '^StaticRecompIdlePC = 0x80349494$' \
+grep -Eq '^StaticRecompIdlePC = 0x80348814$' \
+  "$SYS/GameSettings/GALE01r0.ini"
+grep -Eq '^StaticRecompCallerIdlePC = 0x80019550$' \
+  "$SYS/GameSettings/GALE01r0.ini"
+grep -Eq '^StaticRecompCallerIdleLR = 0x801A4064$' \
   "$SYS/GameSettings/GALE01r0.ini"
 
 echo "macOS package layout: pass"

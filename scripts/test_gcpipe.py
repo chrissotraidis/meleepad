@@ -416,6 +416,32 @@ class SequenceTests(unittest.TestCase):
             ["0x01000000", "0x02000000"],
         )
 
+    def test_b1_title_to_css_uses_analog_menu_selection(self) -> None:
+        sequence_path = (
+            Path(__file__).parent
+            / "input-sequences/b1-title-to-two-human-css.json"
+        )
+        sequence = json.loads(sequence_path.read_text(encoding="utf-8"))
+        self.assertFalse(
+            any(
+                step.get("action") == "tap" and step.get("button") == "D_DOWN"
+                for step in sequence
+            )
+        )
+        down = next(
+            step
+            for step in sequence
+            if step.get("action") == "stick" and step.get("y") == -1.0
+        )
+        self.assertEqual(down.get("axis"), "MAIN")
+        self.assertEqual(sequence[-1].get("equals"), "0x02000000")
+        waits = [
+            step.get("seconds", 0)
+            for step in sequence
+            if step.get("action") == "wait"
+        ]
+        self.assertGreaterEqual(waits.count(12.0), 2)
+
     def test_title_to_css_waits_for_menu_input_animations(self) -> None:
         sequence_path = (
             Path(__file__).parent / "input-sequences/g5-r0-title-to-css.json"

@@ -5,6 +5,7 @@ ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 DOLPHIN_PATCH="$ROOT/patches/moderngekko-dolphin/0042-netplay-timebase-mismatch-telemetry.patch"
 SESSION_PATCH="$ROOT/patches/moderngekko/0016-netplay-timebase-status-history.patch"
 FINGERPRINT_PATCH="$ROOT/patches/moderngekko-dolphin/0043-netplay-execution-fingerprint.patch"
+CANONICAL_PATCH="$ROOT/patches/moderngekko-dolphin/0044-netplay-canonical-boundary.patch"
 BOOTSTRAP="$ROOT/scripts/bootstrap-dependencies.sh"
 
 for contract in \
@@ -42,6 +43,14 @@ done
 
 grep -Fq '0042-netplay-timebase-mismatch-telemetry.patch' "$BOOTSTRAP"
 grep -Fq '0043-netplay-execution-fingerprint.patch' "$BOOTSTRAP"
+grep -Fq '0044-netplay-canonical-boundary.patch' "$BOOTSTRAP"
 grep -Fq '0016-netplay-timebase-status-history.patch' "$BOOTSTRAP"
+
+for contract in \
+  'netplay-canonical sequence=' \
+  'canonical_sequence=' \
+  'canonical_ram_hash='; do
+  grep -Fq "$contract" "$CANONICAL_PATCH"
+done
 
 echo "Netplay timebase mismatch telemetry source contract passed"

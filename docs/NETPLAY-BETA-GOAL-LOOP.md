@@ -293,6 +293,17 @@ First experiment:
 
 No room service or consumer UI work may conceal a B1 failure.
 
+**Current status: PARTIAL.** The corrected two-Mac control reached live
+Fountain combat and emitted four exact canonical matches with no mismatch,
+unpaired record, desync, or crash. The package gate now rejects stale builds
+without the caller-qualified boundary settings. The first current Release
+iPad-host/Mac-join run fails closed at frame 120; sequence 6780 differs only in
+timebase and sampled MEM1 while all CPU hash families match. Subdivide the RAM
+digest and classify the first differing region before reverse-host; the two
+consecutive five-minute results/rematch gate is unchanged. See
+`docs/artifacts/2026-09-02/g9-canonical-boundary-live-control.md` and
+`docs/artifacts/2026-09-02/g9-cross-platform-canonical-classification.md`.
+
 ### B2 — Session and lifecycle resilience
 
 Pass host/join/start/match/stop twice in one process plus: cancel while
@@ -429,8 +440,10 @@ Repeat until B10 passes:
 
 ## Current next action
 
-Begin B1 with a canonical-boundary diagnostic regression. The existing
-different-live-PC result at frames 6,180/6,240 is not strong enough to choose a
-semantic fix because the fingerprint is read at a native dispatch boundary.
-Prove whether exact same-boundary architectural state and selected RAM diverge
-before changing timing or weakening the two-consecutive mismatch stop.
+Continue B1 with the compiling canonical-boundary candidate. Repair the
+deterministic two-human character/stage route and retain the first same-Mac
+combat canonical match or mismatch; opening/title/menu screenshots cannot pass
+this gate because the configured idle boundary is not active there. If the
+control is interpretable, run the unchanged iPad-host/Mac-join pair and reverse
+host. Prove whether exact same-boundary architectural state and selected RAM
+diverge before changing timing or weakening the two-consecutive mismatch stop.

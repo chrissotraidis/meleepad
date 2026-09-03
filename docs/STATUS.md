@@ -1,5 +1,35 @@
 # ssbmpad status
 
+## 2026-09-02 — G9 B1 canonical comparator matches live combat
+
+The first B1 candidate now captures exact netplay state at SsbmPad's symmetric
+caller-qualified guest idle boundary rather than at the asynchronous Pixel
+Engine host callback. Every sixtieth boundary includes sequence, timebase,
+CPU-component hashes, and a sparse digest spanning every MEM1 page. The server
+groups only identical sequences, bounds unmatched history, preserves live
+callback fields as context, and the packet protocol is bumped to version 7.
+
+Fail-first/source contracts, injected integer/FPR/paired/timebase/RAM mismatch
+checks, protocol/session tests, patch replay, a rebuilt iOS core, and a Release
+iPad Simulator link pass. A fresh isolated two-Mac control then reached live
+Mario/Bowser Fountain combat with independent input and emitted four exact
+canonical matches with no mismatch, unpaired record, desync, or crash.
+
+The rerun also found and gated a stale macOS package resource: the package
+test now requires the current main idle PC plus caller-qualified PC/LR instead
+of accepting the obsolete idle-only setting. B1 remains PARTIAL until two
+consecutive five-minute Mac/iPad matches pass in both host directions with
+results and rematch. See
+`docs/artifacts/2026-09-02/g9-canonical-boundary-live-control.md`.
+
+The first current Release iPad-host/Mac-join run then reproduced a clean
+fail-closed stop at frame 120. Diagnostic status retention and a compact
+component summary classify canonical sequence 6780 as
+`differences=timebase,ram`; PC and all CPU hash families match. Next subdivide
+the sparse MEM1 digest to locate the first differing guest region, without
+tolerance or timing changes. See
+`docs/artifacts/2026-09-02/g9-cross-platform-canonical-classification.md`.
+
 ## 2026-09-02 — G9 beta product loop replaces the direct-IP staging plan
 
 The native Online Play form is correctly reclassified as a Direct Connection
