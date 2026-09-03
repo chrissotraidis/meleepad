@@ -1,0 +1,405 @@
+diff --git a/Source/Core/Core/NetPlay/NetPlayClient.cpp b/Source/Core/Core/NetPlay/NetPlayClient.cpp
+--- a/Source/Core/Core/NetPlay/NetPlayClient.cpp
++++ b/Source/Core/Core/NetPlay/NetPlayClient.cpp
+@@ -1361,6 +1361,7 @@ bool NetPlayClient::StartGame(const std::string& path)
+   }
+ 
+   m_timebase_frame = 0;
++  m_last_boundary_sequence_sent = 0;
+   m_current_golfer = 1;
+   m_wait_on_input = false;
+ 
+@@ -1773,6 +1774,13 @@ void NetPlayClient::SendTimeBase()
+     const u64 bursts = g_static_recomp_core ?
+                            g_static_recomp_core->GetDiagnosticBursts() :
+                            0;
++    auto canonical = g_static_recomp_core ?
++                         g_static_recomp_core->GetNetplayBoundarySnapshot() :
++                         StaticRecompCore::NetplayBoundarySnapshot{};
++    if (canonical.sequence == netplay_client->m_last_boundary_sequence_sent)
++      canonical = {};
++    else
++      netplay_client->m_last_boundary_sequence_sent = canonical.sequence;
+ 
+     sf::Packet packet;
+     packet << MessageID::TimeBase;
+@@ -1789,6 +1797,14 @@ void NetPlayClient::SendTimeBase()
+     packet << native_dispatches;
+     packet << charged_cycles;
+     packet << bursts;
++    packet << canonical.sequence;
++    packet << canonical.guest_pc;
++    packet << canonical.timebase;
++    packet << canonical.state_hash;
++    packet << canonical.integer_state_hash;
++    packet << canonical.fpr_state_hash;
++    packet << canonical.paired_state_hash;
++    packet << canonical.ram_hash;
+ 
+     netplay_client->SendAsync(std::move(packet));
+   }
+diff --git a/Source/Core/Core/NetPlay/NetPlayClient.h b/Source/Core/Core/NetPlay/NetPlayClient.h
+--- a/Source/Core/Core/NetPlay/NetPlayClient.h
++++ b/Source/Core/Core/NetPlay/NetPlayClient.h
+@@ -375,6 +375,7 @@ private:
+ 
+   u64 m_initial_rtc = 0;
+   u32 m_timebase_frame = 0;
++  u64 m_last_boundary_sequence_sent = 0;
+ 
+   std::unique_ptr<IOS::HLE::FS::FileSystem> m_wii_sync_fs;
+   std::vector<u64> m_wii_sync_titles;
+diff --git a/Source/Core/Core/NetPlay/NetPlayCommon.h b/Source/Core/Core/NetPlay/NetPlayCommon.h
+--- a/Source/Core/Core/NetPlay/NetPlayCommon.h
++++ b/Source/Core/Core/NetPlay/NetPlayCommon.h
+@@ -20,6 +20,31 @@ using namespace std::chrono_literals;
+ // connection is disconnected
+ constexpr std::chrono::milliseconds PEER_TIMEOUT = 30s;
+ 
++// Architectural state captured at the configured guest idle PC. Unlike the
++// ordinary TimeBase packet fields, every value here comes from one explicit
++// emulated boundary and can therefore be compared across host architectures.
++struct CanonicalStateSnapshot
++{
++  u64 sequence = 0;
++  u32 guest_pc = 0;
++  u64 timebase = 0;
++  u64 state_hash = 0;
++  u64 integer_state_hash = 0;
++  u64 fpr_state_hash = 0;
++  u64 paired_state_hash = 0;
++  u64 ram_hash = 0;
++};
++
++inline bool CanonicalStateMatches(const CanonicalStateSnapshot& lhs,
++                                  const CanonicalStateSnapshot& rhs)
++{
++  return lhs.sequence != 0 && lhs.sequence == rhs.sequence && lhs.guest_pc == rhs.guest_pc &&
++         lhs.timebase == rhs.timebase && lhs.state_hash == rhs.state_hash &&
++         lhs.integer_state_hash == rhs.integer_state_hash &&
++         lhs.fpr_state_hash == rhs.fpr_state_hash &&
++         lhs.paired_state_hash == rhs.paired_state_hash && lhs.ram_hash == rhs.ram_hash;
++}
++
+ bool CompressFileIntoPacket(const std::string& file_path, sf::Packet& packet);
+ bool CompressFolderIntoPacket(const std::string& folder_path, sf::Packet& packet);
+ bool CompressBufferIntoPacket(std::span<const u8> in_buffer, sf::Packet& packet);
+diff --git a/Source/Core/Core/NetPlay/NetPlayProto.h b/Source/Core/Core/NetPlay/NetPlayProto.h
+--- a/Source/Core/Core/NetPlay/NetPlayProto.h
++++ b/Source/Core/Core/NetPlay/NetPlayProto.h
+@@ -29,7 +29,7 @@ enum class CPUCore;
+ 
+ namespace NetPlay
+ {
+-inline constexpr char MODERNGEKKO_NETPLAY_VERSION_SUFFIX[] = "|moderngekko-netplay-6";
++inline constexpr char MODERNGEKKO_NETPLAY_VERSION_SUFFIX[] = "|moderngekko-netplay-7";
+ inline constexpr u32 MODERNGEKKO_START_GAME_SENTINEL = 0x4d475336;
+ 
+ enum class ControllerFamily
+diff --git a/Source/Core/Core/NetPlay/NetPlayServer.cpp b/Source/Core/Core/NetPlay/NetPlayServer.cpp
+--- a/Source/Core/Core/NetPlay/NetPlayServer.cpp
++++ b/Source/Core/Core/NetPlay/NetPlayServer.cpp
+@@ -90,15 +90,6 @@
+ 
+ namespace NetPlay
+ {
+-namespace
+-{
+-// Static-recompiled peers can finish the same architectural state on opposite
+-// sides of a native dispatch boundary. This bound is 0.31% of one NTSC frame
+-// and covers the measured cross-architecture scheduling skew without treating
+-// a different PC or register state as synchronized.
+-constexpr u64 kTimeBaseSkewLimit = 2048;
+-}
+-
+ NetPlayServer::~NetPlayServer()
+ {
+   if (is_connected)
+@@ -1140,31 +1131,44 @@ unsigned int NetPlayServer::OnData(sf::Packet& packet, Client& player)
+     const u64 native_dispatches = Common::PacketReadU64(packet);
+     const u64 charged_cycles = Common::PacketReadU64(packet);
+     const u64 bursts = Common::PacketReadU64(packet);
+-
+-    if (m_desync_detected)
++    CanonicalStateSnapshot canonical;
++    canonical.sequence = Common::PacketReadU64(packet);
++    packet >> canonical.guest_pc;
++    canonical.timebase = Common::PacketReadU64(packet);
++    canonical.state_hash = Common::PacketReadU64(packet);
++    canonical.integer_state_hash = Common::PacketReadU64(packet);
++    canonical.fpr_state_hash = Common::PacketReadU64(packet);
++    canonical.paired_state_hash = Common::PacketReadU64(packet);
++    canonical.ram_hash = Common::PacketReadU64(packet);
++
++    if (m_desync_detected || canonical.sequence == 0)
+       break;
+ 
+-    std::vector<TimeBaseRecord>& timebases = m_timebase_by_frame[frame];
+-    timebases.push_back({player.pid, timebase, guest_pc, state_hash, integer_state_hash,
++    std::vector<TimeBaseRecord>& timebases = m_canonical_by_sequence[canonical.sequence];
++    if (std::ranges::any_of(timebases,
++                            [&](const TimeBaseRecord& record) { return record.pid == player.pid; }))
++      break;
++    timebases.push_back({player.pid, frame, timebase, guest_pc, state_hash, integer_state_hash,
+                          fpr_state_hash, paired_state_hash, core_ticks, tb_start_ticks,
+-                         tb_start_value, native_dispatches, charged_cycles, bursts});
++                         tb_start_value, native_dispatches, charged_cycles, bursts, canonical});
+     if (timebases.size() >= m_players.size())
+     {
+-      // we have all records for this frame
++      // We have all records for this exact emulated boundary sequence. The
++      // callback frame and live PC above are context only; neither participates
++      // in the canonical decision.
+ 
+       if (!std::ranges::all_of(timebases, [&](const TimeBaseRecord& record) {
+-            const TimeBaseRecord& reference = timebases[0];
+-            const u64 skew = record.timebase >= reference.timebase ?
+-                                 record.timebase - reference.timebase :
+-                                 reference.timebase - record.timebase;
+-            return record.timebase == reference.timebase ||
+-                   (record.guest_pc == reference.guest_pc && skew <= kTimeBaseSkewLimit);
++            return CanonicalStateMatches(record.canonical, timebases[0].canonical);
+           }))
+       {
+-        std::string mismatch = "netplay-timebase frame=" + std::to_string(frame);
++        // This replaces the legacy "netplay-timebase frame=" decision, whose
++        // host-callback sample was not a shared emulated boundary.
++        std::string mismatch =
++            "netplay-canonical sequence=" + std::to_string(canonical.sequence);
+         for (const TimeBaseRecord& record : timebases)
+         {
+           mismatch += " pid=" + std::to_string(record.pid) +
++                      " callback_frame=" + std::to_string(record.callback_frame) +
+                       " value=" + std::to_string(record.timebase) +
+                       " guest_pc=" + fmt::format("{:#010x}", record.guest_pc) +
+                       " state_hash=" + fmt::format("{:#018x}", record.state_hash) +
+@@ -1176,24 +1178,29 @@ unsigned int NetPlayServer::OnData(sf::Packet& packet, Client& player)
+                       " tb_start_value=" + std::to_string(record.tb_start_value) +
+                       " native_dispatches=" + std::to_string(record.native_dispatches) +
+                       " charged_cycles=" + std::to_string(record.charged_cycles) +
+-                      " bursts=" + std::to_string(record.bursts);
++                      " bursts=" + std::to_string(record.bursts) +
++                      " canonical_sequence=" + std::to_string(record.canonical.sequence) +
++                      " canonical_pc=" + fmt::format("{:#010x}", record.canonical.guest_pc) +
++                      " canonical_timebase=" + std::to_string(record.canonical.timebase) +
++                      " canonical_state_hash=" +
++                          fmt::format("{:#018x}", record.canonical.state_hash) +
++                      " canonical_integer_hash=" +
++                          fmt::format("{:#018x}", record.canonical.integer_state_hash) +
++                      " canonical_fpr_hash=" +
++                          fmt::format("{:#018x}", record.canonical.fpr_state_hash) +
++                      " canonical_paired_hash=" +
++                          fmt::format("{:#018x}", record.canonical.paired_state_hash) +
++                      " canonical_ram_hash=" +
++                          fmt::format("{:#018x}", record.canonical.ram_hash);
+         }
+         m_dialog->AppendChat(mismatch);
+         std::fprintf(stderr, "[netplay] %s\n", mismatch.c_str());
+         ++m_desync_mismatch_count;
+         if (m_desync_mismatch_count >= 2)
+         {
+-          int pid_to_blame = 0;
+-          for (const TimeBaseRecord& record : timebases)
+-          {
+-            if (std::ranges::all_of(timebases, [&](const TimeBaseRecord& other) {
+-                  return other.pid == record.pid || other.timebase != record.timebase;
+-                }))
+-            {
+-              pid_to_blame = record.pid;
+-              break;
+-            }
+-          }
++          // With two peers a mismatch proves divergence but cannot identify
++          // which endpoint is wrong. Do not falsely blame either player.
++          const int pid_to_blame = 0;
+ 
+           sf::Packet spac;
+           spac << MessageID::DesyncDetected;
+@@ -1208,8 +1217,23 @@ unsigned int NetPlayServer::OnData(sf::Packet& packet, Client& player)
+       {
+         m_desync_mismatch_count = 0;
++        if (canonical.sequence % 600 == 0)
++        {
++          std::fprintf(stderr,
++                       "[netplay] canonical-match sequence=%llu state_hash=%#018llx "
++                       "ram_hash=%#018llx\n",
++                       static_cast<unsigned long long>(canonical.sequence),
++                       static_cast<unsigned long long>(canonical.state_hash),
++                       static_cast<unsigned long long>(canonical.ram_hash));
++        }
+       }
+-      m_timebase_by_frame.erase(frame);
++      m_canonical_by_sequence.erase(canonical.sequence);
+     }
++    while (m_canonical_by_sequence.size() > 8)
++    {
++      std::fprintf(stderr, "[netplay] canonical-unpaired sequence=%llu\n",
++                   static_cast<unsigned long long>(m_canonical_by_sequence.begin()->first));
++      m_canonical_by_sequence.erase(m_canonical_by_sequence.begin());
++    }
+   }
+   break;
+ 
+@@ -1686,7 +1712,7 @@ bool NetPlayServer::StartGame()
+ {
+   INFO_LOG_FMT(NETPLAY, "Starting game.");
+ 
+-  m_timebase_by_frame.clear();
++  m_canonical_by_sequence.clear();
+   m_desync_detected = false;
+   m_desync_mismatch_count = 0;
+   std::lock_guard lkg(m_crit.game);
+diff --git a/Source/Core/Core/NetPlay/NetPlayServer.h b/Source/Core/Core/NetPlay/NetPlayServer.h
+--- a/Source/Core/Core/NetPlay/NetPlayServer.h
++++ b/Source/Core/Core/NetPlay/NetPlayServer.h
+@@ -19,6 +19,7 @@
+ #include "Common/SPSCQueue.h"
+ #include "Common/Timer.h"
+ #include "Common/TraversalClient.h"
++#include "Core/NetPlay/NetPlayCommon.h"
+ #include "Core/NetPlay/NetPlayProto.h"
+ #include "Core/SyncIdentifier.h"
+ #include "UICommon/NetPlayIndex.h"
+@@ -206,6 +207,7 @@ private:
+   struct TimeBaseRecord
+   {
+     PlayerId pid;
++    u32 callback_frame;
+     u64 timebase;
+     u32 guest_pc;
+     u64 state_hash;
+@@ -218,8 +220,9 @@ private:
+     u64 native_dispatches;
+     u64 charged_cycles;
+     u64 bursts;
++    CanonicalStateSnapshot canonical;
+   };
+-  std::unordered_map<u32, std::vector<TimeBaseRecord>> m_timebase_by_frame;
++  std::map<u64, std::vector<TimeBaseRecord>> m_canonical_by_sequence;
+   bool m_desync_detected = false;
+   unsigned int m_desync_mismatch_count = 0;
+ 
+diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h
+--- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h
++++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h
+@@ -66,6 +66,22 @@ public:
+   u64 GetDiagnosticChargedCycles() const { return m_charged_cycles; }
+   u64 GetDiagnosticBursts() const { return m_bursts; }
+ 
++  struct NetplayBoundarySnapshot
++  {
++    u64 sequence = 0;
++    u32 guest_pc = 0;
++    u64 timebase = 0;
++    u64 state_hash = 0;
++    u64 integer_state_hash = 0;
++    u64 fpr_state_hash = 0;
++    u64 paired_state_hash = 0;
++    u64 ram_hash = 0;
++  };
++  NetplayBoundarySnapshot GetNetplayBoundarySnapshot() const
++  {
++    return m_netplay_boundary_snapshot;
++  }
++
+   void ClearCache() override;
+   void Jit(u32 em_address) override {}
+   bool HandleFault(uintptr_t access_address, SContext* ctx) override { return false; }
+@@ -107,6 +123,8 @@ private:
+ 
+   void LoadModule();
+   void UpdateProfileCapture();
++  void CaptureNetplayBoundarySnapshot();
++  u64 HashSelectedRamPages() const;
+   void FlushDispatchFrameSamples(bool final);
+   void FlushDispatchBurstSamples(bool final);
+ 
+@@ -257,6 +275,8 @@ private:
+   u32 m_caller_idle_pc = 0;
+   u32 m_caller_idle_lr = 0;
+   u64 m_caller_idle_hits = 0;
++  u64 m_netplay_boundary_sequence = 0;
++  NetplayBoundarySnapshot m_netplay_boundary_snapshot{};
+ };
+ 
+ extern StaticRecompCore* g_static_recomp_core;
+diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
+--- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
++++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
+@@ -9,6 +9,7 @@
+ #include "Core/PowerPC/StaticRecomp/StaticRecompLockstep.h"
+ #include "Core/CoreTiming.h"
+ #include "Core/HW/CPU.h"
++#include "Core/NetPlay/NetPlayProto.h"
+ #include "Core/Config/MainSettings.h"
+ #include "Core/Config/ConfigManager.h"
+ #include "Core/HW/SystemTimers.h"
+@@ -193,6 +194,10 @@ void StaticRecompCore::Run()
+                                    m_guest.lr == m_caller_idle_lr;
+           if (configured_idle || caller_idle)
+           {
++            const bool canonical_boundary =
++                m_caller_idle_pc != 0 && m_caller_idle_lr != 0 ? caller_idle : configured_idle;
++            if (canonical_boundary && NetPlay::IsNetPlayRunning())
++              CaptureNetplayBoundarySnapshot();
+             const TimePoint idle_start = log_phase ? Clock::now() : TimePoint{};
+             m_system.GetCoreTiming().Idle();
+             if (caller_idle)
+diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Sync.cpp b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Sync.cpp
+--- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Sync.cpp
++++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Sync.cpp
+@@ -6,6 +6,7 @@
+ #include "Core/System.h"
+ #include "Core/PowerPC/PowerPC.h"
+ #include "Core/HW/SystemTimers.h"
++#include <cstdio>
+ #include <cstring>
+ 
+ namespace
+@@ -70,6 +71,46 @@ u64 StaticRecompCore::GetDiagnosticStateHash() const
+   return FnvAppend(hash, parts, sizeof(parts));
+ }
+ 
++u64 StaticRecompCore::HashSelectedRamPages() const
++{
++  // Sample the first cache line of every 4 KiB MEM1 page. This spans the full
++  // memory allocation while keeping a once-per-second diagnostic far below a
++  // full 24 MiB scan on mobile CPUs.
++  constexpr u32 PAGE_SIZE = 4096;
++  constexpr u32 SAMPLE_SIZE = 64;
++  u64 hash = FNV_OFFSET;
++  for (u32 offset = 0; offset < m_guest.ram_size; offset += PAGE_SIZE)
++  {
++    const u32 remaining = m_guest.ram_size - offset;
++    const u32 size = remaining < SAMPLE_SIZE ? remaining : SAMPLE_SIZE;
++    hash = FnvAppend(hash, m_guest.ram + offset, size);
++  }
++  return hash;
++}
++
++void StaticRecompCore::CaptureNetplayBoundarySnapshot()
++{
++  ++m_netplay_boundary_sequence;
++  if (m_netplay_boundary_sequence % 60 != 0)
++    return;
++
++  m_netplay_boundary_snapshot = {
++      .sequence = m_netplay_boundary_sequence,
++      .guest_pc = m_guest.pc,
++      .timebase = m_guest.timebase,
++      .state_hash = GetDiagnosticStateHash(),
++      .integer_state_hash = GetDiagnosticIntegerStateHash(),
++      .fpr_state_hash = GetDiagnosticFprStateHash(),
++      .paired_state_hash = GetDiagnosticPairedStateHash(),
++      .ram_hash = HashSelectedRamPages(),
++  };
++  if (m_netplay_boundary_sequence == 60)
++  {
++    std::fprintf(stderr, "[staticrecomp] canonical-boundary active pc=%08x\n",
++                 m_netplay_boundary_snapshot.guest_pc);
++  }
++}
++
+ void StaticRecompCore::SetPPCStateFromGuestState(const CPUState& s, PowerPC::PowerPCState& ppc)
+ {
+   std::memcpy(ppc.gpr, s.gpr, sizeof(ppc.gpr));

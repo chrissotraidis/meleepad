@@ -274,6 +274,17 @@ canonical boundary record and prove whether CPU state or selected RAM actually
 diverges. The comparator must still reject deliberately injected mismatch
 families; no tolerance may hide a real error.
 
+The first canonical-boundary candidate is implemented as patches 0044/0018.
+It captures only during netplay at the symmetric caller-qualified idle PC/LR,
+samples CPU state and every MEM1 page once per 60 boundary visits, compares
+only equal sequences, and rejects injected integer, FPR, paired-single,
+timebase, and RAM changes. It compiles in the rebuilt iOS core and Release app.
+Do not promote it from diagnostic candidate yet: the initial two-Mac control
+reached synchronized two-human VS character select but not combat, so it
+produced no comparable canonical record. Repair the deterministic two-player
+character/stage route, retain one same-Mac combat record, and then run both
+Mac/iPad host directions before choosing any timing or semantic correction.
+
 The same-M1 two-process NL3 run was commonly 12-21 FPS during final combat;
 zero network wait separates that host-emulation contention from network delay.
 The latest cross-platform fingerprint run showed roughly 39–41 FPS on the iPad

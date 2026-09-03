@@ -429,8 +429,10 @@ Repeat until B10 passes:
 
 ## Current next action
 
-Begin B1 with a canonical-boundary diagnostic regression. The existing
-different-live-PC result at frames 6,180/6,240 is not strong enough to choose a
-semantic fix because the fingerprint is read at a native dispatch boundary.
-Prove whether exact same-boundary architectural state and selected RAM diverge
-before changing timing or weakening the two-consecutive mismatch stop.
+Continue B1 with the compiling canonical-boundary candidate. Repair the
+deterministic two-human character/stage route and retain the first same-Mac
+combat canonical match or mismatch; opening/title/menu screenshots cannot pass
+this gate because the configured idle boundary is not active there. If the
+control is interpretable, run the unchanged iPad-host/Mac-join pair and reverse
+host. Prove whether exact same-boundary architectural state and selected RAM
+diverge before changing timing or weakening the two-consecutive mismatch stop.

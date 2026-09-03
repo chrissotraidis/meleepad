@@ -6112,3 +6112,27 @@ Append-only execution ledger. Claims are limited to observed evidence.
   fake room actions or weaken desync checks. The user explicitly reprioritized
   isolated netplay work while the G8 human gate awaits manual input.
 - Evidence: `docs/artifacts/2026-09-02/g9-beta-loop-reorientation.md`.
+
+## 2026-09-02 — NET-295 B1 canonical-boundary candidate
+
+- Add a fail-first canonical-boundary contract, Dolphin patch 0044, and
+  ModernGekko comparator regression patch 0018.
+- Capture every sixtieth netplay-only caller-qualified idle boundary with exact
+  sequence/timebase, CPU component hashes, and a sparse digest spanning every
+  MEM1 page. Keep PE-finish live state as context only and bump the packet
+  suffix to `moderngekko-netplay-7`.
+- Prove equal snapshots match and injected integer, FPR, paired-single,
+  timebase, and RAM differences fail. Pass protocol/session targets, patch
+  reverse checks, complete bootstrap replay, rebuilt Simulator core,
+  reprovisioning, and Release iPad Simulator link.
+- Run an isolated same-build two-Mac control. Both endpoints synchronize from
+  boot through title/main-menu/two-human VS character select and accept
+  independent P1/P2 input with no desync or crash. The scripted route does not
+  complete selection/stage/combat, so it reaches no canonical record and is
+  ineligible for B1.
+- Decision: B1 remains PARTIAL. Repair the deterministic paired combat route,
+  retain the first same-Mac canonical record, then run both Mac/iPad host
+  directions. Do not start room-code UI/service work or claim mobile Online
+  Play.
+- Evidence:
+  `docs/artifacts/2026-09-02/g9-canonical-boundary-candidate.md`.

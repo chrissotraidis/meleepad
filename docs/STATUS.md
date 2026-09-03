@@ -1,5 +1,24 @@
 # ssbmpad status
 
+## 2026-09-02 — G9 B1 canonical-boundary candidate is partial
+
+The first B1 candidate now captures exact netplay state at SsbmPad's symmetric
+caller-qualified guest idle boundary rather than at the asynchronous Pixel
+Engine host callback. Every sixtieth boundary includes sequence, timebase,
+CPU-component hashes, and a sparse digest spanning every MEM1 page. The server
+groups only identical sequences, bounds unmatched history, preserves live
+callback fields as context, and the packet protocol is bumped to version 7.
+
+Fail-first/source contracts, injected integer/FPR/paired/timebase/RAM mismatch
+checks, protocol/session tests, patch replay, a rebuilt iOS core, and a Release
+iPad Simulator link pass. A fresh isolated two-Mac control synchronized through
+opening, title, menus, and two-human VS character select with independent
+input and no error. It did not complete character/stage selection or combat,
+so no canonical pair record was reached and B1 remains PARTIAL. Next obtain an
+interpretable same-Mac combat record, then run iPad-host/Mac-join and reverse
+host. See
+`docs/artifacts/2026-09-02/g9-canonical-boundary-candidate.md`.
+
 ## 2026-09-02 — G9 beta product loop replaces the direct-IP staging plan
 
 The native Online Play form is correctly reclassified as a Direct Connection
