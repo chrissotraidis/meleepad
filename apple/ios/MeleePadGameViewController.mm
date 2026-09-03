@@ -241,7 +241,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 - (void)reconcileControllersForReason:(NSString *)reason;
 - (NSString *)resolvedImportTestPath:(NSString *)requestedPath;
 - (void)showGameDataSetupState;
-- (NSString *)sunPadSupportRoot;
+- (NSString *)meleePadSupportRoot;
 @end
 
 @implementation MeleePadGameViewController {
@@ -792,7 +792,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     // App updates can relocate the data-container UUID. On physical devices,
     // derive imported data from the current sandbox instead of trusting an
     // absolute path persisted by a previous installation.
-    NSString *supportRoot = [self sunPadSupportRoot];
+    NSString *supportRoot = [self meleePadSupportRoot];
     NSString *gameDataDirectory = [supportRoot stringByAppendingPathComponent:@"GameData"];
 
     // Side-by-side diagnostic builds may carry a known progressed save so a
@@ -1055,7 +1055,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
         _coreHost = nil;
     }
 
-    NSString *dataDirectory = [[self sunPadSupportRoot]
+    NSString *dataDirectory = [[self meleePadSupportRoot]
         stringByAppendingPathComponent:@"GameData"];
     NSError *error = nil;
     if ([[NSFileManager defaultManager] fileExistsAtPath:dataDirectory] &&
@@ -1483,7 +1483,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
                                      preferredStyle:UIAlertControllerStyleAlert];
     [self presentViewController:progressAlert animated:YES completion:nil];
 
-    NSString *supportRoot = [self sunPadSupportRoot];
+    NSString *supportRoot = [self meleePadSupportRoot];
     NSString *stagingDirectory = [supportRoot stringByAppendingPathComponent:
         [NSString stringWithFormat:@"GameData.import-%@", NSUUID.UUID.UUIDString]];
     NSString *stagedImage = [stagingDirectory stringByAppendingPathComponent:@"GALE01.iso"];
@@ -1651,9 +1651,47 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     return nil;
 }
 
-- (NSString *)sunPadSupportRoot {
-    return [[NSHomeDirectory() stringByAppendingPathComponent:@"Library/Application Support"]
-        stringByAppendingPathComponent:@"MeleePad"];
+- (NSString *)meleePadSupportRoot {
+    NSString *applicationSupportRoot =
+        [NSHomeDirectory() stringByAppendingPathComponent:@"Library/Application Support"];
+    NSString *currentRoot = [applicationSupportRoot stringByAppendingPathComponent:@"MeleePad"];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if ([fileManager fileExistsAtPath:currentRoot])
+        return currentRoot;
+
+    // Product renames must not strand a user's imported image or saves. When
+    // this app container has exactly one earlier support folder containing a
+    // complete GALE01 import, rename that folder atomically before boot.
+    NSMutableArray<NSString *> *candidates = [NSMutableArray array];
+    NSArray<NSString *> *entries =
+        [fileManager contentsOfDirectoryAtPath:applicationSupportRoot error:nil];
+    for (NSString *entry in entries) {
+        NSString *candidate = [applicationSupportRoot stringByAppendingPathComponent:entry];
+        NSString *candidateImage =
+            [candidate stringByAppendingPathComponent:@"GameData/GALE01.iso"];
+        NSString *candidateExecutable =
+            [candidate stringByAppendingPathComponent:@"GameData/GALE01/sys/main.dol"];
+        if ([fileManager fileExistsAtPath:candidateImage] &&
+            [fileManager fileExistsAtPath:candidateExecutable]) {
+            [candidates addObject:candidate];
+        }
+    }
+
+    if (candidates.count == 1) {
+        NSError *migrationError = nil;
+        if ([fileManager moveItemAtPath:candidates.firstObject
+                                 toPath:currentRoot
+                                  error:&migrationError]) {
+            MeleePadLog(@"support data migrated to current product directory");
+        } else {
+            MeleePadLog(@"support data migration failed: %@",
+                        migrationError.localizedDescription);
+        }
+    } else if (candidates.count > 1) {
+        MeleePadLog(@"support data migration skipped reason=ambiguous candidates=%lu",
+                    (unsigned long)candidates.count);
+    }
+    return currentRoot;
 }
 
 @end

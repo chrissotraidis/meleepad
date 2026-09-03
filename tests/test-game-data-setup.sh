@@ -38,6 +38,16 @@ for stale in ('@"67cec1634e641227a4cd51e6a0b277730cb9a1adaa867530c9e66de45373e51
               '@"files/AudioRes/mSound.asn"', '@"files/data/common.szs"', '!= 174'):
     if stale in source:
         raise SystemExit(f"Sunshine-only import invariant remains: {stale}")
+for text in ('- (NSString *)meleePadSupportRoot',
+             'contentsOfDirectoryAtPath:applicationSupportRoot',
+             '@"GameData/GALE01.iso"',
+             '@"GameData/GALE01/sys/main.dol"',
+             'moveItemAtPath:candidates.firstObject',
+             'if (candidates.count == 1)'):
+    if text not in source:
+        raise SystemExit(f"missing product-rename data migration: {text}")
+if "sunPadSupportRoot" in source:
+    raise SystemExit("stale support-root selector remains")
 PY
 
 grep -Fq 'Import or Reimport Game Data' "$OVERLAY"
