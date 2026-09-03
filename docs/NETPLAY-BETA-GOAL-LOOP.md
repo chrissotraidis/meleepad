@@ -1,14 +1,16 @@
 # MeleePad Online Play with Friends beta loop
 
-Status: paused at B1 (2026-09-03 stop checkpoint)
+Status: active at B1/B2 acceptance; public B3/B4 vertical slice proven (2026-09-03)
 Written: 2026-09-02  
 Supersedes: `NETPLAY-GOAL-LOOP.md`  
 Companion architecture: `NETPLAY-FEASIBILITY.md`
 
-Work may resume from B1 without repeating B0 or the passing two-Mac control.
-The current app remains **Experimental Multiplayer / Direct Connection
-Preview**; “Online Play with Friends (Beta)” is still the acceptance claim
-earned only by B10.
+The clean cross-platform rebuild no longer reproduces the old frame-120
+failure, and public Dolphin traversal now creates and resolves room codes in
+both Mac/iPad Simulator host directions. Resume at complete-match and lifecycle
+acceptance without repeating the transport vertical slice. The current work is
+still an engineering preview; “Online Play with Friends (Beta)” remains the
+claim earned only by B10.
 
 ## Goal
 
@@ -66,17 +68,17 @@ matchmaking, a public lobby, spectating, or anonymous pairing.
 | GameCube packet mapping | exact payload regressions | pass |
 | Headless session owner | two repeated lifecycle cycles | pass |
 | Two-Mac direct match | full match, results, lobby return, unchanged saves | pass |
-| Native iPad form | Host/Join/direct address/ready/start/cancel | partial |
-| Mac/iPad gameplay | begins together, stops around frames 6,180/6,240 | fail |
+| Native iPad form | Internet room/direct selection, host/join/code/ready/start/cancel | partial |
+| Mac/iPad gameplay | synchronized direct and public-room runs in both host directions | partial |
 | iPhone interaction | compile coverage only | missing |
-| Room-code client | Dolphin source exists but is not in `NetplaySession` | missing |
-| Traversal service | pinned CC0 source exists; nothing operated by MeleePad | missing |
+| Room-code client | `NetplaySession` host/join vertical slice works | partial |
+| Traversal service | Dolphin public service works in retained test; no MeleePad-operated endpoint | partial |
 | Relay | no implementation or measured need decision | missing |
 | Real internet/device beta | no evidence | missing |
 
-The current iPad form is an engineering panel. It puts Host/Join around direct
-address fields and tells users that room codes come later. It must not be
-promoted or cosmetically relabelled as the beta.
+The current iPad form is an engineering preview backed by a real room-code
+path, not a fake action. It still lacks the complete home/lobby/failure,
+accessibility, physical-device, and lifecycle evidence required for beta.
 
 The current desync diagnostic is also not a canonical state proof. Dolphin
 calls `SendTimeBase()` from the CPU-thread Pixel Engine finish event, not the

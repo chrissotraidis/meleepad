@@ -19,8 +19,12 @@ for contract in \
   'canonical-boundary active' \
   'GetNetplayBoundarySnapshot' \
   'HashSelectedRamPages' \
+  'HashSelectedRamRegions' \
+  'ram_region_hashes' \
+  'CANONICAL_RAM_REGION_SIZE' \
+  'CanonicalRamFirstDifferingRegion' \
   'CanonicalStateMatches' \
-  'moderngekko-netplay-7' \
+  'moderngekko-netplay-8' \
   'canonical_sequence=' \
   'canonical_ram_hash=' \
   'canonical-match sequence=' \
@@ -36,7 +40,11 @@ for contract in \
   'add_difference("integer"' \
   'add_difference("fpr"' \
   'add_difference("paired"' \
-  'add_difference("ram"'; do
+  'add_difference("ram"' \
+  'timebase_delta=' \
+  'ram_first_region=' \
+  'ram_first_address=' \
+  'canonical_ram_region_hash='; do
   grep -Fq "$contract" "$SUMMARY_PATCH"
 done
 
@@ -51,7 +59,9 @@ for contract in \
   'fpr_state_hash ^=' \
   'paired_state_hash ^=' \
   'timebase ^=' \
-  'ram_hash ^='; do
+  'ram_hash ^=' \
+  'ram_region_hashes[3] ^=' \
+  'CanonicalRamFirstDifferingRegion'; do
   grep -Fq "$contract" "$TEST_PATCH"
 done
 

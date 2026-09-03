@@ -15,12 +15,14 @@ typedef NS_ENUM(NSInteger, MeleePadOnlinePlayRole) {
 - (void)onlinePlayViewController:(MeleePadOnlinePlayViewController *)controller
                      requestsHostWithNickname:(NSString *)nickname
                                          port:(uint16_t)port
+                                 internetRoom:(BOOL)internetRoom
                               automaticBuffer:(BOOL)automaticBuffer
                                  bufferFrames:(NSUInteger)bufferFrames;
 - (void)onlinePlayViewController:(MeleePadOnlinePlayViewController *)controller
                      requestsJoinWithNickname:(NSString *)nickname
                                       address:(NSString *)address
                                          port:(uint16_t)port
+                                 internetRoom:(BOOL)internetRoom
                               automaticBuffer:(BOOL)automaticBuffer
                                  bufferFrames:(NSUInteger)bufferFrames;
 - (void)onlinePlayViewController:(MeleePadOnlinePlayViewController *)controller
@@ -41,6 +43,7 @@ typedef NS_ENUM(NSInteger, MeleePadOnlinePlayRole) {
               bufferFrames:(NSUInteger)bufferFrames
            automaticBuffer:(BOOL)automaticBuffer
                   canStart:(BOOL)canStart
+                  roomCode:(nullable NSString *)roomCode
                     status:(nullable NSString *)status;
 - (void)showError:(NSString *)message;
 - (void)resetToSetup;

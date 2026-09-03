@@ -23,9 +23,31 @@ diff --git a/Source/Core/Core/NetPlay/NetPlayServer.cpp b/Source/Core/Core/NetPl
 +        add_difference("fpr", canonical.fpr_state_hash != reference.fpr_state_hash);
 +        add_difference("paired", canonical.paired_state_hash != reference.paired_state_hash);
 +        add_difference("ram", canonical.ram_hash != reference.ram_hash);
++        const s64 timebase_delta = canonical.timebase >= reference.timebase ?
++                                       static_cast<s64>(canonical.timebase - reference.timebase) :
++                                       -static_cast<s64>(reference.timebase - canonical.timebase);
++        const size_t first_ram_region = CanonicalRamFirstDifferingRegion(reference, canonical);
 +        std::string mismatch = "netplay-canonical sequence=" +
 +                               std::to_string(canonical.sequence) +
-+                               " differences=" + differences;
++                               " differences=" + differences +
++                               " timebase_delta=" + std::to_string(timebase_delta);
++        if (first_ram_region != CANONICAL_RAM_REGION_COUNT)
++        {
++          mismatch += " ram_first_region=" + std::to_string(first_ram_region) +
++                      " ram_first_address=" +
++                      fmt::format("{:#010x}", 0x80000000u +
++                                                   first_ram_region * CANONICAL_RAM_REGION_SIZE);
++        }
          for (const TimeBaseRecord& record : timebases)
          {
-           mismatch += " pid=" + std::to_string(record.pid) +
+            mismatch += " pid=" + std::to_string(record.pid) +
+@@ -1192,7 +1220,14 @@ unsigned int NetPlayServer::OnData(sf::Packet& packet, Client& player)
+                       " canonical_ram_hash=" +
+-                          fmt::format("{:#018x}", record.canonical.ram_hash);
++                          fmt::format("{:#018x}", record.canonical.ram_hash);
++          if (first_ram_region != CANONICAL_RAM_REGION_COUNT)
++          {
++            mismatch += " canonical_ram_region_hash=" +
++                        fmt::format("{:#018x}",
++                                    record.canonical.ram_region_hashes[first_ram_region]);
++          }

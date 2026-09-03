@@ -6186,3 +6186,104 @@ Append-only execution ledger. Claims are limited to observed evidence.
   canonical sequence 6780/frame 120; do not repeat B0 or the passing two-Mac
   live-combat control.
 - Evidence: `docs/artifacts/2026-09-03/g9-netplay-beta-stop-handoff.md`.
+
+## 2026-09-03 — NET-299 public Internet room vertical slice
+
+- Recheck current upstream services. Dolphin's default traversal hostname and
+  UDP ports remain in mainline, the public lobby returned active sessions, and
+  fresh eight-character codes were issued and resolved during the retained
+  runs. Slippi remains active but is not a drop-in protocol/service for this
+  static-recomp client.
+- Add bounded 1 MiB MEM1 region hashes and signed timebase delta diagnostics,
+  then rebuild every iOS and Mac artifact cleanly. The old frame-120
+  `timebase,ram` failure no longer reproduces without any semantic/tolerance
+  change; classify it as stale-build contamination.
+- Pass direct iPad-host/Mac-join and reverse-host sessions beyond 3,500–4,700
+  rendered frames at approximately 60 FPS with no canonical mismatch.
+- Add ModernGekko patch 0020 for public-traversal room hosting/joining, room-code
+  snapshots, runner flags, and exact traversal status. Keep the local host
+  client direct while the server owns Dolphin's traversal socket.
+- Make Internet Room the native default, show/validate the eight-character
+  code, retain Direct IP, and state that codes are locators rather than
+  passwords or end-to-end encryption. Visually verify the Release iPad
+  Simulator form and repair its dark navigation title.
+- Pass public-service Mac-host/iPad-join and iPad-host/Mac-join synchronized
+  sessions for roughly 4,700 rendered frames each with no mismatch or
+  disconnect. Do not retain the ephemeral codes or IP addresses.
+- Decision: Internet play is possible in the retained MeleePad-to-MeleePad
+  Simulator/Mac test. Keep the beta/release claim closed pending full matches,
+  physical devices, independent networks/NAT matrix, lifecycle/error coverage,
+  security/privacy, and a supported service-operations decision.
+- Evidence: `docs/artifacts/2026-09-03/g9-public-internet-room-pass.md`.
+
+## 2026-09-03 — NET-300 public lobby development vertical slice
+
+- Research current Apple user-generated-content safety requirements, OWASP
+  real-time messaging controls, and Dolphin's public index implementation.
+- Choose preset quick chat instead of arbitrary anonymous free text; require
+  report/hide, filtered display names, exact compatibility, bounded inputs,
+  rate limits, expiry, secret-safe logs, and code disclosure only after Join.
+- Add a dependency-free local JSON lobby service and an ephemeral native HTTPS
+  client. Plain HTTP is accepted only for a loopback Simulator endpoint.
+- Add Public Games beside preserved Private Room and Direct IP modes. Render
+  tasteful version-aware cards, Host/Join, quick chat, and Safety actions.
+- Pass ten service tests, focused contracts, and the iPad Simulator build.
+- Complete a live Mac-host/iPad-Simulator discovery and authorized traversal
+  join through the local service; both endpoints appear compatible at 54 ms.
+- Catch the guest reservation expiring during the live session. Add
+  authenticated member heartbeats, reproduce past the original 20-second
+  window, and visibly deliver a preset `Hello!` message in the joined lobby.
+- Reverse the direction: publish from the native iPad Host Public Game flow,
+  discover and authorize from a Mac client, join through Dolphin traversal,
+  then prove host Cancel removes the room immediately.
+- Decision: accept the development vertical slice. Keep public availability
+  and beta claims closed because no production endpoint, durable moderation,
+  operations, physical-device, or independent-network gate has passed.
+- Evidence: `docs/artifacts/2026-09-03/public-lobby-vertical-slice.md`.
+
+## 2026-09-03 — NET-301 build 5 physical-iPad test deployment
+
+- Extend the public-lobby goal loop with four release phases: supported HTTPS
+  staging, independent-network physical acceptance, a moderated production
+  canary, and one frozen next-preview candidate.
+- Increment the unreleased build from 4 to 5 so public-room compatibility can
+  distinguish it from the prior device installation.
+- Rebuild the current ModernGekko device core and GALE01 module, then produce a
+  signed Release app using the existing `com.ssbmpad.SsbmPad` identity.
+- Back up the connected iPad Pro's GC save, Dolphin configuration, and app
+  preferences. Install build 5 in place without uninstalling or resetting its
+  data container.
+- Read the container back before launch: the save, configuration, and
+  preferences are byte-identical, and both the GALE01 ISO and 1,214 extracted
+  files remain. Launch build 5, verify the process and installed version, then
+  read the save back again and confirm it is still byte-identical.
+- Decision: hand build 5 to physical testing. Keep gameplay, physical Internet
+  match, and public-service claims open; no production lobby endpoint is
+  configured or deployed.
+- Evidence:
+  `docs/artifacts/2026-09-03/build5-physical-ipad-install.md`.
+
+## 2026-09-03 — NET-302 Preview 2 public package boundary
+
+- Rewrite the README around the actual Preview 2 product boundary: working
+  Private Room codes, Direct IP, disabled-without-service Public Games, fixed
+  delay, no relay or matchmaking, exact compatibility, and the staged roadmap.
+- Document the sole supported game input as raw USA GALE01 revision 0/v1.00,
+  1,459,978,240 bytes, SHA-256
+  `2393aadd346c23e3e44291e7bb7e16dbc4970bc703028261659a87cde9d90484`.
+- Audit the ignored local Preview 1 IPA and confirm it contains the
+  user-generated GALE01 module. Recheck GitHub and confirm that Preview 1 has
+  zero release assets and `main` contains no IPA or generated module; nothing
+  unsafe was public or required deletion.
+- Add a fail-closed public packager. It refuses any app containing the generated
+  module, game/save data, provisioning profile, signature, private key/cert, or
+  local host path, and removes the development configuration from the shell.
+- Produce the module-free unsigned Preview 2 IPA twice from a fresh ARM64
+  iPhoneOS build. The files are byte-identical, pass ZIP/bundle inspection, and
+  have SHA-256
+  `797a4d9c218650bd6f7377f07d798d5f06ff46abcfee33c8cdbe44248a552519`.
+- Feed the module-bearing private app to the public packager and retain its
+  expected refusal.
+- Decision: publish only source plus the clearly labelled module-free unsigned
+  app shell. Keep the playable generated-module IPA private.
+- Evidence: `docs/artifacts/2026-09-03/preview2-public-package.md`.
