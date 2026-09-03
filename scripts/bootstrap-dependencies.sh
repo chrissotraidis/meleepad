@@ -39,10 +39,10 @@ ensure_checkout() {
 
 apply_patch_once() {
   local checkout=$1 patch=$2
-  if git -C "$checkout" apply --reverse --check "$patch" >/dev/null 2>&1; then
+  if git -C "$checkout" apply --recount --reverse --check "$patch" >/dev/null 2>&1; then
     echo "already applied: ${patch#$ROOT/}"
-  elif git -C "$checkout" apply --check "$patch" >/dev/null 2>&1; then
-    git -C "$checkout" apply "$patch"
+  elif git -C "$checkout" apply --recount --check "$patch" >/dev/null 2>&1; then
+    git -C "$checkout" apply --recount "$patch"
     echo "applied: ${patch#$ROOT/}"
   else
     echo "patch does not apply cleanly: $patch" >&2

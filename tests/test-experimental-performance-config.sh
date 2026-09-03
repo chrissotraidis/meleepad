@@ -69,8 +69,8 @@ for menu_contract in \
   'Controller Button Mapping…' \
   'Touch Control Settings…' \
   'Game Data & Saves' \
-  'Share Diagnostic Log…' \
-  'Report a Problem…'; do
+  'Export Diagnostic Log…' \
+  'Report Issue on GitHub…'; do
   grep -Fq -- "$menu_contract" "$OVERLAY"
 done
 grep -Fq -- '- (void)shareDiagnosticLog' "$OVERLAY"

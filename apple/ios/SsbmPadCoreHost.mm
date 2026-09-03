@@ -1,4 +1,5 @@
 #import "SsbmPadCoreHost.h"
+#import "SsbmPadControllerMapping.h"
 #import "SsbmPadDiagnostics.h"
 #import "SsbmPadInputPipeEncoder.h"
 
@@ -34,8 +35,10 @@ namespace fs = std::filesystem;
 #include "Core/Config/MainSettings.h"
 #include "Core/Config/NetplaySettings.h"
 #include "Core/Core.h"
+#include "Core/Cheats/MemoryWatcherUtils.h"
 #include "Core/Config/StaticRecompSettings.h"
 #include "Core/Config/GraphicsSettings.h"
+#include "Core/HW/Memmap.h"
 #include "Core/PowerPC/PowerPC.h"
 #include "Core/System.h"
 #include "UICommon/UICommon.h"
@@ -740,6 +743,30 @@ static NSString *SsbmPadNetplayFailureMessage(moderngekko::frontend::NetplayExit
     if (!_running->load())
         return 0.0;
     return Core::System::GetInstance().GetPerfMetrics().GetVPS();
+}
+
+- (BOOL)isGameplayScene {
+    if (!_running->load())
+        return NO;
+
+    // GALE01 revision 0's verified GameState address. Do not use the public
+    // revision-1.02 gm_804D6720 scene pointer here: it addresses unrelated
+    // memory in the supported revision-1.00 image.
+    constexpr u32 kGameStateAddress = 0x80477D68u;
+    std::scoped_lock lock(*_runtimeMutex);
+    if (_runtime == nullptr)
+        return NO;
+
+    auto &memory = Core::System::GetInstance().GetMemory();
+    if (!memory.IsInitialized())
+        return NO;
+    const std::span<const u8> mem1{memory.GetRAM(), memory.GetRamSizeReal()};
+    const std::span<const u8> mem2{memory.GetEXRAM(), memory.GetExRamSizeReal()};
+    const auto gameState =
+        MemoryWatcherUtils::ReadStaticRecompU32(mem1, mem2, kGameStateAddress);
+    if (!gameState)
+        return NO;
+    return SsbmPadShouldApplyRightStickSmashForRevision0GameState(*gameState);
 }
 
 - (NSString *)currentPerformanceProfile {

@@ -536,6 +536,20 @@ static NSUInteger SsbmPadRegularFileCount(NSString *directory) {
                                                  name:GCControllerDidDisconnectNotification
                                                object:nil];
     [self reconcileControllersForReason:@"launch"];
+    if (GCController.controllers.count == 0) {
+        SsbmPadLog(@"controller discovery started reason=launch");
+        __weak SsbmPadGameViewController *weakSelf = self;
+        [GCController startWirelessControllerDiscoveryWithCompletionHandler:^{
+            dispatch_async(dispatch_get_main_queue(), ^{
+                SsbmPadGameViewController *strongSelf = weakSelf;
+                if (strongSelf == nil)
+                    return;
+                SsbmPadLog(@"controller discovery completed count=%lu",
+                          (unsigned long)GCController.controllers.count);
+                [strongSelf reconcileControllersForReason:@"discovery-complete"];
+            });
+        }];
+    }
 }
 
 - (void)controllerDidConnect:(NSNotification *)notification {
@@ -569,10 +583,11 @@ static NSUInteger SsbmPadRegularFileCount(NSString *directory) {
                   controller.vendorName ?: @"unknown");
         return;
     }
-    SsbmPadLog(@"controller configured instance=%@ slot=%ld vendor=%@ category=%@",
+    SsbmPadSettings *settings = [SsbmPadSettings sharedSettings];
+    SsbmPadLog(@"controller configured instance=%@ slot=%ld vendor=%@ category=%@ rightStickSmash=%d",
               SsbmPadControllerInstanceName(SsbmPadControllerInstanceID(controller)),
               (long)(slot + 1), controller.vendorName ?: @"unknown",
-              controller.productCategory ?: @"unknown");
+              controller.productCategory ?: @"unknown", settings.rightStickSmashAttacks);
     __weak SsbmPadGameViewController *weakSelf = self;
     __weak GCController *weakController = controller;
     gamepad.valueChangedHandler = ^(GCExtendedGamepad *pad, GCControllerElement *element) {
@@ -625,6 +640,16 @@ static NSUInteger SsbmPadRegularFileCount(NSString *directory) {
         physicalTriggerR, gamepad.rightShoulder.isPressed);
     if (state.triggerL > 30) state.buttons |= SsbmPadButtonL;
     if (physicalTriggerR > 30) state.buttons |= SsbmPadButtonR;
+    SsbmPadSettings *settings = [SsbmPadSettings sharedSettings];
+    constexpr int kRightStickSmashThreshold = 82;
+    BOOL rightStickPastThreshold =
+        std::max(std::abs((int)state.cStickX), std::abs((int)state.cStickY)) >=
+        kRightStickSmashThreshold;
+    BOOL gameplayScene = settings.rightStickSmashAttacks && rightStickPastThreshold &&
+        [_coreHost isGameplayScene];
+    state = SsbmPadApplyRightStickSmashMode(
+        state, settings.rightStickSmashAttacks, gameplayScene,
+        settings.modernCStickHorizontal);
     [[SsbmPadInputMixer sharedMixer] setInputState:state fromTouch:NO];
 }
 
@@ -1236,7 +1261,7 @@ static NSUInteger SsbmPadRegularFileCount(NSString *directory) {
         @"appVersion=%@ build=%@\n"
          @"platform=%@ os=%@\n"
          @"screen=%@ native=%@ drawable=%@\n"
-         @"settings renderScale=%ld aspect=%ld frameMode=native-60-fps\n"
+         @"settings renderScale=%ld aspect=%ld frameMode=native-60-fps rightStickSmash=%d\n"
          @"controllers count=%lu names=%@\n"
          @"recentScreenshot=%@\n"
          @"performance %@\n%@",
@@ -1248,6 +1273,7 @@ static NSUInteger SsbmPadRegularFileCount(NSString *directory) {
         NSStringFromCGRect(UIScreen.mainScreen.nativeBounds),
         NSStringFromCGSize(((CAMetalLayer *)_gameView.layer).drawableSize),
         (long)settings.renderScale, (long)settings.aspectRatioMode,
+        settings.rightStickSmashAttacks,
         (unsigned long)controllers.count,
         controllers.count > 0 ? [controllers componentsJoinedByString:@", "] : @"none",
         screenshot, performance, [_coreHost diagnosticSummary]];
@@ -1274,8 +1300,7 @@ static NSUInteger SsbmPadRegularFileCount(NSString *directory) {
     SsbmPadControllerButtonMapping mapping = [SsbmPadControllerMappingStore mapping];
     NSString *controllerName = controller.vendorName ?: controller.productCategory;
     NSString *message = controllerName.length > 0
-        ? [NSString stringWithFormat:@"Connected: %@\nOnly A, B, X, Y, and Z are remapped. Analog triggers, sticks, D-pad, Start, and the right shoulder spray stay unchanged.",
-                                     controllerName]
+        ? [NSString stringWithFormat:@"Connected: %@\nA, B, X, Y, and Z can be remapped. Right Stick Smash performs chargeable smash attacks during combat without changing menu input; turn it off for Melee's original C-stick behavior.", controllerName]
         : @"No extended controller is connected. You can review or reset the saved mapping; connect a controller to test it.";
     if (controller.physicalInputProfile.hasRemappedElements) {
         message = [message stringByAppendingString:
@@ -1302,6 +1327,21 @@ static NSUInteger SsbmPadRegularFileCount(NSString *directory) {
             [weakSelf presentPhysicalButtonChoicesForGameButton:gameButton];
         }]];
     }
+    BOOL rightStickSmash = [SsbmPadSettings sharedSettings].rightStickSmashAttacks;
+    NSString *rightStickTitle = [NSString stringWithFormat:@"Right Stick Smash — %@",
+        rightStickSmash ? @"On" : @"Off"];
+    [alert addAction:[UIAlertAction actionWithTitle:rightStickTitle
+                                            style:UIAlertActionStyleDefault
+                                          handler:^(__kindof UIAlertAction *action) {
+        (void)action;
+        SsbmPadSettings *settings = [SsbmPadSettings sharedSettings];
+        settings.rightStickSmashAttacks = !settings.rightStickSmashAttacks;
+        [settings synchronize];
+        [[SsbmPadInputMixer sharedMixer] clearInputFromTouch:NO];
+        SsbmPadLog(@"controller right-stick smash changed enabled=%d",
+                  settings.rightStickSmashAttacks);
+        [weakSelf presentControllerMapping];
+    }]];
     [alert addAction:[UIAlertAction actionWithTitle:@"Reset to Default"
                                             style:UIAlertActionStyleDestructive
                                           handler:^(__kindof UIAlertAction *action) {

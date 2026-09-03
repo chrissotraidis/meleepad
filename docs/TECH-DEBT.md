@@ -1,6 +1,6 @@
 # ssbmpad technical debt
 
-Last updated: 2026-09-02
+Last updated: 2026-09-03
 
 This is the short, ranked engineering queue behind the active goal loop. It is
 not a substitute for `GOAL-LOOP.md` or evidence in `docs/artifacts/`.
@@ -191,6 +191,23 @@ scalar-single/`frsp` correction and its 402.7-second, 2,110-frame corpus. Reopen
 only on adjacent-frame evidence of actual fighter deformation; do not retry
 EFB-to-RAM or non-deferred-copy controls for the reference reflection.
 
+### 6. Physical-iPad water, reflection, and shadow corruption
+
+The first 2026-09-03 physical iPad session adds a separate, serious rendering
+report: water and reflected or shadowed areas can render incorrectly even while
+solo play remains near 60 FPS and resolution scaling itself appears to work.
+This is direct user observation, but the exact stage, camera, render scale, and
+adjacent frames have not yet been captured together. It therefore reopens the
+hardware water/reflection path without reclassifying the already-compared
+blocky lower Fountain reflection as a new defect.
+
+Handle this as its own rendering goal. Capture the exact scene at 1× and the
+user's selected higher scale with a short local recording, screenshot marker,
+and same-run diagnostic log. Compare physical iPad against official Dolphin
+before changing EFB copies, framebuffer sampling, depth handling, projection,
+or Metal shaders. Keep this defect separate from the confirmed 60 FPS result
+and from fighter-geometry regressions.
+
 ## P1 — cold pipeline behavior
 
 A structurally valid 446-entry pipeline UID cache reduced matched runtime
@@ -215,6 +232,14 @@ about 25-44 focused engineer-days, with real-world NAT/determinism as the main
 uncertainty. The iPhone/iPad app already links ENet/SFML and already publishes
 touch/controller state through the GameCube pipe that netplay polls. Dolphin's
 CC0 traversal server and eight-character room-code protocol are also present.
+
+The current iOS form is now labeled **Experimental Multiplayer** and explains
+its actual boundary: there are no SsbmPad matchmaking servers or room codes,
+one player hosts a direct peer connection, and same-LAN or private-VPN testing
+is the practical starting point. Complete matches remain unreliable. Direct IP
+does not remove Internet NAT work; a broadly usable peer-to-peer flow still
+needs traversal and possibly relay infrastructure, plus the determinism gates
+below. Do not market the current form as finished online multiplayer.
 
 The first defect is now closed by canonical outer patches: the pre-fix
 GameCube assertion failed with exit `19`, while the candidate passes explicit
@@ -283,6 +308,17 @@ NL3 correctness does not clear G8 row 7 or prove 60 FPS netplay. Room-code
 friend play remains the first release; public matchmaking and Slippi rollback
 remain separate multi-month projects. See `docs/NETPLAY-FEASIBILITY.md` and
 `docs/artifacts/2026-09-02/g9-two-mac-melee-match-pass.md`.
+
+## P2 — unify GitHub issue reporting and diagnostic export
+
+The three-dot menu now names the two existing capabilities explicitly:
+**Export Diagnostic Log…** creates a privacy-bounded local report, and
+**Report Issue on GitHub…** opens the prefilled public issue flow. They remain
+separate because an issue URL cannot attach the generated local log. A future
+single guided flow should generate the report, open the prefilled issue, and
+make the manual attachment step unmistakable. Any automatic upload would need
+explicit GitHub authentication, user confirmation, and the existing exclusions
+for game images, extracted data, saves, signing material, and controller input.
 
 ## Closed directions — do not repeat without new evidence
 

@@ -367,6 +367,8 @@
 					"$(SRCROOT)/ref/ModernGekko/vendor/dolphin/GXRuntime/include",
 					"$(SRCROOT)/ref/ModernGekko/build-ios-iphonesimulator-ssbmpad-static",
 					"$(SRCROOT)/ref/ModernGekko/build-ios-iphonesimulator-ssbmpad-static/vendor/dolphin/Source/Core",
+					"$(SRCROOT)/ref/ModernGekko/build-ios-iphoneos-ssbmpad-static",
+					"$(SRCROOT)/ref/ModernGekko/build-ios-iphoneos-ssbmpad-static/vendor/dolphin/Source/Core",
 					"$(SRCROOT)/ref/ModernGekko/vendor/dolphin/Externals/fmt/fmt/include",
 					"$(SRCROOT)/ref/ModernGekko/vendor/dolphin/Externals/picojson",
 				);
@@ -383,6 +385,9 @@
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"@$(SRCROOT)/apple/ios/Provisioned/$(PLATFORM_NAME)/libs/SsbmPadCore.rsp",
+					"-lz",
+					"-lbz2",
+					"-liconv",
 					"-lresolv",
 					"-lcompression",
 					"-framework AVFAudio",
@@ -422,6 +427,8 @@
 					"$(SRCROOT)/ref/ModernGekko/vendor/dolphin/GXRuntime/include",
 					"$(SRCROOT)/ref/ModernGekko/build-ios-iphonesimulator-ssbmpad-static",
 					"$(SRCROOT)/ref/ModernGekko/build-ios-iphonesimulator-ssbmpad-static/vendor/dolphin/Source/Core",
+					"$(SRCROOT)/ref/ModernGekko/build-ios-iphoneos-ssbmpad-static",
+					"$(SRCROOT)/ref/ModernGekko/build-ios-iphoneos-ssbmpad-static/vendor/dolphin/Source/Core",
 					"$(SRCROOT)/ref/ModernGekko/vendor/dolphin/Externals/fmt/fmt/include",
 					"$(SRCROOT)/ref/ModernGekko/vendor/dolphin/Externals/picojson",
 				);
@@ -438,6 +445,9 @@
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"@$(SRCROOT)/apple/ios/Provisioned/$(PLATFORM_NAME)/libs/SsbmPadCore.rsp",
+					"-lz",
+					"-lbz2",
+					"-liconv",
 					"-lresolv",
 					"-lcompression",
 					"-framework AVFAudio",

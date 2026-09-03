@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # SsbmPad iOS/iPadOS provisioning: assembles the locally built ModernGekko /
-# Dolphin-derived core into a linker response file, and records the dev-only
-# game-data + module locations. Keeping the component archives intact avoids an
+# Dolphin-derived core into a linker response file for either the Simulator or
+# a physical device, and records the dev-only game-data + module locations.
+# Keeping the component archives intact avoids an
 # Apple libtool archive-table corruption seen when flattening this core into one
 # large archive.
 #
@@ -12,14 +13,32 @@ set -euo pipefail
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 MG="$ROOT/ref/ModernGekko"
 TPL="$ROOT/ref/ModernGekko-Template"
-IOS_BUILD="$MG/build-ios-iphonesimulator-ssbmpad-static"
 OUT="$ROOT/apple/ios/Provisioned"
-LIBS_DIR="$OUT/iphonesimulator/libs"
+PLATFORM="${1:-simulator}"
+
+case "$PLATFORM" in
+  simulator)
+    IOS_BUILD="$MG/build-ios-iphonesimulator-ssbmpad-static"
+    LIBS_DIR="$OUT/iphonesimulator/libs"
+    MODULE="/tmp/ssbmpad-module-ios-simulator/gGALE01_recomp.dylib"
+    DEVICE_MODULE_ENTRY=""
+    ;;
+  device)
+    IOS_BUILD="$MG/build-ios-iphoneos-ssbmpad-static"
+    LIBS_DIR="$OUT/iphoneos/libs"
+    MODULE="/tmp/ssbmpad-module-ios-device/gGALE01_recomp.dylib"
+    DEVICE_MODULE_ENTRY=$'\t<key>DeviceModuleRelativePath</key>\n\t<string>gGALE01_recomp.dylib</string>'
+    ;;
+  *)
+    echo "usage: $0 [simulator|device]" >&2
+    exit 2
+    ;;
+esac
 
 mkdir -p "$LIBS_DIR"
 
 if [[ ! -d "$IOS_BUILD" ]]; then
-  echo "iOS core build missing: $IOS_BUILD (run scripts/ios-build-core.sh first)" >&2
+  echo "iOS core build missing: $IOS_BUILD" >&2
   exit 1
 fi
 
@@ -90,7 +109,6 @@ echo "linker response: $LINKER_RESPONSE"
 # filesystem for acceptance testing). Replaced by the document-picker import
 # flow on real devices.
 GAME_ROOT="$TPL/extracted/Super-Smash-Bros-Melee-GALE01-r0"
-MODULE="/tmp/ssbmpad-module-ios-simulator/gGALE01_recomp.dylib"
 cat > "$OUT/dev-config.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -100,6 +118,7 @@ cat > "$OUT/dev-config.plist" <<PLIST
 	<string>$GAME_ROOT</string>
 	<key>DevModulePath</key>
 	<string>$MODULE</string>
+$DEVICE_MODULE_ENTRY
 </dict>
 </plist>
 PLIST

@@ -19,7 +19,7 @@ for field in report-id revision platform performance-profile summary context fre
   grep -Fq "queryItemWithName:@\"$field\"" "$OVERLAY"
   grep -Fq "id: $field" "$FORM"
 done
-grep -Fq 'actionWithTitle:@"Report a Problem…"' "$OVERLAY"
+grep -Fq 'actionWithTitle:@"Report Issue on GitHub…"' "$OVERLAY"
 grep -Fq 'id: diagnostic-report' "$FORM"
 grep -Fq 'id: visual-evidence' "$FORM"
 grep -Fq 'accept: ".log,.txt"' "$FORM"

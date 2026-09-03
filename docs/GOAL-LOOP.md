@@ -30,11 +30,19 @@ G5 is a hard requirement. There is no fallback title, no reduced-fps acceptance.
 ### Current hard stop: G8 row 7
 
 The installed iPad Simulator product now boots and runs ordinary solo opening,
-menu, attract, and exact Fountain routes predominantly at 59.8-60.0 FPS/VPS,
-but row 7 is **PARTIAL** and the product is **not eligible for physical-iPad
-promotion**. The old ordinary first-run 21.9 FPS Fountain result is retained as
-the historical regression anchor: the sustained 20-36 FPS mechanism has been
-reversed, but only the unchanged-build human route below can close acceptance.
+menu, attract, and exact Fountain routes predominantly at 59.8-60.0 FPS/VPS.
+An exploratory 2026-09-03 physical-iPad session also held approximately 60 FPS
+at 2x resolution, but exposed serious water/reflection corruption and a missing
+right-stick attack path. The revision-1.00-aware controller update has now
+passed the user's physical main-menu, Classic-mode combat, and three-dot-menu
+retest after a data-preserving in-place install, while retaining 59.9-60.0
+FPS runtime telemetry. Serious water/reflection/shadow corruption and the
+remaining acceptance matrix stay open. Row 7 therefore remains **PARTIAL** and
+the product is **not eligible for
+physical-iPad promotion**. The old ordinary first-run 21.9 FPS Fountain result
+remains the historical regression anchor; neither a strong mean cadence nor an
+exploratory device run can close acceptance while input or visuals fail. See
+`docs/artifacts/2026-09-03/g8-physical-ipad-controller-copy-icon-update.md`.
 
 Until this hard stop is cleared, the loop order is:
 
@@ -62,8 +70,9 @@ Until this hard stop is cleared, the loop order is:
    regression. It cannot pass row 7, trigger full acceptance, or supersede the
    ordinary product floor while any phase remains below 59 FPS/VPS;
 6. only after two complete fresh-process cold routes and the unchanged-build
-   ordinary manual route meet the protocol below may physical-device testing
-   begin.
+   ordinary manual route meet the protocol below may formal physical-device
+   acceptance begin. Exploratory hardware diagnosis may continue, but cannot
+   qualify the product.
 
 ### Row-7 truth and acceptance protocol
 

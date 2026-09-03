@@ -51,7 +51,7 @@ index 5de06b9..b3301c6 100644
      set_target_properties(moderngekko-run PROPERTIES
          OUTPUT_NAME "${MODERNGEKKO_RUNNER_OUTPUT_NAME}")
      target_compile_definitions(moderngekko-run PRIVATE
-@@ -693,12 +740,45 @@ if(BUILD_TESTING)
+@@ -693,7 +740,32 @@ if(BUILD_TESTING)
                  ModernGekko::Runtime core uicommon)
          endif()
          add_test(NAME moderngekko.netplay_protocol COMMAND moderngekko_netplay_protocol_test)
@@ -81,22 +81,6 @@ index 5de06b9..b3301c6 100644
      endif()
  
      add_executable(moderngekko_game_inspect_test tests/game_inspect_test.cpp)
-     target_link_libraries(moderngekko_game_inspect_test PRIVATE ModernGekko::LegacyRuntime)
-     add_test(NAME moderngekko.game_inspect COMMAND moderngekko_game_inspect_test)
- 
-+    add_executable(moderngekko_memory_watcher_utils_test
-+        tests/memory_watcher_utils_test.cpp
-+    )
-+    target_include_directories(moderngekko_memory_watcher_utils_test PRIVATE
-+        "${CMAKE_CURRENT_SOURCE_DIR}/vendor/dolphin/Source/Core"
-+    )
-+    target_compile_features(moderngekko_memory_watcher_utils_test PRIVATE cxx_std_20)
-+    add_test(NAME moderngekko.memory_watcher_utils
-+             COMMAND moderngekko_memory_watcher_utils_test)
-+
-     add_executable(moderngekko_module_abi_test
-         tests/module_abi_test.c
-     )
 diff --git a/tools/netplay_session.cpp b/tools/netplay_session.cpp
 index 1e93631..228be39 100644
 --- a/tools/netplay_session.cpp

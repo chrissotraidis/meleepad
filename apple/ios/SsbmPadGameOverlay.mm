@@ -569,7 +569,7 @@ static CGFloat SsbmPadDefaultSizeScaleForControl(UIView *view, NSString *identif
     fpsAction.state = settings.showFPSCounter ? UIMenuElementStateOn : UIMenuElementStateOff;
 
     UIAction *shareDiagnosticAction =
-        [UIAction actionWithTitle:@"Share Diagnostic Log…"
+        [UIAction actionWithTitle:@"Export Diagnostic Log…"
                             image:[UIImage systemImageNamed:@"square.and.arrow.up"]
                        identifier:nil handler:^(__kindof UIAction *action) {
         (void)action;
@@ -577,7 +577,7 @@ static CGFloat SsbmPadDefaultSizeScaleForControl(UIView *view, NSString *identif
     }];
 
     UIAction *reportProblemAction =
-        [UIAction actionWithTitle:@"Report a Problem…"
+        [UIAction actionWithTitle:@"Report Issue on GitHub…"
                             image:[UIImage systemImageNamed:@"exclamationmark.bubble"]
                        identifier:nil handler:^(__kindof UIAction *action) {
         (void)action;
@@ -604,7 +604,7 @@ static CGFloat SsbmPadDefaultSizeScaleForControl(UIView *view, NSString *identif
     ]];
 
     UIAction *onlinePlayAction =
-        [UIAction actionWithTitle:@"Online Play…"
+        [UIAction actionWithTitle:@"Experimental Multiplayer…"
                             image:[UIImage systemImageNamed:@"person.2.wave.2"]
                        identifier:nil handler:^(__kindof UIAction *action) {
         (void)action;

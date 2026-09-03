@@ -32,6 +32,9 @@ typedef NS_ENUM(NSInteger, SsbmPadAspectRatioMode) {
 @property(nonatomic, assign) BOOL hideTouchControlsWhenControllerConnected;
 /* Reverses only the C-stick horizontal axis for modern camera movement. */
 @property(nonatomic, assign) BOOL modernCStickHorizontal;
+/* Makes an external controller's right stick perform chargeable smash attacks
+ * during combat. Menus retain Melee's original C-stick behavior. */
+@property(nonatomic, assign) BOOL rightStickSmashAttacks;
 @property(nonatomic, assign) CGFloat controlOpacity;   // 0.25..1
 @property(nonatomic, assign) CGFloat controlSizeScale; // 0.70..1.35
 @property(nonatomic, assign) BOOL editingControlLayout;

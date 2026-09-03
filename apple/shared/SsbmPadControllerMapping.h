@@ -36,6 +36,11 @@ FOUNDATION_EXPORT NSString *SsbmPadPhysicalControllerButtonName(
     SsbmPadPhysicalControllerButton button);
 FOUNDATION_EXPORT uint8_t SsbmPadControllerRightTriggerPressure(
     uint8_t triggerPressure, BOOL rightShoulderPressed);
+FOUNDATION_EXPORT SsbmPadInputState SsbmPadApplyRightStickSmashMode(
+    SsbmPadInputState state, BOOL enabled, BOOL gameplayScene,
+    BOOL reverseHorizontal);
+FOUNDATION_EXPORT BOOL SsbmPadShouldApplyRightStickSmashForRevision0GameState(
+    uint32_t gameState);
 
 /* Versioned, app-local persistence for the deliberately narrow A/B/X/Y/Z
  * remapping layer. Sticks, D-pad, Menu, right shoulder, and analog triggers

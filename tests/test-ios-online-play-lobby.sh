@@ -23,7 +23,7 @@ done
 
 for contract in \
   'gameOverlayRequestsOnlinePlay:' \
-  'actionWithTitle:@"Online Play…"' \
+  'actionWithTitle:@"Experimental Multiplayer…"' \
   'systemImageNamed:@"person.2.wave.2"'; do
   grep -Fq "$contract" "$OVERLAY" "$OVERLAY_HEADER"
 done
@@ -39,14 +39,17 @@ for contract in \
 done
 
 for contract in \
-  '@"Direct Connection Preview"' \
-  '@"Advanced Direct Connection"' \
-  'Room-code Online Play is not available in this build yet.' \
+  '@"Experimental Multiplayer"' \
+  '@"Direct Peer Connection"' \
+  'Each device runs the same Melee match locally and exchanges controller input' \
+  'There are no room codes or matchmaking servers yet' \
+  'complete matches are not yet reliable.' \
   '@"Host"' \
   '@"Join"' \
   '@"Nickname"' \
-  '@"Host address"' \
-  '@"UDP port"' \
+  '@"Host IP or hostname"' \
+  '@"UDP port (default 2626)"' \
+  "2626 is Dolphin's standard direct-NetPlay UDP port, not a server address." \
   '@"Automatic input buffer"' \
   '@"Players"' \
   'Compatibility: %@' \

@@ -80,6 +80,10 @@ NS_ASSUME_NONNULL_BEGIN
 /* Video-interface updates per second, useful when FPS alone looks healthy. */
 - (double)currentVPS;
 
+/* True only while Melee's current scene is active combat. Used to keep
+ * controller conveniences from changing menu, CSS, results, or cutscene input. */
+- (BOOL)isGameplayScene;
+
 /* The profile actually selected for this runtime, independent of a setting
  * changed after launch. */
 - (NSString *)currentPerformanceProfile;

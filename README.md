@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-  <img src="apple/ios/Assets.xcassets/AppIcon.appiconset/AppIcon.png" width="180" alt="SsbmPad silver and crimson arena-impact app icon">
+  <img src="apple/ios/Assets.xcassets/AppIcon.appiconset/AppIcon.png" width="180" alt="SsbmPad navy, ivory, and coral analog-gate app icon">
 </p>
 
 <p align="center">
@@ -41,21 +41,22 @@ work is still tracked. The same ahead-of-time game module boots on iPad and
 iPhone Simulators with Metal, touch input, imported game data, persistent saves,
 and diagnostics.
 
-The mobile performance gate is still open: demanding iPad Simulator combat has
-measured roughly 42–48 FPS with the current compatible PGO module, which can
-starve audio. That is not considered playable or a 60 FPS pass. Physical-device
-performance, complete controller lifecycle coverage, distribution signing, and
-netplay acceptance remain future gates. The evidence-first loop and exact open
-rows live in [`docs/GOAL-LOOP.md`](docs/GOAL-LOOP.md) and
-[`docs/STATUS.md`](docs/STATUS.md).
+An exploratory physical-iPad build now boots the imported game, preserves saves
+and settings across in-place updates, and has repeatedly sustained 59.9–60.0
+FPS/VPS at 2x resolution during observed solo play. This is encouraging device
+evidence, not final acceptance: serious water/reflection/shadow corruption is
+open, while the combat-only right-stick convenience has passed its physical
+menu-and-Classic hands-on retest. The complete visual/audio/controller/lifecycle
+matrix has not passed. The evidence-first loop and exact open rows live in
+[`docs/GOAL-LOOP.md`](docs/GOAL-LOOP.md) and [`docs/STATUS.md`](docs/STATUS.md).
 
 | Area | Verified now | Still open |
 |---|---|---|
 | macOS | Native arm64 launcher/runner, Metal, keyboard/controller profiles, coherent live matches, saves/settings | Strict final acceptance rows and suitable-display replay |
-| iPad/iPhone | Native app shell, Metal first frames/gameplay, touch overlay, menu, exact-image import, saves, diagnostics | Sustained 60 FPS/audio, every-control live proof, physical-device acceptance |
+| iPad/iPhone | Native app shell, Metal gameplay, touch overlay, menu, exact-image import, persistent saves/settings, diagnostics, accepted physical-iPad right-stick/menu behavior, and a locally signed in-place build holding near 60 FPS at 2x in observed solo play | Water/reflection/shadow repair, remaining control-matrix coverage, long-session audio/lifecycle checks, and formal physical-device acceptance |
 | Recompiler | 237-chunk GALE01 module, exact-source PGO workflow, clean-clone regeneration | Remaining mobile producer deficit |
 | Netplay | Fixed-delay protocol, traversal code, compatibility fingerprint, [implementation plan](docs/NETPLAY-FEASIBILITY.md), and [active beta loop](docs/NETPLAY-BETA-GOAL-LOOP.md) | Canonical Mac/mobile determinism, room-code traversal, consumer UI, physical-device beta matrix |
-| Distribution | ROM-safe source repository and ad-hoc local builds | Signed device build, TestFlight/App Store release |
+| Distribution | ROM-safe source repository, ad-hoc local builds, and verified Apple Development-signed device installation | Public signing, TestFlight, and App Store release |
 
 ## Build from source
 
@@ -134,6 +135,43 @@ controller profile. The built-in keyboard controls are:
 Launching the macOS app automatically replaces SsbmPad's internal automation
 pipe profile with this interactive keyboard profile. Existing custom keyboard
 and physical-controller profiles are preserved.
+
+## Experimental multiplayer
+
+The current iPhone/iPad screen is a developer-facing direct connection, not a
+finished online service and not game streaming. Both players need the same
+SsbmPad build and supported game revision. Each device runs the match locally;
+the netplay transport exchanges synchronized controller input, and the joining
+player is assigned another GameCube controller port.
+
+To test it today:
+
+1. Start on the same Wi-Fi network or a low-latency private VPN.
+2. The host chooses **Host**, leaves UDP port **2626**, and creates the lobby.
+3. The host shares an IP address or hostname that the joining device can
+   reach. The joining player chooses **Join**, enters it, and uses the same
+   port.
+4. Both players mark themselves **Ready**; the host starts the synchronized
+   match.
+
+Port 2626 is [Dolphin's standard direct-NetPlay listen port](https://github.com/dolphin-emu/dolphin/blob/master/Source/Core/Core/Config/NetplaySettings.cpp),
+not a matchmaking server. Same-network play normally needs no router changes.
+Across the public internet, direct hosting can require UDP port forwarding;
+Dolphin's [Netplay guide](https://dolphin-emu.org/docs/guides/netplay-guide/)
+explains the same direct-versus-traversal distinction. SsbmPad does not yet
+expose Dolphin traversal room codes, a public lobby, relay fallback, or
+matchmaking, and complete physical-device matches are not yet accepted.
+
+The closest architectural next step is Dolphin's existing traversal protocol:
+it supplies short room codes and helps peers connect without carrying gameplay
+traffic, and its client/server code is already present in the pinned runtime.
+[Slippi](https://github.com/project-slippi/project-slippi) is the established
+Melee-specific alternative with rollback and matchmaking, but it is not a
+drop-in server for this build. Slippi combines a modified Dolphin runtime,
+Melee ASM/EXI integration, and a private matchmaking service, so compatibility
+would require a separate rollback and game-integration project. A private VPN
+can make the current direct-IP path reachable for testing, but it does not fix
+determinism, latency, or the remaining match-completion gates.
 
 ## Testing and project policy
 

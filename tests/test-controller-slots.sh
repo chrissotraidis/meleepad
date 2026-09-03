@@ -19,6 +19,9 @@ clang++ -x objective-c++ -std=gnu++2b -fobjc-arc -framework Foundation \
 CONTROLLER="$ROOT/apple/ios/SsbmPadGameViewController.mm"
 for contract in \
   'GCController.controllers' \
+  'startWirelessControllerDiscoveryWithCompletionHandler' \
+  'controller discovery started reason=launch' \
+  'reconcileControllersForReason:@"discovery-complete"' \
   'indexOfObjectIdenticalTo:controller' \
   'reconcileControllersForReason:@"foreground"' \
   'reconcileControllersForReason:@"periodic"' \

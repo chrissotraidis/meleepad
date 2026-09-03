@@ -1,5 +1,7 @@
 #import "SsbmPadControllerMapping.h"
 
+#include <algorithm>
+#include <cstdlib>
 #include <initializer_list>
 
 static NSString *const SsbmPadControllerMappingDefaultsKey =
@@ -31,8 +33,10 @@ static SsbmPadPhysicalControllerButton *SsbmPadMappingSlot(
 SsbmPadControllerButtonMapping SsbmPadDefaultControllerButtonMapping(void) {
     return (SsbmPadControllerButtonMapping){
         .gameA = SsbmPadPhysicalControllerButtonA,
-        .gameB = SsbmPadPhysicalControllerButtonB,
-        .gameX = SsbmPadPhysicalControllerButtonX,
+        // Xbox's left face button is a more natural special-move button, while
+        // its right face button sits where GameCube X is expected for jump.
+        .gameB = SsbmPadPhysicalControllerButtonX,
+        .gameX = SsbmPadPhysicalControllerButtonB,
         .gameY = SsbmPadPhysicalControllerButtonY,
         .gameZ = SsbmPadPhysicalControllerButtonLeftShoulder,
     };
@@ -109,6 +113,53 @@ uint8_t SsbmPadControllerRightTriggerPressure(
     return rightShoulderPressed
         ? MAX(triggerPressure, SsbmPadRunAndSprayPressure)
         : triggerPressure;
+}
+
+SsbmPadInputState SsbmPadApplyRightStickSmashMode(
+    SsbmPadInputState state, BOOL enabled, BOOL gameplayScene,
+    BOOL reverseHorizontal) {
+    if (!enabled || !gameplayScene)
+        return state;
+
+    constexpr int kSmashThreshold = 82;
+    int cX = reverseHorizontal ? -(int)state.cStickX : (int)state.cStickX;
+    int cY = state.cStickY;
+    if (std::max(std::abs(cX), std::abs(cY)) < kSmashThreshold)
+        return state;
+
+    // Melee normally reserves C-stick attacks for Versus. During an active
+    // combat scene, modern controller mode expresses the same intent as a
+    // cardinal main-stick direction plus A, which also lets holding the right
+    // stick charge the smash. Menus and cutscenes retain the untouched C-stick.
+    // The direct C-stick is cleared here to avoid delivering two attack inputs.
+    if (std::abs(cX) >= std::abs(cY)) {
+        state.stickX = (int8_t)cX;
+        state.stickY = 0;
+    } else {
+        state.stickX = 0;
+        state.stickY = (int8_t)cY;
+    }
+    state.cStickX = 0;
+    state.cStickY = 0;
+    state.buttons |= SsbmPadButtonA;
+    return state;
+}
+
+BOOL SsbmPadShouldApplyRightStickSmashForRevision0GameState(uint32_t gameState) {
+    // GALE01 revision 0 GameState packs current major mode in the high byte and
+    // the current per-mode scene index in the low byte. Keep this deliberately
+    // narrow: these are the verified ordinary VS, Classic-fight, and Training
+    // combat routes. Front-end scenes such as menu, CSS, and stage select do
+    // not match.
+    const uint8_t gameMode = (uint8_t)(gameState >> 24);
+    const uint8_t sceneIndex = (uint8_t)gameState;
+    if (gameMode == 0x02)
+        return sceneIndex == 0x02 || sceneIndex == 0x03;
+    if (gameMode == 0x03)
+        return sceneIndex <= 0x51 && (sceneIndex & 0x07) == 0x01;
+    if (gameMode == 0x1C)
+        return sceneIndex == 0x02;
+    return NO;
 }
 
 @implementation SsbmPadControllerMappingStore

@@ -46,7 +46,6 @@ diff --git a/tests/frontend_config_test.cpp b/tests/frontend_config_test.cpp
 @@ -102,6 +102,25 @@
      return 5;
    }
- 
 +  const std::array pipe_controllers = {std::string("Pipe/0/ssbmpad")};
 +  if (!moderngekko::frontend::GenerateControllerConfig(
 +          directory, pipe_controllers, &error))

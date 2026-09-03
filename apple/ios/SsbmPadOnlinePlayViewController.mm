@@ -25,7 +25,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.title = @"Direct Connection Preview";
+    self.title = @"Experimental Multiplayer";
     self.view.backgroundColor = [UIColor colorWithRed:0.035 green:0.055 blue:0.10 alpha:1.0];
 
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc]
@@ -33,12 +33,12 @@
                target:self action:@selector(cancel:)];
 
     UILabel *intro = [UILabel new];
-    intro.text = @"Advanced Direct Connection";
+    intro.text = @"Direct Peer Connection";
     intro.textColor = UIColor.whiteColor;
     intro.font = [UIFont systemFontOfSize:24.0 weight:UIFontWeightBold];
 
     UILabel *detail = [UILabel new];
-    detail.text = @"Developer preview for compatible SsbmPad builds. Host or join with a direct address. Room-code Online Play is not available in this build yet.";
+    detail.text = @"Each device runs the same Melee match locally and exchanges controller input; the other player appears on another GameCube port. The host creates a direct lobby, the friend joins with the host's address, both mark Ready, and the host starts. There are no room codes or matchmaking servers yet, and complete matches are not yet reliable.";
     detail.textColor = [UIColor colorWithWhite:0.82 alpha:1.0];
     detail.font = [UIFont systemFontOfSize:14.0 weight:UIFontWeightRegular];
     detail.numberOfLines = 0;
@@ -54,15 +54,21 @@
     _nicknameField.textContentType = UITextContentTypeNickname;
     _nicknameField.returnKeyType = UIReturnKeyNext;
 
-    _addressField = [self textFieldWithPlaceholder:@"Host address"];
+    _addressField = [self textFieldWithPlaceholder:@"Host IP or hostname"];
     _addressField.keyboardType = UIKeyboardTypeURL;
     _addressField.autocapitalizationType = UITextAutocapitalizationTypeNone;
     _addressField.autocorrectionType = UITextAutocorrectionTypeNo;
     _addressField.returnKeyType = UIReturnKeyNext;
 
-    _portField = [self textFieldWithPlaceholder:@"UDP port"];
+    _portField = [self textFieldWithPlaceholder:@"UDP port (default 2626)"];
     _portField.text = @"2626";
     _portField.keyboardType = UIKeyboardTypeNumberPad;
+
+    UILabel *portHelp = [UILabel new];
+    portHelp.text = @"2626 is Dolphin's standard direct-NetPlay UDP port, not a server address. Both players use the same value. Same Wi-Fi is simplest; internet hosts usually need UDP forwarding or a private VPN.";
+    portHelp.textColor = [UIColor colorWithWhite:0.68 alpha:1.0];
+    portHelp.font = [UIFont systemFontOfSize:12.0 weight:UIFontWeightRegular];
+    portHelp.numberOfLines = 0;
 
     UILabel *automaticLabel = [UILabel new];
     automaticLabel.text = @"Automatic input buffer";
@@ -98,11 +104,11 @@
     bufferRow.distribution = UIStackViewDistributionEqualSpacing;
     bufferRow.alignment = UIStackViewAlignmentCenter;
 
-    _connectButton = [self primaryButtonWithTitle:@"Host Lobby"
+    _connectButton = [self primaryButtonWithTitle:@"Host Game"
                                            action:@selector(connect:)];
 
     _setupStack = [[UIStackView alloc] initWithArrangedSubviews:@[
-        _roleControl, _nicknameField, _addressField, _portField,
+        _roleControl, _nicknameField, _addressField, _portField, portHelp,
         automaticRow, bufferRow, _connectButton,
     ]];
     _setupStack.axis = UILayoutConstraintAxisVertical;
@@ -213,10 +219,10 @@
 - (void)roleChanged:(UISegmentedControl *)sender {
     BOOL joining = sender.selectedSegmentIndex == SsbmPadOnlinePlayRoleJoin;
     _addressField.hidden = !joining;
-    [_connectButton setTitle:(joining ? @"Join Lobby" : @"Host Lobby")
+    [_connectButton setTitle:(joining ? @"Join Game" : @"Host Game")
                     forState:UIControlStateNormal];
     UIButtonConfiguration *configuration = _connectButton.configuration;
-    configuration.title = joining ? @"Join Lobby" : @"Host Lobby";
+    configuration.title = joining ? @"Join Game" : @"Host Game";
     _connectButton.configuration = configuration;
 }
 
@@ -337,7 +343,7 @@
         _readyButton.hidden = YES;
         _startButton.hidden = YES;
     } else {
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Online Play"
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Experimental Multiplayer"
             message:message preferredStyle:UIAlertControllerStyleAlert];
         [alert addAction:[UIAlertAction actionWithTitle:@"OK"
             style:UIAlertActionStyleDefault handler:nil]];

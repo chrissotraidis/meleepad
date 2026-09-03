@@ -92,6 +92,17 @@
     [[NSUserDefaults standardUserDefaults] setBool:value forKey:@"SsbmPadModernCStickHorizontal"];
 }
 
+- (BOOL)rightStickSmashAttacks {
+    NSNumber *value = [[NSUserDefaults standardUserDefaults]
+        objectForKey:@"SsbmPadRightStickSmashAttacks"];
+    return value == nil ? YES : value.boolValue;
+}
+
+- (void)setRightStickSmashAttacks:(BOOL)value {
+    [[NSUserDefaults standardUserDefaults] setBool:value
+                                            forKey:@"SsbmPadRightStickSmashAttacks"];
+}
+
 - (CGFloat)controlOpacity {
     NSNumber *value = [[NSUserDefaults standardUserDefaults] objectForKey:@"SsbmPadControlOpacity"];
     if (value == nil)

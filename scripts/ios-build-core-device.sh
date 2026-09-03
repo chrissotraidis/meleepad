@@ -1,19 +1,13 @@
 #!/usr/bin/env bash
-# Builds the ModernGekko / Dolphin-derived compatibility runtime for the iOS
-# Simulator (arm64) and provisions the SsbmPad iOS/iPadOS app.
-#
-# Product path: ahead-of-time statically recompiled game code through the
-# compatibility runtime. The product path never enables the compiled PowerPC
-# JIT (the static-recomp fallback uses the interpreter). The game module is recompiled for
-# the simulator from the user's locally generated DolRecomp output.
+# Builds the ModernGekko core and GALE01 module for a physical arm64 iOS device.
 set -euo pipefail
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 MG="$ROOT/ref/ModernGekko"
 TPL="$ROOT/ref/ModernGekko-Template"
-TOOLCHAIN="$ROOT/scripts/ios-simulator-toolchain.cmake"
-BUILD="$MG/build-ios-iphonesimulator-ssbmpad-static"
-MODULE_BUILD="/tmp/ssbmpad-module-ios-simulator"
+TOOLCHAIN="$ROOT/scripts/ios-device-toolchain.cmake"
+BUILD="$MG/build-ios-iphoneos-ssbmpad-static"
+MODULE_BUILD="/tmp/ssbmpad-module-ios-device"
 
 "$ROOT/scripts/bootstrap-dependencies.sh"
 
@@ -32,18 +26,20 @@ CMAKE_COMMON=(
   -DUSE_SYSTEM_LZ4=OFF -DUSE_SYSTEM_ZSTD=OFF
   -DHAVE_PIPE2=0
   -DMODERNGEKKO_GAMECUBE_CONTROLLERS=ON
+  -DUSE_SANITIZERS=OFF
+  "-DCMAKE_C_FLAGS=-ffile-prefix-map=$ROOT=."
+  "-DCMAKE_CXX_FLAGS=-ffile-prefix-map=$ROOT=."
+  "-DCMAKE_OBJC_FLAGS=-ffile-prefix-map=$ROOT=."
+  "-DCMAKE_OBJCXX_FLAGS=-ffile-prefix-map=$ROOT=."
 )
 
-echo "==> Configuring ModernGekko core for iOS Simulator"
+echo "==> Configuring ModernGekko core for iOS device"
 cmake -S "$MG" -B "$BUILD" -G Ninja "${CMAKE_COMMON[@]}"
 
 echo "==> Building core libraries"
 ninja -C "$BUILD" libmoderngekko.a libmoderngekko_netplay_session.a -j8
 
-echo "==> Building GALE01 recompiled module for iOS Simulator"
-# The promoted macOS PGO dylib intentionally has no adjacent private source
-# tree. Resolve the platform-neutral DolRecomp sources through the active module
-# pointer written by prepare-game.sh.
+echo "==> Building GALE01 recompiled module for iOS device"
 ACTIVE_MODULE_FILE="$TPL/build/modules-macos14/GALE01/active-module.txt"
 if [[ ! -f "$ACTIVE_MODULE_FILE" ]]; then
   echo "prepared module pointer missing; run scripts/prepare-game.sh first" >&2
@@ -70,6 +66,6 @@ cmake -S "$MG/vendor/dolphin/module-template" -B "$MODULE_BUILD" -G Ninja \
 ninja -C "$MODULE_BUILD" -j8
 
 echo "==> Provisioning app"
-"$ROOT/scripts/ios-provision.sh"
+"$ROOT/scripts/ios-provision.sh" device
 
-echo "Core, module, and provisioning complete."
+echo "Device core, module, and provisioning complete."
