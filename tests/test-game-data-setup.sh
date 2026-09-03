@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 CONTROLLER="$ROOT/apple/ios/MeleePadGameViewController.mm"
 OVERLAY="$ROOT/apple/ios/MeleePadGameOverlay.mm"
+APP_DELEGATE="$ROOT/apple/ios/MeleePadAppDelegate.mm"
 
 python3 - "$CONTROLLER" <<'PY'
 from pathlib import Path
@@ -52,4 +53,8 @@ if "sunPadSupportRoot" in source:
 PY
 
 grep -Fq 'Import or Reimport Game Data' "$OVERLAY"
+grep -Fq 'MeleePadMigrateRenamedPreferences' "$APP_DELEGATE"
+grep -Fq '@"ControllerButtonMappingV1"' "$APP_DELEGATE"
+grep -Fq '[storedKey hasSuffix:suffix]' "$APP_DELEGATE"
+grep -Fq 'if (candidates.count == 1)' "$APP_DELEGATE"
 echo "Game-data setup checks passed"

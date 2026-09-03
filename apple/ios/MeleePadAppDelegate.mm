@@ -32,6 +32,45 @@ static void MeleePadRestorePreferencesIfRequested(void) {
     MeleePadLog(@"preferences restored keys=%lu", (unsigned long)restored.count);
 }
 
+static void MeleePadMigrateRenamedPreferences(void) {
+    NSUserDefaults *defaults = NSUserDefaults.standardUserDefaults;
+    NSDictionary<NSString *, id> *stored = defaults.dictionaryRepresentation;
+    NSArray<NSString *> *suffixes = @[
+        @"RenderScale", @"AspectRatioMode", @"ShowFPSCounter",
+        @"HideControlsOnController", @"ModernCStickHorizontal",
+        @"RightStickSmashAttacks", @"ControlOpacity", @"ControlSizeScale",
+        @"EditingControlLayout", @"ControlSizeScales", @"ControlOrigins",
+        @"ExperimentalDPadOrigin", @"ExperimentalDPadScale",
+        @"ExperimentalTouchControls", @"RetainedGameDataPath",
+        @"ExtractedGameRoot", @"DeviceBundledSaveSeedID",
+        @"ControllerButtonMappingV1",
+    ];
+
+    NSUInteger migrated = 0;
+    for (NSString *suffix in suffixes) {
+        NSString *currentKey = [@"MeleePad" stringByAppendingString:suffix];
+        if ([defaults objectForKey:currentKey] != nil)
+            continue;
+
+        NSMutableArray<NSString *> *candidates = [NSMutableArray array];
+        for (NSString *storedKey in stored) {
+            if (![storedKey isEqualToString:currentKey] &&
+                [storedKey hasSuffix:suffix]) {
+                [candidates addObject:storedKey];
+            }
+        }
+        if (candidates.count == 1) {
+            [defaults setObject:stored[candidates.firstObject] forKey:currentKey];
+            ++migrated;
+        }
+    }
+    if (migrated > 0) {
+        [defaults synchronize];
+        MeleePadLog(@"preferences migrated to current product keys count=%lu",
+                    (unsigned long)migrated);
+    }
+}
+
 @implementation MeleePadAppDelegate
 
 - (UIInterfaceOrientationMask)application:(UIApplication *)application
@@ -49,6 +88,7 @@ static void MeleePadRestorePreferencesIfRequested(void) {
 
     MeleePadDiagnosticsStart();
     MeleePadRestorePreferencesIfRequested();
+    MeleePadMigrateRenamedPreferences();
     self.saveFlushTask = UIBackgroundTaskInvalid;
     UIScreen *screen = UIScreen.mainScreen;
     MeleePadLog(@"launch screen bounds=%@ nativeBounds=%@ scale=%.2f nativeScale=%.2f maxFPS=%ld",
