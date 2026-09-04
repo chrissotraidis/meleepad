@@ -57,6 +57,13 @@ for contract in \
   'refreshed now' \
   '@"Players: %@"' \
   '@"Public Games"' \
+  '@"PUBLIC GAMES OFFLINE"' \
+  '@"Public Games needs a secure lobby service"' \
+  '@"The lobby will use HTTPS"' \
+  '@"Gameplay is still peer to peer"' \
+  '@"Why Public Games Is Off"' \
+  'public-lobby-unavailable' \
+  'public-lobby-availability-help' \
   '@"Room size"' \
   '@"Use Private Room"' \
   '@"Private Room"' \
@@ -116,6 +123,8 @@ grep -Fq 'MeleePadOnlineNickname' "$LOBBY"
 grep -Fq '[self refreshPublicGames:timer]' "$LOBBY"
 grep -Fq '[self confirmedNickname]' "$LOBBY"
 grep -Fq '[self isNicknameConfirmed]' "$LOBBY"
+grep -Fq '_publicAvailableStack.hidden = !publicAvailable;' "$LOBBY"
+grep -Fq '_publicUnavailableStack.hidden = publicAvailable;' "$LOBBY"
 grep -Fq '_confirmNameButton.hidden = confirmed;' "$LOBBY"
 grep -Fq 'if (!contentChanged)' "$LOBBY"
 grep -Fq 'netplay automation room-code received length=%lu' "$CONTROLLER"
@@ -126,6 +135,11 @@ fi
 
 if grep -Fq 'Room codes arrive in a later goal' "$LOBBY"; then
   echo "Online Play still exposes deferred-goal placeholder copy" >&2
+  exit 1
+fi
+
+if grep -Fq 'Public games are not configured in this build. Private rooms and Direct IP are available now.' "$LOBBY"; then
+  echo "Online Play still contains the unexplained Public Games dead end" >&2
   exit 1
 fi
 

@@ -222,6 +222,28 @@ They do not connect to Slippi or provide encrypted gameplay.
 </details>
 
 <details>
+<summary>Why are Public Games offline in this build?</summary>
+
+Public Games needs an online MeleePad lobby service. The app cannot safely
+discover strangers by itself: a service must publish and expire rooms, keep
+connection codes hidden until a compatible player joins, limit spam, carry
+room chat, and accept reports.
+
+Preview 2 has no production service address, so the app deliberately fails
+closed. It does not send names, chat, or room information to an unknown server,
+and it does not fall back to an insecure public HTTP endpoint. The development
+service currently stores rooms and reports only in memory and is not suitable
+for public operation.
+
+When Public Games launches, lobby traffic will require HTTPS. That protects the
+directory and chat connection to the lobby service, but it does not encrypt the
+match itself. Gameplay remains a direct peer-to-peer connection. Player names
+are display names, not verified accounts. Until the hosted service and its
+moderation process are ready, use **Private Room** with people you trust.
+
+</details>
+
+<details>
 <summary>How do player names and room chat work?</summary>
 
 The development Public Games UI asks you to confirm the name other players will

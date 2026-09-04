@@ -50,3 +50,16 @@ the app did not write a save during this launch.
 This is physical-device build, launch, and preserved-game-data evidence. It is
 not four-device multiplayer evidence. Public Games and room chat also remain
 closed in release builds until a production HTTPS lobby service is configured.
+
+## Public Games follow-up
+
+After physical review exposed the unavailable state as an unexplained dead
+end, the screen was changed to hide the disabled directory and host form when
+no service is configured. It now states why the feature is offline, separates
+HTTPS lobby protection from plaintext peer-to-peer gameplay, links to a focused
+FAQ, and makes Private Room the primary working action.
+
+The follow-up passed the Online Play source contract, the complete repository
+check, Release Simulator and signed iPhoneOS builds, strict nested-code
+verification, and another same-bundle-ID in-place iPad installation. The app
+again found the existing game root, ISO, and module and reached 59.9 FPS.

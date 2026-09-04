@@ -80,6 +80,8 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
     UILabel *_publicStatusLabel;
     UIStackView *_publicRoomsStack;
     UIStackView *_publicStack;
+    UIStackView *_publicAvailableStack;
+    UIStackView *_publicUnavailableStack;
     UIStackView *_privateStack;
     UIStackView *_bufferStack;
     UILabel *_stateLabel;
@@ -267,7 +269,7 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
     _nameStatusLabel = [self mutedLabel];
     _nameStatusLabel.text = _confirmedNickname.length > 0
         ? [NSString stringWithFormat:@"Playing as %@", _confirmedNickname]
-        : @"Confirm this name to continue.";
+        : @"Confirm this name before you connect.";
     _nameStatusLabel.textColor = _confirmedNickname.length > 0
         ? UIColor.systemGreenColor : UIColor.systemOrangeColor;
     _nameStatusLabel.accessibilityIdentifier = @"online-player-name-status";
@@ -368,9 +370,74 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
     hostPublicStack.layer.cornerRadius = 14.0;
     hostPublicStack.layer.borderWidth = 1.0;
     hostPublicStack.layer.borderColor = [MeleePadOnlineAccentColor() colorWithAlphaComponent:0.16].CGColor;
-    _publicStack = [[UIStackView alloc] initWithArrangedSubviews:@[
+    _publicAvailableStack = [[UIStackView alloc] initWithArrangedSubviews:@[
         publicHeader, _publicStatusLabel, _publicRoomsStack, hostPublicStack,
         _privateFallbackButton,
+    ]];
+    _publicAvailableStack.axis = UILayoutConstraintAxisVertical;
+    _publicAvailableStack.spacing = 12.0;
+
+    UIImageView *offlineIcon = [[UIImageView alloc]
+        initWithImage:[UIImage systemImageNamed:@"lock.shield.fill"]];
+    offlineIcon.tintColor = UIColor.systemOrangeColor;
+    offlineIcon.contentMode = UIViewContentModeCenter;
+    [offlineIcon.widthAnchor constraintEqualToConstant:28.0].active = YES;
+    [offlineIcon.heightAnchor constraintEqualToConstant:28.0].active = YES;
+    UILabel *offlineKicker = [UILabel new];
+    offlineKicker.text = @"PUBLIC GAMES OFFLINE";
+    offlineKicker.textColor = UIColor.systemOrangeColor;
+    MeleePadStyleLabel(offlineKicker, UIFontTextStyleCaption1, UIFontWeightBold);
+    UIStackView *offlineStatus = [[UIStackView alloc]
+        initWithArrangedSubviews:@[offlineIcon, offlineKicker]];
+    offlineStatus.axis = UILayoutConstraintAxisHorizontal;
+    offlineStatus.alignment = UIStackViewAlignmentCenter;
+    offlineStatus.spacing = 7.0;
+    offlineStatus.isAccessibilityElement = YES;
+    offlineStatus.accessibilityLabel = @"Public Games offline";
+
+    UILabel *offlineTitle = [UILabel new];
+    offlineTitle.text = @"Public Games needs a secure lobby service";
+    offlineTitle.textColor = UIColor.whiteColor;
+    offlineTitle.numberOfLines = 0;
+    MeleePadStyleLabel(offlineTitle, UIFontTextStyleTitle2, UIFontWeightBold);
+    UILabel *offlineDetail = [self mutedLabel];
+    offlineDetail.text = @"This build has no MeleePad service for listing rooms, protecting room codes, limiting abuse, and receiving reports. Browsing and hosting stay off until that service is deployed over HTTPS.";
+    UIView *lobbySafety = [self educationRowWithSymbol:@"checkmark.shield.fill"
+        title:@"The lobby will use HTTPS"
+        detail:@"Names, room listings, chat, and hidden connection codes will travel through the secured lobby service."];
+    UIView *gameplaySafety = [self educationRowWithSymbol:@"network"
+        title:@"Gameplay is still peer to peer"
+        detail:@"The match does not pass through the lobby and is not encrypted. Play only with people you trust."];
+    UILabel *offlineFallback = [self mutedLabel];
+    offlineFallback.text = @"Want to play now? Private Room works without the public list. Create a code and share it directly with friends.";
+    offlineFallback.textColor = [UIColor colorWithWhite:0.84 alpha:1.0];
+    UIButton *usePrivateNow = [self primaryButtonWithTitle:@"Use Private Room"
+                                                   action:@selector(showPrivateRoom:)];
+    usePrivateNow.accessibilityIdentifier = @"public-lobby-use-private";
+    UIButton *publicFAQ = [self secondaryButtonWithTitle:@"Public Games FAQ"
+                                                  action:@selector(showPublicGamesAvailabilityHelp:)];
+    publicFAQ.accessibilityIdentifier = @"public-lobby-availability-help";
+    UIStackView *offlineActions = [[UIStackView alloc]
+        initWithArrangedSubviews:@[usePrivateNow, publicFAQ]];
+    offlineActions.axis = UILayoutConstraintAxisHorizontal;
+    offlineActions.distribution = UIStackViewDistributionFillEqually;
+    offlineActions.spacing = 10.0;
+    _publicUnavailableStack = [[UIStackView alloc] initWithArrangedSubviews:@[
+        offlineStatus, offlineTitle, offlineDetail, lobbySafety, gameplaySafety,
+        offlineFallback, offlineActions,
+    ]];
+    _publicUnavailableStack.axis = UILayoutConstraintAxisVertical;
+    _publicUnavailableStack.spacing = 12.0;
+    _publicUnavailableStack.layoutMargins = UIEdgeInsetsMake(18, 18, 18, 18);
+    _publicUnavailableStack.layoutMarginsRelativeArrangement = YES;
+    _publicUnavailableStack.backgroundColor = [UIColor colorWithRed:0.035 green:0.085 blue:0.17 alpha:0.96];
+    _publicUnavailableStack.layer.cornerRadius = 16.0;
+    _publicUnavailableStack.layer.borderWidth = 1.0;
+    _publicUnavailableStack.layer.borderColor = [MeleePadOnlineAccentColor() colorWithAlphaComponent:0.30].CGColor;
+    _publicUnavailableStack.accessibilityIdentifier = @"public-lobby-unavailable";
+
+    _publicStack = [[UIStackView alloc] initWithArrangedSubviews:@[
+        _publicAvailableStack, _publicUnavailableStack,
     ]];
     _publicStack.axis = UILayoutConstraintAxisVertical;
     _publicStack.spacing = 12.0;
@@ -659,7 +726,7 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
         (void)action;
         dispatch_async(dispatch_get_main_queue(), ^{
             [weakSelf showHelpTopic:@"Public Games"
-                message:@"Browse open games, check who is playing and whether the build matches, then tap Join Game. Hosts can choose 2, 3, or 4 players. The connection code stays hidden. Public Games is still a preview feature and may be unavailable in a release build."];
+                message:@"Public Games needs a MeleePad-operated HTTPS lobby service. That service lists rooms, keeps connection codes hidden until a compatible player joins, limits requests, carries room chat, and accepts reports. This build has no production service address, so browsing and hosting are deliberately off. When enabled, lobby traffic uses HTTPS, but the match still connects peer to peer and gameplay is not encrypted."];
         });
     }]];
     [alert addAction:[UIAlertAction actionWithTitle:@"Private Room"
@@ -695,6 +762,24 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
         });
     }]];
     [alert addAction:[UIAlertAction actionWithTitle:@"Close"
+        style:UIAlertActionStyleCancel handler:nil]];
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
+- (void)showPublicGamesAvailabilityHelp:(id)sender {
+    (void)sender;
+    MeleePadLog(@"online education event=public-availability-help-opened");
+    UIAlertController *alert = [UIAlertController
+        alertControllerWithTitle:@"Why Public Games Is Off"
+        message:@"Public Games cannot safely be a list stored inside the app. It needs an online MeleePad service to publish and expire rooms, protect connection codes, limit spam, carry chat, and receive reports. No production service is configured in this build, so MeleePad fails closed instead of sending player data to an unknown or insecure server.\n\nWhen the service launches, lobby traffic will require HTTPS. Gameplay will still connect directly between players and will not be encrypted. Names are display names, not verified accounts."
+        preferredStyle:UIAlertControllerStyleAlert];
+    __weak MeleePadOnlinePlayViewController *weakSelf = self;
+    [alert addAction:[UIAlertAction actionWithTitle:@"Use Private Room"
+        style:UIAlertActionStyleDefault handler:^(__kindof UIAlertAction *action) {
+        (void)action;
+        dispatch_async(dispatch_get_main_queue(), ^{ [weakSelf showPrivateRoom:nil]; });
+    }]];
+    [alert addAction:[UIAlertAction actionWithTitle:@"Done"
         style:UIAlertActionStyleCancel handler:nil]];
     [self presentViewController:alert animated:YES completion:nil];
 }
@@ -782,7 +867,10 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
     _advancedButton.hidden = publicGames;
     _bufferStack.hidden = publicGames || !_advancedExpanded;
     if (publicGames) {
-        if (_publicLobbyClient.isAvailable) {
+        BOOL publicAvailable = _publicLobbyClient.isAvailable;
+        _publicAvailableStack.hidden = !publicAvailable;
+        _publicUnavailableStack.hidden = publicAvailable;
+        if (publicAvailable) {
             BOOL nameConfirmed = [self isNicknameConfirmed];
             _publicHostButton.enabled = nameConfirmed;
             _refreshButton.enabled = nameConfirmed;
@@ -796,11 +884,11 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
             }
         } else {
             _publicStatusLabel.textColor = UIColor.systemOrangeColor;
-            _publicStatusLabel.text = @"Public games are not configured in this build. Private rooms and Direct IP are available now.";
+            _publicStatusLabel.text = @"Public Games is offline until a production HTTPS lobby service is configured.";
             _publicHostButton.enabled = NO;
             _refreshButton.enabled = NO;
             _capacityControl.enabled = NO;
-            _privateFallbackButton.hidden = NO;
+            _privateFallbackButton.hidden = YES;
         }
         return;
     }
