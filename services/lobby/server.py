@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import hmac
+import ipaddress
 import json
 import re
 import secrets
@@ -27,6 +28,10 @@ from typing import Any, Callable
 
 
 MAX_BODY_BYTES = 8 * 1024
+MAX_SESSIONS = 5000
+MAX_RATE_LIMIT_KEYS = 10000
+MAX_CONCURRENT_REQUESTS = 64
+REQUEST_SOCKET_TIMEOUT_SECONDS = 10
 SESSION_TTL_SECONDS = 2 * 60 * 60
 ROOM_TTL_SECONDS = 45
 RESERVATION_TTL_SECONDS = 20
@@ -63,6 +68,21 @@ PRODUCTS = {
     "meleepad": {"display_name": "MeleePad", "rooms": True},
     "kartpad": {"display_name": "KartPad", "rooms": True},
 }
+
+
+def rate_limit_key(
+    peer_address: str,
+    cloudflare_address: str | None,
+    trust_cloudflare: bool,
+    salt: bytes,
+) -> str:
+    address = peer_address
+    if trust_cloudflare and cloudflare_address:
+        try:
+            address = str(ipaddress.ip_address(cloudflare_address.strip()))
+        except ValueError:
+            pass
+    return hmac.new(salt, address.encode("utf-8"), hashlib.sha256).hexdigest()
 
 
 class LobbyError(Exception):
@@ -106,12 +126,29 @@ class Room:
 
 
 class SlidingWindowLimiter:
-    def __init__(self, limit: int, window_seconds: float):
+    def __init__(
+        self,
+        limit: int,
+        window_seconds: float,
+        max_keys: int = MAX_RATE_LIMIT_KEYS,
+    ):
         self.limit = limit
         self.window_seconds = window_seconds
+        self.max_keys = max_keys
         self._events: dict[str, deque[float]] = defaultdict(deque)
 
     def allow(self, key: str, now: float) -> bool:
+        if key not in self._events and len(self._events) >= self.max_keys:
+            cutoff = now - self.window_seconds
+            expired = [
+                existing_key
+                for existing_key, events in self._events.items()
+                if not events or events[-1] <= cutoff
+            ]
+            for existing_key in expired:
+                self._events.pop(existing_key, None)
+            if len(self._events) >= self.max_keys:
+                return False
         events = self._events[key]
         cutoff = now - self.window_seconds
         while events and events[0] <= cutoff:
@@ -123,8 +160,13 @@ class SlidingWindowLimiter:
 
 
 class LobbyStore:
-    def __init__(self, now: Callable[[], float] = time.time):
+    def __init__(
+        self,
+        now: Callable[[], float] = time.time,
+        max_sessions: int = MAX_SESSIONS,
+    ):
         self._now = now
+        self._max_sessions = max_sessions
         self._lock = threading.RLock()
         self._sessions: dict[str, Session] = {}
         self._token_sessions: dict[bytes, str] = {}
@@ -236,6 +278,12 @@ class LobbyStore:
         )
         with self._lock:
             self._purge()
+            if len(self._sessions) >= self._max_sessions:
+                raise LobbyError(
+                    HTTPStatus.SERVICE_UNAVAILABLE,
+                    "SESSION_CAPACITY",
+                    "The lobby is busy. Try again shortly.",
+                )
             self._sessions[session_id] = session
             self._token_sessions[session.token_hash] = session_id
         return {
@@ -645,9 +693,38 @@ class LobbyHTTPServer(ThreadingHTTPServer):
     daemon_threads = True
     request_queue_size = 128
 
-    def __init__(self, address: tuple[str, int], store: LobbyStore):
+    def __init__(
+        self,
+        address: tuple[str, int],
+        store: LobbyStore,
+        trust_cloudflare: bool = False,
+    ):
+        self._worker_slots = threading.BoundedSemaphore(MAX_CONCURRENT_REQUESTS)
+        self._rate_limit_salt = secrets.token_bytes(32)
+        self.trust_cloudflare = trust_cloudflare
         super().__init__(address, LobbyHandler)
         self.store = store
+
+    def get_request(self) -> tuple[Any, Any]:
+        request, client_address = super().get_request()
+        request.settimeout(REQUEST_SOCKET_TIMEOUT_SECONDS)
+        return request, client_address
+
+    def process_request(self, request: Any, client_address: Any) -> None:
+        if not self._worker_slots.acquire(blocking=False):
+            self.shutdown_request(request)
+            return
+        try:
+            super().process_request(request, client_address)
+        except Exception:
+            self._worker_slots.release()
+            raise
+
+    def process_request_thread(self, request: Any, client_address: Any) -> None:
+        try:
+            super().process_request_thread(request, client_address)
+        finally:
+            self._worker_slots.release()
 
     def server_bind(self) -> None:
         # HTTPServer performs a reverse-DNS lookup during bind. It is not used
@@ -718,7 +795,12 @@ class LobbyHandler(BaseHTTPRequestHandler):
         return self.server.store.authenticate(self._token())
 
     def _dispatch(self, method: str) -> None:
-        client_key = self.client_address[0]
+        client_key = rate_limit_key(
+            self.client_address[0],
+            self.headers.get("CF-Connecting-IP"),
+            self.server.trust_cloudflare,
+            self.server._rate_limit_salt,
+        )
         if not self.server.store.allow_request(client_key):
             raise LobbyError(
                 HTTPStatus.TOO_MANY_REQUESTS, "RATE_LIMITED", "Try again shortly."
@@ -834,8 +916,15 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Pad public-lobby reference service")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8765)
+    parser.add_argument(
+        "--trust-cloudflare",
+        action="store_true",
+        help="use CF-Connecting-IP for rate limits; only safe behind a locked-down Cloudflare origin",
+    )
     args = parser.parse_args()
-    server = LobbyHTTPServer((args.host, args.port), LobbyStore())
+    server = LobbyHTTPServer(
+        (args.host, args.port), LobbyStore(), trust_cloudflare=args.trust_cloudflare
+    )
     print(f"Pad lobby listening on {args.host}:{server.server_port}")
     try:
         server.serve_forever(poll_interval=0.25)

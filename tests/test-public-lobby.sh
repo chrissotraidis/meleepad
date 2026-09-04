@@ -15,12 +15,20 @@ done
 
 for contract in \
   'MAX_BODY_BYTES = 8 * 1024' \
+  'MAX_SESSIONS = 5000' \
+  'MAX_RATE_LIMIT_KEYS = 10000' \
+  'MAX_CONCURRENT_REQUESTS = 64' \
+  'REQUEST_SOCKET_TIMEOUT_SECONDS = 10' \
   'ROOM_TTL_SECONDS = 45' \
   'RESERVATION_TTL_SECONDS = 20' \
   'MAX_ROOM_CAPACITY = 4' \
   'REPORT_LIMIT = 5' \
   'hashlib.sha256' \
   'hmac.compare_digest' \
+  'threading.BoundedSemaphore' \
+  'CF-Connecting-IP' \
+  'trust_cloudflare' \
+  'hmac.new(salt' \
   'MAX_CHAT_MESSAGE_CHARS = 160' \
   'CHAT_MESSAGE_LIMIT = 4' \
   'CHAT_CONTROL_PATTERN' \

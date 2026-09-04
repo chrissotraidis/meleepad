@@ -52,7 +52,8 @@ Security properties of this vertical slice:
   compatibility/joinability, and heartbeat freshness without exposing room
   codes, addresses, or tokens;
 - allow-listed request fields, 8 KiB body limit, bounded room/message storage,
-  and per-source/per-session rate limits;
+  bounded sessions and rate-limit keys, a 64-request worker ceiling, ten-second
+  socket timeouts, and per-source/per-session rate limits;
 - member-only Room Chat with a 160-character limit, control/content filtering,
   bounded history, and a four-message-per-ten-second limit;
 - server-side display-name filtering plus report and block actions; report
@@ -62,8 +63,18 @@ Security properties of this vertical slice:
   application diagnostics;
 - no browser CORS surface.
 
-Before deployment, place the service behind TLS, connection limits, a trusted
-reverse proxy/WAF, persistent moderation/report storage, operational metrics,
-restart supervision, backups, and an abuse-response process with published
-contact information. The in-memory single-process store is intentionally a
-development vertical slice, not production infrastructure.
+Do not expose port 8765 directly. The recommended shape is an edge DDoS/WAF
+provider in front of an outbound tunnel to this service on loopback. See the
+[deployment guide](../../docs/PUBLIC-LOBBY-DEPLOYMENT.md), including the Zo
+Computer path and the gates that still prevent a broad public launch.
+
+The in-memory single-process store remains a staging vertical slice, not
+production infrastructure. A broad public deployment still requires durable
+moderation/report storage, operational metrics, backups, and an abuse-response
+process with published contact information.
+
+When, and only when, the origin is reachable exclusively through Cloudflare,
+start the service with `--trust-cloudflare`. This uses Cloudflare's validated
+client-address header for per-source rate limits while storing only an
+ephemerally keyed hash in memory. Never enable it on a directly reachable
+origin because a caller could spoof the header.

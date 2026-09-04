@@ -241,6 +241,13 @@ match itself. Gameplay remains a direct peer-to-peer connection. Player names
 are display names, not verified accounts. Until the hosted service and its
 moderation process are ready, use **Private Room** with people you trust.
 
+You can self-host the reference service on a VPS or Zo Computer for staging,
+but it must not be exposed directly. The recommended deployment uses an HTTPS
+edge with DDoS protection, a WAF, and route-level limits in front of an outbound
+tunnel to a loopback-only lobby process. The
+[secure deployment guide](docs/PUBLIC-LOBBY-DEPLOYMENT.md) explains the Zo and
+conventional VPS options and the remaining public-launch gates.
+
 </details>
 
 <details>

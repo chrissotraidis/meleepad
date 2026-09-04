@@ -15,12 +15,12 @@ anonymous aggregate activity from another supported Pad game.
 
 | Gate | Status | Evidence still required |
 |---|---|---|
-| PL0 boundary | Implemented and unit-tested | Internet deployment review |
+| PL0 boundary | Implemented and unit-tested with bounded server resources | Edge and Internet deployment review |
 | PL1 product identity | Implemented and unit-tested | None for reference slice |
 | PL2 shared activity | Implemented and simulator-built | Visual two-product acceptance |
 | PL3 gameplay lifetime | Implemented and simulator-built | Two-device session lasting over 45 seconds |
 | PL4 connected screen | Partial: return, leave, roster, chat, and host RTT are wired | In-game device acceptance and connection-loss UX |
-| PL5 self-hosting | Reference files and compose validation pass | Fresh-host container run |
+| PL5 self-hosting | Hardened reference files, Zo/VPS guide, and compose validation pass | Fresh-host edge/tunnel canary |
 | PL6 KartPad adapter | Not started | KartPad client implementation and cross-app proof |
 | PL7 release | Not started | Exact-build physical and artifact matrix |
 

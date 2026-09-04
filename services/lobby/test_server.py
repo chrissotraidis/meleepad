@@ -12,6 +12,8 @@ from services.lobby.server import (
     LobbyHTTPServer,
     LobbyStore,
     MAX_CHAT_MESSAGE_CHARS,
+    SlidingWindowLimiter,
+    rate_limit_key,
 )
 
 
@@ -133,6 +135,40 @@ class LobbyServiceTest(unittest.TestCase):
             expected=400,
         )
         self.assertEqual("UNSUPPORTED_PRODUCT", rejected["error"]["code"])
+
+    def test_session_capacity_fails_closed(self):
+        store = LobbyStore(max_sessions=1)
+        first = {
+            "display_name": "FirstHost",
+            "product_id": "meleepad",
+            "app_version": "0.1.0",
+            "build": "4",
+            "protocol": "moderngekko-netplay-8",
+            "game_id": "GALE01",
+            "game_revision": "r0",
+        }
+        store.create_session(first)
+        with self.assertRaises(LobbyError) as capacity:
+            store.create_session({**first, "display_name": "SecondHost"})
+        self.assertEqual("SESSION_CAPACITY", capacity.exception.code)
+
+    def test_rate_limiter_bounds_source_key_storage(self):
+        limiter = SlidingWindowLimiter(limit=2, window_seconds=60, max_keys=2)
+        self.assertTrue(limiter.allow("first", 100.0))
+        self.assertTrue(limiter.allow("second", 100.0))
+        self.assertFalse(limiter.allow("third", 100.0))
+        self.assertTrue(limiter.allow("third", 161.0))
+
+    def test_proxy_address_is_trusted_only_when_explicitly_enabled(self):
+        salt = b"test-salt"
+        direct = rate_limit_key("127.0.0.1", "203.0.113.9", False, salt)
+        spoofed = rate_limit_key("127.0.0.1", "198.51.100.7", False, salt)
+        trusted = rate_limit_key("127.0.0.1", "203.0.113.9", True, salt)
+        invalid = rate_limit_key("127.0.0.1", "not-an-address", True, salt)
+        self.assertEqual(direct, spoofed)
+        self.assertNotEqual(direct, trusted)
+        self.assertEqual(direct, invalid)
+        self.assertNotIn("203.0.113.9", trusted)
 
     def test_room_code_is_hidden_until_compatible_join(self):
         host = self.session("Host")

@@ -7,7 +7,13 @@ services:
       - "127.0.0.1:8765:8765"
     restart: unless-stopped
     read_only: true
+    cap_drop:
+      - ALL
+    pids_limit: 96
+    mem_limit: 256m
+    cpus: 1.0
+    stop_grace_period: 5s
     tmpfs:
-      - /tmp
+      - /tmp:rw,noexec,nosuid,size=16m
     security_opt:
       - no-new-privileges:true
