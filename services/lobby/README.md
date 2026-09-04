@@ -24,7 +24,7 @@ second terminal. Its placeholder traversal code is never returned by a list
 request and is not suitable for a gameplay test:
 
 ```sh
-python3 -m services.lobby.demo_host
+python3 -m services.lobby.demo_host --guest FoxMain --guest SamusFan
 ```
 
 Security properties of this vertical slice:
@@ -34,10 +34,18 @@ Security properties of this vertical slice:
 - traversal codes omitted from public room listings and returned only by Join;
 - 45-second host/member heartbeat expiry and 20-second initial join
   reservations;
+- host-selected two-, three-, or four-seat rooms with capacity enforced under
+  the room-store lock;
+- public room cards include a bounded four-person roster, open-seat count,
+  compatibility/joinability, and heartbeat freshness without exposing room
+  codes, addresses, or tokens;
 - allow-listed request fields, 8 KiB body limit, bounded room/message storage,
   and per-source/per-session rate limits;
-- preset quick-chat only—no arbitrary public text;
-- server-side display-name filtering plus report and block actions;
+- member-only Room Chat with a 160-character limit, control/content filtering,
+  bounded history, and a four-message-per-ten-second limit;
+- server-side display-name filtering plus report and block actions; report
+  targets must match the referenced room, duplicate reports are idempotent, and
+  report submission has a separate per-session limit;
 - no standard request logs, IPs, tokens, traversal codes, or message contents in
   application diagnostics;
 - no browser CORS surface.

@@ -11,7 +11,7 @@ experimental developer preview.
 - The native Online Play screen now includes compatibility-aware Public Games,
   Private Room, and Direct IP modes.
 - The development public-lobby service implements bounded rooms, version gates,
-  preset quick chat, heartbeats, hide/report controls, and secret-safe logging.
+  bounded room chat, heartbeats, hide/report controls, and secret-safe logging.
 - Cross-platform Mac/iPad Simulator sessions connected through public traversal
   in both host directions and sustained roughly 4,700 rendered frames without a
   canonical mismatch or disconnect.

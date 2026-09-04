@@ -201,16 +201,79 @@ the exact boundary.
 </details>
 
 <details>
+<summary>Which Online Play option should I use?</summary>
+
+- **Public Games** is the easiest discovery flow when a supported lobby service
+  is configured. You can see the host, seated players, open seats, room state,
+  freshness, and exact build compatibility before joining. This remains a
+  local development feature; Preview 2 does not ship with a production public
+  browser.
+- **Private Room** is the best current choice for friends. The host creates an
+  eight-character room code and shares it privately. Dolphin's traversal
+  service introduces the devices without exposing the host's IP address in the
+  MeleePad UI.
+- **Direct IP** is an advanced fallback for a trusted local network or private
+  VPN. It exposes the host address, has no relay fallback, and may require UDP
+  port forwarding when used across the internet.
+
+All three modes use MeleePad's experimental fixed-delay gameplay transport.
+They do not connect to Slippi or provide encrypted gameplay.
+
+</details>
+
+<details>
+<summary>How do player names and room chat work?</summary>
+
+The development Public Games UI asks you to confirm the name other players will
+see before browsing, joining, or hosting. The confirmed name is saved on that
+device; it is not an account, a verified identity, or included in exported
+diagnostic logs.
+
+After joining a public room, **Room Chat** lets members type messages up to 160
+characters. Messages are relayed by the lobby service—not sent over the
+peer-to-peer gameplay channel—are visible only to current room members, and
+disappear when the room expires or closes. Sends are rate limited, message
+history is bounded, and players can hide or report another sender.
+
+This is a development implementation, not production anonymous chat. Public
+deployment still requires durable moderation records, a published support and
+abuse contact, and an operated response process.
+
+</details>
+
+<details>
+<summary>Why won't Direct IP connect?</summary>
+
+Check these in order:
+
+1. Both players use the same MeleePad version/build and the supported `GALE01`
+   revision 0 game data.
+2. The host keeps MeleePad open, chooses **Host**, and listens on UDP port
+   `2626`; the guest chooses **Join** and enters the host's reachable address
+   and the same port.
+3. On a local network, both devices are on the same trusted network and local
+   network access is allowed.
+4. Across the internet, the host's router and firewall allow UDP `2626`, or both
+   players use a trusted private VPN. Carrier-grade NAT and some firewalls may
+   make direct hosting impossible.
+
+Direct IP has no traversal or relay fallback. If the network cannot accept the
+incoming peer, changing the input buffer will not fix discovery. Prefer a
+Private Room unless you specifically need Direct IP for controlled testing.
+
+</details>
+
+<details>
 <summary>Does online play support four players?</summary>
 
-Not yet. Melee supports four local controller ports, but MeleePad's retained
-online evidence covers two connected endpoints. Four-player rooms need explicit
-protocol, controller-slot, host-loss, disconnect, latency, lobby, and
-physical-device testing before they can be offered or claimed.
+The development Public Games lobby now supports two-, three-, and four-seat
+rooms, and clearly shows who is seated and which spots are open. That is the
+lobby experience, not proof of a four-player match.
 
-The planned public-room design should show four seats and allow a host to set a
-two-, three-, or four-player limit. That is a product direction, not a feature
-available in Preview 2.
+MeleePad's retained gameplay evidence still covers two connected endpoints.
+Four-player gameplay needs explicit protocol, controller-slot, host-loss,
+disconnect, latency, and physical-device testing before it can be called
+working. Treat four-seat rooms as development UI until that gate passes.
 
 </details>
 
@@ -471,7 +534,7 @@ the [multiplayer goal loop](docs/NETPLAY-BETA-GOAL-LOOP.md).
 - **Private Room** is the working Internet-room preview. Players arrange a game
   elsewhere and exchange an ephemeral room code privately.
 - **Public Games** is the planned discovery layer. Its native UI can show
-  compatible room cards and supports preset quick chat, Hide, and Report in
+  compatible room cards and supports bounded room chat, Hide, and Report in
   local development tests. No production endpoint is deployed.
 - **Direct IP** bypasses discovery and traversal. It is intended for local
   networks and advanced testing.
@@ -481,9 +544,9 @@ Only an authorized, compatible Join response discloses the connection code.
 Release builds fail closed when no production service is configured.
 
 <details>
-<summary>How does Direct IP work for developers?</summary>
+<summary>How does Direct IP work, and when should I use it?</summary>
 
-Developers can inspect the current lobby on the same local network:
+Use Direct IP for controlled testing on a trusted local network or private VPN:
 
 1. The host chooses **Host**, keeps UDP port **2626**, and creates the lobby.
 2. The host shares an IP address or hostname reachable by the joining device.

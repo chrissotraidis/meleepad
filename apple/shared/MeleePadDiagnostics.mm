@@ -64,6 +64,31 @@ static NSString *MeleePadRedactedString(NSString *value) {
         stringByReplacingMatchesInString:redacted options:0
                                    range:NSMakeRange(0, redacted.length)
                             withTemplate:@"<absolute-path>"];
+
+    // Diagnostics are user-shareable. Keep common online-play credentials and
+    // identifiers out even if a future call site accidentally includes one.
+    // Player names are not globally recognizable, so call sites must also avoid
+    // logging them; the keyed pattern below is a final guard for named fields.
+    static NSArray<NSDictionary<NSString *, id> *> *privacyPatterns;
+    static dispatch_once_t privacyOnceToken;
+    dispatch_once(&privacyOnceToken, ^{
+        NSRegularExpression *(^expression)(NSString *) = ^NSRegularExpression *(NSString *pattern) {
+            return [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:nil];
+        };
+        privacyPatterns = @[
+            @{@"expression": expression(@"(?i)(bearer\\s+)[A-Za-z0-9._~+/=-]+"),
+              @"replacement": @"$1<redacted>"},
+            @{@"expression": expression(@"(?i)((?:room[ _-]?code|traversal[ _-]?code|token|nickname|display[ _-]?name|host[ _-]?address)\\s*[=:]\\s*)[^\\s,;\\]\\)]+"),
+              @"replacement": @"$1<redacted>"},
+            @{@"expression": expression(@"\\b(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\b"),
+              @"replacement": @"<ip-address>"},
+        ];
+    });
+    for (NSDictionary<NSString *, id> *pattern in privacyPatterns) {
+        NSRegularExpression *expression = pattern[@"expression"];
+        redacted = [expression stringByReplacingMatchesInString:redacted options:0
+            range:NSMakeRange(0, redacted.length) withTemplate:pattern[@"replacement"]];
+    }
     return redacted;
 }
 

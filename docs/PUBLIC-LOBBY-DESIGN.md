@@ -19,23 +19,29 @@ Public Games   Private Room   Direct IP
 
 Open games                                      Refresh
 ┌─────────────────────────────────────────────────────┐
-│ Player · Asia                         Compatible    │
-│ Waiting · 1/2 · MeleePad 0.1.0 (4) · GALE01 r0    │
-│                                              Join   │
+│ Player's game                           Joinable    │
+│ Asia · 4-player game · Live                         │
+│ Players: Player (Host) · FoxMain · 2 open           │
+│ ● ● ○ ○  2 of 4 seats filled                       │
+│ Same build · Ready to join            Safety  Join  │
 └─────────────────────────────────────────────────────┘
 
-Host Public Game
+Host a public game
+Room size                                      2 3 4
+Development feature · Gameplay is currently unencrypted
+Create Public Game
 ```
 
-After joining, the normal player/ready/start lobby remains authoritative.
-Coordination uses six preset quick-chat messages: Hello, Ready, One moment,
-Good luck, Good games, and Rematch. There is no public free-text field.
+After joining, the normal player/ready/start lobby remains authoritative. A
+visible Room Chat section provides a 160-character text field, a bounded
+message feed, and Hide Player and Report Chat Message actions for remote
+senders.
 
 ## Architecture
 
 ```text
 iPhone / iPad / Mac
-        │ HTTPS JSON: discover, authorize join, quick chat
+        │ HTTPS JSON: discover, authorize join, relay room chat
         ▼
 MeleePad lobby service
         │ returns traversal code only after compatible join
@@ -58,9 +64,11 @@ Every anonymous two-hour lobby session declares:
 - ModernGekko netplay protocol;
 - game ID and game revision.
 
-Room listings show those values and an explicit compatibility result. An
-incompatible room remains visible so the player understands why the lobby may
-look sparse, but Join is disabled and the service refuses code disclosure.
+Room-list responses contain those values, an explicit compatibility/joinability
+result, heartbeat freshness, open-seat count, and a bounded four-person roster.
+The primary card shows the exact host build and specific mismatch or unavailable
+reason. An incompatible, full, or in-progress room remains visible so the player
+understands why Join is disabled, but the service refuses code disclosure.
 The gameplay handshake still verifies the stronger game/module/settings
 fingerprint after peers connect.
 
@@ -73,22 +81,33 @@ fingerprint after peers connect.
 - Hosts and joined guests heartbeat every 15 seconds; stale rooms expire after
   45 seconds. Initial Join reservations expire after 20 seconds unless the
   connected guest renews presence.
+- Hosts select a capacity of two, three, or four seats. Capacity validation and
+  final-slot reservation run under the room-store lock.
 - Request bodies are JSON allow-lists capped at 8 KiB. Rooms, reports, message
-  history, request rate, and quick-chat rate are bounded.
-- Messaging is preset quick-chat, not arbitrary anonymous chat. Display names
-  are restricted and filtered server-side.
-- Room menus provide Hide and Report. Reports also hide the player immediately.
+  history, request rate, and chat rate are bounded.
+- Room chat accepts text up to 160 characters. Every send rechecks room
+  membership, rejects control characters and blocked content, caps history at
+  50 entries, and applies a four-message-per-ten-second limit. Display names
+  remain restricted and filtered server-side.
+- Chat is relayed by the lobby service rather than the peer-to-peer gameplay
+  channel. It is not end-to-end encrypted. Messages live only in the room's
+  bounded in-memory record and disappear when the room expires or closes.
+- Room menus provide Hide and per-player Report. Reports also hide the player
+  immediately; blocked roster names are omitted on later listings. The service
+  verifies room/target context, deduplicates identical reports, and applies a
+  separate report-submission limit.
 - Application diagnostics exclude IPs, tokens, room codes, and message bodies.
 - Production requires HTTPS, edge connection/rate limits, durable report
   storage, health monitoring, restart supervision, and a published abuse
   contact. The local server deliberately does not pretend those exist.
 
 Apple's current App Review Guideline 1.2 requires filtering, reporting,
-blocking, and published contact information for user-generated content, and
-explicitly covers random or anonymous chat. OWASP additionally recommends
-authenticated per-message authorization, strict validation, message-size and
-rate limits, idle expiry, and secret-safe logging. Preset quick-chat reduces
-the initial moderation surface without blocking basic match coordination.
+blocking, published contact information, and a real response process for
+user-generated content, and explicitly covers random or anonymous chat. OWASP
+additionally recommends authenticated per-message authorization, strict
+validation, message-size and rate limits, idle expiry, and secret-safe logging.
+The development UI now exercises bounded text chat, but it must not ship as a
+public service before the remaining moderation operations exist.
 
 References:
 
@@ -101,9 +120,9 @@ References:
 ## Acceptance boundary
 
 The development slice is complete when service tests pass, the native public
-lobby can create/list/join a room against the local service, quick-chat and
-report/hide work, the traversal code stays absent from list responses, and a
-Simulator screenshot verifies the visible hierarchy.
+lobby can create/list/join a room against the local service, Room Chat and
+report/hide work, the traversal code stays absent from list responses, and
+Simulator screenshots verify the visible hierarchy.
 
 Production remains blocked on deployment authority, persistent moderation,
 operational controls, independent-network/physical-device testing, NAT success

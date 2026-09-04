@@ -42,8 +42,23 @@ done
 
 for contract in \
   '@"Online Play"' \
-  '@"Play MeleePad Together"' \
+  '@"Play Melee Together"' \
+  '@"MELEE ONLINE  ·  2–4 PLAYERS"' \
+  '@"How does Online Play work?"' \
+  '@"Your player name"' \
+  '@"Confirm Name"' \
+  '@"Playing as %@"' \
+  'Name changed. Confirm it to update your public name.' \
+  'online-player-name-confirm' \
+  'It stays on this device and out of diagnostics.' \
+  '@"Host a public game"' \
+  '@"Create Public Game"' \
+  '@"Join Game"' \
+  'refreshed now' \
+  '@"Players: %@"' \
   '@"Public Games"' \
+  '@"Room size"' \
+  '@"Use Private Room"' \
   '@"Private Room"' \
   'eight-character room code' \
   '@"Direct IP"' \
@@ -56,16 +71,58 @@ for contract in \
   '@"UDP port (default 2626)"' \
   "Dolphin's public traversal service" \
   '@"Automatic input buffer"' \
+  '@"Advanced settings"' \
   '@"Players"' \
-  '@"Quick chat"' \
+  '@"Room chat"' \
+  '@"Message the room"' \
+  'room-chat-send' \
+  '@"0 / 160"' \
+  'Messages must be between 1 and 160 characters.' \
+  'sendChatMessage:' \
+  'setHeroCompact:' \
+  'attributedPlaceholder' \
+  '_heroWatermark' \
+  'seatPalette.accessibilityElementsHidden = YES' \
   '@"Hide Player"' \
-  '@"Report Offensive Name"' \
-  'Compatibility: %@' \
+  '@"Report Chat Message"' \
+  '@"Online Play FAQ"' \
+  '@"Direct IP Setup"' \
+  '@"Direct IP setup & troubleshooting"' \
+  'online-connection-faq' \
+  '@"Hide This Game"' \
+  '@"Offensive Name"' \
+  '@"Spam Listing"' \
+  '@"Open seat"' \
+  '@"YOU · HOST"' \
+  '@"Build matches"' \
+  'occupancyViewWithPlayers:' \
   '@"Ready"' \
   '@"Start Match"' \
   '@"Cancel"'; do
   grep -Fq "$contract" "$LOBBY"
 done
+
+if rg -q 'sendQuickMessage|quickChatMenu|Choose a quick message' \
+    "$LOBBY" "$PUBLIC_CLIENT" "$PUBLIC_CLIENT_HEADER"; then
+  echo "Online Play still contains the removed quick-message UI" >&2
+  exit 1
+fi
+
+grep -Fq 'UIModalPresentationFullScreen' "$CONTROLLER"
+grep -Fq 'adjustsFontForContentSizeCategory = YES' "$LOBBY"
+grep -Fq 'players.count >= _roomCapacity' "$LOBBY"
+grep -Fq 'timerWithTimeInterval:10.0' "$LOBBY"
+grep -Fq 'MeleePadOnlineNickname' "$LOBBY"
+grep -Fq '[self refreshPublicGames:timer]' "$LOBBY"
+grep -Fq '[self confirmedNickname]' "$LOBBY"
+grep -Fq '[self isNicknameConfirmed]' "$LOBBY"
+grep -Fq '_confirmNameButton.hidden = confirmed;' "$LOBBY"
+grep -Fq 'if (!contentChanged)' "$LOBBY"
+grep -Fq 'netplay automation room-code received length=%lu' "$CONTROLLER"
+if grep -Fq 'netplay automation room code=%@' "$CONTROLLER"; then
+  echo "Netplay automation logs a private room code" >&2
+  exit 1
+fi
 
 if grep -Fq 'Room codes arrive in a later goal' "$LOBBY"; then
   echo "Online Play still exposes deferred-goal placeholder copy" >&2
@@ -88,6 +145,25 @@ for contract in \
   'traversal_code'; do
   grep -Fq "$contract" "$PUBLIC_CLIENT"
 done
+
+grep -Fq 'HTTPResponse.statusCode == 401' "$PUBLIC_CLIENT"
+grep -Fq 'MeleePadMaximumLobbyResponseBytes' "$PUBLIC_CLIENT"
+for contract in \
+  'MeleePadLobbyRoute' \
+  'result=missing-session' \
+  'duration_ms=%lu' \
+  'request_bytes=%lu' \
+  'response_bytes=%lu' \
+  'isEqualToString:@"rooms_collection"' \
+  'routinePoll'; do
+  grep -Fq "$contract" "$PUBLIC_CLIENT"
+done
+
+if grep -Eq 'MeleePadLog\([^;]*(roomID|roomCode|traversalCode|nickname|_token|message\[@"text"\])' \
+    "$LOBBY" "$PUBLIC_CLIENT"; then
+  echo "Online Play diagnostics include a private value" >&2
+  exit 1
+fi
 
 for contract in \
   'beginNetplayHostingWithNickname:' \

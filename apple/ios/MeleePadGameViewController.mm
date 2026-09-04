@@ -1159,7 +1159,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     _onlinePlayController = onlinePlay;
     UINavigationController *navigation =
         [[UINavigationController alloc] initWithRootViewController:onlinePlay];
-    navigation.modalPresentationStyle = UIModalPresentationFormSheet;
+    navigation.modalPresentationStyle = UIModalPresentationFullScreen;
     __weak MeleePadGameViewController *weakSelf = self;
     _coreHost.onNetplayMatchStarted = ^{
         MeleePadGameViewController *strongSelf = weakSelf;
@@ -1208,7 +1208,8 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
                 if (traceRoomCode && !strongSelf->_automatedNetplayRoomCodeReported &&
                     roomCode.length > 0) {
                     strongSelf->_automatedNetplayRoomCodeReported = YES;
-                    MeleePadLog(@"netplay automation room code=%@", roomCode);
+                    MeleePadLog(@"netplay automation room-code received length=%lu",
+                        (unsigned long)roomCode.length);
                 }
                 if ([snapshot[@"role"] isEqualToString:@"host"] &&
                     [snapshot[@"canStart"] boolValue] &&

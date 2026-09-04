@@ -68,7 +68,7 @@ slice described below.
 The Preview 2 native Online Play sheet has Public Games, Private Room, and
 Direct IP modes. Public cards expose host, region, occupancy, state,
 MeleePad version/build, GALE01 revision, and compatibility; Join remains
-disabled for mismatches. Host/Join, preset quick chat, Hide, and Report are
+disabled for mismatches. Host/Join, bounded room chat, Hide, and Report are
 wired to a new bounded standard-library lobby service. Public listings omit
 the traversal code and an exact-compatible authenticated Join is required to
 receive it.

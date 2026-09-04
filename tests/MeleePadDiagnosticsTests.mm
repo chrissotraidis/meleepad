@@ -15,6 +15,8 @@ int main(void) {
         NSString *temporary = [NSTemporaryDirectory() stringByAppendingPathComponent:@"import.iso"];
         MeleePadLog(@"private paths home=%@ temporary=%@", home, temporary);
         MeleePadLog(@"provisioned root=/Users/external-test/PrivateGame/main.dol");
+        MeleePadLog(@"online privacy roomCode=deadbeef token=secret-token nickname=SecretPlayer host_address=198.51.100.42 Authorization=Bearer abc.def.ghi");
+        MeleePadLog(@"online network endpoint 203.0.113.17 unavailable");
         for (NSUInteger index = 0; index < 11; ++index)
             MeleePadLogRuntimeEvent(@"warning", @"host-gpu", @"repeated sentinel");
 
@@ -30,6 +32,14 @@ int main(void) {
         assert(![contents containsString:@"/Users/external-test"]);
         assert(![contents containsString:@"PrivateGame"]);
         assert([contents containsString:@"provisioned root=<absolute-path>"]);
+        assert(![contents containsString:@"deadbeef"]);
+        assert(![contents containsString:@"secret-token"]);
+        assert(![contents containsString:@"SecretPlayer"]);
+        assert(![contents containsString:@"198.51.100.42"]);
+        assert(![contents containsString:@"203.0.113.17"]);
+        assert(![contents containsString:@"abc.def.ghi"]);
+        assert([contents containsString:@"roomCode=<redacted>"]);
+        assert([contents containsString:@"<ip-address>"]);
 
         NSDictionary *answers = @{
             @"problem": @"The picture warped after entering combat.",

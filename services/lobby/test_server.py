@@ -6,7 +6,13 @@ import unittest
 import urllib.error
 import urllib.request
 
-from services.lobby.server import LobbyHTTPServer, LobbyStore, QUICK_MESSAGE_LIMIT
+from services.lobby.server import (
+    CHAT_MESSAGE_LIMIT,
+    LobbyError,
+    LobbyHTTPServer,
+    LobbyStore,
+    MAX_CHAT_MESSAGE_CHARS,
+)
 
 
 class LobbyServiceTest(unittest.TestCase):
@@ -77,6 +83,13 @@ class LobbyServiceTest(unittest.TestCase):
         listing = self.request("GET", "/v1/rooms", token=guest["token"])
         card = next(item for item in listing["rooms"] if item["room_id"] == room["room_id"])
         self.assertTrue(card["compatible"])
+        self.assertTrue(card["joinable"])
+        self.assertEqual(1, card["open_seats"])
+        self.assertEqual(
+            [{"session_id": host["session_id"], "name": "Host", "role": "host"}],
+            card["roster"],
+        )
+        self.assertGreaterEqual(card["updated_seconds_ago"], 0)
         self.assertNotIn("traversal_code", card)
         joined = self.request(
             "POST", f"/v1/rooms/{room['room_id']}/join", {}, guest["token"]
@@ -102,7 +115,7 @@ class LobbyServiceTest(unittest.TestCase):
         )
         self.assertEqual("INCOMPATIBLE", failure["error"]["code"])
 
-    def test_quick_chat_rejects_free_text_and_rate_limits(self):
+    def test_room_chat_accepts_bounded_text_and_rejects_invalid_content(self):
         host = self.session("ChatHost")
         room = self.request(
             "POST",
@@ -114,27 +127,85 @@ class LobbyServiceTest(unittest.TestCase):
         rejected = self.request(
             "POST",
             f"/v1/rooms/{room['room_id']}/messages",
-            {"kind": "custom", "text": "unbounded content"},
+            {"kind": "legacy-preset"},
             host["token"],
             400,
         )
         self.assertEqual("UNKNOWN_FIELD", rejected["error"]["code"])
-        for _ in range(QUICK_MESSAGE_LIMIT):
+        accepted = self.request(
+            "POST",
+            f"/v1/rooms/{room['room_id']}/messages",
+            {"text": "  Battlefield first?  "},
+            host["token"],
+            201,
+        )
+        self.assertEqual("Battlefield first?", accepted["text"])
+        self.assertEqual(host["session_id"], accepted["sender_id"])
+        for invalid_text in ("", "x" * (MAX_CHAT_MESSAGE_CHARS + 1), "line\nbreak"):
+            invalid = self.request(
+                "POST",
+                f"/v1/rooms/{room['room_id']}/messages",
+                {"text": invalid_text},
+                host["token"],
+                400,
+            )
+            self.assertEqual("INVALID_MESSAGE", invalid["error"]["code"])
+        for _ in range(CHAT_MESSAGE_LIMIT - 1):
             self.request(
                 "POST",
                 f"/v1/rooms/{room['room_id']}/messages",
-                {"kind": "ready"},
+                {"text": "Ready when you are"},
                 host["token"],
                 201,
             )
         limited = self.request(
             "POST",
             f"/v1/rooms/{room['room_id']}/messages",
-            {"kind": "hello"},
+            {"text": "Hello"},
             host["token"],
             429,
         )
         self.assertEqual("RATE_LIMITED", limited["error"]["code"])
+        messages = self.request(
+            "GET", f"/v1/rooms/{room['room_id']}/messages?after=0", token=host["token"]
+        )["messages"]
+        self.assertEqual(CHAT_MESSAGE_LIMIT, len(messages))
+        self.assertEqual("Battlefield first?", messages[0]["text"])
+
+    def test_room_chat_hides_blocked_players_and_denies_outsiders(self):
+        host = self.session("ChatOwner")
+        room = self.request(
+            "POST",
+            "/v1/rooms",
+            {"traversal_code": "abcddcba", "region": "asia"},
+            host["token"],
+            201,
+        )
+        guest = self.session("ChatGuest")
+        outsider = self.session("ChatOutsider")
+        self.request("POST", f"/v1/rooms/{room['room_id']}/join", {}, guest["token"])
+        self.request(
+            "POST",
+            f"/v1/rooms/{room['room_id']}/messages",
+            {"text": "Hello from the room"},
+            guest["token"],
+            201,
+        )
+        self.request(
+            "POST", "/v1/blocks", {"session_id": guest["session_id"]}, host["token"]
+        )
+        messages = self.request(
+            "GET", f"/v1/rooms/{room['room_id']}/messages?after=0", token=host["token"]
+        )["messages"]
+        self.assertEqual([], messages)
+        denied = self.request(
+            "POST",
+            f"/v1/rooms/{room['room_id']}/messages",
+            {"text": "I should not be here"},
+            outsider["token"],
+            403,
+        )
+        self.assertEqual("ROOM_ACCESS", denied["error"]["code"])
 
     def test_report_also_hides_reported_hosts(self):
         host = self.session("ReportedHost")
@@ -210,6 +281,258 @@ class LobbyServiceTest(unittest.TestCase):
         )
         self.assertEqual("ROOM_ACCESS", denied["error"]["code"])
 
+    def test_room_capacity_supports_two_to_four_players(self):
+        host = self.session("FourHost")
+        room = self.request(
+            "POST",
+            "/v1/rooms",
+            {"traversal_code": "12344321", "region": "asia", "capacity": 4},
+            host["token"],
+            201,
+        )
+        guests = [self.session(f"Guest{index}") for index in range(1, 5)]
+        for guest in guests[:3]:
+            self.request("POST", f"/v1/rooms/{room['room_id']}/join", {}, guest["token"])
+        listing = self.request("GET", "/v1/rooms", token=guests[0]["token"])
+        card = next(item for item in listing["rooms"] if item["room_id"] == room["room_id"])
+        self.assertEqual(4, card["players"])
+        self.assertEqual(4, card["capacity"])
+        self.assertEqual(0, card["open_seats"])
+        self.assertFalse(card["joinable"])
+        self.assertEqual(
+            ["FourHost", "Guest1", "Guest2", "Guest3"],
+            [player["name"] for player in card["roster"]],
+        )
+        full = self.request(
+            "POST", f"/v1/rooms/{room['room_id']}/join", {}, guests[3]["token"], 409
+        )
+        self.assertEqual("ROOM_FULL", full["error"]["code"])
+
+    def test_final_room_slots_are_reserved_atomically(self):
+        now = [100.0]
+        store = LobbyStore(now=lambda: now[0])
+        base = {
+            "app_version": "0.1.0",
+            "build": "5",
+            "protocol": "moderngekko-netplay-8",
+            "game_id": "GALE01",
+            "game_revision": "r0",
+        }
+        host = store.authenticate(
+            store.create_session({**base, "display_name": "AtomicHost"})["token"]
+        )
+        guests = [
+            store.authenticate(
+                store.create_session({**base, "display_name": f"Atomic{index}"})["token"]
+            )
+            for index in range(5)
+        ]
+        room = store.create_room(
+            host,
+            {"traversal_code": "abcdef12", "region": "auto", "capacity": 4},
+        )
+        outcomes = []
+        outcomes_lock = threading.Lock()
+        start = threading.Barrier(len(guests))
+
+        def join(guest):
+            start.wait()
+            try:
+                store.join_room(guest, room["room_id"])
+                result = "joined"
+            except LobbyError as error:
+                result = error.code
+            with outcomes_lock:
+                outcomes.append(result)
+
+        threads = [threading.Thread(target=join, args=(guest,)) for guest in guests]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join(timeout=2)
+        self.assertEqual(3, outcomes.count("joined"))
+        self.assertEqual(2, outcomes.count("ROOM_FULL"))
+        self.assertEqual(4, store.room_list(guests[0])["rooms"][0]["players"])
+
+    def test_invalid_room_capacities_are_rejected(self):
+        host = self.session("CapacityHost")
+        for capacity in (1, 5, True, "4"):
+            rejected = self.request(
+                "POST",
+                "/v1/rooms",
+                {"traversal_code": "87654321", "region": "auto", "capacity": capacity},
+                host["token"],
+                400,
+            )
+            self.assertEqual("INVALID_CAPACITY", rejected["error"]["code"])
+
+    def test_report_target_must_belong_to_referenced_room(self):
+        first_host = self.session("FirstHost")
+        first_room = self.request(
+            "POST",
+            "/v1/rooms",
+            {"traversal_code": "11112222", "region": "auto"},
+            first_host["token"],
+            201,
+        )
+        self_report = self.request(
+            "POST",
+            "/v1/reports",
+            {
+                "session_id": first_host["session_id"],
+                "room_id": first_room["room_id"],
+                "reason": "other",
+            },
+            first_host["token"],
+            400,
+        )
+        self.assertEqual("INVALID_TARGET", self_report["error"]["code"])
+        second_host = self.session("SecondHost")
+        self.request(
+            "POST",
+            "/v1/rooms",
+            {"traversal_code": "33334444", "region": "auto"},
+            second_host["token"],
+            201,
+        )
+        reporter = self.session("ReporterTwo")
+        rejected = self.request(
+            "POST",
+            "/v1/reports",
+            {
+                "session_id": second_host["session_id"],
+                "room_id": first_room["room_id"],
+                "reason": "spam",
+            },
+            reporter["token"],
+            400,
+        )
+        self.assertEqual("REPORT_CONTEXT", rejected["error"]["code"])
+
+    def test_public_roster_member_can_be_reported_then_hidden(self):
+        host = self.session("RosterHost")
+        room = self.request(
+            "POST",
+            "/v1/rooms",
+            {"traversal_code": "44556677", "region": "asia", "capacity": 4},
+            host["token"],
+            201,
+        )
+        member = self.session("RosterMember")
+        self.request(
+            "POST", f"/v1/rooms/{room['room_id']}/join", {}, member["token"]
+        )
+        reporter = self.session("RosterReporter")
+        listing = self.request("GET", "/v1/rooms", token=reporter["token"])
+        card = next(item for item in listing["rooms"] if item["room_id"] == room["room_id"])
+        self.assertEqual(["RosterHost", "RosterMember"], [p["name"] for p in card["roster"]])
+        accepted = self.request(
+            "POST",
+            "/v1/reports",
+            {
+                "session_id": member["session_id"],
+                "room_id": room["room_id"],
+                "reason": "offensive_name",
+            },
+            reporter["token"],
+            202,
+        )
+        self.assertTrue(accepted["accepted"])
+        listing = self.request("GET", "/v1/rooms", token=reporter["token"])
+        card = next(item for item in listing["rooms"] if item["room_id"] == room["room_id"])
+        self.assertEqual(["RosterHost"], [p["name"] for p in card["roster"]])
+        self.assertEqual(2, card["players"])
+
+    def test_room_directory_reports_freshness_and_match_state(self):
+        now = [100.0]
+        store = LobbyStore(now=lambda: now[0])
+        base = {
+            "app_version": "0.1.0",
+            "build": "5",
+            "protocol": "moderngekko-netplay-8",
+            "game_id": "GALE01",
+            "game_revision": "r0",
+        }
+        host = store.authenticate(
+            store.create_session({**base, "display_name": "FreshHost"})["token"]
+        )
+        guest = store.authenticate(
+            store.create_session({**base, "display_name": "FreshGuest"})["token"]
+        )
+        room = store.create_room(
+            host,
+            {"traversal_code": "8899aabb", "region": "europe", "capacity": 3},
+        )
+        now[0] += 12
+        card = store.room_list(guest)["rooms"][0]
+        self.assertEqual(12, card["updated_seconds_ago"])
+        self.assertEqual(2, card["open_seats"])
+        self.assertTrue(card["joinable"])
+        store.heartbeat(host, room["room_id"], {"state": "in_game"})
+        card = store.room_list(guest)["rooms"][0]
+        self.assertEqual(0, card["updated_seconds_ago"])
+        self.assertFalse(card["joinable"])
+
+    def test_reports_are_deduplicated_and_separately_rate_limited(self):
+        now = [100.0]
+        store = LobbyStore(now=lambda: now[0])
+        base = {
+            "app_version": "0.1.0",
+            "build": "5",
+            "protocol": "moderngekko-netplay-8",
+            "game_id": "GALE01",
+            "game_revision": "r0",
+        }
+        reporter = store.authenticate(
+            store.create_session({**base, "display_name": "RateReporter"})["token"]
+        )
+        targets = []
+        for index in range(6):
+            host = store.authenticate(
+                store.create_session({**base, "display_name": f"RateHost{index}"})["token"]
+            )
+            room = store.create_room(
+                host,
+                {
+                    "traversal_code": f"{index + 1:08x}",
+                    "region": "auto",
+                },
+            )
+            targets.append((host, room))
+        for host, room in targets[:5]:
+            self.assertTrue(
+                store.report(
+                    reporter,
+                    {
+                        "session_id": host.session_id,
+                        "room_id": room["room_id"],
+                        "reason": "spam",
+                    },
+                )["accepted"]
+            )
+        first_host, first_room = targets[0]
+        self.assertTrue(
+            store.report(
+                reporter,
+                {
+                    "session_id": first_host.session_id,
+                    "room_id": first_room["room_id"],
+                    "reason": "spam",
+                },
+            )["accepted"]
+        )
+        final_host, final_room = targets[5]
+        with self.assertRaises(LobbyError) as limited:
+            store.report(
+                reporter,
+                {
+                    "session_id": final_host.session_id,
+                    "room_id": final_room["room_id"],
+                    "reason": "spam",
+                },
+            )
+        self.assertEqual("RATE_LIMITED", limited.exception.code)
+
     def test_stale_rooms_expire(self):
         now = [100.0]
         store = LobbyStore(now=lambda: now[0])
@@ -253,8 +576,8 @@ class LobbyServiceTest(unittest.TestCase):
         now[0] += 15
         store.heartbeat_member(guest, room["room_id"])
         now[0] += 10
-        message = store.send_message(guest, room["room_id"], {"kind": "hello"})
-        self.assertEqual("Hello!", message["text"])
+        message = store.send_message(guest, room["room_id"], {"text": "Hello"})
+        self.assertEqual("Hello", message["text"])
 
     def test_auth_and_input_validation_fail_closed(self):
         missing = self.request("GET", "/v1/rooms", expected=401)

@@ -18,13 +18,14 @@ typedef void (^MeleePadLobbyResult)(NSDictionary<NSString *, id> *_Nullable resu
 - (void)fetchRoomsWithCompletion:(MeleePadLobbyResult)completion;
 - (void)publishRoomWithTraversalCode:(NSString *)traversalCode
                               region:(NSString *)region
+                            capacity:(NSUInteger)capacity
                           completion:(MeleePadLobbyResult)completion;
 - (void)heartbeatInGame:(BOOL)inGame completion:(nullable MeleePadLobbyResult)completion;
 - (void)joinRoomID:(NSString *)roomID completion:(MeleePadLobbyResult)completion;
 - (void)leaveActiveRoomWithCompletion:(nullable MeleePadLobbyResult)completion;
 - (void)closeHostedRoomWithCompletion:(nullable MeleePadLobbyResult)completion;
 - (void)fetchMessagesAfter:(NSUInteger)messageID completion:(MeleePadLobbyResult)completion;
-- (void)sendQuickMessage:(NSString *)kind completion:(MeleePadLobbyResult)completion;
+- (void)sendMessage:(NSString *)text completion:(MeleePadLobbyResult)completion;
 - (void)hideSessionID:(NSString *)sessionID completion:(MeleePadLobbyResult)completion;
 - (void)reportSessionID:(NSString *)sessionID
                  roomID:(NSString *)roomID

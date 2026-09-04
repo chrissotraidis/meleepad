@@ -31,8 +31,13 @@ ROOM_TTL_SECONDS = 45
 RESERVATION_TTL_SECONDS = 20
 MAX_ROOMS = 500
 MAX_MESSAGES_PER_ROOM = 50
-QUICK_MESSAGE_LIMIT = 4
-QUICK_MESSAGE_WINDOW_SECONDS = 10
+MAX_CHAT_MESSAGE_CHARS = 160
+MIN_ROOM_CAPACITY = 2
+MAX_ROOM_CAPACITY = 4
+CHAT_MESSAGE_LIMIT = 4
+CHAT_MESSAGE_WINDOW_SECONDS = 10
+REPORT_LIMIT = 5
+REPORT_WINDOW_SECONDS = 10 * 60
 GENERAL_REQUEST_LIMIT = 120
 GENERAL_REQUEST_WINDOW_SECONDS = 60
 
@@ -41,18 +46,11 @@ VERSION_PATTERN = re.compile(r"^[A-Za-z0-9.+-]{1,32}$")
 GAME_PATTERN = re.compile(r"^[A-Z0-9-]{1,24}$")
 ROOM_CODE_PATTERN = re.compile(r"^[0-9a-f]{8}$")
 DISPLAY_NAME_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9 ._-]{0,19}$")
+CHAT_CONTROL_PATTERN = re.compile(r"[\x00-\x1f\x7f]")
 REGIONS = {"auto", "north-america", "europe", "asia", "oceania", "other"}
 ROOM_STATES = {"waiting", "in_game"}
 REPORT_REASONS = {"offensive_name", "harassment", "spam", "other"}
-QUICK_MESSAGES = {
-    "hello": "Hello!",
-    "ready": "Ready when you are.",
-    "moment": "One moment, please.",
-    "good_luck": "Good luck—have fun!",
-    "good_games": "Good games!",
-    "rematch": "Rematch?",
-}
-BLOCKED_NAME_FRAGMENTS = {
+BLOCKED_TEXT_FRAGMENTS = {
     "nigger",
     "faggot",
     "kike",
@@ -87,6 +85,7 @@ class Room:
     owner_session_id: str
     traversal_code: str
     region: str
+    capacity: int
     created_at: float
     last_heartbeat: float
     state: str = "waiting"
@@ -122,9 +121,10 @@ class LobbyStore:
         self._token_sessions: dict[bytes, str] = {}
         self._rooms: dict[str, Room] = {}
         self._reports: deque[dict[str, Any]] = deque(maxlen=1000)
-        self._quick_message_limits = SlidingWindowLimiter(
-            QUICK_MESSAGE_LIMIT, QUICK_MESSAGE_WINDOW_SECONDS
+        self._chat_message_limits = SlidingWindowLimiter(
+            CHAT_MESSAGE_LIMIT, CHAT_MESSAGE_WINDOW_SECONDS
         )
+        self._report_limits = SlidingWindowLimiter(REPORT_LIMIT, REPORT_WINDOW_SECONDS)
         self._request_limits = SlidingWindowLimiter(
             GENERAL_REQUEST_LIMIT, GENERAL_REQUEST_WINDOW_SECONDS
         )
@@ -180,7 +180,7 @@ class LobbyStore:
     def _validate_display_name(payload: dict[str, Any]) -> str:
         name = LobbyStore._required_string(payload, "display_name", DISPLAY_NAME_PATTERN)
         folded = name.casefold().replace(" ", "")
-        if any(fragment in folded for fragment in BLOCKED_NAME_FRAGMENTS):
+        if any(fragment in folded for fragment in BLOCKED_TEXT_FRAGMENTS):
             raise LobbyError(HTTPStatus.BAD_REQUEST, "NAME_REJECTED", "display_name")
         return name
 
@@ -259,20 +259,48 @@ class LobbyStore:
     def _players(self, room: Room) -> int:
         return 1 + len(room.reservations)
 
+    def _roster(self, room: Room, guest: Session) -> list[dict[str, str]]:
+        roster: list[dict[str, str]] = []
+        session_ids = [room.owner_session_id, *room.reservations.keys()]
+        for index, session_id in enumerate(session_ids):
+            player = self._sessions.get(session_id)
+            if player is None or session_id in guest.blocked_sessions:
+                continue
+            roster.append(
+                {
+                    "session_id": session_id,
+                    "name": player.display_name,
+                    "role": "host" if index == 0 else "player",
+                }
+            )
+        return roster
+
     def create_room(self, session: Session, payload: dict[str, Any]) -> dict[str, Any]:
-        self._reject_unknown(payload, {"traversal_code", "region"})
+        self._reject_unknown(payload, {"traversal_code", "region", "capacity"})
         traversal_code = self._required_string(
             payload, "traversal_code", ROOM_CODE_PATTERN
         )
         region = payload.get("region", "auto")
         if region not in REGIONS:
             raise LobbyError(HTTPStatus.BAD_REQUEST, "INVALID_REGION", "region")
+        capacity = payload.get("capacity", MIN_ROOM_CAPACITY)
+        if (
+            isinstance(capacity, bool)
+            or not isinstance(capacity, int)
+            or not MIN_ROOM_CAPACITY <= capacity <= MAX_ROOM_CAPACITY
+        ):
+            raise LobbyError(
+                HTTPStatus.BAD_REQUEST,
+                "INVALID_CAPACITY",
+                f"capacity must be {MIN_ROOM_CAPACITY}–{MAX_ROOM_CAPACITY}",
+            )
         now = self._now()
         room = Room(
             room_id=uuid.uuid4().hex,
             owner_session_id=session.session_id,
             traversal_code=traversal_code,
             region=region,
+            capacity=capacity,
             created_at=now,
             last_heartbeat=now,
         )
@@ -291,6 +319,7 @@ class LobbyStore:
     def room_list(self, guest: Session) -> dict[str, Any]:
         with self._lock:
             self._purge()
+            now = self._now()
             rooms: list[dict[str, Any]] = []
             for room in sorted(
                 self._rooms.values(), key=lambda item: item.created_at, reverse=True
@@ -301,15 +330,20 @@ class LobbyStore:
                 if host is None:
                     continue
                 compatible, reason = self._compatibility(host, guest)
+                player_count = self._players(room)
+                open_seats = max(0, room.capacity - player_count)
                 rooms.append(
                     {
                         "room_id": room.room_id,
                         "host_id": host.session_id,
                         "host": host.display_name,
                         "region": room.region,
-                        "players": self._players(room),
-                        "capacity": 2,
+                        "players": player_count,
+                        "roster": self._roster(room, guest),
+                        "capacity": room.capacity,
+                        "open_seats": open_seats,
                         "state": room.state,
+                        "updated_seconds_ago": max(0, int(now - room.last_heartbeat)),
                         "app_version": host.app_version,
                         "build": host.build,
                         "protocol": host.protocol,
@@ -317,6 +351,9 @@ class LobbyStore:
                         "game_revision": host.game_revision,
                         "compatible": compatible,
                         "compatibility": reason,
+                        "joinable": compatible
+                        and room.state == "waiting"
+                        and open_seats > 0,
                     }
                 )
             return {"rooms": rooms, "server_time": int(self._now())}
@@ -352,7 +389,7 @@ class LobbyStore:
             if session.session_id != room.owner_session_id:
                 if (
                     session.session_id not in room.reservations
-                    and self._players(room) >= 2
+                    and self._players(room) >= room.capacity
                 ):
                     raise LobbyError(HTTPStatus.CONFLICT, "ROOM_FULL", "Room is full.")
                 room.reservations[session.session_id] = (
@@ -395,20 +432,33 @@ class LobbyStore:
     def send_message(
         self, session: Session, room_id: str, payload: dict[str, Any]
     ) -> dict[str, Any]:
-        self._reject_unknown(payload, {"kind"})
-        kind = payload.get("kind")
-        if kind not in QUICK_MESSAGES:
+        self._reject_unknown(payload, {"text"})
+        text = payload.get("text")
+        if not isinstance(text, str):
             raise LobbyError(
                 HTTPStatus.BAD_REQUEST,
                 "INVALID_MESSAGE",
-                "Only preset quick-chat messages are accepted.",
+                "Enter a message.",
+            )
+        text = text.strip()
+        folded = "".join(character for character in text.lower() if character.isalnum())
+        if (
+            not text
+            or len(text) > MAX_CHAT_MESSAGE_CHARS
+            or CHAT_CONTROL_PATTERN.search(text) is not None
+            or any(fragment in folded for fragment in BLOCKED_TEXT_FRAGMENTS)
+        ):
+            raise LobbyError(
+                HTTPStatus.BAD_REQUEST,
+                "INVALID_MESSAGE",
+                "Use 1–160 characters without unsupported content.",
             )
         now = self._now()
         with self._lock:
             self._purge()
             room = self._room(room_id)
             self._require_membership(session, room)
-            if not self._quick_message_limits.allow(session.session_id, now):
+            if not self._chat_message_limits.allow(session.session_id, now):
                 raise LobbyError(
                     HTTPStatus.TOO_MANY_REQUESTS,
                     "RATE_LIMITED",
@@ -418,8 +468,7 @@ class LobbyStore:
                 "id": room.next_message_id,
                 "sender_id": session.session_id,
                 "sender": session.display_name,
-                "kind": kind,
-                "text": QUICK_MESSAGES[kind],
+                "text": text,
                 "created_at": int(now),
             }
             room.next_message_id += 1
@@ -461,7 +510,36 @@ class LobbyStore:
             raise LobbyError(HTTPStatus.BAD_REQUEST, "INVALID_ROOM", "room_id")
         if reason not in REPORT_REASONS:
             raise LobbyError(HTTPStatus.BAD_REQUEST, "INVALID_REASON", "reason")
+        if target == session.session_id:
+            raise LobbyError(HTTPStatus.BAD_REQUEST, "INVALID_TARGET", "session_id")
         with self._lock:
+            self._purge()
+            room = self._room(room_id)
+            target_belongs_to_room = (
+                target == room.owner_session_id or target in room.reservations
+            )
+            if not target_belongs_to_room:
+                raise LobbyError(
+                    HTTPStatus.BAD_REQUEST,
+                    "REPORT_CONTEXT",
+                    "The reported player does not match this room.",
+                )
+            duplicate = any(
+                item["reporter"] == session.session_id
+                and item["target"] == target
+                and item["room_id"] == room_id
+                and item["reason"] == reason
+                for item in self._reports
+            )
+            if duplicate:
+                session.blocked_sessions.add(target)
+                return {"accepted": True}
+            if not self._report_limits.allow(session.session_id, self._now()):
+                raise LobbyError(
+                    HTTPStatus.TOO_MANY_REQUESTS,
+                    "RATE_LIMITED",
+                    "Wait before submitting another report.",
+                )
             self._reports.append(
                 {
                     "reporter": session.session_id,

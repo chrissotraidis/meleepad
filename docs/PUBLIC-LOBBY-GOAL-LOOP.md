@@ -19,15 +19,17 @@ without exchanging an IP address or room code out of band.
 
 The public lobby is release-ready only when one unchanged build proves:
 
-1. room cards show host, region, occupancy, state, app version/build, game
-   revision, and a clear compatibility result;
+1. room cards show host and seated players, region, occupancy, open seats,
+   freshness, state, app version/build, game revision, and a clear joinability
+   and compatibility result;
 2. public list responses never disclose IP addresses or traversal codes, and
    Join returns a code only to an authenticated, compatible player;
-3. Host, Refresh, Join, Hide, Report, preset quick chat, Ready, Start, leave,
+3. Host, Refresh, Join, Hide, Report, Room Chat, Ready, Start, leave,
    expiry, full-room, incompatible-room, and service-outage paths converge on
    understandable native UI states;
-4. arbitrary anonymous messages are impossible; names are filtered and
-   reports/blocks have durable moderation handling and a published contact;
+4. names and Room Chat text are bounded and filtered, each send rechecks room
+   membership, and reports/blocks have durable moderation handling and a
+   published contact;
 5. production traffic uses HTTPS with edge limits, persistent storage,
    monitoring, restart supervision, backups, and secret-safe logs;
 6. two physical Apple devices on independent networks find one another and
@@ -41,16 +43,21 @@ The public lobby is release-ready only when one unchanged build proves:
 
 - Dependency-free JSON service with ephemeral bearer sessions, hashed tokens,
   exact compatibility gates, bounded storage, rate limits, room heartbeats,
-  join reservations, quick chat, hide, report, and a health check.
+  join reservations, bounded Room Chat, hide, report, and a health check.
 - Native UIKit public-room browser integrated beside Private Room and Direct
   IP, using the existing MeleePad visual language and netplay owner.
 - Simulator-only loopback configuration; physical builds reject plaintext
   service URLs.
-- Ten service tests plus source/build checks pass.
+- Eighteen service tests plus source/build checks pass.
+- The next-pass development branch expands the room model to a host-selected
+  two-, three-, or four-seat capacity, verifies report room/target context,
+  deduplicates reports, and separately limits report creation. Its execution
+  gates live in `MULTIPLAYER-NEXT-PASS-GOAL-LOOP.md`; this does not establish a
+  four-device gameplay claim.
 - A local service room containing a live Dolphin traversal code was discovered
   by the iPad Simulator. Join disclosed the code only after authorization and
   connected it to a Mac host; both appeared compatible in the native lobby.
-  Guest presence renewed beyond the initial reservation and quick chat still
+  Guest presence renewed beyond the initial reservation and room chat still
   delivered afterward.
 
 ## Iteration loop
