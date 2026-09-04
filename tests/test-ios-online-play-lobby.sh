@@ -213,6 +213,8 @@ done
 grep -Fq 'libmoderngekko_netplay_session.a' "$BUILD_CORE" "$PROVISION"
 grep -Fq 'MODERNGEKKO_GAMECUBE_CONTROLLERS=ON' "$BUILD_CORE"
 grep -Fq '<key>NSLocalNetworkUsageDescription</key>' "$INFO"
+grep -Fq '<key>MeleePadLobbyBaseURL</key>' "$INFO"
+grep -Fq '$(MELEEPAD_LOBBY_BASE_URL)' "$INFO"
 if grep -Fq 'native session bridge is not connected' "$CONTROLLER"; then
   echo "Online Play still exposes the disconnected bridge placeholder" >&2
   exit 1

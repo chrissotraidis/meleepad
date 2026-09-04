@@ -5,8 +5,10 @@ ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 SERVER="$ROOT/services/lobby/server.py"
 CLIENT="$ROOT/apple/ios/MeleePadPublicLobbyClient.m"
 DESIGN="$ROOT/docs/PUBLIC-LOBBY-DESIGN.md"
+CLOUDFLARE_COMPOSE="$ROOT/services/lobby/compose.cloudflare.yaml"
+DIGITALOCEAN_RUNBOOK="$ROOT/docs/PUBLIC-LOBBY-DIGITALOCEAN.md"
 
-for file in "$SERVER" "$CLIENT" "$DESIGN"; do
+for file in "$SERVER" "$CLIENT" "$DESIGN" "$CLOUDFLARE_COMPOSE" "$DIGITALOCEAN_RUNBOOK"; do
   [[ -f "$file" ]] || {
     echo "public-lobby component is missing: $file" >&2
     exit 1
@@ -61,6 +63,8 @@ grep -Fq 'MeleePadPublicLobbyProductID' "$CLIENT"
 grep -Fq '/v1/activity' "$CLIENT"
 grep -Fq 'moderngekko-netplay-8' "$ROOT/services/lobby/test_server.py"
 grep -Fq 'traversal code only after compatible join' "$DESIGN"
+grep -Fq 'TUNNEL_TOKEN' "$CLOUDFLARE_COMPOSE"
+grep -Fq 'http://pad-lobby:8765' "$DIGITALOCEAN_RUNBOOK"
 
 python3 -m unittest services.lobby.test_server
 

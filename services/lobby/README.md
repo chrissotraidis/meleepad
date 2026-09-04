@@ -68,6 +68,12 @@ provider in front of an outbound tunnel to this service on loopback. See the
 [deployment guide](../../docs/PUBLIC-LOBBY-DEPLOYMENT.md), including the Zo
 Computer path and the gates that still prevent a broad public launch.
 
+For the simplest isolated host, follow the opinionated
+[DigitalOcean runbook](../../docs/PUBLIC-LOBBY-DIGITALOCEAN.md). It uses a
+1 GB Basic Droplet, this repository's hardened containers, and an outbound
+Cloudflare Tunnel. The same Compose overlay can be used on another ordinary
+Ubuntu VPS.
+
 The in-memory single-process store remains a staging vertical slice, not
 production infrastructure. A broad public deployment still requires durable
 moderation/report storage, operational metrics, backups, and an abuse-response

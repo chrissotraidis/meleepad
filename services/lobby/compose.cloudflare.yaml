@@ -1,0 +1,28 @@
+services:
+  pad-lobby:
+    command:
+      - python3
+      - -m
+      - services.lobby.server
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8765"
+      - --trust-cloudflare
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN:?Set TUNNEL_TOKEN in a root-readable environment file}
+    depends_on:
+      - pad-lobby
+    restart: unless-stopped
+    read_only: true
+    cap_drop:
+      - ALL
+    pids_limit: 64
+    mem_limit: 128m
+    cpus: 0.5
+    security_opt:
+      - no-new-privileges:true

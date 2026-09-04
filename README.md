@@ -247,6 +247,8 @@ edge with DDoS protection, a WAF, and route-level limits in front of an outbound
 tunnel to a loopback-only lobby process. The
 [secure deployment guide](docs/PUBLIC-LOBBY-DEPLOYMENT.md) explains the Zo and
 conventional VPS options and the remaining public-launch gates.
+For the first isolated hosted proof, use the
+[DigitalOcean lobby runbook](docs/PUBLIC-LOBBY-DIGITALOCEAN.md).
 
 </details>
 

@@ -79,6 +79,10 @@ host in that case.
 
 ## Conventional VPS
 
+The recommended first provider is a 1 GB DigitalOcean Basic Droplet. The exact
+dashboard, firewall, tunnel, deployment, client-build, and acceptance steps are
+in the [DigitalOcean runbook](PUBLIC-LOBBY-DIGITALOCEAN.md).
+
 1. Patch the operating system and enable automatic security updates.
 2. Allow SSH by key only. Restrict administrative access and never expose the
    Docker socket.
