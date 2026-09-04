@@ -28,6 +28,9 @@ typedef NS_ENUM(NSInteger, MeleePadOnlinePlayRole) {
                                  bufferFrames:(NSUInteger)bufferFrames;
 - (void)onlinePlayViewController:(MeleePadOnlinePlayViewController *)controller
                 requestsReady:(BOOL)ready;
+- (void)onlinePlayViewController:(MeleePadOnlinePlayViewController *)controller
+    requestsSendPeerChatMessage:(NSString *)message
+                     completion:(void (^)(NSString *_Nullable error))completion;
 - (void)onlinePlayViewControllerRequestsStart:(MeleePadOnlinePlayViewController *)controller;
 - (void)onlinePlayViewControllerRequestsReturnToGame:(MeleePadOnlinePlayViewController *)controller;
 - (void)onlinePlayViewControllerRequestsCancel:(MeleePadOnlinePlayViewController *)controller;
@@ -49,6 +52,7 @@ typedef NS_ENUM(NSInteger, MeleePadOnlinePlayRole) {
                   canStart:(BOOL)canStart
             sessionRunning:(BOOL)sessionRunning
                   roomCode:(nullable NSString *)roomCode
+                  messages:(NSArray<NSDictionary<NSString *, id> *> *)messages
                     status:(nullable NSString *)status;
 - (void)showError:(NSString *)message;
 - (void)resetToSetup;

@@ -1289,6 +1289,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
                            canStart:[snapshot[@"canStart"] boolValue]
                      sessionRunning:[state isEqualToString:@"running"]
                            roomCode:snapshot[@"roomCode"]
+                           messages:snapshot[@"messages"] ?: @[]
                              status:snapshot[@"status"]];
         }];
     });
@@ -1352,6 +1353,13 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
                 requestsReady:(BOOL)ready {
     (void)controller;
     [_coreHost setNetplayReady:ready];
+}
+
+- (void)onlinePlayViewController:(MeleePadOnlinePlayViewController *)controller
+    requestsSendPeerChatMessage:(NSString *)message
+                     completion:(void (^)(NSString *_Nullable error))completion {
+    (void)controller;
+    [_coreHost sendNetplayChatMessage:message completion:completion];
 }
 
 - (void)onlinePlayViewControllerRequestsStart:(MeleePadOnlinePlayViewController *)controller {

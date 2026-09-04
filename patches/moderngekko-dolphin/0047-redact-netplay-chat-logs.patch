@@ -1,0 +1,12 @@
+diff --git a/Source/Core/Core/NetPlay/NetPlayClient.cpp b/Source/Core/Core/NetPlay/NetPlayClient.cpp
+--- a/Source/Core/Core/NetPlay/NetPlayClient.cpp
++++ b/Source/Core/Core/NetPlay/NetPlayClient.cpp
+@@ -566,7 +566,7 @@ void NetPlayClient::OnChatMessage(sf::Packet& packet)
+   // don't need lock to read in this thread
+   const Player& player = m_players[pid];
+ 
+-  INFO_LOG_FMT(NETPLAY, "Player {} ({}) wrote: {}", player.name, player.pid, msg);
++  INFO_LOG_FMT(NETPLAY, "Received a chat message from player {}", pid);
+ 
+   // add to gui
+   m_dialog->AppendChat(fmt::format("{}[{}]: {}", player.name, pid, msg));

@@ -44,6 +44,8 @@ NS_ASSUME_NONNULL_BEGIN
                         completion:(void (^)(NSString *_Nullable error))completion;
 - (void)pollNetplayWithCompletion:(void (^)(NSDictionary<NSString *, id> *snapshot))completion;
 - (void)setNetplayReady:(BOOL)ready;
+- (void)sendNetplayChatMessage:(NSString *)message
+                    completion:(void (^)(NSString *_Nullable error))completion;
 - (void)requestNetplayStart;
 - (void)endNetplayWithCompletion:(dispatch_block_t)completion;
 

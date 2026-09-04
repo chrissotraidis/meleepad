@@ -615,6 +615,25 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
                 @"local": @(player.local),
             }];
         }
+        NSMutableArray<NSDictionary<NSString *, id> *> *messages = [NSMutableArray array];
+        for (const moderngekko::frontend::NetplayChatMessageSnapshot &message :
+             snapshot.chat_messages) {
+            NSString *sender = [[NSString alloc]
+                initWithBytes:message.sender.data()
+                       length:message.sender.size()
+                     encoding:NSUTF8StringEncoding] ?: @"Player";
+            NSString *text = [[NSString alloc]
+                initWithBytes:message.text.data()
+                       length:message.text.size()
+                     encoding:NSUTF8StringEncoding] ?: @"Message could not be displayed.";
+            [messages addObject:@{
+                @"id": @(message.id),
+                @"sender": sender,
+                @"text": text,
+                @"local": @(message.local),
+                @"transport": @"peer",
+            }];
+        }
         NSString *state = @"lobby";
         if (snapshot.state == moderngekko::frontend::NetplayState::Starting)
             state = @"starting";
@@ -626,6 +645,7 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
             @"state": state,
             @"role": snapshot.role == moderngekko::frontend::NetplayRole::Host ? @"host" : @"join",
             @"players": players,
+            @"messages": messages,
             @"buffer": @(snapshot.buffer_frames),
             @"automaticBuffer": @(snapshot.adaptive_buffer),
             @"canStart": @(snapshot.can_start),
@@ -661,6 +681,21 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
     dispatch_async(_netplayQueue, ^{
         if (*self->_netplaySession)
             (*self->_netplaySession)->SetReady(ready);
+    });
+}
+
+- (void)sendNetplayChatMessage:(NSString *)message
+                    completion:(void (^)(NSString *_Nullable error))completion {
+    NSString *copy = [message copy] ?: @"";
+    dispatch_async(_netplayQueue, ^{
+        const char *utf8 = copy.UTF8String;
+        BOOL sent = *self->_netplaySession && utf8 != nullptr &&
+            (*self->_netplaySession)->SendChatMessage(utf8);
+        MeleePadLog(@"netplay peer chat send result=%@ characters=%lu",
+                  sent ? @"sent" : @"rejected", (unsigned long)copy.length);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completion(sent ? nil : @"The message could not be sent. Check that the room is still connected.");
+        });
     });
 }
 

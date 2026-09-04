@@ -1,6 +1,6 @@
 # MeleePad Online Play with Friends beta loop
 
-Status: active at B1/B2 acceptance; public B3/B4 vertical slice proven (2026-09-03)
+Status: active at B1/B2 acceptance; build 6 peer chat and public B3/B4 vertical slice proven
 Written: 2026-09-02  
 Supersedes: `NETPLAY-GOAL-LOOP.md`  
 Companion architecture: `NETPLAY-FEASIBILITY.md`
@@ -18,6 +18,13 @@ so the delay is not a clean timing result. This closes only physical host
 registration, not a peer connection or match. The next gate is a bounded
 Private Room community test across independent networks. Public-lobby
 deployment is deferred until that gameplay evidence is positive.
+
+Current `main` build 6 also closes the missing trusted-room chat UI gap.
+Private Room and Direct IP now use Dolphin's existing peer chat message over the
+same unencrypted connection as gameplay. A two-way host/join runtime test
+passes, and the composer is visible in a physical-iPad Private Room. A second
+physical peer has not yet joined, so this is implementation evidence rather
+than physical chat or match acceptance.
 
 The current completion log is insufficient to explain a slow `Creating lobby`
 attempt. Before the next build, add privacy-safe breadcrumbs for request start,
@@ -88,6 +95,7 @@ matchmaking, a public lobby, spectating, or anonymous pairing.
 | Room-code client | `NetplaySession` host/join vertical slice works | partial |
 | Traversal service | Dolphin public service works in retained test; no MeleePad-operated endpoint | partial |
 | Physical iPad hosting | Preview 2 build 5 created a room code; no remote peer joined | partial |
+| Private/Direct room chat | two-way runtime test passes; build 6 composer visible on physical iPad | partial |
 | Relay | no implementation or measured need decision | missing |
 | Real internet/device beta | no evidence | missing |
 
@@ -248,7 +256,8 @@ The first service is deliberately small:
 - health probe and synthetic create/resolve check;
 - packet-rate and source-rate limits;
 - aggregate success/error/latency metrics without IPs or codes;
-- no account, room list, chat, matchmaking database, or long-lived room log;
+- no account, room list, server-side chat, matchmaking database, or long-lived
+  room log; Private/Direct chat stays on the peer gameplay connection;
 - client-visible maintenance state; and
 - a documented rollback to Advanced Direct Connection.
 

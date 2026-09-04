@@ -12,6 +12,10 @@ PUBLIC_CLIENT_HEADER="$ROOT/apple/ios/MeleePadPublicLobbyClient.h"
 PROJECT="$ROOT/MeleePad.xcodeproj/project.pbxproj"
 CORE="$ROOT/apple/ios/MeleePadCoreHost.mm"
 CORE_HEADER="$ROOT/apple/ios/MeleePadCoreHost.h"
+NETPLAY_CLIENT="$ROOT/ref/ModernGekko/vendor/dolphin/Source/Core/Core/NetPlay/NetPlayClient.cpp"
+PEER_CHAT_PATCH="$ROOT/patches/moderngekko/0021-netplay-peer-chat.patch"
+CHAT_LOG_PATCH="$ROOT/patches/moderngekko-dolphin/0047-redact-netplay-chat-logs.patch"
+BOOTSTRAP="$ROOT/scripts/bootstrap-dependencies.sh"
 BUILD_CORE="$ROOT/scripts/ios-build-core.sh"
 PROVISION="$ROOT/scripts/ios-provision.sh"
 INFO="$ROOT/apple/ios/Info.plist"
@@ -85,6 +89,10 @@ for contract in \
   'room-chat-send' \
   '@"0 / 160"' \
   'Messages must be between 1 and 160 characters.' \
+  'requestsSendPeerChatMessage:' \
+  'renderPeerMessages:' \
+  '@"transport"] isEqual:@"peer"' \
+  'chatStack.hidden = NO;' \
   'sendChatMessage:' \
   'setHeroCompact:' \
   'attributedPlaceholder' \
@@ -197,6 +205,9 @@ for contract in \
   'usingTraversal:' \
   'pollNetplayWithCompletion:' \
   'setNetplayReady:' \
+  'sendNetplayChatMessage:' \
+  'snapshot.chat_messages' \
+  'SendChatMessage(utf8)' \
   'requestNetplayStart' \
   'endNetplayWithCompletion:' \
   'NetplaySession::Create' \
@@ -212,6 +223,14 @@ done
 
 grep -Fq 'libmoderngekko_netplay_session.a' "$BUILD_CORE" "$PROVISION"
 grep -Fq 'MODERNGEKKO_GAMECUBE_CONTROLLERS=ON' "$BUILD_CORE"
+grep -Fq 'bool NetplaySession::SendChatMessage(std::string message)' \
+  "$PEER_CHAT_PATCH" "$BOOTSTRAP"
+grep -Fq 'Received a chat message from player' \
+  "$NETPLAY_CLIENT" "$CHAT_LOG_PATCH" "$BOOTSTRAP"
+if grep -Fq 'wrote: {}' "$NETPLAY_CLIENT"; then
+  echo "NetPlay still logs private chat contents" >&2
+  exit 1
+fi
 grep -Fq '<key>NSLocalNetworkUsageDescription</key>' "$INFO"
 grep -Fq '<key>MeleePadLobbyBaseURL</key>' "$INFO"
 grep -Fq '$(MELEEPAD_LOBBY_BASE_URL)' "$INFO"

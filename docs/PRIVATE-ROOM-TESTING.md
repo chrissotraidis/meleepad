@@ -1,9 +1,12 @@
 # Private Room community testing
 
-MeleePad Preview 2 build 5 is ready for controlled attempts with trusted
-testers. It is not a finished multiplayer beta. These tests determine whether
-the fixed-delay peer-to-peer gameplay is reliable and enjoyable enough to
-justify a public game browser.
+MeleePad current `main` build 6 is ready for controlled attempts with trusted
+testers. It adds peer chat to the room screen. It is not a finished multiplayer
+beta. These tests determine whether the fixed-delay peer-to-peer gameplay is
+reliable and enjoyable enough to justify a public game browser.
+
+Preview 2 build 5 can still test connection and gameplay, but it does not have
+the Private Room chat composer. Use the same build on both devices.
 
 ## What this test proves
 
@@ -21,7 +24,8 @@ character select, and rematch across independent networks.
 
 Both players need:
 
-- a locally built, playable MeleePad Preview 2 build 5;
+- the same locally built, playable MeleePad version and build on both devices;
+- current `main` build 6 when testing Room Chat;
 - their own exact supported `GALE01` USA revision-0 game image and locally
   generated module;
 - matching gameplay settings;
@@ -39,10 +43,12 @@ Internet connections; they do not need the same Wi-Fi or public IP address.
 3. Share the eight-character code privately. Do not post it publicly.
 4. The other player opens **Private Room → Join** and enters the code.
 5. Record whether the player joins and the approximate displayed ping.
-6. Both players mark Ready and the host starts the match.
-7. Complete a match, reach results, return to character select, and start a
+6. Send one short Room Chat message in each direction and record whether each
+   message appears once with the correct player name.
+7. Both players mark Ready and the host starts the match.
+8. Complete a match, reach results, return to character select, and start a
    rematch without recreating the room.
-8. If that succeeds, continue for at least 30 minutes and note delay, stutters,
+9. If that succeeds, continue for at least 30 minutes and note delay, stutters,
    audio problems, heat, disconnects, or desync messages.
 
 Start with two players. Four-player testing comes later because one unstable
@@ -84,6 +90,8 @@ Host direction:
 Approximate time to create room:
 Connection attempts / successful connections:
 Approximate displayed ping:
+Room Chat host to guest: pass/fail/not tested
+Room Chat guest to host: pass/fail/not tested
 Full match completed: yes/no
 Results screen reached: yes/no
 Returned to character select: yes/no
@@ -97,6 +105,10 @@ Diagnostic report attached: yes/no
 Do not include player names, active room codes, full IP addresses, game data,
 generated modules, saves, signing material, or precise home locations. Review
 the diagnostic file before uploading it.
+
+Private Room messages use the same unencrypted peer connection as gameplay.
+They are temporary and excluded from MeleePad's diagnostic export. Share only
+the behavior and pass/fail result in a public issue, not the message text.
 
 ## Go/no-go decision
 

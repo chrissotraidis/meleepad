@@ -151,6 +151,7 @@ executable_boot_caller_idle_patch="$ROOT/patches/moderngekko/0017-executable-boo
 netplay_canonical_boundary_test_patch="$ROOT/patches/moderngekko/0018-netplay-canonical-boundary-test.patch"
 netplay_canonical_status_patch="$ROOT/patches/moderngekko/0019-netplay-canonical-status-history.patch"
 netplay_internet_rooms_patch="$ROOT/patches/moderngekko/0020-netplay-internet-rooms.patch"
+netplay_peer_chat_patch="$ROOT/patches/moderngekko/0021-netplay-peer-chat.patch"
 render_log_patch="$ROOT/patches/moderngekko-dolphin/0002-buffer-render-time-logging.patch"
 idle_patch="$ROOT/patches/moderngekko-dolphin/0003-gale01r0-staticrecomp-idle.patch"
 memory_watcher_patch="$ROOT/patches/moderngekko-dolphin/0004-static-recomp-memory-watcher.patch"
@@ -198,6 +199,7 @@ netplay_timebase_telemetry_patch="$ROOT/patches/moderngekko-dolphin/0042-netplay
 netplay_execution_fingerprint_patch="$ROOT/patches/moderngekko-dolphin/0043-netplay-execution-fingerprint.patch"
 netplay_canonical_boundary_patch="$ROOT/patches/moderngekko-dolphin/0044-netplay-canonical-boundary.patch"
 netplay_canonical_summary_patch="$ROOT/patches/moderngekko-dolphin/0045-netplay-canonical-difference-summary.patch"
+netplay_chat_log_redaction_patch="$ROOT/patches/moderngekko-dolphin/0047-redact-netplay-chat-logs.patch"
 apply_patch_once_or_marker "$MG" "$mg_patch" \
   include/moderngekko/runtime.hpp 'struct RuntimeDiagnosticsSnapshot'
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$dolphin_patch" \
@@ -324,6 +326,9 @@ apply_patch_once_or_marker "$MG/vendor/dolphin" "$netplay_canonical_boundary_pat
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$netplay_canonical_summary_patch" \
   Source/Core/Core/NetPlay/NetPlayServer.cpp \
   '" differences=" + differences'
+apply_patch_once_or_marker "$MG/vendor/dolphin" "$netplay_chat_log_redaction_patch" \
+  Source/Core/Core/NetPlay/NetPlayClient.cpp \
+  'Received a chat message from player'
 apply_patch_once_or_marker "$MG" "$gamecube_netplay_session_patch" \
   tools/netplay_session_core.cpp \
   'SetControllerFamily(NetPlay::ControllerFamily::GameCube)'
@@ -348,6 +353,9 @@ apply_patch_once_or_marker "$MG" "$netplay_canonical_status_patch" \
 apply_patch_once_or_marker "$MG" "$netplay_internet_rooms_patch" \
   tools/netplay_session_core.cpp \
   'stun.dolphin-emu.org'
+apply_patch_once_or_marker "$MG" "$netplay_peer_chat_patch" \
+  tools/netplay_session_core.cpp \
+  'bool NetplaySession::SendChatMessage(std::string message)'
 verify_patch_scope "$MG" "$mg_patch" "$ROOT"/patches/moderngekko/*.patch -- \
   vendor/dolphin
 verify_patch_scope "$MG/vendor/dolphin" "$dolphin_patch" "$mg_patch" \

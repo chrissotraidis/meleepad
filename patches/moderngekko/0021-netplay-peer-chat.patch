@@ -1,0 +1,178 @@
+diff --git a/tools/netplay_session.hpp b/tools/netplay_session.hpp
+--- a/tools/netplay_session.hpp
++++ b/tools/netplay_session.hpp
+@@ -59,6 +59,13 @@ struct NetplayPlayerSnapshot {
+   bool game_matches = false;
+ };
+ 
++struct NetplayChatMessageSnapshot {
++  std::uint64_t id = 0;
++  std::string sender;
++  std::string text;
++  bool local = false;
++};
++
+ struct NetplayLobbySnapshot {
+   NetplayState state = NetplayState::Idle;
+   NetplayRole role = NetplayRole::Join;
+@@ -66,6 +73,7 @@ struct NetplayLobbySnapshot {
+   std::string room_code;
+   std::vector<std::pair<std::string, std::string>> interfaces;
+   std::vector<NetplayPlayerSnapshot> players;
++  std::vector<NetplayChatMessageSnapshot> chat_messages;
+   std::uint8_t assigned_controllers = 0;
+   std::uint32_t buffer_frames = 0;
+   bool adaptive_buffer = true;
+@@ -88,6 +96,7 @@ public:
+   NetplayLobbySnapshot Snapshot();
+   bool SetLocalControllerCount(std::uint8_t count);
+   bool SetReady(bool ready);
++  bool SendChatMessage(std::string message);
+   bool RequestStart();
+   std::unique_ptr<BootSessionData> TakeBootData();
+   void AttachRuntime(Runtime *runtime);
+diff --git a/tools/netplay_session_core.cpp b/tools/netplay_session_core.cpp
+--- a/tools/netplay_session_core.cpp
++++ b/tools/netplay_session_core.cpp
+@@ -11,6 +11,7 @@
+ 
+ #include <array>
+ #include <atomic>
++#include <cstddef>
+ #include <mutex>
+ #include <ranges>
+ #include <span>
+@@ -54,6 +55,14 @@ public:
+     std::lock_guard lock(m_mutex);
+     return m_status;
+   }
++  std::vector<NetplayChatMessageSnapshot> ChatMessages() const {
++    std::lock_guard lock(m_mutex);
++    return m_chat_messages;
++  }
++  void AppendLocalChat(const std::string &sender, const std::string &message) {
++    std::lock_guard lock(m_mutex);
++    AppendPeerChatLocked(sender, message, true);
++  }
+   u32 BufferSize() const { return m_buffer_size.load(); }
+   bool ConnectionLost() const { return m_connection_lost.load(); }
+ 
+@@ -71,6 +80,20 @@ public:
+   void Update() override {}
+   void AppendChat(const std::string &message) override {
+     std::lock_guard lock(m_mutex);
++    const std::size_t separator = message.find("]: ");
++    const std::size_t id_open = separator == std::string::npos
++                                    ? std::string::npos
++                                    : message.rfind('[', separator);
++    if (id_open != std::string::npos && id_open > 0 && separator > id_open + 1) {
++      const std::string_view player_id(message.data() + id_open + 1,
++                                       separator - id_open - 1);
++      if (std::ranges::all_of(player_id,
++                              [](char value) { return value >= '0' && value <= '9'; })) {
++        AppendPeerChatLocked(message.substr(0, id_open),
++                             message.substr(separator + 3), false);
++        return;
++      }
++    }
+     const bool is_determinism_record = message.starts_with("netplay-timebase") ||
+                                        message.starts_with("netplay-canonical");
+     const bool has_determinism_record = m_status.starts_with("netplay-timebase") ||
+@@ -184,6 +207,25 @@ public:
+   }
+ 
+ private:
++  void AppendPeerChatLocked(std::string sender, std::string message, bool local) {
++    if (sender.empty() || sender.size() > 64)
++      sender = "Player";
++    if (message.empty())
++      return;
++    if (message.size() > 640)
++      message = "[Message too long to display]";
++    m_chat_messages.push_back(
++        NetplayChatMessageSnapshot{++m_chat_message_id, std::move(sender),
++                                   std::move(message), local});
++    constexpr std::size_t max_messages = 32;
++    if (m_chat_messages.size() > max_messages) {
++      m_chat_messages.erase(m_chat_messages.begin(),
++                            m_chat_messages.begin() +
++                                static_cast<std::ptrdiff_t>(m_chat_messages.size() -
++                                                            max_messages));
++    }
++  }
++
+   std::shared_ptr<UICommon::GameFile> m_game;
+   mutable std::mutex m_mutex;
+   NetPlay::NetPlayClient *m_client = nullptr;
+@@ -193,6 +235,8 @@ private:
+   std::atomic<bool> m_connection_lost{false};
+   std::atomic<u32> m_buffer_size{5};
+   std::unique_ptr<BootSessionData> m_boot_data;
++  std::vector<NetplayChatMessageSnapshot> m_chat_messages;
++  std::uint64_t m_chat_message_id = 0;
+   std::string m_error;
+   std::string m_status;
+ };
+@@ -360,6 +404,7 @@ NetplayLobbySnapshot NetplaySession::Snapshot() {
+   } else {
+     snapshot.port = m_impl->options.port;
+   }
++  snapshot.chat_messages = m_impl->ui->ChatMessages();
+   return snapshot;
+ }
+ 
+@@ -378,6 +423,17 @@ bool NetplaySession::SetReady(bool ready) {
+   return true;
+ }
+ 
++bool NetplaySession::SendChatMessage(std::string message) {
++  if (!m_impl || !m_impl->client || message.empty() || message.size() > 640 ||
++      (m_impl->state != NetplayState::Lobby &&
++       m_impl->state != NetplayState::Starting &&
++       m_impl->state != NetplayState::Running))
++    return false;
++  m_impl->client->SendChatMessage(message);
++  m_impl->ui->AppendLocalChat(m_impl->options.nickname, message);
++  return true;
++}
++
+ bool NetplaySession::RequestStart() {
+   if (!m_impl || m_impl->state != NetplayState::Lobby || !m_impl->server ||
+       !m_impl->server->CanStart())
+diff --git a/tests/netplay_session_test.cpp b/tests/netplay_session_test.cpp
+--- a/tests/netplay_session_test.cpp
++++ b/tests/netplay_session_test.cpp
+@@ -148,6 +148,33 @@ int main() {
+     if (join->RequestStart())
+       return 22 + cycle;
+ 
++    std::fprintf(stderr, "session-test cycle=%d chat\n", cycle);
++    if (!host->SendChatMessage("Hello ]: from host") ||
++        !WaitFor([&] {
++          const auto host_chat = host->Snapshot().chat_messages;
++          const auto join_chat = join->Snapshot().chat_messages;
++          return host_chat.size() == 1 && host_chat[0].local &&
++                 host_chat[0].sender == "Host" &&
++                 host_chat[0].text == "Hello ]: from host" &&
++                 join_chat.size() == 1 && !join_chat[0].local &&
++                 join_chat[0].sender == "Host" &&
++                 join_chat[0].text == "Hello ]: from host";
++        }) ||
++        !join->SendChatMessage("Hello from join") ||
++        !WaitFor([&] {
++          const auto host_chat = host->Snapshot().chat_messages;
++          const auto join_chat = join->Snapshot().chat_messages;
++          return host_chat.size() == 2 && !host_chat[1].local &&
++                 host_chat[1].sender == "Join" &&
++                 host_chat[1].text == "Hello from join" &&
++                 join_chat.size() == 2 && join_chat[1].local &&
++                 join_chat[1].sender == "Join" &&
++                 join_chat[1].text == "Hello from join";
++        }) ||
++        host->SendChatMessage("") ||
++        host->SendChatMessage(std::string(641, 'x')))
++      return 26 + cycle;
++
+     std::fprintf(stderr, "session-test cycle=%d ready\n", cycle);
+     if (!host->SetReady(true) || !join->SetReady(true) ||
+         !WaitFor([&] { return host->Snapshot().can_start; }) ||

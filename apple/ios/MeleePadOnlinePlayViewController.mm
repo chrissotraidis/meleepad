@@ -108,7 +108,9 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
     BOOL _publicHostPending;
     BOOL _publicAutoJoinConsumed;
     BOOL _advancedExpanded;
+    BOOL _usesPublicChat;
     NSUInteger _lastMessageID;
+    NSUInteger _lastPeerMessageID;
     NSTimeInterval _lastMessagePoll;
     NSTimeInterval _lastHeartbeat;
     NSUInteger _roomCapacity;
@@ -580,7 +582,7 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
     messagesTitle.textColor = UIColor.whiteColor;
     MeleePadStyleLabel(messagesTitle, UIFontTextStyleTitle3, UIFontWeightBold);
     UILabel *messagesHelp = [self mutedLabel];
-    messagesHelp.text = @"Only people in this room can see the chat. Messages disappear when the room closes and stay out of diagnostics.";
+    messagesHelp.text = @"Messages are temporary and stay out of diagnostics. Private Room and Direct IP chat uses the same unencrypted peer connection as gameplay.";
     _messagesStack = [UIStackView new];
     _messagesStack.axis = UILayoutConstraintAxisVertical;
     _messagesStack.spacing = 6.0;
@@ -791,7 +793,7 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
         (void)action;
         dispatch_async(dispatch_get_main_queue(), ^{
             [weakSelf showHelpTopic:@"Player Names & Room Chat"
-                message:@"Confirm the name other players will see before browsing or connecting. Room chat lets current members type messages up to 160 characters. Chat travels through the lobby service, not the gameplay connection, and disappears when the room closes. You can hide or report another player from a message."];
+                message:@"Confirm the name other players will see before browsing or connecting. Room chat lets current members type messages up to 160 characters and disappears when the room closes. Public Game chat travels through the lobby service. Private Room and Direct IP chat travels through the same unencrypted peer connection as gameplay. Hide and Report are available only in Public Games."];
         });
     }]];
     [alert addAction:[UIAlertAction actionWithTitle:@"Safety & Troubleshooting"
@@ -799,7 +801,7 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
         (void)action;
         dispatch_async(dispatch_get_main_queue(), ^{
             [weakSelf showHelpTopic:@"Safety & Troubleshooting"
-                message:@"Use Safety to hide or report a player. Make sure everyone uses the same MeleePad build and supported GALE01 revision, keeps the app open, and marks Ready. Connection quality appears after joining. Some routers cannot connect because MeleePad has no relay fallback. Diagnostics exclude names, chat, addresses, room codes, and tokens."];
+                message:@"Public Games lets you hide or report a player. Private Room and Direct IP are for people you already trust. Make sure everyone uses the same MeleePad build and supported GALE01 revision, keeps the app open, and marks Ready. Connection quality appears after joining. Some routers cannot connect because MeleePad has no relay fallback. Diagnostics exclude names, chat, addresses, room codes, and tokens."];
         });
     }]];
     [alert addAction:[UIAlertAction actionWithTitle:@"Close"
@@ -1562,8 +1564,7 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
         return;
     }
     _sendChatButton.enabled = NO;
-    [_publicLobbyClient sendMessage:text completion:^(NSDictionary *result, NSString *error) {
-        (void)result;
+    void (^completion)(NSString *) = ^(NSString *error) {
         if (error.length > 0) {
             self->_stateLabel.textColor = UIColor.systemRedColor;
             self->_stateLabel.text = error;
@@ -1572,8 +1573,19 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
         }
         self->_chatField.text = @"";
         [self chatTextChanged:self->_chatField];
-        [self pollPublicMessagesIfNeeded:YES];
-    }];
+        if (self->_usesPublicChat)
+            [self pollPublicMessagesIfNeeded:YES];
+    };
+    if (_usesPublicChat) {
+        [_publicLobbyClient sendMessage:text
+            completion:^(NSDictionary *result, NSString *error) {
+            (void)result;
+            completion(error);
+        }];
+    } else {
+        [self.delegate onlinePlayViewController:self
+            requestsSendPeerChatMessage:text completion:completion];
+    }
 }
 
 - (UIMenu *)chatSafetyMenuForMessage:(NSDictionary<NSString *, id> *)message {
@@ -1616,7 +1628,9 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
 }
 
 - (UIView *)chatRowForMessage:(NSDictionary<NSString *, id> *)message {
-    BOOL local = [message[@"sender_id"] isEqual:_publicLobbyClient.localSessionID];
+    BOOL peerChat = [message[@"transport"] isEqual:@"peer"];
+    BOOL local = peerChat ? [message[@"local"] boolValue]
+                          : [message[@"sender_id"] isEqual:_publicLobbyClient.localSessionID];
     UILabel *sender = [UILabel new];
     sender.text = local
         ? [NSString stringWithFormat:@"%@ · YOU", message[@"sender"] ?: @"Player"]
@@ -1632,7 +1646,7 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
     copy.axis = UILayoutConstraintAxisVertical;
     copy.spacing = 2.0;
     NSMutableArray<UIView *> *items = [NSMutableArray arrayWithObject:copy];
-    if (!local) {
+    if (!local && !peerChat) {
         UIButton *safety = [self infoButtonWithAccessibilityLabel:@"Chat message safety"
                                                            action:@selector(noop:)];
         UIButtonConfiguration *configuration = safety.configuration;
@@ -1672,6 +1686,29 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
     return bubbleLine;
 }
 
+- (void)appendChatMessageRow:(NSDictionary<NSString *, id> *)message {
+    if (_chatEmptyLabel.superview != nil) {
+        [_messagesStack removeArrangedSubview:_chatEmptyLabel];
+        [_chatEmptyLabel removeFromSuperview];
+    }
+    [_messagesStack addArrangedSubview:[self chatRowForMessage:message]];
+    while (_messagesStack.arrangedSubviews.count > 8) {
+        UIView *oldest = _messagesStack.arrangedSubviews.firstObject;
+        [_messagesStack removeArrangedSubview:oldest];
+        [oldest removeFromSuperview];
+    }
+}
+
+- (void)renderPeerMessages:(NSArray<NSDictionary<NSString *, id> *> *)messages {
+    for (NSDictionary<NSString *, id> *message in messages) {
+        NSUInteger messageID = [message[@"id"] unsignedIntegerValue];
+        if (messageID == 0 || messageID <= _lastPeerMessageID)
+            continue;
+        _lastPeerMessageID = messageID;
+        [self appendChatMessageRow:message];
+    }
+}
+
 - (void)pollPublicMessagesIfNeeded:(BOOL)force {
     if (_publicLobbyClient.activeRoomID.length == 0) return;
     NSTimeInterval now = NSDate.timeIntervalSinceReferenceDate;
@@ -1682,17 +1719,7 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
         NSArray *messages = [result[@"messages"] isKindOfClass:NSArray.class] ? result[@"messages"] : @[];
         for (NSDictionary *message in messages) {
             self->_lastMessageID = MAX(self->_lastMessageID, [message[@"id"] unsignedIntegerValue]);
-            if (self->_chatEmptyLabel.superview != nil) {
-                [self->_messagesStack removeArrangedSubview:self->_chatEmptyLabel];
-                [self->_chatEmptyLabel removeFromSuperview];
-            }
-            UIView *row = [self chatRowForMessage:message];
-            [self->_messagesStack addArrangedSubview:row];
-            while (self->_messagesStack.arrangedSubviews.count > 8) {
-                UIView *oldest = self->_messagesStack.arrangedSubviews.firstObject;
-                [self->_messagesStack removeArrangedSubview:oldest];
-                [oldest removeFromSuperview];
-            }
+            [self appendChatMessageRow:message];
         }
     }];
 }
@@ -1770,6 +1797,7 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
                 canStart:(BOOL)canStart
           sessionRunning:(BOOL)sessionRunning
                 roomCode:(NSString *)roomCode
+                messages:(NSArray<NSDictionary<NSString *, id> *> *)messages
                   status:(NSString *)status {
     [self setHeroCompact:YES];
     _setupStack.hidden = YES;
@@ -1782,6 +1810,7 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
     _startButton.hidden = sessionRunning || role != MeleePadOnlinePlayRoleHost;
     _leaveSessionButton.hidden = !sessionRunning;
     BOOL publicRoom = _publicLobbyClient.activeRoomID.length > 0 || _publicHostPending;
+    _usesPublicChat = publicRoom;
     _startButton.enabled = canStart && (!publicRoom || players.count >= _roomCapacity);
     _roomCodeLabel.hidden = publicRoom || roomCode.length == 0;
     _roomCodeLabel.text = (!publicRoom && roomCode.length > 0)
@@ -1820,7 +1849,9 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
         [_playersStack addArrangedSubview:[self seatCardAtIndex:index player:player]];
     }
     UIStackView *chatStack = (UIStackView *)[_lobbyStack viewWithTag:7001];
-    chatStack.hidden = !publicRoom;
+    chatStack.hidden = NO;
+    if (!publicRoom)
+        [self renderPeerMessages:messages];
     if (_publicHostPending && roomCode.length == 8) {
         _publicHostPending = NO;
         [_publicLobbyClient publishRoomWithTraversalCode:roomCode region:@"auto"
@@ -1948,6 +1979,8 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
     [self closePublicPresence];
     _localReady = NO;
     _lastMessageID = 0;
+    _lastPeerMessageID = 0;
+    _usesPublicChat = NO;
     for (UIView *view in _messagesStack.arrangedSubviews) {
         [_messagesStack removeArrangedSubview:view];
         [view removeFromSuperview];

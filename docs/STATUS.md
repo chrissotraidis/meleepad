@@ -1,5 +1,31 @@
 # meleepad status
 
+## 2026-09-04 — build 6 adds Private Room and Direct IP peer chat
+
+Current `main` build 6 adds the missing Room Chat composer to connected Private
+Room and Direct IP sessions. Messages are sent through Dolphin's existing
+peer-to-peer NetPlay channel, kept in a bounded in-memory history, and excluded
+from MeleePad and Dolphin message-content logs. The UI limits messages to 160
+characters and explains that the peer channel is unencrypted. Public Games
+keeps its separate lobby-service chat and moderation path.
+
+Five consecutive direct host/join runtime cycles passed messages in both
+directions, including sender identity, local/remote rendering state, a message
+containing delimiter-like text, and the existing rematch path. Focused source
+contracts and the signed iPhoneOS build pass. The candidate was installed in
+place on the connected iPad Pro as version `0.1.0` build `6` and remains
+running after launch. QuickTime mirroring confirmed the Room Chat composer in a
+live Private Room. Direct IP reaches the same connected-room implementation.
+No second physical peer joined, so physical two-device message delivery,
+gameplay, and rematch are still unverified.
+
+The in-place install retained the existing bundle identity and did not remove
+the app or its container. A fresh pre-install container export could not be
+completed because CoreDevice's file service timed out, so this pass does not
+claim a new byte-for-byte save comparison. The earlier build 5 recovery backup
+was left intact, and no game image, generated game data, or saves were copied
+into the repository.
+
 ## 2026-09-04 — physical iPad creates a Private Room
 
 The installed Preview 2 build 5 on the connected iPad Pro progressed from

@@ -33,6 +33,10 @@ universal performance guarantee.*
 > unsigned, module-free app shell and is **not playable as downloaded**. A
 > playable build must be generated locally from your own exact supported game
 > image. Performance and rendering still vary by scene and device.
+>
+> Current `main` is the build 6 development candidate. It adds temporary room
+> chat to Private Room and Direct IP. Preview 2 build 5 does not include that
+> peer-chat UI.
 
 ### At a glance
 
@@ -42,7 +46,7 @@ universal performance guarantee.*
 | **Game input** | Your own exact USA `GALE01` revision 0 disc image |
 | **Distribution** | Source plus an unsigned, non-playable IPA shell; playable builds are generated and signed locally |
 | **Controls** | Touch, supported physical controllers, and keyboard on Mac |
-| **Online play** | Experimental MeleePad-to-MeleePad private rooms and Direct IP; not yet a public beta |
+| **Online play** | Experimental MeleePad-to-MeleePad private rooms and Direct IP, with temporary peer chat on current `main`; not yet a public beta |
 | **Not included** | Melee, game assets, saves, signing material, or a generated game module |
 
 ## How MeleePad works
@@ -286,20 +290,27 @@ For the first isolated hosted proof, use the
 <details>
 <summary>How do player names and room chat work?</summary>
 
-The development Public Games UI asks you to confirm the name other players will
-see before browsing, joining, or hosting. The confirmed name is saved on that
-device; it is not an account, a verified identity, or included in exported
-diagnostic logs.
+MeleePad asks you to confirm the display name other players will see before
+connecting. The confirmed name is saved on that device. It is not an account,
+a verified identity, or included in exported diagnostic logs.
 
-After joining a public room, **Room Chat** lets members type messages up to 160
-characters. Messages are relayed by the lobby service—not sent over the
-peer-to-peer gameplay channel—are visible only to current room members, and
-disappear when the room expires or closes. Sends are rate limited, message
-history is bounded, and players can hide or report another sender.
+Current `main` build 6 shows **Room Chat** after a Private Room or Direct IP
+session connects. Members can type messages up to 160 characters. These
+messages use Dolphin's existing peer gameplay connection, not a MeleePad lobby
+server. They are plaintext like the gameplay traffic, kept only in a small
+in-memory history, and disappear when the session closes. Use these modes only
+with people you trust. Preview 2 build 5 does not have this peer-chat UI.
 
-This is a development implementation, not production anonymous chat. Public
-deployment still requires durable moderation records, a published support and
-abuse contact, and an operated response process.
+The development Public Games mode has a separate chat path. Its messages are
+relayed by the configured lobby service, rate limited, and visible only to
+current room members. Public chat provides Hide and Report controls. Those
+controls are intentionally absent from trusted-friend Private Room and Direct
+IP sessions.
+
+Neither path writes message text to MeleePad diagnostics. Public Games remains
+a development implementation, not production anonymous chat. Deployment still
+requires durable moderation records, a published support and abuse contact,
+and an operated response process.
 
 </details>
 
@@ -555,27 +566,31 @@ physical-controller profiles are preserved.
 > **Online play is not ready for general use.** Preview 2 contains experimental
 > private rooms and Direct IP. Its Public Games interface has passed local
 > development testing, but no production public-game service is deployed.
+> Current `main` build 6 adds peer chat to Private Room and Direct IP for the
+> next controlled test pass.
 
-| Available in Preview 2 | Not available yet |
+| Available now | Not available yet |
 |---|---|
 | Private eight-character room codes | Production public-game browser |
 | Direct IP for advanced testing | Automatic or ranked matchmaking |
+| Temporary peer chat on current `main` build 6 | Moderated public chat service |
 | Two-player Mac/iPad Simulator evidence | Verified four-player online rooms |
 | Physical-iPad room creation | Physical-device completed Internet matches |
 | Compatibility checks and desync shutdown | Relay fallback or encrypted gameplay |
 | Native Host, Join, Ready, and Start flow | General multiplayer-beta evidence |
 
-### What a player can do in Preview 2
+### What a player can test now
 
 1. Arrange a game with another MeleePad player outside the app.
-2. Confirm that both players use Preview 2 build 5, the exact supported
-   `GALE01` revision 0 image, and matching gameplay settings.
+2. Confirm that both players use the same build, the exact supported `GALE01`
+   revision 0 image, and matching gameplay settings. Use current `main` build 6
+   on both devices when testing peer chat.
 3. The host opens **More (•••) → Online Play → Private Room → Host**.
 4. After the app displays an eight-character room code, the host sends it to
    the other player through a trusted channel.
 5. The guest opens **Private Room → Join**, enters that code, and connects.
-6. Both players verify the compatibility state, mark Ready, and the host starts
-   the match.
+6. Send one Room Chat message in each direction, then verify the compatibility
+   state, mark Ready, and let the host start the match.
 
 This flow depends on Dolphin's public traversal service. There is no in-app
 list of strangers to play in the shipped configuration.
@@ -590,7 +605,8 @@ report the complete result, including slow or failed attempts.
 - Play only with people you trust.
 - A room code helps two devices find each other. It is not a password, identity
   check, or encryption key.
-- Gameplay travels directly between peers and is currently plaintext.
+- Gameplay and Private Room or Direct IP chat travel directly between peers and
+  are currently plaintext.
 - Some routers and firewalls will reject a connection because there is no relay
   fallback.
 - Exported diagnostics should never include full IP addresses, room codes, game
@@ -623,6 +639,7 @@ report the complete result, including slow or failed attempts.
 | iPhone multiplayer interaction | Compile coverage only; no completed device match |
 | Public Internet room code | Dolphin's live traversal service created/resolved fresh codes; Mac/iPad Simulator sustained about 4,700 rendered frames in each host direction |
 | Physical iPad room creation | Preview 2 build 5 reached `Internet room is ready` and received a room code; no remote peer joined, so this is not match or P2P acceptance |
+| Private/Direct peer chat | Build 6 passes two-way host/join runtime coverage; its Private Room composer is visible on the physical iPad, but a two-device physical exchange remains unverified |
 | Public room discovery | Local lobby service discovered a live Mac traversal host and authorized an iPad Simulator join; production service is not deployed |
 
 The earlier Mac/iPad canonical failure was stale-build contamination and did
@@ -633,12 +650,14 @@ the [multiplayer goal loop](docs/NETPLAY-BETA-GOAL-LOOP.md).
 ### Private Room, Public Games, and Direct IP
 
 - **Private Room** is the working Internet-room preview. Players arrange a game
-  elsewhere and exchange an ephemeral room code privately.
+  elsewhere and exchange an ephemeral room code privately. Current `main`
+  build 6 adds temporary chat over the same peer connection.
 - **Public Games** is the planned discovery layer. Its native UI can show
   compatible room cards and supports bounded room chat, Hide, and Report in
   local development tests. No production endpoint is deployed.
 - **Direct IP** bypasses discovery and traversal. It is intended for local
-  networks and advanced testing.
+  networks and advanced testing. Build 6 exposes the same peer-chat composer
+  after the direct session connects.
 
 The public browser is designed so room listings never reveal traversal codes.
 Only an authorized, compatible Join response discloses the connection code.
@@ -675,8 +694,9 @@ the [Pad Lobby Protocol goal loop](docs/PAD-LOBBY-PROTOCOL-GOAL-LOOP.md).
 
 The next-preview plan is deliberately staged:
 
-1. run bounded Private Room community tests on Preview 2 build 5, beginning
-   with trusted two-player pairs on independent networks;
+1. run bounded Private Room community tests on current `main` build 6,
+   beginning with trusted two-player pairs on independent networks and a chat
+   message in each direction;
 2. finish full matches on physical Apple devices across independent networks,
    including NAT, disconnect, backgrounding, save, input, audio, and thermal
    coverage;
