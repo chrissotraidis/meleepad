@@ -50,18 +50,21 @@ class LobbyServiceTest(unittest.TestCase):
             self.assertEqual(expected, error.code)
             return json.load(error)
 
-    def session(self, name, build="4"):
+    def session(self, name, build="4", product_id="meleepad", **overrides):
+        payload = {
+            "display_name": name,
+            "product_id": product_id,
+            "app_version": "0.1.0",
+            "build": build,
+            "protocol": "moderngekko-netplay-8",
+            "game_id": "GALE01",
+            "game_revision": "r0",
+        }
+        payload.update(overrides)
         return self.request(
             "POST",
             "/v1/sessions",
-            {
-                "display_name": name,
-                "app_version": "0.1.0",
-                "build": build,
-                "protocol": "moderngekko-netplay-8",
-                "game_id": "GALE01",
-                "game_revision": "r0",
-            },
+            payload,
             expected=201,
         )
 
@@ -69,6 +72,67 @@ class LobbyServiceTest(unittest.TestCase):
         self.assertEqual(
             {"status": "ok"}, self.request("GET", "/healthz", expected=200)
         )
+
+    def test_capabilities_do_not_require_authentication(self):
+        result = self.request("GET", "/v1/capabilities", expected=200)
+        self.assertEqual("pad-lobby-1", result["protocol"])
+        self.assertEqual(
+            {"meleepad", "kartpad"},
+            {product["product_id"] for product in result["products"]},
+        )
+
+    def test_rooms_are_private_to_the_current_product_but_activity_is_shared(self):
+        melee = self.session("MeleeHost")
+        melee_room = self.request(
+            "POST",
+            "/v1/rooms",
+            {"traversal_code": "1234abcd", "region": "asia", "capacity": 4},
+            melee["token"],
+            201,
+        )
+        kart = self.session(
+            "KartHost",
+            product_id="kartpad",
+            protocol="retro-wfc-1",
+            game_id="RMCE01",
+        )
+        kart_room = self.request(
+            "POST",
+            "/v1/rooms",
+            {"traversal_code": "4321dcba", "region": "asia", "capacity": 4},
+            kart["token"],
+            201,
+        )
+        melee_listing = self.request("GET", "/v1/rooms", token=melee["token"])
+        self.assertIn(melee_room["room_id"], [r["room_id"] for r in melee_listing["rooms"]])
+        self.assertNotIn(kart_room["room_id"], json.dumps(melee_listing))
+
+        activity = self.request("GET", "/v1/activity", token=melee["token"])
+        by_product = {item["product_id"]: item for item in activity["products"]}
+        self.assertGreaterEqual(by_product["meleepad"]["open_rooms"], 1)
+        self.assertEqual(1, by_product["kartpad"]["open_rooms"])
+        self.assertEqual(1, by_product["kartpad"]["players"])
+        serialized = json.dumps(activity)
+        self.assertNotIn("KartHost", serialized)
+        self.assertNotIn(kart_room["room_id"], serialized)
+        self.assertNotIn("4321dcba", serialized)
+
+    def test_unsupported_products_fail_closed(self):
+        rejected = self.request(
+            "POST",
+            "/v1/sessions",
+            {
+                "display_name": "UnknownHost",
+                "product_id": "unknownpad",
+                "app_version": "0.1.0",
+                "build": "4",
+                "protocol": "unknown-1",
+                "game_id": "UNKNOWN",
+                "game_revision": "r0",
+            },
+            expected=400,
+        )
+        self.assertEqual("UNSUPPORTED_PRODUCT", rejected["error"]["code"])
 
     def test_room_code_is_hidden_until_compatible_join(self):
         host = self.session("Host")
@@ -109,7 +173,7 @@ class LobbyServiceTest(unittest.TestCase):
         listing = self.request("GET", "/v1/rooms", token=guest["token"])
         card = next(item for item in listing["rooms"] if item["room_id"] == room["room_id"])
         self.assertFalse(card["compatible"])
-        self.assertEqual("Different MeleePad build", card["compatibility"])
+        self.assertEqual("Different app build", card["compatibility"])
         failure = self.request(
             "POST", f"/v1/rooms/{room['room_id']}/join", {}, guest["token"], 409
         )
@@ -312,6 +376,7 @@ class LobbyServiceTest(unittest.TestCase):
         now = [100.0]
         store = LobbyStore(now=lambda: now[0])
         base = {
+            "product_id": "meleepad",
             "app_version": "0.1.0",
             "build": "5",
             "protocol": "moderngekko-netplay-8",
@@ -447,6 +512,7 @@ class LobbyServiceTest(unittest.TestCase):
         now = [100.0]
         store = LobbyStore(now=lambda: now[0])
         base = {
+            "product_id": "meleepad",
             "app_version": "0.1.0",
             "build": "5",
             "protocol": "moderngekko-netplay-8",
@@ -473,10 +539,44 @@ class LobbyServiceTest(unittest.TestCase):
         self.assertEqual(0, card["updated_seconds_ago"])
         self.assertFalse(card["joinable"])
 
+    def test_gameplay_heartbeats_keep_room_alive_then_return_it_to_waiting(self):
+        now = [100.0]
+        store = LobbyStore(now=lambda: now[0])
+        base = {
+            "product_id": "meleepad",
+            "app_version": "0.1.0",
+            "build": "5",
+            "protocol": "moderngekko-netplay-8",
+            "game_id": "GALE01",
+            "game_revision": "r0",
+        }
+        host = store.authenticate(
+            store.create_session({**base, "display_name": "MatchHost"})["token"]
+        )
+        guest = store.authenticate(
+            store.create_session({**base, "display_name": "MatchGuest"})["token"]
+        )
+        room = store.create_room(
+            host,
+            {"traversal_code": "a1b2c3d4", "region": "asia", "capacity": 4},
+        )
+        for _ in range(4):
+            now[0] += 15
+            store.heartbeat(host, room["room_id"], {"state": "in_game"})
+        card = store.room_list(guest)["rooms"][0]
+        self.assertEqual("in_game", card["state"])
+        self.assertFalse(card["joinable"])
+
+        store.heartbeat(host, room["room_id"], {"state": "waiting"})
+        card = store.room_list(guest)["rooms"][0]
+        self.assertEqual("waiting", card["state"])
+        self.assertTrue(card["joinable"])
+
     def test_reports_are_deduplicated_and_separately_rate_limited(self):
         now = [100.0]
         store = LobbyStore(now=lambda: now[0])
         base = {
+            "product_id": "meleepad",
             "app_version": "0.1.0",
             "build": "5",
             "protocol": "moderngekko-netplay-8",
@@ -538,6 +638,7 @@ class LobbyServiceTest(unittest.TestCase):
         store = LobbyStore(now=lambda: now[0])
         payload = {
             "display_name": "ExpiryHost",
+            "product_id": "meleepad",
             "app_version": "0.1.0",
             "build": "4",
             "protocol": "moderngekko-netplay-8",
@@ -559,6 +660,7 @@ class LobbyServiceTest(unittest.TestCase):
         now = [100.0]
         store = LobbyStore(now=lambda: now[0])
         base = {
+            "product_id": "meleepad",
             "app_version": "0.1.0",
             "build": "4",
             "protocol": "moderngekko-netplay-8",
@@ -587,6 +689,7 @@ class LobbyServiceTest(unittest.TestCase):
             "/v1/sessions",
             {
                 "display_name": "bad/name",
+                "product_id": "meleepad",
                 "app_version": "0.1.0",
                 "build": "4",
                 "protocol": "moderngekko-netplay-8",

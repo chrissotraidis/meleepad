@@ -1,7 +1,11 @@
-# MeleePad lobby service
+# Pad lobby reference service
 
-This small service discovers compatible MeleePad traversal rooms. It does not
-relay or inspect gameplay traffic.
+This small, open reference service discovers compatible rooms for MeleePad and
+future Pad game projects. It does not relay or inspect gameplay traffic.
+
+See [PROTOCOL.md](PROTOCOL.md) for the product boundary and shared activity
+format. MeleePad is the first client. A future KartPad adapter can use the same
+directory while keeping KartPad's own gameplay networking.
 
 Local development:
 
@@ -13,6 +17,12 @@ Run tests from the repository root:
 
 ```sh
 python3 -m unittest services.lobby.test_server
+```
+
+Or start the loopback-only container from this directory:
+
+```sh
+docker compose up --build
 ```
 
 The iOS Simulator can use the service by launching MeleePad with
@@ -31,6 +41,8 @@ Security properties of this vertical slice:
 
 - opaque two-hour bearer sessions, stored server-side only as SHA-256 hashes;
 - exact app build, protocol, game, and revision compatibility checks;
+- product-scoped room listings plus identity-free aggregate activity across
+  registered Pad games;
 - traversal codes omitted from public room listings and returned only by Join;
 - 45-second host/member heartbeat expiry and 20-second initial join
   reservations;

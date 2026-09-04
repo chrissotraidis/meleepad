@@ -8,6 +8,7 @@
 #import "MeleePadGameOverlay.h"
 #import "MeleePadInputMixer.h"
 #import "MeleePadOnlinePlayViewController.h"
+#import "MeleePadPublicLobbyClient.h"
 #import "MeleePadSettings.h"
 
 #import <CommonCrypto/CommonDigest.h>
@@ -243,6 +244,8 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 - (void)startAutomatedNetplayIfRequested;
 - (void)showGameDataSetupState;
 - (NSString *)meleePadSupportRoot;
+- (void)startPublicGameplayHeartbeat;
+- (void)stopPublicGameplayHeartbeatReturningToLobby:(BOOL)returningToLobby;
 @end
 
 @implementation MeleePadGameViewController {
@@ -265,6 +268,8 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     NSDate *_lastScreenshotMarker;
     MeleePadOnlinePlayViewController *_onlinePlayController;
     dispatch_source_t _onlinePlayPollTimer;
+    dispatch_source_t _publicGameplayHeartbeatTimer;
+    MeleePadPublicLobbyClient *_publicLobbyClient;
     BOOL _onlinePlaySessionRequested;
     BOOL _automatedNetplay;
     BOOL _automatedNetplayStartRequested;
@@ -1153,8 +1158,11 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     (void)overlay;
     [[MeleePadInputMixer sharedMixer] clearInputFromTouch:YES];
     [[MeleePadInputMixer sharedMixer] clearInputFromTouch:NO];
+    if (_publicLobbyClient == nil)
+        _publicLobbyClient = [MeleePadPublicLobbyClient new];
     MeleePadOnlinePlayViewController *onlinePlay =
-        [[MeleePadOnlinePlayViewController alloc] init];
+        [[MeleePadOnlinePlayViewController alloc]
+            initWithPublicLobbyClient:_publicLobbyClient];
     onlinePlay.delegate = self;
     _onlinePlayController = onlinePlay;
     UINavigationController *navigation =
@@ -1165,6 +1173,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
         MeleePadGameViewController *strongSelf = weakSelf;
         if (strongSelf == nil)
             return;
+        [strongSelf startPublicGameplayHeartbeat];
         if (strongSelf->_onlinePlayPollTimer != nil) {
             dispatch_source_cancel(strongSelf->_onlinePlayPollTimer);
             strongSelf->_onlinePlayPollTimer = nil;
@@ -1174,13 +1183,55 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     };
     _coreHost.onNetplayMatchEnded = ^{
         MeleePadGameViewController *strongSelf = weakSelf;
-        if (strongSelf == nil || !strongSelf->_onlinePlaySessionRequested ||
+        if (strongSelf == nil)
+            return;
+        [strongSelf stopPublicGameplayHeartbeatReturningToLobby:YES];
+        if (!strongSelf->_onlinePlaySessionRequested ||
             strongSelf->_onlinePlayController != nil)
             return;
         [strongSelf gameOverlayRequestsOnlinePlay:strongSelf->_overlay];
         [strongSelf startOnlinePlayPolling];
     };
-    [self presentViewController:navigation animated:YES completion:nil];
+    [self presentViewController:navigation animated:YES completion:^{
+        if (self->_onlinePlaySessionRequested)
+            [self startOnlinePlayPolling];
+    }];
+}
+
+- (void)startPublicGameplayHeartbeat {
+    if (_publicLobbyClient.activeRoomID.length == 0 ||
+        _publicGameplayHeartbeatTimer != nil)
+        return;
+    MeleePadLog(@"online public presence gameplay-heartbeat started");
+    [_publicLobbyClient heartbeatInGame:YES completion:nil];
+    _publicGameplayHeartbeatTimer = dispatch_source_create(
+        DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_main_queue());
+    dispatch_source_set_timer(_publicGameplayHeartbeatTimer,
+        dispatch_time(DISPATCH_TIME_NOW, 15 * NSEC_PER_SEC),
+        15 * NSEC_PER_SEC, NSEC_PER_SEC);
+    __weak MeleePadGameViewController *weakSelf = self;
+    dispatch_source_set_event_handler(_publicGameplayHeartbeatTimer, ^{
+        MeleePadGameViewController *strongSelf = weakSelf;
+        if (strongSelf == nil || strongSelf->_publicLobbyClient.activeRoomID.length == 0) {
+            [strongSelf stopPublicGameplayHeartbeatReturningToLobby:NO];
+            return;
+        }
+        [strongSelf->_publicLobbyClient heartbeatInGame:YES completion:nil];
+    });
+    dispatch_resume(_publicGameplayHeartbeatTimer);
+}
+
+- (void)stopPublicGameplayHeartbeatReturningToLobby:(BOOL)returningToLobby {
+    BOOL wasRunning = _publicGameplayHeartbeatTimer != nil;
+    if (_publicGameplayHeartbeatTimer != nil) {
+        dispatch_source_cancel(_publicGameplayHeartbeatTimer);
+        _publicGameplayHeartbeatTimer = nil;
+    }
+    if (returningToLobby && _publicLobbyClient.activeRoomID.length > 0)
+        [_publicLobbyClient heartbeatInGame:NO completion:nil];
+    if (wasRunning)
+        MeleePadLog(@"online public presence gameplay-heartbeat stopped return_to_lobby=%d",
+            returningToLobby);
 }
 
 - (void)startOnlinePlayPolling {
@@ -1236,6 +1287,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
                        bufferFrames:[snapshot[@"buffer"] unsignedIntegerValue]
                     automaticBuffer:[snapshot[@"automaticBuffer"] boolValue]
                            canStart:[snapshot[@"canStart"] boolValue]
+                     sessionRunning:[state isEqualToString:@"running"]
                            roomCode:snapshot[@"roomCode"]
                              status:snapshot[@"status"]];
         }];
@@ -1307,9 +1359,19 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     [_coreHost requestNetplayStart];
 }
 
+- (void)onlinePlayViewControllerRequestsReturnToGame:(MeleePadOnlinePlayViewController *)controller {
+    if (_onlinePlayPollTimer != nil) {
+        dispatch_source_cancel(_onlinePlayPollTimer);
+        _onlinePlayPollTimer = nil;
+    }
+    _onlinePlayController = nil;
+    [controller dismissViewControllerAnimated:YES completion:nil];
+}
+
 - (void)onlinePlayViewControllerRequestsCancel:(MeleePadOnlinePlayViewController *)controller {
     [[MeleePadInputMixer sharedMixer] clearInputFromTouch:YES];
     [[MeleePadInputMixer sharedMixer] clearInputFromTouch:NO];
+    [self stopPublicGameplayHeartbeatReturningToLobby:NO];
     if (_onlinePlayPollTimer != nil) {
         dispatch_source_cancel(_onlinePlayPollTimer);
         _onlinePlayPollTimer = nil;

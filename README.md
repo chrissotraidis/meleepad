@@ -264,6 +264,38 @@ abuse contact, and an operated response process.
 </details>
 
 <details>
+<summary>What happens after an online match ends?</summary>
+
+If Melee is still running, everyone stays in the same synchronized game and
+naturally moves from results back to character select. Players can keep playing
+without finding or joining the room again. The public directory keeps that room
+marked **In match** so new players cannot enter midway through the session.
+
+If the synchronized runtime ends normally, MeleePad returns the public room to
+its waiting state and reopens the connected screen. The same group can chat,
+ready up, and start again. During play, **More (•••) → Experimental Multiplayer**
+shows the current players and room chat. **Return to Game** keeps the connection,
+while **Leave Session** disconnects and removes the player's public presence.
+
+</details>
+
+<details>
+<summary>Can one lobby service support MeleePad, KartPad, and future games?</summary>
+
+Yes, for discovery. The open Pad Lobby Protocol gives every app its own product
+ID and keeps its rooms separate. MeleePad can only browse and join MeleePad
+rooms. A small cross-game activity section may show anonymous totals such as
+KartPad's open rooms, games in progress, and player count, but not names, chat,
+room IDs, connection codes, or IP addresses.
+
+The gameplay layer is not shared. MeleePad keeps its ModernGekko netplay path,
+KartPad keeps its own online transport, and each future game needs a small
+directory adapter plus its own compatibility rules. KartPad is planned as the
+second proof, not implemented in this MeleePad pass.
+
+</details>
+
+<details>
 <summary>Why won't Direct IP connect?</summary>
 
 Check these in order:
@@ -588,7 +620,9 @@ people on a private test network. Do not expose it as a public service.
 Local service and Simulator instructions are in
 [services/lobby/README.md](services/lobby/README.md). The remaining discovery,
 moderation, and deployment gates are in the
-[public lobby goal loop](docs/PUBLIC-LOBBY-GOAL-LOOP.md).
+[public lobby goal loop](docs/PUBLIC-LOBBY-GOAL-LOOP.md). The reusable,
+multi-game directory boundary and MeleePad-first implementation sequence are in
+the [Pad Lobby Protocol goal loop](docs/PAD-LOBBY-PROTOCOL-GOAL-LOOP.md).
 
 ### Plan after Preview 2
 

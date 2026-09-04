@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Small, dependency-free public-lobby service for MeleePad.
+"""Small, dependency-free reference service for Pad game lobbies.
 
-This service discovers compatible traversal rooms; it never proxies gameplay.
+This service discovers compatible rooms and reports aggregate cross-game activity.
+It never proxies gameplay.
 Run it behind an HTTPS reverse proxy outside local development.
 """
 
@@ -42,6 +43,7 @@ GENERAL_REQUEST_LIMIT = 120
 GENERAL_REQUEST_WINDOW_SECONDS = 60
 
 PROTOCOL_PATTERN = re.compile(r"^[A-Za-z0-9._-]{1,64}$")
+PRODUCT_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]{0,31}$")
 VERSION_PATTERN = re.compile(r"^[A-Za-z0-9.+-]{1,32}$")
 GAME_PATTERN = re.compile(r"^[A-Z0-9-]{1,24}$")
 ROOM_CODE_PATTERN = re.compile(r"^[0-9a-f]{8}$")
@@ -54,6 +56,12 @@ BLOCKED_TEXT_FRAGMENTS = {
     "nigger",
     "faggot",
     "kike",
+}
+
+DIRECTORY_PROTOCOL = "pad-lobby-1"
+PRODUCTS = {
+    "meleepad": {"display_name": "MeleePad", "rooms": True},
+    "kartpad": {"display_name": "KartPad", "rooms": True},
 }
 
 
@@ -70,6 +78,7 @@ class Session:
     session_id: str
     token_hash: bytes
     display_name: str
+    product_id: str
     app_version: str
     build: str
     protocol: str
@@ -189,6 +198,7 @@ class LobbyStore:
             payload,
             {
                 "display_name",
+                "product_id",
                 "app_version",
                 "build",
                 "protocol",
@@ -197,6 +207,13 @@ class LobbyStore:
             },
         )
         display_name = self._validate_display_name(payload)
+        product_id = self._required_string(payload, "product_id", PRODUCT_PATTERN)
+        if product_id not in PRODUCTS:
+            raise LobbyError(
+                HTTPStatus.BAD_REQUEST,
+                "UNSUPPORTED_PRODUCT",
+                "This game is not supported by this lobby service.",
+            )
         app_version = self._required_string(payload, "app_version", VERSION_PATTERN)
         build = self._required_string(payload, "build", VERSION_PATTERN)
         protocol = self._required_string(payload, "protocol", PROTOCOL_PATTERN)
@@ -209,6 +226,7 @@ class LobbyStore:
             session_id=session_id,
             token_hash=self._token_hash(token),
             display_name=display_name,
+            product_id=product_id,
             app_version=app_version,
             build=build,
             protocol=protocol,
@@ -245,11 +263,12 @@ class LobbyStore:
     @staticmethod
     def _compatibility(host: Session, guest: Session) -> tuple[bool, str]:
         checks = (
+            (host.product_id, guest.product_id, "Different game app"),
             (host.game_id, guest.game_id, "Different game"),
             (host.game_revision, guest.game_revision, "Different game revision"),
             (host.protocol, guest.protocol, "Different netplay protocol"),
-            (host.app_version, guest.app_version, "Different MeleePad version"),
-            (host.build, guest.build, "Different MeleePad build"),
+            (host.app_version, guest.app_version, "Different app version"),
+            (host.build, guest.build, "Different app build"),
         )
         for expected, actual, reason in checks:
             if expected != actual:
@@ -316,6 +335,48 @@ class LobbyStore:
             self._rooms[room.room_id] = room
         return {"room_id": room.room_id, "heartbeat_after": 15}
 
+    def capabilities(self) -> dict[str, Any]:
+        return {
+            "protocol": DIRECTORY_PROTOCOL,
+            "products": [
+                {
+                    "product_id": product_id,
+                    "display_name": config["display_name"],
+                    "rooms": config["rooms"],
+                }
+                for product_id, config in PRODUCTS.items()
+            ],
+        }
+
+    def activity(self) -> dict[str, Any]:
+        with self._lock:
+            self._purge()
+            totals = {
+                product_id: {"open_rooms": 0, "players": 0, "in_game_rooms": 0}
+                for product_id in PRODUCTS
+            }
+            for room in self._rooms.values():
+                host = self._sessions.get(room.owner_session_id)
+                if host is None or host.product_id not in totals:
+                    continue
+                product = totals[host.product_id]
+                product["players"] += self._players(room)
+                if room.state == "waiting":
+                    product["open_rooms"] += 1
+                else:
+                    product["in_game_rooms"] += 1
+            return {
+                "products": [
+                    {
+                        "product_id": product_id,
+                        "display_name": PRODUCTS[product_id]["display_name"],
+                        **totals[product_id],
+                    }
+                    for product_id in PRODUCTS
+                ],
+                "server_time": int(self._now()),
+            }
+
     def room_list(self, guest: Session) -> dict[str, Any]:
         with self._lock:
             self._purge()
@@ -328,6 +389,8 @@ class LobbyStore:
                     continue
                 host = self._sessions.get(room.owner_session_id)
                 if host is None:
+                    continue
+                if host.product_id != guest.product_id:
                     continue
                 compatible, reason = self._compatibility(host, guest)
                 player_count = self._players(room)
@@ -345,6 +408,7 @@ class LobbyStore:
                         "state": room.state,
                         "updated_seconds_ago": max(0, int(now - room.last_heartbeat)),
                         "app_version": host.app_version,
+                        "product_id": host.product_id,
                         "build": host.build,
                         "protocol": host.protocol,
                         "game_id": host.game_id,
@@ -667,11 +731,17 @@ class LobbyHandler(BaseHTTPRequestHandler):
         if method == "GET" and path == "/healthz":
             self._send(HTTPStatus.OK, {"status": "ok"})
             return
+        if method == "GET" and path == "/v1/capabilities":
+            self._send(HTTPStatus.OK, store.capabilities())
+            return
         if method == "POST" and path == "/v1/sessions":
             self._send(HTTPStatus.CREATED, store.create_session(self._payload()))
             return
 
         session = self._session()
+        if method == "GET" and path == "/v1/activity":
+            self._send(HTTPStatus.OK, store.activity())
+            return
         if method == "GET" and path == "/v1/rooms":
             self._send(HTTPStatus.OK, store.room_list(session))
             return
@@ -761,12 +831,12 @@ class LobbyHandler(BaseHTTPRequestHandler):
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="MeleePad public-lobby service")
+    parser = argparse.ArgumentParser(description="Pad public-lobby reference service")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8765)
     args = parser.parse_args()
     server = LobbyHTTPServer((args.host, args.port), LobbyStore())
-    print(f"MeleePad lobby listening on {args.host}:{server.server_port}")
+    print(f"Pad lobby listening on {args.host}:{server.server_port}")
     try:
         server.serve_forever(poll_interval=0.25)
     except KeyboardInterrupt:

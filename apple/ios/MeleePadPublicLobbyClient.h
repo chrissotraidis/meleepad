@@ -16,6 +16,7 @@ typedef void (^MeleePadLobbyResult)(NSDictionary<NSString *, id> *_Nullable resu
 - (instancetype)init;
 - (void)prepareWithNickname:(NSString *)nickname completion:(MeleePadLobbyResult)completion;
 - (void)fetchRoomsWithCompletion:(MeleePadLobbyResult)completion;
+- (void)fetchActivityWithCompletion:(MeleePadLobbyResult)completion;
 - (void)publishRoomWithTraversalCode:(NSString *)traversalCode
                               region:(NSString *)region
                             capacity:(NSUInteger)capacity
@@ -35,5 +36,6 @@ typedef void (^MeleePadLobbyResult)(NSDictionary<NSString *, id> *_Nullable resu
 @end
 
 FOUNDATION_EXPORT NSString *const MeleePadPublicLobbyProtocol;
+FOUNDATION_EXPORT NSString *const MeleePadPublicLobbyProductID;
 
 NS_ASSUME_NONNULL_END

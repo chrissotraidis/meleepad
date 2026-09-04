@@ -105,6 +105,11 @@ for contract in \
   'occupancyViewWithPlayers:' \
   '@"Ready"' \
   '@"Start Match"' \
+  '@"Leave Session"' \
+  '@"Return to Game"' \
+  '@"Across Pad games"' \
+  'Other games stay separate and cannot be joined from MeleePad.' \
+  'ms to host' \
   '@"Cancel"'; do
   grep -Fq "$contract" "$LOBBY"
 done
@@ -128,6 +133,10 @@ grep -Fq '_publicUnavailableStack.hidden = publicAvailable;' "$LOBBY"
 grep -Fq '_confirmNameButton.hidden = confirmed;' "$LOBBY"
 grep -Fq 'if (!contentChanged)' "$LOBBY"
 grep -Fq 'netplay automation room-code received length=%lu' "$CONTROLLER"
+grep -Fq 'initWithPublicLobbyClient:_publicLobbyClient' "$CONTROLLER"
+grep -Fq 'startPublicGameplayHeartbeat' "$CONTROLLER"
+grep -Fq 'stopPublicGameplayHeartbeatReturningToLobby:YES' "$CONTROLLER"
+grep -Fq '15 * NSEC_PER_SEC' "$CONTROLLER"
 if grep -Fq 'netplay automation room code=%@' "$CONTROLLER"; then
   echo "Netplay automation logs a private room code" >&2
   exit 1
@@ -156,6 +165,9 @@ for contract in \
   'https' \
   '127.0.0.1' \
   '/v1/rooms' \
+  '/v1/activity' \
+  'MeleePadPublicLobbyProductID' \
+  '@"product_id"' \
   'traversal_code'; do
   grep -Fq "$contract" "$PUBLIC_CLIENT"
 done

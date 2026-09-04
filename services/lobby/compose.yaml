@@ -1,0 +1,13 @@
+services:
+  pad-lobby:
+    build:
+      context: ../..
+      dockerfile: services/lobby/Dockerfile
+    ports:
+      - "127.0.0.1:8765:8765"
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true

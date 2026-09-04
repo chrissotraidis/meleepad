@@ -42,6 +42,7 @@ def main() -> None:
         "/v1/sessions",
         {
             "display_name": args.name,
+            "product_id": "meleepad",
             "app_version": "0.1.0",
             "build": args.build,
             "protocol": "moderngekko-netplay-8",
@@ -66,6 +67,7 @@ def main() -> None:
             "/v1/sessions",
             {
                 "display_name": name,
+                "product_id": "meleepad",
                 "app_version": "0.1.0",
                 "build": args.build,
                 "protocol": "moderngekko-netplay-8",

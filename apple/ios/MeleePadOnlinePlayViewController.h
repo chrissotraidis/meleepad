@@ -5,6 +5,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class MeleePadOnlinePlayViewController;
+@class MeleePadPublicLobbyClient;
 
 typedef NS_ENUM(NSInteger, MeleePadOnlinePlayRole) {
     MeleePadOnlinePlayRoleHost,
@@ -28,6 +29,7 @@ typedef NS_ENUM(NSInteger, MeleePadOnlinePlayRole) {
 - (void)onlinePlayViewController:(MeleePadOnlinePlayViewController *)controller
                 requestsReady:(BOOL)ready;
 - (void)onlinePlayViewControllerRequestsStart:(MeleePadOnlinePlayViewController *)controller;
+- (void)onlinePlayViewControllerRequestsReturnToGame:(MeleePadOnlinePlayViewController *)controller;
 - (void)onlinePlayViewControllerRequestsCancel:(MeleePadOnlinePlayViewController *)controller;
 @end
 
@@ -37,12 +39,15 @@ typedef NS_ENUM(NSInteger, MeleePadOnlinePlayRole) {
 
 @property(nonatomic, weak, nullable) id<MeleePadOnlinePlayViewControllerDelegate> delegate;
 
+- (instancetype)initWithPublicLobbyClient:(MeleePadPublicLobbyClient *)client;
+
 - (void)showConnectingWithMessage:(NSString *)message;
 - (void)showLobbyForRole:(MeleePadOnlinePlayRole)role
                    players:(NSArray<NSDictionary<NSString *, id> *> *)players
               bufferFrames:(NSUInteger)bufferFrames
            automaticBuffer:(BOOL)automaticBuffer
                   canStart:(BOOL)canStart
+            sessionRunning:(BOOL)sessionRunning
                   roomCode:(nullable NSString *)roomCode
                     status:(nullable NSString *)status;
 - (void)showError:(NSString *)message;

@@ -53,6 +53,7 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
 
 @interface MeleePadOnlinePlayViewController () <UITextFieldDelegate>
 - (BOOL)renderPublicRooms:(NSArray<NSDictionary<NSString *, id> *> *)rooms;
+- (void)renderCrossGameActivity:(NSArray<NSDictionary<NSString *, id> *> *)products;
 - (void)reportSessionID:(NSString *)sessionID
                     room:(NSDictionary<NSString *, id> *)room
                   reason:(NSString *)reason;
@@ -79,6 +80,8 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
     UIButton *_privateFallbackButton;
     UILabel *_publicStatusLabel;
     UIStackView *_publicRoomsStack;
+    UIStackView *_crossGameStack;
+    UIStackView *_crossGameRowsStack;
     UIStackView *_publicStack;
     UIStackView *_publicAvailableStack;
     UIStackView *_publicUnavailableStack;
@@ -94,6 +97,7 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
     UIButton *_sendChatButton;
     UIButton *_readyButton;
     UIButton *_startButton;
+    UIButton *_leaveSessionButton;
     UIStackView *_setupStack;
     UIStackView *_lobbyStack;
     UIStackView *_educationStack;
@@ -118,6 +122,17 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
     UIImageView *_heroWatermark;
     CAGradientLayer *_backgroundGradient;
     CAGradientLayer *_heroGradient;
+}
+
+- (instancetype)init {
+    return [self initWithPublicLobbyClient:[MeleePadPublicLobbyClient new]];
+}
+
+- (instancetype)initWithPublicLobbyClient:(MeleePadPublicLobbyClient *)client {
+    self = [super initWithNibName:nil bundle:nil];
+    if (self != nil)
+        _publicLobbyClient = client;
+    return self;
 }
 
 - (void)viewDidLoad {
@@ -150,7 +165,8 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
         initWithImage:[UIImage systemImageNamed:@"questionmark.circle"]
         style:UIBarButtonItemStylePlain target:self action:@selector(showOnlinePlayHelp:)];
     self.navigationItem.rightBarButtonItem.accessibilityLabel = @"How Online Play works";
-    _publicLobbyClient = [MeleePadPublicLobbyClient new];
+    if (_publicLobbyClient == nil)
+        _publicLobbyClient = [MeleePadPublicLobbyClient new];
 
     UILabel *kicker = [UILabel new];
     kicker.text = @"MELEE ONLINE  ·  2–4 PLAYERS";
@@ -317,6 +333,28 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
     _publicRoomsStack.axis = UILayoutConstraintAxisVertical;
     _publicRoomsStack.spacing = 10.0;
 
+    UILabel *crossGameTitle = [UILabel new];
+    crossGameTitle.text = @"Across Pad games";
+    crossGameTitle.textColor = UIColor.whiteColor;
+    MeleePadStyleLabel(crossGameTitle, UIFontTextStyleHeadline, UIFontWeightBold);
+    UILabel *crossGameHelp = [self mutedLabel];
+    crossGameHelp.text = @"See where people are playing. Other games stay separate and cannot be joined from MeleePad.";
+    _crossGameRowsStack = [UIStackView new];
+    _crossGameRowsStack.axis = UILayoutConstraintAxisVertical;
+    _crossGameRowsStack.spacing = 8.0;
+    _crossGameStack = [[UIStackView alloc] initWithArrangedSubviews:@[
+        crossGameTitle, crossGameHelp, _crossGameRowsStack,
+    ]];
+    _crossGameStack.axis = UILayoutConstraintAxisVertical;
+    _crossGameStack.spacing = 7.0;
+    _crossGameStack.layoutMargins = UIEdgeInsetsMake(14, 14, 14, 14);
+    _crossGameStack.layoutMarginsRelativeArrangement = YES;
+    _crossGameStack.backgroundColor = [UIColor colorWithRed:0.22 green:0.12 blue:0.42 alpha:0.42];
+    _crossGameStack.layer.cornerRadius = 14.0;
+    _crossGameStack.layer.borderWidth = 1.0;
+    _crossGameStack.layer.borderColor = [UIColor colorWithRed:0.62 green:0.38 blue:1.0 alpha:0.28].CGColor;
+    _crossGameStack.hidden = YES;
+
     UILabel *roomSizeLabel = [UILabel new];
     roomSizeLabel.text = @"Room size";
     roomSizeLabel.textColor = UIColor.whiteColor;
@@ -371,7 +409,7 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
     hostPublicStack.layer.borderWidth = 1.0;
     hostPublicStack.layer.borderColor = [MeleePadOnlineAccentColor() colorWithAlphaComponent:0.16].CGColor;
     _publicAvailableStack = [[UIStackView alloc] initWithArrangedSubviews:@[
-        publicHeader, _publicStatusLabel, _publicRoomsStack, hostPublicStack,
+        publicHeader, _publicStatusLabel, _publicRoomsStack, _crossGameStack, hostPublicStack,
         _privateFallbackButton,
     ]];
     _publicAvailableStack.axis = UILayoutConstraintAxisVertical;
@@ -585,8 +623,11 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
     _readyButton = [self primaryButtonWithTitle:@"Ready" action:@selector(toggleReady:)];
     _startButton = [self primaryButtonWithTitle:@"Start Match" action:@selector(start:)];
     _startButton.enabled = NO;
+    _leaveSessionButton = [self secondaryButtonWithTitle:@"Leave Session"
+                                                  action:@selector(cancel:)];
+    _leaveSessionButton.hidden = YES;
     UIStackView *lobbyActions = [[UIStackView alloc]
-        initWithArrangedSubviews:@[_readyButton, _startButton]];
+        initWithArrangedSubviews:@[_readyButton, _startButton, _leaveSessionButton]];
     lobbyActions.axis = UILayoutConstraintAxisHorizontal;
     lobbyActions.spacing = 12.0;
     lobbyActions.distribution = UIStackViewDistributionFillEqually;
@@ -1094,8 +1135,46 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
                     (unsigned long)rooms.count, (unsigned long)compatibleCount,
                     contentChanged ? @"yes" : @"no");
             }
+            [strongSelf->_publicLobbyClient fetchActivityWithCompletion:^(
+                NSDictionary *activityResult, NSString *activityError) {
+                if (activityError.length > 0) {
+                    [strongSelf renderCrossGameActivity:@[]];
+                    return;
+                }
+                NSArray *products = [activityResult[@"products"] isKindOfClass:NSArray.class]
+                    ? activityResult[@"products"] : @[];
+                [strongSelf renderCrossGameActivity:products];
+            }];
         }];
     }];
+}
+
+- (void)renderCrossGameActivity:(NSArray<NSDictionary<NSString *, id> *> *)products {
+    for (UIView *view in _crossGameRowsStack.arrangedSubviews) {
+        [_crossGameRowsStack removeArrangedSubview:view];
+        [view removeFromSuperview];
+    }
+    for (NSDictionary<NSString *, id> *product in products) {
+        if ([product[@"product_id"] isEqual:MeleePadPublicLobbyProductID])
+            continue;
+        NSInteger openRooms = MAX(0, [product[@"open_rooms"] integerValue]);
+        NSInteger inGameRooms = MAX(0, [product[@"in_game_rooms"] integerValue]);
+        NSInteger players = MAX(0, [product[@"players"] integerValue]);
+        if (openRooms == 0 && inGameRooms == 0 && players == 0)
+            continue;
+        NSString *name = [product[@"display_name"] isKindOfClass:NSString.class]
+            ? product[@"display_name"] : @"Another Pad game";
+        UILabel *row = [self mutedLabel];
+        row.textColor = [UIColor colorWithWhite:0.90 alpha:1.0];
+        row.text = [NSString stringWithFormat:
+            @"%@ · %ld room%@ open · %ld in progress · %ld player%@",
+            name, (long)openRooms, openRooms == 1 ? @"" : @"s",
+            (long)inGameRooms, (long)players,
+            players == 1 ? @"" : @"s"];
+        row.isAccessibilityElement = YES;
+        [_crossGameRowsStack addArrangedSubview:row];
+    }
+    _crossGameStack.hidden = _crossGameRowsStack.arrangedSubviews.count == 0;
 }
 
 - (BOOL)renderPublicRooms:(NSArray<NSDictionary<NSString *, id> *> *)rooms {
@@ -1644,6 +1723,11 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
     [self.delegate onlinePlayViewControllerRequestsCancel:self];
 }
 
+- (void)returnToGame:(id)sender {
+    (void)sender;
+    [self.delegate onlinePlayViewControllerRequestsReturnToGame:self];
+}
+
 - (void)closePublicPresence {
     _publicHostPending = NO;
     if (_publicLobbyClient.activeRoomID.length == 0) return;
@@ -1684,22 +1768,31 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
             bufferFrames:(NSUInteger)bufferFrames
          automaticBuffer:(BOOL)automaticBuffer
                 canStart:(BOOL)canStart
+          sessionRunning:(BOOL)sessionRunning
                 roomCode:(NSString *)roomCode
                   status:(NSString *)status {
     [self setHeroCompact:YES];
     _setupStack.hidden = YES;
     _lobbyStack.hidden = NO;
-    _readyButton.hidden = NO;
-    _startButton.hidden = role != MeleePadOnlinePlayRoleHost;
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc]
+        initWithTitle:sessionRunning ? @"Return to Game" : @"Cancel"
+        style:UIBarButtonItemStylePlain target:self
+        action:sessionRunning ? @selector(returnToGame:) : @selector(cancel:)];
+    _readyButton.hidden = sessionRunning;
+    _startButton.hidden = sessionRunning || role != MeleePadOnlinePlayRoleHost;
+    _leaveSessionButton.hidden = !sessionRunning;
     BOOL publicRoom = _publicLobbyClient.activeRoomID.length > 0 || _publicHostPending;
     _startButton.enabled = canStart && (!publicRoom || players.count >= _roomCapacity);
     _roomCodeLabel.hidden = publicRoom || roomCode.length == 0;
     _roomCodeLabel.text = (!publicRoom && roomCode.length > 0)
         ? [NSString stringWithFormat:@"Room code: %@", roomCode] : @"";
     _stateLabel.textColor = [UIColor colorWithWhite:0.82 alpha:1.0];
-    _stateLabel.text = status.length > 0 ? status : [NSString stringWithFormat:
-        @"Input buffer: %lu frame%@%@", (unsigned long)bufferFrames,
-        bufferFrames == 1 ? @"" : @"s", automaticBuffer ? @" (automatic)" : @""];
+    _stateLabel.text = sessionRunning
+        ? [NSString stringWithFormat:@"Match in progress · %lu-frame%@ buffer",
+            (unsigned long)bufferFrames, automaticBuffer ? @" automatic" : @""]
+        : (status.length > 0 ? status : [NSString stringWithFormat:
+            @"Input buffer: %lu frame%@%@", (unsigned long)bufferFrames,
+            bufferFrames == 1 ? @"" : @"s", automaticBuffer ? @" (automatic)" : @""]);
     for (UIView *view in _playersStack.arrangedSubviews) {
         [_playersStack removeArrangedSubview:view];
         [view removeFromSuperview];
@@ -1749,7 +1842,8 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
         NSTimeInterval now = NSDate.timeIntervalSinceReferenceDate;
         if (now - _lastHeartbeat >= 15.0) {
             _lastHeartbeat = now;
-            [_publicLobbyClient heartbeatInGame:NO completion:nil];
+            if (!sessionRunning)
+                [_publicLobbyClient heartbeatInGame:NO completion:nil];
         }
         [self pollPublicMessagesIfNeeded:NO];
     }
@@ -1808,7 +1902,7 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
         NSString *ready = [player[@"ready"] boolValue] ? @"Ready" : @"Not ready";
         NSString *compatibility = [player[@"compatible"] boolValue]
             ? @"Build matches" : @"Version mismatch";
-        detail.text = [NSString stringWithFormat:@"%@ · %@ ms · %@ · %@",
+        detail.text = [NSString stringWithFormat:@"%@ · %@ ms to host · %@ · %@",
             controller, player[@"ping"] ?: @0, compatibility, ready];
         if (![player[@"compatible"] boolValue])
             detail.textColor = UIColor.systemOrangeColor;

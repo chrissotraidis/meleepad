@@ -26,7 +26,11 @@ for contract in \
   'CHAT_CONTROL_PATTERN' \
   'BLOCKED_TEXT_FRAGMENTS' \
   'REPORT_REASONS' \
-  'Different MeleePad build' \
+  'Different app build' \
+  'DIRECTORY_PROTOCOL = "pad-lobby-1"' \
+  'PRODUCT_PATTERN' \
+  'host.product_id != guest.product_id' \
+  'def activity(' \
   'traversal_code' \
   'Cache-Control' \
   'no-store'; do
@@ -40,11 +44,13 @@ fi
 
 grep -Fq '"capacity"' "$SERVER"
 grep -Fq 'REPORT_CONTEXT' "$SERVER"
-for contract in '"roster"' '"open_seats"' '"updated_seconds_ago"' '"joinable"'; do
+for contract in '"roster"' '"open_seats"' '"updated_seconds_ago"' '"joinable"' '"product_id"'; do
   grep -Fq "$contract" "$SERVER"
 done
 
 grep -Fq 'moderngekko-netplay-8' "$CLIENT"
+grep -Fq 'MeleePadPublicLobbyProductID' "$CLIENT"
+grep -Fq '/v1/activity' "$CLIENT"
 grep -Fq 'moderngekko-netplay-8' "$ROOT/services/lobby/test_server.py"
 grep -Fq 'traversal code only after compatible join' "$DESIGN"
 

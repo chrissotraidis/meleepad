@@ -4,12 +4,14 @@
 #import <TargetConditionals.h>
 
 NSString *const MeleePadPublicLobbyProtocol = @"moderngekko-netplay-8";
+NSString *const MeleePadPublicLobbyProductID = @"meleepad";
 static const NSUInteger MeleePadMaximumLobbyResponseBytes = 64 * 1024;
 
 static NSString *MeleePadLobbyRoute(NSString *path) {
     NSString *cleanPath = [path componentsSeparatedByString:@"?"].firstObject;
     if ([cleanPath isEqualToString:@"/v1/sessions"]) return @"session_create";
     if ([cleanPath isEqualToString:@"/v1/rooms"]) return @"rooms_collection";
+    if ([cleanPath isEqualToString:@"/v1/activity"]) return @"activity_collection";
     if ([cleanPath isEqualToString:@"/v1/blocks"]) return @"block_create";
     if ([cleanPath isEqualToString:@"/v1/reports"]) return @"report_create";
     if ([cleanPath hasSuffix:@"/join"]) return @"room_join";
@@ -89,6 +91,7 @@ static NSString *MeleePadLobbyRoute(NSString *path) {
         ?: @"unknown";
     NSDictionary *body = @{
         @"display_name": nickname,
+        @"product_id": MeleePadPublicLobbyProductID,
         @"app_version": version,
         @"build": build,
         @"protocol": MeleePadPublicLobbyProtocol,
@@ -110,6 +113,11 @@ static NSString *MeleePadLobbyRoute(NSString *path) {
 
 - (void)fetchRoomsWithCompletion:(MeleePadLobbyResult)completion {
     [self requestMethod:@"GET" path:@"/v1/rooms" body:nil authenticated:YES
+             completion:completion];
+}
+
+- (void)fetchActivityWithCompletion:(MeleePadLobbyResult)completion {
+    [self requestMethod:@"GET" path:@"/v1/activity" body:nil authenticated:YES
              completion:completion];
 }
 
@@ -307,6 +315,7 @@ static NSString *MeleePadLobbyRoute(NSString *path) {
         BOOL routinePoll = [route isEqualToString:@"host_heartbeat"] ||
             [route isEqualToString:@"member_heartbeat"] ||
             ([route isEqualToString:@"rooms_collection"] && [method isEqualToString:@"GET"]) ||
+            ([route isEqualToString:@"activity_collection"] && [method isEqualToString:@"GET"]) ||
             ([route isEqualToString:@"room_messages"] && [method isEqualToString:@"GET"]);
         if (message.length > 0 || !routinePoll) {
             NSUInteger elapsedMilliseconds = (NSUInteger)MAX(0.0,
