@@ -12,6 +12,20 @@ acceptance without repeating the transport vertical slice. The current work is
 still an engineering preview; “Online Play with Friends (Beta)” remains the
 claim earned only by B10.
 
+On 2026-09-04, Preview 2 build 5 on a physical iPad progressed from `Creating
+lobby` to `Internet room is ready` and received a room code. A VPN was active,
+so the delay is not a clean timing result. This closes only physical host
+registration, not a peer connection or match. The next gate is a bounded
+Private Room community test across independent networks. Public-lobby
+deployment is deferred until that gameplay evidence is positive.
+
+The current completion log is insufficient to explain a slow `Creating lobby`
+attempt. Before the next build, add privacy-safe breadcrumbs for request start,
+traversal phase changes, elapsed time, timeout/cancel, and final outcome. Never
+include a room code, player name, token, or full address. The UI must also stop
+with a useful retry message instead of spinning forever when traversal cannot
+register.
+
 ## Goal
 
 Ship a real friends-only Online Play beta inside MeleePad. A person opens the
@@ -73,6 +87,7 @@ matchmaking, a public lobby, spectating, or anonymous pairing.
 | iPhone interaction | compile coverage only | missing |
 | Room-code client | `NetplaySession` host/join vertical slice works | partial |
 | Traversal service | Dolphin public service works in retained test; no MeleePad-operated endpoint | partial |
+| Physical iPad hosting | Preview 2 build 5 created a room code; no remote peer joined | partial |
 | Relay | no implementation or measured need decision | missing |
 | Real internet/device beta | no evidence | missing |
 

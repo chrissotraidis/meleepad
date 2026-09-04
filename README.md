@@ -222,6 +222,37 @@ They do not connect to Slippi or provide encrypted gameplay.
 </details>
 
 <details>
+<summary>Do Private Room players need to be on the same Wi-Fi?</summary>
+
+No. Private Room is specifically the option to test with a trusted player on
+another Internet connection. The host creates an eight-character code and the
+other player enters it. Dolphin's public traversal service introduces the two
+devices, then controller input travels directly between them.
+
+This automatic connection can fail on restrictive routers, cellular or hotel
+networks, and some VPNs because Preview 2 has no relay fallback. For the
+cleanest first test, use ordinary home Wi-Fi on both sides, turn off VPNs, keep
+MeleePad in the foreground, and try switching which player hosts if the first
+attempt fails.
+
+</details>
+
+<details>
+<summary>What should I do if “Creating lobby” takes a long time?</summary>
+
+Give the first attempt a short chance to finish. MeleePad is registering the
+host with Dolphin's public traversal service and waiting for a room code. If
+the room appears, record roughly how long creation took; a delayed success is
+still useful test evidence.
+
+If it does not finish, tap **Cancel**, turn off any VPN, confirm that the device
+has working Internet access, and retry once. Then use **More (•••) → Share
+Diagnostic Logs** and report whether the attempt eventually succeeded. Never
+post the room code or an IP address in a public issue.
+
+</details>
+
+<details>
 <summary>Why are Public Games offline in this build?</summary>
 
 Public Games needs an online MeleePad lobby service. The app cannot safely
@@ -530,8 +561,9 @@ physical-controller profiles are preserved.
 | Private eight-character room codes | Production public-game browser |
 | Direct IP for advanced testing | Automatic or ranked matchmaking |
 | Two-player Mac/iPad Simulator evidence | Verified four-player online rooms |
+| Physical-iPad room creation | Physical-device completed Internet matches |
 | Compatibility checks and desync shutdown | Relay fallback or encrypted gameplay |
-| Native Host, Join, Ready, and Start flow | Physical-device Internet beta evidence |
+| Native Host, Join, Ready, and Start flow | General multiplayer-beta evidence |
 
 ### What a player can do in Preview 2
 
@@ -547,6 +579,11 @@ physical-controller profiles are preserved.
 
 This flow depends on Dolphin's public traversal service. There is no in-app
 list of strangers to play in the shipped configuration.
+
+Players do not need the same public IP address or Wi-Fi network. In fact, the
+most useful community test places the two players on independent networks.
+Follow the [Private Room community test guide](docs/PRIVATE-ROOM-TESTING.md) and
+report the complete result, including slow or failed attempts.
 
 ### Safety and privacy today
 
@@ -585,6 +622,7 @@ list of strangers to play in the shipped configuration.
 | Mac and iPad direct connection | Clean rebuilt peers sustained synchronized execution in both host directions beyond the old failure point |
 | iPhone multiplayer interaction | Compile coverage only; no completed device match |
 | Public Internet room code | Dolphin's live traversal service created/resolved fresh codes; Mac/iPad Simulator sustained about 4,700 rendered frames in each host direction |
+| Physical iPad room creation | Preview 2 build 5 reached `Internet room is ready` and received a room code; no remote peer joined, so this is not match or P2P acceptance |
 | Public room discovery | Local lobby service discovered a live Mac traversal host and authorized an iPad Simulator join; production service is not deployed |
 
 The earlier Mac/iPad canonical failure was stale-build contamination and did
@@ -637,15 +675,18 @@ the [Pad Lobby Protocol goal loop](docs/PAD-LOBBY-PROTOCOL-GOAL-LOOP.md).
 
 The next-preview plan is deliberately staged:
 
-1. deploy a supported HTTPS staging discovery service with durable moderation,
-   rate limits, monitoring, retention deletion, and rollback;
+1. run bounded Private Room community tests on Preview 2 build 5, beginning
+   with trusted two-player pairs on independent networks;
 2. finish full matches on physical Apple devices across independent networks,
    including NAT, disconnect, backgrounding, save, input, audio, and thermal
    coverage;
-3. run a small moderated production canary with operator and abuse-response
-   drills; and
-4. freeze one version/build/protocol tuple for the next preview, keeping Public
-   Games disabled if the service or moderation gate is incomplete.
+3. use the connection-success, latency, desync, and rematch evidence as the
+   go/no-go gate for further public-lobby work;
+4. only after that gate passes, deploy a supported HTTPS staging discovery
+   service with durable moderation, rate limits, monitoring, retention
+   deletion, and rollback; and
+5. freeze one version/build/protocol tuple for the next preview, keeping Public
+   Games disabled if either gameplay or service acceptance is incomplete.
 
 The detailed gates and stop rules are in the
 [public lobby goal loop](docs/PUBLIC-LOBBY-GOAL-LOOP.md).
@@ -678,6 +719,13 @@ and include:
 - relevant display, audio, and controller settings; and
 - the diagnostic export, after checking it for anything you do not want to
   share.
+
+For Online Play, also include whether you hosted or joined, whether the players
+used the same or separate networks, whether either side used a VPN, approximate
+time to receive the room code, approximate ping if a peer connected, and
+whether a full match, results screen, character select, and rematch completed.
+The [community test guide](docs/PRIVATE-ROOM-TESTING.md) contains a copyable
+report template.
 
 Never upload a game image, extracted game data, save files, signing material,
 IP addresses, or room codes.

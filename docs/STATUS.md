@@ -1,5 +1,21 @@
 # meleepad status
 
+## 2026-09-04 — physical iPad creates a Private Room
+
+The installed Preview 2 build 5 on the connected iPad Pro progressed from
+`Creating lobby` to `Internet room is ready` and displayed a fresh room code.
+The app process remained alive, and the captured system-log window contained no
+MeleePad crash or networking fault. A VPN was active during the attempt, so the
+observed delay is not a clean traversal-latency measurement and the VPN cannot
+be identified as the cause from this run alone.
+
+This proves only physical-device host registration with Dolphin's public
+traversal service. No remote peer joined, no NAT traversal between independent
+networks occurred, and no match, results return, or rematch was exercised.
+Private Room community testing now precedes any public-lobby deployment. The
+test procedure and privacy-safe report template are in
+[`PRIVATE-ROOM-TESTING.md`](PRIVATE-ROOM-TESTING.md).
+
 ## 2026-09-03 — Preview 2 release contract
 
 Preview 2 packages the current networking work as version `0.1.0`, build `5`.
