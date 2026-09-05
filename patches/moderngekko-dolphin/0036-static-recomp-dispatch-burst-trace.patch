@@ -47,6 +47,8 @@ diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp b/Source
 +  {
 +    std::fprintf(stderr, "[staticrecomp] dispatch-burst open failed: %s\n",
 +                 m_dispatch_burst_log_path.c_str());
++    m_dispatch_burst_log_path.clear();
++    m_dispatch_burst_samples.clear();
 +  }
 +}
 +

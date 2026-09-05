@@ -16,15 +16,23 @@ python3 scripts/test_analyze_triggered_native_pcs.py
 python3 scripts/test_lightweight_frame_timing_patch.py
 python3 scripts/test_triggered_thread_sampler.py
 python3 scripts/test_analyze_region_coverage.py
+python3 scripts/test_analyze_stable_dispatch_regions.py
+python3 scripts/test_analyze_dispatch_time_samples.py
+python3 scripts/test_compare_dispatch_time_analyses.py
+python3 scripts/test_summarize_frame_phase_windows.py
 python3 scripts/test_analyze_dispatch_delta.py
 python3 scripts/test_dispatch_sample_phase_patch.py
+python3 scripts/test_dispatch_time_attribution_patch.py
+python3 scripts/test_secondary_idle_preflight_patch.py
 python3 scripts/test_caller_idle_preflight_patch.py
 python3 scripts/test_analyze_dispatch_edge_traces.py
 tests/test-input-pipe-encoder.sh
+tests/test-benchmark-route.sh
 tests/test-pipe-short-tap-latching.sh
 tests/test-controller-mapping.sh
 tests/test-controller-slots.sh
 tests/test-diagnostics.sh
+tests/test-offline-cheats.sh
 tests/test-macos-diagnostics-export.sh
 tests/test-macos-keyboard-profile.sh
 tests/test-experimental-performance-config.sh
@@ -42,11 +50,13 @@ tests/test-netplay-internet-rooms.sh
 tests/test-cross-platform-idle-policy.sh
 tests/test-static-recomp-loop-hoists.sh
 tests/test-frame-workload-attribution.sh
+tests/test-texture-pool-attribution.sh
 tests/test-xfb-boundary-attribution.sh
 tests/test-lockstep-cache-side-effect-skip.sh
 tests/test-lockstep-loop-replay.sh
 tests/test-lockstep-repeat-set.sh
 tests/test-static-recomp-dispatch-burst-trace.sh
+tests/test-ios-module-cpu-tune.sh
 tests/test-ios-simulator-savestate-signals.sh
 tests/test-capture-projection-trigger.sh
 tests/test-g8-human-acceptance-harness.sh

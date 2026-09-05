@@ -1,0 +1,282 @@
+diff --git a/Source/Core/Common/FramePhaseTiming.h b/Source/Core/Common/FramePhaseTiming.h
+index b21f97b9f6..559290a0e4 100644
+--- a/Source/Core/Common/FramePhaseTiming.h
++++ b/Source/Core/Common/FramePhaseTiming.h
+@@ -28,6 +28,15 @@ inline std::atomic<u64> s_metal_update_backbuffer_ns{0};
+ inline std::atomic<u64> s_metal_set_framebuffer_ns{0};
+ inline std::atomic<u64> s_metal_pipeline_creates{0};
+ inline std::atomic<u64> s_metal_pipeline_create_ns{0};
++inline std::atomic<u64> s_texture_pool_hits{0};
++inline std::atomic<u64> s_texture_pool_empty_misses{0};
++inline std::atomic<u64> s_texture_pool_same_frame_misses{0};
++inline std::atomic<u64> s_texture_pool_expirations{0};
++inline std::atomic<u64> s_texture_pool_recent_expiry_misses{0};
++inline std::atomic<u64> s_texture_create_calls{0};
++inline std::atomic<u64> s_texture_create_ns{0};
++inline std::atomic<u64> s_framebuffer_create_calls{0};
++inline std::atomic<u64> s_framebuffer_create_ns{0};
+ inline std::atomic<u64> s_static_recomp_bursts{0};
+ inline std::atomic<u64> s_static_recomp_cycles{0};
+ inline std::atomic<u64> s_static_recomp_native_dispatches{0};
+@@ -149,6 +158,42 @@ inline void AddMetalPipelineCreate(DT duration)
+   s_metal_pipeline_create_ns.fetch_add(ToNanoseconds(duration), std::memory_order_relaxed);
+ }
+ 
++inline void AddTexturePoolLookup(bool hit, bool same_frame_miss)
++{
++  if (!IsEnabled())
++    return;
++
++  if (hit)
++    s_texture_pool_hits.fetch_add(1, std::memory_order_relaxed);
++  else if (same_frame_miss)
++    s_texture_pool_same_frame_misses.fetch_add(1, std::memory_order_relaxed);
++  else
++    s_texture_pool_empty_misses.fetch_add(1, std::memory_order_relaxed);
++}
++
++inline void AddTexturePoolExpirations(u64 count)
++{
++  if (IsEnabled() && count != 0)
++    s_texture_pool_expirations.fetch_add(count, std::memory_order_relaxed);
++}
++
++inline void AddTexturePoolRecentExpiryMiss()
++{
++  s_texture_pool_recent_expiry_misses.fetch_add(1, std::memory_order_relaxed);
++}
++
++inline void AddTextureCreate(DT duration)
++{
++  s_texture_create_calls.fetch_add(1, std::memory_order_relaxed);
++  s_texture_create_ns.fetch_add(ToNanoseconds(duration), std::memory_order_relaxed);
++}
++
++inline void AddFramebufferCreate(DT duration)
++{
++  s_framebuffer_create_calls.fetch_add(1, std::memory_order_relaxed);
++  s_framebuffer_create_ns.fetch_add(ToNanoseconds(duration), std::memory_order_relaxed);
++}
++
+ inline void AddStaticRecompWork(u64 bursts, u64 cycles, u64 native_dispatches, u64 fallback_steps,
+                                 u64 hook_fallbacks)
+ {
+@@ -307,6 +352,15 @@ struct Totals
+   u64 metal_set_framebuffer_ns;
+   u64 metal_pipeline_creates;
+   u64 metal_pipeline_create_ns;
++  u64 texture_pool_hits;
++  u64 texture_pool_empty_misses;
++  u64 texture_pool_same_frame_misses;
++  u64 texture_pool_expirations;
++  u64 texture_pool_recent_expiry_misses;
++  u64 texture_create_calls;
++  u64 texture_create_ns;
++  u64 framebuffer_create_calls;
++  u64 framebuffer_create_ns;
+   u64 static_recomp_bursts;
+   u64 static_recomp_cycles;
+   u64 static_recomp_native_dispatches;
+@@ -360,6 +414,15 @@ inline Totals GetTotals()
+       s_metal_set_framebuffer_ns.load(std::memory_order_relaxed),
+       s_metal_pipeline_creates.load(std::memory_order_relaxed),
+       s_metal_pipeline_create_ns.load(std::memory_order_relaxed),
++      s_texture_pool_hits.load(std::memory_order_relaxed),
++      s_texture_pool_empty_misses.load(std::memory_order_relaxed),
++      s_texture_pool_same_frame_misses.load(std::memory_order_relaxed),
++      s_texture_pool_expirations.load(std::memory_order_relaxed),
++      s_texture_pool_recent_expiry_misses.load(std::memory_order_relaxed),
++      s_texture_create_calls.load(std::memory_order_relaxed),
++      s_texture_create_ns.load(std::memory_order_relaxed),
++      s_framebuffer_create_calls.load(std::memory_order_relaxed),
++      s_framebuffer_create_ns.load(std::memory_order_relaxed),
+       s_static_recomp_bursts.load(std::memory_order_relaxed),
+       s_static_recomp_cycles.load(std::memory_order_relaxed),
+       s_static_recomp_native_dispatches.load(std::memory_order_relaxed),
+diff --git a/Source/Core/VideoCommon/Present.cpp b/Source/Core/VideoCommon/Present.cpp
+index 83e77d46b9..c2bba910fe 100644
+--- a/Source/Core/VideoCommon/Present.cpp
++++ b/Source/Core/VideoCommon/Present.cpp
+@@ -4,6 +4,7 @@
+ #include "VideoCommon/Present.h"
+ 
+ #include "Common/ChunkFile.h"
++#include "Common/FileUtil.h"
+ #include "Common/FramePhaseTiming.h"
+ #include "Core/Config/GraphicsSettings.h"
+ #include "Core/Config/MainSettings.h"
+@@ -28,6 +29,7 @@
+ 
+ #include <array>
+ #include <chrono>
++#include <filesystem>
+ #include <fstream>
+ #include <iomanip>
+ #if defined(__APPLE__)
+@@ -74,7 +76,10 @@ public:
+     if (!m_file.is_open())
+     {
+       const char* path = std::getenv("MELEEPAD_FRAME_PHASE_LOG");
+-      m_file.open(path, std::ios_base::out);
++      std::filesystem::path resolved_path(path);
++      if (resolved_path.is_relative())
++        resolved_path = std::filesystem::path(File::GetUserPath(D_LOGS_IDX)) / resolved_path;
++      m_file.open(resolved_path, std::ios_base::out);
+       if (!m_file.is_open())
+         return;
+       m_file << "frame,emulated_frame,host_frame_end_unix_ns,total_ms,cpu_wall_ms,cpu_thread_ms,task_context_switches,task_mach_syscalls,task_unix_syscalls,cpu_idle_ms,cpu_throttle_sleep_ms,"
+@@ -85,6 +90,7 @@ public:
+                 "present_xfb_ms,present_ui_ms,metal_bind_surface_ms,metal_next_drawable_ms,"
+                 "metal_update_backbuffer_ms,metal_set_framebuffer_ms,"
+                 "audio_mix_ms,draw_calls,primitives,vertex_shaders_created,pixel_shaders_created,textures_created,metal_pipeline_creates,metal_pipeline_ms,"
++                "texture_pool_hits,texture_pool_empty_misses,texture_pool_same_frame_misses,texture_pool_expirations,texture_pool_recent_expiry_misses,texture_create_calls,texture_create_ms,framebuffer_create_calls,framebuffer_create_ms,"
+                 "static_bursts,static_cycles,static_native_dispatches,"
+                 "static_fallback_steps,static_hook_fallbacks,fallback_mfspr,fallback_mtspr,"
+                 "fallback_cache,fallback_dcbst,fallback_dcbf,fallback_dcbi,fallback_icbi,"
+@@ -189,6 +195,21 @@ public:
+            << counter_ms(totals.metal_pipeline_create_ns,
+                          m_previous_totals.metal_pipeline_create_ns)
+            << ','
++           << totals.texture_pool_hits - m_previous_totals.texture_pool_hits << ','
++           << totals.texture_pool_empty_misses - m_previous_totals.texture_pool_empty_misses
++           << ','
++           << totals.texture_pool_same_frame_misses -
++                  m_previous_totals.texture_pool_same_frame_misses
++           << ','
++           << totals.texture_pool_expirations - m_previous_totals.texture_pool_expirations << ','
++           << totals.texture_pool_recent_expiry_misses -
++                  m_previous_totals.texture_pool_recent_expiry_misses
++           << ','
++           << totals.texture_create_calls - m_previous_totals.texture_create_calls << ','
++           << counter_ms(totals.texture_create_ns, m_previous_totals.texture_create_ns) << ','
++           << totals.framebuffer_create_calls - m_previous_totals.framebuffer_create_calls << ','
++           << counter_ms(totals.framebuffer_create_ns, m_previous_totals.framebuffer_create_ns)
++           << ','
+            << totals.static_recomp_bursts - m_previous_totals.static_recomp_bursts << ','
+            << totals.static_recomp_cycles - m_previous_totals.static_recomp_cycles << ','
+            << totals.static_recomp_native_dispatches -
+diff --git a/Source/Core/VideoCommon/TextureCacheBase.cpp b/Source/Core/VideoCommon/TextureCacheBase.cpp
+index c5d6096391..3e80462195 100644
+--- a/Source/Core/VideoCommon/TextureCacheBase.cpp
++++ b/Source/Core/VideoCommon/TextureCacheBase.cpp
+@@ -22,6 +22,7 @@
+ #include "Common/ChunkFile.h"
+ #include "Common/CommonTypes.h"
+ #include "Common/FileUtil.h"
++#include "Common/FramePhaseTiming.h"
+ #include "Common/Hash.h"
+ #include "Common/Logging/Log.h"
+ #include "Common/MathUtil.h"
+@@ -62,6 +63,7 @@ static const u64 TEXHASH_INVALID = 0;
+ // Sonic the Fighters (inside Sonic Gems Collection) loops a 64 frames animation
+ static const int TEXTURE_KILL_THRESHOLD = 64;
+ static const int TEXTURE_POOL_KILL_THRESHOLD = 3;
++static const int TEXTURE_POOL_RECENT_EXPIRY_THRESHOLD = 30;
+ 
+ static int xfb_count = 0;
+ 
+@@ -176,6 +178,15 @@ void TextureCacheBase::OnConfigChanged(const VideoConfig& config)
+ 
+ void TextureCacheBase::Cleanup(int _frameCount)
+ {
++  const bool log_phase = Common::FramePhaseTiming::IsEnabled();
++  if (log_phase)
++  {
++    m_texture_pool_diagnostic_frame = _frameCount;
++    std::erase_if(m_recently_expired_texture_configs, [_frameCount](const auto& entry) {
++      return _frameCount > entry.second.first + TEXTURE_POOL_RECENT_EXPIRY_THRESHOLD;
++    });
++  }
++
+   TexAddrCache::iterator iter = m_textures_by_address.begin();
+   TexAddrCache::iterator tcend = m_textures_by_address.end();
+   while (iter != tcend)
+@@ -216,6 +227,7 @@ void TextureCacheBase::Cleanup(int _frameCount)
+ 
+   TexPool::iterator iter2 = m_texture_pool.begin();
+   TexPool::iterator tcend2 = m_texture_pool.end();
++  u64 expired_pool_entries = 0;
+   while (iter2 != tcend2)
+   {
+     if (iter2->second.frameCount == FRAMECOUNT_INVALID)
+@@ -224,13 +236,21 @@ void TextureCacheBase::Cleanup(int _frameCount)
+     }
+     if (_frameCount > TEXTURE_POOL_KILL_THRESHOLD + iter2->second.frameCount)
+     {
++      if (log_phase)
++      {
++        auto& [last_expiry_frame, count] = m_recently_expired_texture_configs[iter2->first];
++        last_expiry_frame = _frameCount;
++        ++count;
++      }
+       iter2 = m_texture_pool.erase(iter2);
++      ++expired_pool_entries;
+     }
+     else
+     {
+       ++iter2;
+     }
+   }
++  Common::FramePhaseTiming::AddTexturePoolExpirations(expired_pool_entries);
+ }
+ 
+ bool TCacheEntry::OverlapsMemoryRange(u32 range_address, u32 range_size) const
+@@ -2682,7 +2702,25 @@ TextureCacheBase::AllocateTexture(const TextureConfig& config)
+     return std::move(entry);
+   }
+ 
++  const bool log_phase = Common::FramePhaseTiming::IsEnabled();
++  if (log_phase)
++  {
++    auto expired = m_recently_expired_texture_configs.find(config);
++    if (expired != m_recently_expired_texture_configs.end() &&
++        m_texture_pool_diagnostic_frame <=
++            expired->second.first + TEXTURE_POOL_RECENT_EXPIRY_THRESHOLD &&
++        expired->second.second != 0)
++    {
++      Common::FramePhaseTiming::AddTexturePoolRecentExpiryMiss();
++      if (--expired->second.second == 0)
++        m_recently_expired_texture_configs.erase(expired);
++    }
++  }
++
++  const TimePoint texture_create_start = log_phase ? Clock::now() : TimePoint{};
+   std::unique_ptr<AbstractTexture> texture = g_gfx->CreateTexture(config);
++  if (log_phase)
++    Common::FramePhaseTiming::AddTextureCreate(Clock::now() - texture_create_start);
+   if (!texture)
+   {
+     WARN_LOG_FMT(VIDEO, "Failed to allocate a {}x{}x{} texture", config.width, config.height,
+@@ -2693,7 +2731,10 @@ TextureCacheBase::AllocateTexture(const TextureConfig& config)
+   std::unique_ptr<AbstractFramebuffer> framebuffer;
+   if (config.IsRenderTarget())
+   {
++    const TimePoint framebuffer_create_start = log_phase ? Clock::now() : TimePoint{};
+     framebuffer = g_gfx->CreateFramebuffer(texture.get(), nullptr);
++    if (log_phase)
++      Common::FramePhaseTiming::AddFramebufferCreate(Clock::now() - framebuffer_create_start);
+     if (!framebuffer)
+     {
+       WARN_LOG_FMT(VIDEO, "Failed to allocate a {}x{}x{} framebuffer", config.width, config.height,
+@@ -2718,6 +2759,8 @@ TextureCacheBase::FindMatchingTextureFromPool(const TextureConfig& config)
+   auto matching_iter = std::find_if(range.first, range.second, [](const auto& iter) {
+     return iter.first.IsRenderTarget() || iter.second.frameCount != FRAMECOUNT_INVALID;
+   });
++  Common::FramePhaseTiming::AddTexturePoolLookup(matching_iter != range.second,
++                                                 range.first != range.second);
+   return matching_iter != range.second ? matching_iter : m_texture_pool.end();
+ }
+ 
+diff --git a/Source/Core/VideoCommon/TextureCacheBase.h b/Source/Core/VideoCommon/TextureCacheBase.h
+index d596f84e5e..0a54ed7b87 100644
+--- a/Source/Core/VideoCommon/TextureCacheBase.h
++++ b/Source/Core/VideoCommon/TextureCacheBase.h
+@@ -423,6 +423,8 @@ private:
+   std::array<RcTcacheEntry, 8> m_bound_textures{};
+ 
+   TexPool m_texture_pool;
++  std::unordered_map<TextureConfig, std::pair<int, u64>> m_recently_expired_texture_configs;
++  int m_texture_pool_diagnostic_frame = 0;
+   u64 m_last_entry_id = 0;
+ 
+   // Backup configuration values

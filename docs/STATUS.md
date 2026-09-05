@@ -1,5 +1,25 @@
 # meleepad status
 
+## 2026-09-05 — Preview 3 build 7 release candidate
+
+Preview 3 packages the current experimental Private Room and Direct IP flows,
+temporary peer chat, the accepted touch/controller C-stick battle repair, the
+retained physical-iOS A15 scheduling tune, unified problem reporting, and the
+offline unlock toggle. The complete repository check passes. The user accepted
+the corrected current-build C-stick behavior after testing it on attached Apple
+hardware.
+
+Private Room and Direct IP are live as experimental preview features. Public
+Games remains deliberately offline because no production MeleePad HTTPS lobby
+endpoint is configured. Complete physical-device Internet matches,
+independent-network NAT coverage, lifecycle recovery, and rematches remain open;
+this is not a general multiplayer-beta claim.
+
+The iPhone 14 scheduling change retained a matched late-window 8.62% CPU-time
+reduction and almost one FPS cadence improvement. Heavy scenes can still miss
+native cadence at 1x and sustained 60 FPS is not claimed. The public Preview 3
+IPA is an unsigned, module-free app shell and is not playable as downloaded.
+
 ## 2026-09-04 — build 6 adds Private Room and Direct IP peer chat
 
 Current `main` build 6 adds the missing Room Chat composer to connected Private

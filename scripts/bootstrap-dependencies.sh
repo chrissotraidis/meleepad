@@ -152,6 +152,7 @@ netplay_canonical_boundary_test_patch="$ROOT/patches/moderngekko/0018-netplay-ca
 netplay_canonical_status_patch="$ROOT/patches/moderngekko/0019-netplay-canonical-status-history.patch"
 netplay_internet_rooms_patch="$ROOT/patches/moderngekko/0020-netplay-internet-rooms.patch"
 netplay_peer_chat_patch="$ROOT/patches/moderngekko/0021-netplay-peer-chat.patch"
+secondary_idle_policy_patch="$ROOT/patches/moderngekko/0022-secondary-idle-policy.patch"
 render_log_patch="$ROOT/patches/moderngekko-dolphin/0002-buffer-render-time-logging.patch"
 idle_patch="$ROOT/patches/moderngekko-dolphin/0003-gale01r0-staticrecomp-idle.patch"
 memory_watcher_patch="$ROOT/patches/moderngekko-dolphin/0004-static-recomp-memory-watcher.patch"
@@ -199,7 +200,11 @@ netplay_timebase_telemetry_patch="$ROOT/patches/moderngekko-dolphin/0042-netplay
 netplay_execution_fingerprint_patch="$ROOT/patches/moderngekko-dolphin/0043-netplay-execution-fingerprint.patch"
 netplay_canonical_boundary_patch="$ROOT/patches/moderngekko-dolphin/0044-netplay-canonical-boundary.patch"
 netplay_canonical_summary_patch="$ROOT/patches/moderngekko-dolphin/0045-netplay-canonical-difference-summary.patch"
+texture_pool_attribution_patch="$ROOT/patches/moderngekko-dolphin/0046-texture-pool-attribution.patch"
 netplay_chat_log_redaction_patch="$ROOT/patches/moderngekko-dolphin/0047-redact-netplay-chat-logs.patch"
+dispatch_time_attribution_patch="$ROOT/patches/moderngekko-dolphin/0048-dispatch-time-attribution.patch"
+secondary_idle_preflight_patch="$ROOT/patches/moderngekko-dolphin/0049-secondary-idle-preflight.patch"
+module_cpu_tune_patch="$ROOT/patches/moderngekko-dolphin/0050-module-cpu-tune.patch"
 apply_patch_once_or_marker "$MG" "$mg_patch" \
   include/moderngekko/runtime.hpp 'struct RuntimeDiagnosticsSnapshot'
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$dolphin_patch" \
@@ -211,7 +216,8 @@ apply_patch_once "$MG" "$memory_watcher_test_patch"
 apply_patch_once_or_marker "$MG" "$module_source_cache_patch" \
   tools/moderngekko_port.cpp ModuleSourceFingerprint
 apply_patch_once "$MG/vendor/dolphin" "$render_log_patch"
-apply_patch_once "$MG/vendor/dolphin" "$idle_patch"
+apply_patch_once_or_marker "$MG/vendor/dolphin" "$idle_patch" \
+  Data/Sys/GameSettings/GALE01r0.ini 'StaticRecompIdlePC = 0x80348814'
 apply_patch_once "$MG/vendor/dolphin" "$memory_watcher_patch"
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$profile_hooks_patch" \
   module-template/module_export.c staticrecomp_profile_reset
@@ -227,7 +233,8 @@ apply_patch_once_or_marker "$MG/vendor/dolphin" "$cache_control_patch" \
   Source/Core/Common/FramePhaseTiming.h s_static_recomp_cache_controls
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$slow_window_patch" \
   Source/Core/VideoCommon/Present.cpp MELEEPAD_FRAME_PHASE_SLOW_MARKER
-apply_patch_once "$MG/vendor/dolphin" "$dispatch_counts_patch"
+apply_patch_once_or_marker "$MG/vendor/dolphin" "$dispatch_counts_patch" \
+  module-template/CMakeLists.txt RECOMPCORE_MODULE_DISPATCH_COUNTS
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$dispatch_frame_patch" \
   Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp \
   STATICRECOMP_DISPATCH_FRAME_LOG
@@ -302,9 +309,18 @@ apply_patch_once_or_marker "$MG/vendor/dolphin" "$static_recomp_dispatch_burst_p
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$dispatch_sample_phase_patch" \
   Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp \
   STATICRECOMP_DISPATCH_SAMPLE_INTERVAL
+apply_patch_once_or_marker "$MG/vendor/dolphin" "$dispatch_time_attribution_patch" \
+  Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp \
+  STATICRECOMP_DISPATCH_TIME_LOG
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$caller_idle_preflight_patch" \
   Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp \
   STATICRECOMP_CALLER_IDLE_PC
+apply_patch_once_or_marker "$MG/vendor/dolphin" "$secondary_idle_preflight_patch" \
+  Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp \
+  STATICRECOMP_SECONDARY_IDLE_PC
+apply_patch_once_or_marker "$MG/vendor/dolphin" "$module_cpu_tune_patch" \
+  module-template/CMakeLists.txt \
+  RECOMPCORE_MODULE_TUNE_CPU
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$gamecube_netplay_controller_patch" \
   Source/Core/Core/NetPlay/NetPlayProto.h \
   'enum class ControllerFamily'
@@ -326,6 +342,9 @@ apply_patch_once_or_marker "$MG/vendor/dolphin" "$netplay_canonical_boundary_pat
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$netplay_canonical_summary_patch" \
   Source/Core/Core/NetPlay/NetPlayServer.cpp \
   '" differences=" + differences'
+apply_patch_once_or_marker "$MG/vendor/dolphin" "$texture_pool_attribution_patch" \
+  Source/Core/Common/FramePhaseTiming.h \
+  s_texture_pool_recent_expiry_misses
 apply_patch_once_or_marker "$MG/vendor/dolphin" "$netplay_chat_log_redaction_patch" \
   Source/Core/Core/NetPlay/NetPlayClient.cpp \
   'Received a chat message from player'
@@ -356,6 +375,9 @@ apply_patch_once_or_marker "$MG" "$netplay_internet_rooms_patch" \
 apply_patch_once_or_marker "$MG" "$netplay_peer_chat_patch" \
   tools/netplay_session_core.cpp \
   'bool NetplaySession::SendChatMessage(std::string message)'
+apply_patch_once_or_marker "$MG" "$secondary_idle_policy_patch" \
+  src/runtime/dolphin_runtime.cpp \
+  StaticRecompSecondaryIdlePC
 verify_patch_scope "$MG" "$mg_patch" "$ROOT"/patches/moderngekko/*.patch -- \
   vendor/dolphin
 verify_patch_scope "$MG/vendor/dolphin" "$dolphin_patch" "$mg_patch" \

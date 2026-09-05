@@ -715,16 +715,6 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
         physicalTriggerR, gamepad.rightShoulder.isPressed);
     if (state.triggerL > 30) state.buttons |= MeleePadButtonL;
     if (physicalTriggerR > 30) state.buttons |= MeleePadButtonR;
-    MeleePadSettings *settings = [MeleePadSettings sharedSettings];
-    constexpr int kRightStickSmashThreshold = 82;
-    BOOL rightStickPastThreshold =
-        std::max(std::abs((int)state.cStickX), std::abs((int)state.cStickY)) >=
-        kRightStickSmashThreshold;
-    BOOL gameplayScene = settings.rightStickSmashAttacks && rightStickPastThreshold &&
-        [_coreHost isGameplayScene];
-    state = MeleePadApplyRightStickSmashMode(
-        state, settings.rightStickSmashAttacks, gameplayScene,
-        settings.modernCStickHorizontal);
     [[MeleePadInputMixer sharedMixer] setInputState:state fromTouch:NO];
 }
 
@@ -798,6 +788,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     MeleePadSettings *settings = [MeleePadSettings sharedSettings];
     [_coreHost setRenderScale:settings.renderScale];
     [_coreHost setAspectRatioMode:settings.aspectRatioMode];
+    [_coreHost setModernCStickHorizontal:settings.modernCStickHorizontal];
     [self updateFPSLabel];
 }
 
@@ -1002,6 +993,18 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
             discImagePath = bundledDisc;
     }
 #endif
+    NSString *benchmarkRoute =
+        NSProcessInfo.processInfo.environment[@"MELEEPAD_BENCHMARK_ROUTE"];
+    const BOOL benchmarkUsesExtractedDOL =
+        [benchmarkRoute isEqualToString:@"training-fod-v1"] &&
+        [NSProcessInfo.processInfo.environment[@"MELEEPAD_BENCHMARK_EXTRACTED_DOL"] boolValue];
+    if (benchmarkUsesExtractedDOL) {
+        // A generated module verifies guest code by chunk. Benchmarking a
+        // deliberately patched module therefore needs the matching extracted
+        // DOL instead of the pristine executable inside the retained ISO.
+        discImagePath = @"";
+        MeleePadLog(@"benchmark boot source=extracted-dol");
+    }
     if (discImagePath.length > 0 &&
         ![settings.retainedGameDataPath isEqualToString:discImagePath]) {
         settings.retainedGameDataPath = discImagePath;
@@ -1092,6 +1095,19 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 
 - (void)publishMergedInput {
     MeleePadInputState merged = [[MeleePadInputMixer sharedMixer] consumeMergedState];
+    MeleePadSettings *settings = [MeleePadSettings sharedSettings];
+    constexpr int kRightStickSmashThreshold = 82;
+    BOOL cStickPastThreshold =
+        std::max(std::abs((int)merged.cStickX), std::abs((int)merged.cStickY)) >=
+        kRightStickSmashThreshold;
+    BOOL gameplayScene = settings.rightStickSmashAttacks && cStickPastThreshold &&
+        [_coreHost isGameplayScene];
+    // Apply at the shared touch/controller boundary. The earlier controller-
+    // only placement left the on-screen C-stick working in menus but inert in
+    // single-player battles, exactly the physical-device regression reported.
+    merged = MeleePadApplyRightStickSmashMode(
+        merged, settings.rightStickSmashAttacks, gameplayScene,
+        settings.modernCStickHorizontal);
     [_coreHost publishInput:merged];
 }
 
@@ -1116,6 +1132,16 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     // Document-picker game-data import flow is wired in the app delegate; the
     // overlay requests a change/reimport here.
     [self presentGameDataImport];
+}
+
+- (void)gameOverlayRequestsOfflineCheatReload:(MeleePadGameOverlay *)overlay {
+    (void)overlay;
+    MeleePadLog(@"offline cheat configuration changed restart=requested");
+    if (_coreHost != nil) {
+        [_coreHost stop];
+        _coreHost = nil;
+    }
+    [self startGameIfProvisioned];
 }
 
 - (void)gameOverlayRequestsGameDataFolderImport:(MeleePadGameOverlay *)overlay {
@@ -1428,7 +1454,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
         @"appVersion=%@ build=%@\n"
          @"platform=%@ os=%@\n"
          @"screen=%@ native=%@ drawable=%@\n"
-         @"settings renderScale=%ld aspect=%ld frameMode=native-60-fps rightStickSmash=%d\n"
+         @"settings renderScale=%ld aspect=%ld frameMode=native-60-fps rightStickSmash=%d offlineUnlockAll=%d\n"
          @"controllers count=%lu names=%@\n"
          @"recentScreenshot=%@\n"
          @"performance %@\n%@",
@@ -1440,7 +1466,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
         NSStringFromCGRect(UIScreen.mainScreen.nativeBounds),
         NSStringFromCGSize(((CAMetalLayer *)_gameView.layer).drawableSize),
         (long)settings.renderScale, (long)settings.aspectRatioMode,
-        settings.rightStickSmashAttacks,
+        settings.rightStickSmashAttacks, settings.unlockAllCharactersAndStages,
         (unsigned long)controllers.count,
         controllers.count > 0 ? [controllers componentsJoinedByString:@", "] : @"none",
         screenshot, performance, [_coreHost diagnosticSummary]];
@@ -1467,7 +1493,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     MeleePadControllerButtonMapping mapping = [MeleePadControllerMappingStore mapping];
     NSString *controllerName = controller.vendorName ?: controller.productCategory;
     NSString *message = controllerName.length > 0
-        ? [NSString stringWithFormat:@"Connected: %@\nA, B, X, Y, and Z can be remapped. Right Stick Smash performs chargeable smash attacks during combat without changing menu input; turn it off for Melee's original C-stick behavior.", controllerName]
+        ? [NSString stringWithFormat:@"Connected: %@\nA, B, X, Y, and Z can be remapped. Right Stick Smash performs chargeable C-stick attacks during combat without changing menu input; turn it off for Melee's original C-stick behavior.", controllerName]
         : @"No extended controller is connected. You can review or reset the saved mapping; connect a controller to test it.";
     if (controller.physicalInputProfile.hasRemappedElements) {
         message = [message stringByAppendingString:

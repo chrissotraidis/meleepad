@@ -19,8 +19,20 @@ for field in report-id revision platform performance-profile summary context fre
   grep -Fq "queryItemWithName:@\"$field\"" "$OVERLAY"
   grep -Fq "id: $field" "$FORM"
 done
-grep -Fq 'actionWithTitle:@"Report Issue on GitHub…"' "$OVERLAY"
+grep -Fq 'actionWithTitle:@"Report a Problem…"' "$OVERLAY"
+grep -Fq 'actionWithTitle:@"Create Diagnostic & Continue…"' "$OVERLAY"
+grep -Fq 'attach Latest-MeleePad-Diagnostic.log manually' "$OVERLAY"
+grep -Fq 'MeleePad does not upload the log for you' "$OVERLAY"
+grep -Fq 'offerGitHubForReportID:reportID answers:answers' "$OVERLAY"
+if grep -Fq 'actionWithTitle:@"Export Diagnostic Log…"' "$OVERLAY" ||
+   grep -Fq 'actionWithTitle:@"Report Issue on GitHub…"' "$OVERLAY"; then
+  echo "Legacy split diagnostic actions remain in the iOS menu" >&2
+  exit 1
+fi
 grep -Fq 'id: diagnostic-report' "$FORM"
 grep -Fq 'id: visual-evidence' "$FORM"
 grep -Fq 'accept: ".log,.txt"' "$FORM"
+grep -Fq 'Create Diagnostic & Continue…' "$FORM"
+grep -Fq 'then choose **Open GitHub**' "$FORM"
+grep -Fq 'offlineUnlockAll=%d' "$ROOT/apple/ios/MeleePadGameViewController.mm"
 echo "Diagnostic UI and issue-form contract passed"

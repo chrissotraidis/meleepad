@@ -23,6 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString *)gameOverlayDiagnosticContext:(MeleePadGameOverlay *)overlay;
 /* The performance profile actually selected at launch. */
 - (NSString *)gameOverlayPerformanceProfile:(MeleePadGameOverlay *)overlay;
+/* The offline cheat selection changed and must be applied at a clean boot. */
+- (void)gameOverlayRequestsOfflineCheatReload:(MeleePadGameOverlay *)overlay;
 @end
 
 /* UIKit overlay above the game render surface: the three-dot menu, Online Play, render

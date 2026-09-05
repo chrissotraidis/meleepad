@@ -26,17 +26,16 @@ universal performance guarantee.*
 [Online play](#experimental-multiplayer) · [Get help](#reporting-issues)**
 
 > [!IMPORTANT]
-> MeleePad v0.1.0 Preview 2 adds experimental private Internet rooms, Direct IP,
-> compatibility checks, and the development public-lobby UI. It is not an
+> MeleePad v0.1.0 Preview 3 makes experimental private Internet rooms and Direct
+> IP available with temporary peer chat, compatibility checks, and the
+> development public-lobby UI. It is not an
 > online-play beta: there is no deployed public game browser, relay, automatic
 > matchmaking, ranked play, or Slippi rollback. The downloadable IPA is an
 > unsigned, module-free app shell and is **not playable as downloaded**. A
 > playable build must be generated locally from your own exact supported game
 > image. Performance and rendering still vary by scene and device.
 >
-> Current `main` is the build 6 development candidate. It adds temporary room
-> chat to Private Room and Direct IP. Preview 2 build 5 does not include that
-> peer-chat UI.
+> Preview 3 is build 7. Both players must use the same build.
 
 ### At a glance
 
@@ -46,7 +45,7 @@ universal performance guarantee.*
 | **Game input** | Your own exact USA `GALE01` revision 0 disc image |
 | **Distribution** | Source plus an unsigned, non-playable IPA shell; playable builds are generated and signed locally |
 | **Controls** | Touch, supported physical controllers, and keyboard on Mac |
-| **Online play** | Experimental MeleePad-to-MeleePad private rooms and Direct IP, with temporary peer chat on current `main`; not yet a public beta |
+| **Online play** | Experimental MeleePad-to-MeleePad private rooms and Direct IP, with temporary peer chat in Preview 3; not yet a public beta |
 | **Not included** | Melee, game assets, saves, signing material, or a generated game module |
 
 ## How MeleePad works
@@ -174,7 +173,7 @@ extracts the data the runtime needs. That data stays on your device.
 <details>
 <summary>Can I download a playable IPA?</summary>
 
-No. The [Preview 2 prerelease](https://github.com/chrissotraidis/meleepad/releases/tag/v0.1.0-preview.2)
+No. The [Preview 3 prerelease](https://github.com/chrissotraidis/meleepad/releases/tag/v0.1.0-preview.3)
 includes source and an unsigned, module-free IPA shell for inspection and
 signing-workflow development. It deliberately excludes
 `gGALE01_recomp.dylib`, so importing an ISO into that IPA cannot make it
@@ -191,7 +190,7 @@ with [first-launch game-data import](#first-launch-on-iphone-or-ipad).
 <details>
 <summary>Does multiplayer work?</summary>
 
-Experimentally. Preview 2 can create private eight-character room codes through
+Experimentally. Preview 3 can create private eight-character room codes through
 Dolphin's public traversal service, and Direct IP remains available. Retained
 Mac/iPad Simulator tests connected and ran synchronized gameplay in both host
 directions.
@@ -210,7 +209,7 @@ the exact boundary.
 - **Public Games** is the easiest discovery flow when a supported lobby service
   is configured. You can see the host, seated players, open seats, room state,
   freshness, and exact build compatibility before joining. This remains a
-  local development feature; Preview 2 does not ship with a production public
+  local development feature; Preview 3 does not ship with a production public
   browser.
 - **Private Room** is the best current choice for friends. The host creates an
   eight-character room code and shares it privately. Dolphin's traversal
@@ -264,7 +263,7 @@ discover strangers by itself: a service must publish and expire rooms, keep
 connection codes hidden until a compatible player joins, limit spam, carry
 room chat, and accept reports.
 
-Preview 2 has no production service address, so the app deliberately fails
+Preview 3 has no production service address, so the app deliberately fails
 closed. It does not send names, chat, or room information to an unknown server,
 and it does not fall back to an insecure public HTTP endpoint. The development
 service currently stores rooms and reports only in memory and is not suitable
@@ -294,7 +293,7 @@ MeleePad asks you to confirm the display name other players will see before
 connecting. The confirmed name is saved on that device. It is not an account,
 a verified identity, or included in exported diagnostic logs.
 
-Current `main` build 6 shows **Room Chat** after a Private Room or Direct IP
+Preview 3 build 7 shows **Room Chat** after a Private Room or Direct IP
 session connects. Members can type messages up to 160 characters. These
 messages use Dolphin's existing peer gameplay connection, not a MeleePad lobby
 server. They are plaintext like the gameplay traffic, kept only in a small
@@ -419,8 +418,8 @@ not passed its release gates.
 | macOS | Native Apple Silicon launcher and runner, Metal rendering, keyboard and controller profiles, matches, saves, and settings | Final display and worst-frame acceptance work remains |
 | iPhone and iPad | Native app shell, Metal gameplay, touch controls, controller mapping, More menu, exact-image import, persistent saves and settings, and diagnostic export | Serious water, reflection, and shadow rendering defects remain; the full visual, audio, controller, and lifecycle matrix has not passed |
 | Performance | A physical iPad can hold 59.9–60.0 FPS/VPS at 2x resolution during observed solo play | Preview 1 can fall to 46–57 FPS in heavier scenes under thermal pressure; results are scene- and device-specific |
-| Experimental multiplayer | Preview 2 fixed-delay Private Room and Direct IP transport, eight-character room codes, native Host/Join lobby, compatibility fingerprinting, and synchronized Mac/iPad Simulator runs in both host directions | No public matchmaking endpoint, physical-device/outside-network/full-match beta evidence, relay, or Slippi rollback |
-| Distribution | Preview 2 source plus an unsigned, module-free IPA shell; locally generated, locally signed playable apps | Public IPA is not playable as downloaded; no App Store or TestFlight build; the locally generated game module is not distributed |
+| Experimental multiplayer | Preview 3 fixed-delay Private Room and Direct IP transport, eight-character room codes, temporary peer chat, native Host/Join lobby, compatibility fingerprinting, and synchronized Mac/iPad Simulator runs in both host directions | No public matchmaking endpoint, physical-device/outside-network/full-match beta evidence, relay, or Slippi rollback |
+| Distribution | Preview 3 source plus an unsigned, module-free IPA shell; locally generated, locally signed playable apps | Public IPA is not playable as downloaded; no App Store or TestFlight build; the locally generated game module is not distributed |
 
 The combat-only right-stick mapping has passed a hands-on physical-iPad retest,
 including the required menu/gameplay behavior. The current evidence, remaining
@@ -563,17 +562,16 @@ physical-controller profiles are preserved.
 ## Experimental multiplayer
 
 > [!WARNING]
-> **Online play is not ready for general use.** Preview 2 contains experimental
+> **Online play is not ready for general use.** Preview 3 contains experimental
 > private rooms and Direct IP. Its Public Games interface has passed local
 > development testing, but no production public-game service is deployed.
-> Current `main` build 6 adds peer chat to Private Room and Direct IP for the
-> next controlled test pass.
+> Build 7 includes peer chat in Private Room and Direct IP for controlled tests.
 
 | Available now | Not available yet |
 |---|---|
 | Private eight-character room codes | Production public-game browser |
 | Direct IP for advanced testing | Automatic or ranked matchmaking |
-| Temporary peer chat on current `main` build 6 | Moderated public chat service |
+| Temporary peer chat in Preview 3 build 7 | Moderated public chat service |
 | Two-player Mac/iPad Simulator evidence | Verified four-player online rooms |
 | Physical-iPad room creation | Physical-device completed Internet matches |
 | Compatibility checks and desync shutdown | Relay fallback or encrypted gameplay |
@@ -583,8 +581,8 @@ physical-controller profiles are preserved.
 
 1. Arrange a game with another MeleePad player outside the app.
 2. Confirm that both players use the same build, the exact supported `GALE01`
-   revision 0 image, and matching gameplay settings. Use current `main` build 6
-   on both devices when testing peer chat.
+   revision 0 image, and matching gameplay settings. Use Preview 3 build 7 on
+   both devices when testing peer chat.
 3. The host opens **More (•••) → Online Play → Private Room → Host**.
 4. After the app displays an eight-character room code, the host sends it to
    the other player through a trusted channel.
@@ -613,7 +611,7 @@ report the complete result, including slow or failed attempts.
   data, saves, or signing material.
 
 <details>
-<summary>How does Preview 2 connect the players?</summary>
+<summary>How does Preview 3 connect the players?</summary>
 
 - Both players run the match locally; MeleePad exchanges synchronized
   controller input rather than streaming video.
@@ -639,7 +637,7 @@ report the complete result, including slow or failed attempts.
 | iPhone multiplayer interaction | Compile coverage only; no completed device match |
 | Public Internet room code | Dolphin's live traversal service created/resolved fresh codes; Mac/iPad Simulator sustained about 4,700 rendered frames in each host direction |
 | Physical iPad room creation | Preview 2 build 5 reached `Internet room is ready` and received a room code; no remote peer joined, so this is not match or P2P acceptance |
-| Private/Direct peer chat | Build 6 passes two-way host/join runtime coverage; its Private Room composer is visible on the physical iPad, but a two-device physical exchange remains unverified |
+| Private/Direct peer chat | Build 7 includes the build-6 two-way host/join runtime coverage; its Private Room composer is visible on the physical iPad, but a two-device physical exchange remains unverified |
 | Public room discovery | Local lobby service discovered a live Mac traversal host and authorized an iPad Simulator join; production service is not deployed |
 
 The earlier Mac/iPad canonical failure was stale-build contamination and did
@@ -651,12 +649,12 @@ the [multiplayer goal loop](docs/NETPLAY-BETA-GOAL-LOOP.md).
 
 - **Private Room** is the working Internet-room preview. Players arrange a game
   elsewhere and exchange an ephemeral room code privately. Current `main`
-  build 6 adds temporary chat over the same peer connection.
+  build 7 includes temporary chat over the same peer connection.
 - **Public Games** is the planned discovery layer. Its native UI can show
   compatible room cards and supports bounded room chat, Hide, and Report in
   local development tests. No production endpoint is deployed.
 - **Direct IP** bypasses discovery and traversal. It is intended for local
-  networks and advanced testing. Build 6 exposes the same peer-chat composer
+  networks and advanced testing. Build 7 exposes the same peer-chat composer
   after the direct session connects.
 
 The public browser is designed so room listings never reveal traversal codes.
@@ -690,11 +688,11 @@ moderation, and deployment gates are in the
 multi-game directory boundary and MeleePad-first implementation sequence are in
 the [Pad Lobby Protocol goal loop](docs/PAD-LOBBY-PROTOCOL-GOAL-LOOP.md).
 
-### Plan after Preview 2
+### Plan after Preview 3
 
 The next-preview plan is deliberately staged:
 
-1. run bounded Private Room community tests on current `main` build 6,
+1. run bounded Private Room community tests on Preview 3 build 7,
    beginning with trusted two-player pairs on independent networks and a chat
    message in each direction;
 2. finish full matches on physical Apple devices across independent networks,

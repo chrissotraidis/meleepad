@@ -15,8 +15,9 @@ for contract in \
   'm_native_dispatches % m_dispatch_sample_interval == m_dispatch_sample_offset' \
   'if (has_rel_modules)' \
   'const bool configured_idle = idle_pc != 0 && m_guest.pc == idle_pc;' \
+  'const bool secondary_idle =' \
   'const bool caller_idle = m_caller_idle_pc != 0 && m_caller_idle_lr != 0' \
-  'if (configured_idle || caller_idle)'; do
+  'if (configured_idle || secondary_idle || caller_idle)'; do
   grep -Fq -- "$contract" "$RUN"
 done
 

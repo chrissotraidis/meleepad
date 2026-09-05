@@ -62,7 +62,8 @@ cmake -S "$MG/vendor/dolphin/module-template" -B "$MODULE_BUILD" -G Ninja \
   -DGAME_ID=GALE01 \
   -DGENERATED_DIR="$GEN" \
   -DGXRUNTIME_DIR="$MG/vendor/dolphin/GXRuntime" \
-  -DCHASSIS_ABI_DIR="$MG/vendor/dolphin/Source/Core/Core/PowerPC/StaticRecomp"
+  -DCHASSIS_ABI_DIR="$MG/vendor/dolphin/Source/Core/Core/PowerPC/StaticRecomp" \
+  -DRECOMPCORE_MODULE_TUNE_CPU=apple-a15
 ninja -C "$MODULE_BUILD" -j8
 
 echo "==> Provisioning app"

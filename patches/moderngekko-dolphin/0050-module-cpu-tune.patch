@@ -1,0 +1,20 @@
+diff --git a/module-template/CMakeLists.txt b/module-template/CMakeLists.txt
+--- a/module-template/CMakeLists.txt
++++ b/module-template/CMakeLists.txt
+@@ -111,6 +111,16 @@ if(RECOMPCORE_MODULE_DISPATCH_COUNTS)
+     RECOMPCORE_MODULE_DISPATCH_COUNTS=1)
+ endif()
+ 
++set(RECOMPCORE_MODULE_TUNE_CPU "" CACHE STRING
++    "Optional CPU scheduling model for the generated module (for example apple-a15)")
++if(RECOMPCORE_MODULE_TUNE_CPU)
++  if(NOT CMAKE_C_COMPILER_ID MATCHES "Clang")
++    message(FATAL_ERROR "RECOMPCORE_MODULE_TUNE_CPU requires Clang")
++  endif()
++  target_compile_options(${MODULE_NAME} PRIVATE
++    "-mtune=${RECOMPCORE_MODULE_TUNE_CPU}")
++endif()
++
+ target_include_directories(${MODULE_NAME} PRIVATE
+   "${GENERATED_DIR}"
+   "${GXRUNTIME_DIR}/include"

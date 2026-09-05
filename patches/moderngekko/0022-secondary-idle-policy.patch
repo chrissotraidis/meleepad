@@ -1,0 +1,15 @@
+diff --git a/src/runtime/dolphin_runtime.cpp b/src/runtime/dolphin_runtime.cpp
+--- a/src/runtime/dolphin_runtime.cpp
++++ b/src/runtime/dolphin_runtime.cpp
+@@ -421,6 +421,11 @@ RuntimeCreateResult Runtime::Create(RuntimeConfig config) {
+   if (core && core->Get("StaticRecompIdlePC", &idle_pc) && idle_pc != 0) {
+     Config::SetCurrent(Config::MAIN_STATICRECOMP_IDLE_PC, idle_pc);
+   }
++  u32 secondary_idle_pc = 0;
++  if (core && core->Get("StaticRecompSecondaryIdlePC", &secondary_idle_pc) &&
++      secondary_idle_pc != 0) {
++    Config::SetCurrent(Config::MAIN_STATICRECOMP_SECONDARY_IDLE_PC, secondary_idle_pc);
++  }
+   u32 caller_idle_pc = 0;
+   u32 caller_idle_lr = 0;
+   if (core && core->Get("StaticRecompCallerIdlePC", &caller_idle_pc) &&
