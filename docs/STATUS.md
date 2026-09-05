@@ -1,6 +1,6 @@
 # meleepad status
 
-## 2026-09-05 — Preview 3 build 7 release candidate
+## 2026-09-05 — Preview 3 build 7 release
 
 Preview 3 packages the current experimental Private Room and Direct IP flows,
 temporary peer chat, the accepted touch/controller C-stick battle repair, the
@@ -19,6 +19,9 @@ The iPhone 14 scheduling change retained a matched late-window 8.62% CPU-time
 reduction and almost one FPS cadence improvement. Heavy scenes can still miss
 native cadence at 1x and sustained 60 FPS is not claimed. The public Preview 3
 IPA is an unsigned, module-free app shell and is not playable as downloaded.
+Two packaging runs from merged source were byte-identical; the audited IPA
+SHA-256 is
+`2eb4d2ca00213bbf2abbbb0c320eecbd6a3418cc691c8d17056971be2869726e`.
 
 ## 2026-09-04 — build 6 adds Private Room and Direct IP peer chat
 
