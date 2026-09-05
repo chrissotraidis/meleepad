@@ -59,3 +59,6 @@ material, or the locally generated `gGALE01_recomp.dylib` game module.
 A playable app must be built locally on an Apple Silicon Mac from the user's
 own legally obtained exact supported USA `GALE01` revision-0 disc image and
 signed with the user's own Apple development identity.
+
+Public IPA SHA-256:
+`2eb4d2ca00213bbf2abbbb0c320eecbd6a3418cc691c8d17056971be2869726e`
