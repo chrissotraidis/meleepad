@@ -75,6 +75,10 @@ NS_ASSUME_NONNULL_BEGIN
  * overlay. Safe to call from any thread. */
 - (void)setAspectRatioMode:(MeleePadAspectRatioMode)mode;
 
+/* Updates the cached C-stick orientation used by the 60 Hz input publisher.
+ * Preference reads stay on the settings/UI path rather than the hot path. */
+- (void)setModernCStickHorizontal:(BOOL)enabled;
+
 /* Current emulated FPS from the runtime (0 if not booted). */
 - (double)currentFPS;
 

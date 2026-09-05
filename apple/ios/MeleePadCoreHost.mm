@@ -1,5 +1,6 @@
 #import "MeleePadCoreHost.h"
 #import "MeleePadControllerMapping.h"
+#import "../shared/MeleePadBenchmarkRoute.h"
 #import "MeleePadDiagnostics.h"
 #import "MeleePadInputPipeEncoder.h"
 
@@ -12,6 +13,7 @@
 
 #include <atomic>
 #include <algorithm>
+#include <bit>
 #include <cerrno>
 #include <chrono>
 #include <cmath>
@@ -31,7 +33,9 @@ namespace fs = std::filesystem;
 
 #include "AudioCommon/Mixer.h"
 #include "AudioCommon/SoundStream.h"
+#include "Common/FramePhaseTiming.h"
 #include "Core/Boot/Boot.h"
+#include "Core/Config/CheatSettings.h"
 #include "Core/Config/MainSettings.h"
 #include "Core/Config/NetplaySettings.h"
 #include "Core/Core.h"
@@ -84,6 +88,83 @@ static NSString *MeleePadRuntimeUserDirectory(NSString *userDirectory) {
     return userDirectory;
 }
 
+static NSString *const MeleePadUnlockAllCodeName = @"$All Characters and Stages";
+
+/* Maintain only MeleePad's named activation in Dolphin's local GameINI. The
+ * bundled Action Replay definition remains Dolphin-owned; this file merely
+ * selects it. Unrelated user sections and code selections are preserved. */
+static BOOL MeleePadConfigureOfflineCheats(NSString *userDirectory,
+                                           BOOL unlockAll,
+                                           NSError **error) {
+    NSFileManager *fileManager = NSFileManager.defaultManager;
+    NSString *directory = [userDirectory stringByAppendingPathComponent:@"GameSettings"];
+    NSString *path = [directory stringByAppendingPathComponent:@"GALE01r0.ini"];
+    NSString *existing = [NSString stringWithContentsOfFile:path
+                                                   encoding:NSUTF8StringEncoding
+                                                      error:nil];
+    if (existing == nil && !unlockAll)
+        return NO;
+
+    NSMutableArray<NSString *> *output = [NSMutableArray array];
+    NSArray<NSString *> *lines = [(existing ?: @"")
+        componentsSeparatedByCharactersInSet:NSCharacterSet.newlineCharacterSet];
+    BOOL inActionReplayEnabled = NO;
+    BOOL inAnyEnabledSection = NO;
+    BOOL foundActionReplayEnabled = NO;
+    BOOL insertedUnlock = NO;
+    BOOL hasEnabledCode = NO;
+
+    for (NSString *line in lines) {
+        NSString *trimmed = [line stringByTrimmingCharactersInSet:
+            NSCharacterSet.whitespaceAndNewlineCharacterSet];
+        BOOL isSection = [trimmed hasPrefix:@"["] && [trimmed hasSuffix:@"]"];
+        if (isSection) {
+            if (inActionReplayEnabled && unlockAll && !insertedUnlock) {
+                [output addObject:MeleePadUnlockAllCodeName];
+                insertedUnlock = YES;
+                hasEnabledCode = YES;
+            }
+            inActionReplayEnabled = [trimmed isEqualToString:@"[ActionReplay_Enabled]"];
+            inAnyEnabledSection = inActionReplayEnabled ||
+                [trimmed isEqualToString:@"[Gecko_Enabled]"];
+            foundActionReplayEnabled |= inActionReplayEnabled;
+            [output addObject:line];
+            continue;
+        }
+        if (inActionReplayEnabled &&
+            [trimmed isEqualToString:MeleePadUnlockAllCodeName]) {
+            // Reinsert exactly once below when the preference is enabled.
+            continue;
+        }
+        if (inAnyEnabledSection && [trimmed hasPrefix:@"$"])
+            hasEnabledCode = YES;
+        [output addObject:line];
+    }
+
+    if (inActionReplayEnabled && unlockAll && !insertedUnlock) {
+        [output addObject:MeleePadUnlockAllCodeName];
+        insertedUnlock = YES;
+        hasEnabledCode = YES;
+    } else if (unlockAll && !foundActionReplayEnabled) {
+        if (output.count > 0 && ((NSString *)output.lastObject).length > 0)
+            [output addObject:@""];
+        [output addObject:@"[ActionReplay_Enabled]"];
+        [output addObject:MeleePadUnlockAllCodeName];
+        hasEnabledCode = YES;
+    }
+
+    NSString *updated = [output componentsJoinedByString:@"\n"];
+    if ([updated isEqualToString:existing])
+        return hasEnabledCode;
+    if (![fileManager createDirectoryAtPath:directory
+                withIntermediateDirectories:YES attributes:nil error:error])
+        return NO;
+    if (![updated writeToFile:path atomically:YES
+                     encoding:NSUTF8StringEncoding error:error])
+        return NO;
+    return hasEnabledCode;
+}
+
 static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExitCode failure) {
     using moderngekko::frontend::NetplayExitCode;
     switch (failure) {
@@ -110,6 +191,10 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
 
 @interface MeleePadCoreHost ()
 - (void)applyAspectRatioMode:(MeleePadAspectRatioMode)mode source:(NSString *)source;
+- (MeleePadBenchmarkGuestState)benchmarkGuestState;
+- (BOOL)setBenchmarkRandomSeed:(u32)seed previousValue:(u32 *)previousValue;
+- (BOOL)setBenchmarkForcedStage:(u8)stageId previousValue:(u8 *)previousValue;
+- (BOOL)setBenchmarkFourPlayerRosterPreviousValue:(u32 *)previousValue;
 - (void)applySystemPauseState;
 - (void)scheduleSystemStateRetry;
 - (void)handleAudioSessionInterruption:(NSNotification *)notification;
@@ -121,6 +206,8 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
     std::atomic<bool> *_stopRequested;
     std::atomic<bool> *_starting;
     std::atomic<bool> *_running;
+    std::atomic<bool> *_modernCStickHorizontal;
+    std::atomic<bool> *_allowOfflineCheats;
     std::mutex *_runtimeMutex;
     moderngekko::Runtime *_runtime;
     int _pipeFd;
@@ -154,6 +241,9 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
         _stopRequested = new std::atomic<bool>(false);
         _starting = new std::atomic<bool>(false);
         _running = new std::atomic<bool>(false);
+        _modernCStickHorizontal = new std::atomic<bool>(
+            [MeleePadSettings sharedSettings].modernCStickHorizontal);
+        _allowOfflineCheats = new std::atomic<bool>(true);
         _runtimeMutex = new std::mutex();
         _runtime = nullptr;
         _applicationActive = UIApplication.sharedApplication.applicationState == UIApplicationStateActive;
@@ -281,6 +371,20 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
     std::string errorMessage;
     @autoreleasepool {
         NSString *runtimeUserDirectory = MeleePadRuntimeUserDirectory(userDirectory);
+        const BOOL offlineCheatsAllowed =
+            _allowOfflineCheats->load(std::memory_order_acquire);
+        const BOOL unlockAll = offlineCheatsAllowed &&
+            [MeleePadSettings sharedSettings].unlockAllCharactersAndStages;
+        NSError *cheatConfigError = nil;
+        const BOOL hasEnabledOfflineCode = MeleePadConfigureOfflineCheats(
+            runtimeUserDirectory, unlockAll, &cheatConfigError);
+        if (cheatConfigError != nil) {
+            MeleePadLog(@"offline cheat configuration failed: %@",
+                      cheatConfigError.localizedDescription);
+        } else {
+            MeleePadLog(@"offline cheat configuration allowed=%d unlockAll=%d enabledCodes=%d",
+                      offlineCheatsAllowed, unlockAll, hasEnabledOfflineCode);
+        }
         moderngekko::RuntimeConfig config;
         config.game_root = gameRoot.fileSystemRepresentation;
         if (discImagePath.length > 0)
@@ -360,12 +464,21 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
         // ModernGekko's existing idle seam advances to the next emulated event
         // instead of burning the host CPU on the polling loop.
         Config::SetBase(Config::MAIN_STATICRECOMP_IDLE_PC, 0x80348814u);
+        // A second scheduler path reaches the same no-runnable-thread poll
+        // after enabling interrupts. Preserve both proven revision-1.00
+        // boundaries rather than replacing one with the other.
+        Config::SetBase(Config::MAIN_STATICRECOMP_SECONDARY_IDLE_PC, 0x80349494u);
         // Melee's raw-controller queue also waits for a periodic alarm. The
         // return address guard prevents other callers of the shared service
         // routine from being treated as idle.
         Config::SetBase(Config::MAIN_STATICRECOMP_CALLER_IDLE_PC, 0x80019550u);
         Config::SetBase(Config::MAIN_STATICRECOMP_CALLER_IDLE_LR, 0x801A4064u);
-        MeleePadLog(@"runtime scheduler idle skip=enabled pc=80348814 caller=80019550/801A4064");
+        MeleePadLog(@"runtime scheduler idle skip=enabled pc=80348814 secondary=80349494 caller=80019550/801A4064");
+        // Netplay never runs local codes. Offline boots enable Dolphin's code
+        // engine only when the local GameINI contains an enabled selection.
+        Config::SetBase(Config::MAIN_ENABLE_CHEATS,
+                        offlineCheatsAllowed && hasEnabledOfflineCode);
+        MeleePadLog(@"runtime offline cheats active=%d", offlineCheatsAllowed && hasEnabledOfflineCode);
         {
             std::scoped_lock lock(*_runtimeMutex);
             _runtime = created.runtime.get();
@@ -462,7 +575,99 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
         NSString *value = NSProcessInfo.processInfo.environment[@"MELEEPAD_TRACE_BUTTON_EDGES"];
         return value.boolValue;
     }();
-    BOOL modernCStick = [MeleePadSettings sharedSettings].modernCStickHorizontal;
+    static const char *benchmarkRoute = [] {
+        NSString *value = NSProcessInfo.processInfo.environment[@"MELEEPAD_BENCHMARK_ROUTE"];
+        return value.length > 0 ? strdup(value.UTF8String) : static_cast<char *>(nullptr);
+    }();
+    static const auto benchmarkStart = std::chrono::steady_clock::now();
+    static std::size_t lastBenchmarkPulse = SIZE_MAX;
+    std::size_t benchmarkPulse = SIZE_MAX;
+    const double benchmarkWallElapsed = std::chrono::duration<double>(
+        std::chrono::steady_clock::now() - benchmarkStart).count();
+    const u64 benchmarkEmulatedFrame =
+        Common::FramePhaseTiming::GetEmulatedFrameIndex();
+    // Phase-logged comparisons drive input from the guest frame counter, so
+    // host scheduling and thermal slowdown cannot shift a button edge by a
+    // guest frame. Keep wall time as the fallback for lightweight route use.
+    const double benchmarkElapsed = benchmarkEmulatedFrame != 0
+        ? static_cast<double>(benchmarkEmulatedFrame) / 60.0
+        : benchmarkWallElapsed;
+    MeleePadBenchmarkGuestState benchmarkGuest = {};
+    const bool benchmarkActive = MeleePadApplyBenchmarkRoute(
+        benchmarkRoute, benchmarkElapsed, &input, &benchmarkPulse);
+    if (benchmarkActive && benchmarkRoute != nullptr) {
+        benchmarkGuest = [self benchmarkGuestState];
+        MeleePadApplyBenchmarkGuestRoute(benchmarkRoute, benchmarkElapsed,
+                                         benchmarkGuest, &input, &benchmarkPulse);
+    }
+    static std::size_t lastBenchmarkSeedStep = SIZE_MAX;
+    const bool benchmarkSeedBoundary = MeleePadBenchmarkShouldFixRandomSeed(
+        benchmarkRoute, benchmarkPulse);
+    if (benchmarkActive && benchmarkSeedBoundary &&
+        benchmarkPulse != lastBenchmarkSeedStep) {
+        constexpr u32 kBenchmarkRandomSeed = 0xFAA44507u;
+        u32 previousSeed = 0;
+        if ([self setBenchmarkRandomSeed:kBenchmarkRandomSeed
+                           previousValue:&previousSeed]) {
+            lastBenchmarkSeedStep = benchmarkPulse;
+            MeleePadLog(@"benchmark random seed fixed step=%s previous=%08x current=%08x",
+                      MeleePadBenchmarkStepLabel(benchmarkRoute, benchmarkPulse), previousSeed,
+                      kBenchmarkRandomSeed);
+        }
+    }
+    if (benchmarkActive &&
+        MeleePadBenchmarkShouldFixFourPlayerRoster(benchmarkRoute, benchmarkGuest)) {
+        u32 previousRoster = 0;
+        if ([self setBenchmarkFourPlayerRosterPreviousValue:&previousRoster]) {
+            MeleePadLog(@"benchmark fixed roster previous=%08x current=10040506",
+                      previousRoster);
+        }
+    }
+    static bool benchmarkForcedFountain = false;
+    if (benchmarkActive && !benchmarkForcedFountain &&
+        MeleePadBenchmarkShouldForceFountain(benchmarkRoute, benchmarkGuest)) {
+        constexpr u8 kFountainOfDreamsStageId = 0x0Cu;
+        u8 previousStage = 0;
+        if ([self setBenchmarkForcedStage:kFountainOfDreamsStageId
+                            previousValue:&previousStage]) {
+            benchmarkForcedFountain = true;
+            MeleePadLog(@"benchmark forced stage previous=%02x current=%02x",
+                      previousStage, kFountainOfDreamsStageId);
+        }
+    }
+    static bool benchmarkForcedBigBlue = false;
+    if (benchmarkActive && !benchmarkForcedBigBlue &&
+        MeleePadBenchmarkShouldForceBigBlue(benchmarkRoute, benchmarkGuest)) {
+        constexpr u8 kBigBlueStageId = 0x13u;
+        u8 previousStage = 0;
+        if ([self setBenchmarkForcedStage:kBigBlueStageId
+                            previousValue:&previousStage]) {
+            benchmarkForcedBigBlue = true;
+            MeleePadLog(@"benchmark forced stage previous=%02x current=%02x",
+                      previousStage, kBigBlueStageId);
+        }
+    }
+    if (benchmarkActive &&
+        benchmarkPulse != SIZE_MAX && benchmarkPulse != lastBenchmarkPulse) {
+        MeleePadLog(@"benchmark route=%s step=%s elapsed=%.3f emulatedFrame=%llu "
+                   "gameState=%08x "
+                   "cssCursor=%@ cursorPointer=%08x players=%02x/%02x,%02x/%02x,%02x/%02x,%02x/%02x",
+                  benchmarkRoute,
+                  MeleePadBenchmarkStepLabel(benchmarkRoute, benchmarkPulse), benchmarkElapsed,
+                  benchmarkEmulatedFrame,
+                  benchmarkGuest.gameState,
+                  benchmarkGuest.cursorValid
+                      ? [NSString stringWithFormat:@"(%.2f,%.2f) state=%u",
+                          benchmarkGuest.cursorX, benchmarkGuest.cursorY,
+                          benchmarkGuest.cursorState]
+                      : @"invalid", benchmarkGuest.cursorPointer,
+                  benchmarkGuest.characterKinds[0], benchmarkGuest.slotTypes[0],
+                  benchmarkGuest.characterKinds[1], benchmarkGuest.slotTypes[1],
+                  benchmarkGuest.characterKinds[2], benchmarkGuest.slotTypes[2],
+                  benchmarkGuest.characterKinds[3], benchmarkGuest.slotTypes[3]);
+        lastBenchmarkPulse = benchmarkPulse;
+    }
+    BOOL modernCStick = _modernCStickHorizontal->load(std::memory_order_relaxed);
     std::string commands = MeleePadEncodePipeCommands(input, lastButtons, modernCStick);
     if (!commands.empty()) {
         uint16_t priorButtons = lastButtons;
@@ -485,6 +690,165 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
     }
 }
 
+- (MeleePadBenchmarkGuestState)benchmarkGuestState {
+    MeleePadBenchmarkGuestState result = {};
+    // Revision-1.00 globals validated from the generated instructions. Read
+    // the active P1 CSS cursor pointer instead of assuming one heap address;
+    // different game modes allocate that same cursor at different locations.
+    constexpr u32 kGameStateAddress = 0x80477D68u;
+    constexpr u32 kCursorPointerAddress = 0x8049EA88u;
+    constexpr u32 kCssDataPointerAddress = 0x804D4B30u;
+    std::scoped_lock lock(*_runtimeMutex);
+    if (_runtime == nullptr)
+        return result;
+    auto &memory = Core::System::GetInstance().GetMemory();
+    if (!memory.IsInitialized())
+        return result;
+    const std::span<const u8> mem1{memory.GetRAM(), memory.GetRamSizeReal()};
+    const std::span<const u8> mem2{memory.GetEXRAM(), memory.GetExRamSizeReal()};
+    if (const auto gameState = MemoryWatcherUtils::ReadStaticRecompU32(
+            mem1, mem2, kGameStateAddress))
+        result.gameState = *gameState;
+    const auto cursorPointer = MemoryWatcherUtils::ReadStaticRecompU32(
+        mem1, mem2, kCursorPointerAddress);
+    if (!cursorPointer)
+        return result;
+    result.cursorPointer = *cursorPointer;
+    constexpr u32 kMem1Start = 0x80000000u;
+    constexpr u32 kMem1End = 0x81800000u;
+    if (*cursorPointer < kMem1Start || *cursorPointer > kMem1End - 0x14u)
+        return result;
+    const u32 cursorPositionAddress = *cursorPointer + 0x0Cu;
+    const auto metadata = MemoryWatcherUtils::ReadStaticRecompU32(
+        mem1, mem2, *cursorPointer + 4);
+    const auto xBits = MemoryWatcherUtils::ReadStaticRecompU32(
+        mem1, mem2, cursorPositionAddress);
+    const auto yBits = MemoryWatcherUtils::ReadStaticRecompU32(
+        mem1, mem2, cursorPositionAddress + 4);
+    if (!metadata || !xBits || !yBits)
+        return result;
+    const float x = std::bit_cast<float>(*xBits);
+    const float y = std::bit_cast<float>(*yBits);
+    const unsigned state = (*metadata >> 16) & 0xFFu;
+    if (!std::isfinite(x) || !std::isfinite(y) || std::abs(x) > 1000.0f ||
+        std::abs(y) > 1000.0f || state > 3)
+        return result;
+    result.cursorValid = true;
+    result.cursorX = x;
+    result.cursorY = y;
+    result.cursorState = static_cast<uint8_t>(state);
+    const auto cssData = MemoryWatcherUtils::ReadStaticRecompU32(
+        mem1, mem2, kCssDataPointerAddress);
+    if (!cssData || *cssData < kMem1Start || *cssData > kMem1End - 0xF8u)
+        return result;
+    constexpr u32 kFirstPlayerOffset = 0x70u;
+    constexpr u32 kPlayerStride = 0x24u;
+    for (std::size_t player = 0; player < 4; ++player) {
+        const auto playerWord = MemoryWatcherUtils::ReadStaticRecompU32(
+            mem1, mem2, *cssData + kFirstPlayerOffset +
+                            static_cast<u32>(player) * kPlayerStride);
+        if (!playerWord)
+            return result;
+        result.characterKinds[player] = static_cast<uint8_t>(*playerWord >> 24);
+        result.slotTypes[player] = static_cast<uint8_t>(*playerWord >> 16);
+    }
+    result.cssValid = true;
+    return result;
+}
+
+- (BOOL)setBenchmarkRandomSeed:(u32)seed previousValue:(u32 *)previousValue {
+    // The revision-1.00 DOL loads its HSD random-state pointer from r13-22292.
+    // Validate the initialized pointer before making this benchmark-only RAM
+    // write so a different game revision fails closed.
+    constexpr u32 kRandomSeedAddress = 0x804D3E08u;
+    constexpr u32 kRandomSeedPointerAddress = 0x804D3E0Cu;
+    std::scoped_lock lock(*_runtimeMutex);
+    if (_runtime == nullptr)
+        return NO;
+    auto &system = Core::System::GetInstance();
+    Core::CPUThreadGuard cpuThreadGuard(system);
+    auto &memory = system.GetMemory();
+    if (!memory.IsInitialized() ||
+        memory.Read_U32(kRandomSeedPointerAddress) != kRandomSeedAddress)
+        return NO;
+    if (previousValue != nullptr)
+        *previousValue = memory.Read_U32(kRandomSeedAddress);
+    memory.Write_U32(seed, kRandomSeedAddress);
+    return YES;
+}
+
+- (BOOL)setBenchmarkForcedStage:(u8)stageId previousValue:(u8 *)previousValue {
+    // Revision-1.00 stores mnStageSel's active SSSData pointer at r13-18960.
+    // Callers additionally gate this write on Training mode's stage-select
+    // scene. Validate the pointed-to structure before changing its one signed
+    // force_stage_id byte; unexpected revisions and layouts fail closed.
+    constexpr u32 kStageSelectDataPointerAddress = 0x804D4B10u;
+    std::scoped_lock lock(*_runtimeMutex);
+    if (_runtime == nullptr)
+        return NO;
+    auto &system = Core::System::GetInstance();
+    Core::CPUThreadGuard cpuThreadGuard(system);
+    auto &memory = system.GetMemory();
+    if (!memory.IsInitialized())
+        return NO;
+    const u32 stageSelectData = memory.Read_U32(kStageSelectDataPointerAddress);
+    if (memory.GetPointerForRange(stageSelectData, 5) == nullptr ||
+        memory.Read_U8(stageSelectData + 1) != 0 ||
+        memory.Read_U8(stageSelectData + 2) > 1 ||
+        memory.Read_U8(stageSelectData + 3) != 0xFFu ||
+        memory.Read_U8(stageSelectData + 4) != 0)
+        return NO;
+    if (previousValue != nullptr)
+        *previousValue = memory.Read_U8(stageSelectData + 3);
+    memory.Write_U8(stageId, stageSelectData + 3);
+    return YES;
+}
+
+- (BOOL)setBenchmarkFourPlayerRosterPreviousValue:(u32 *)previousValue {
+    // Revision-1.00 stores the active CSSData pointer at r13-18928. The route
+    // opens every controller door through normal UI input first; this narrow,
+    // benchmark-only write then removes random CPU-token overlap while leaving
+    // the match rules, port kinds, levels, costumes, and saved data untouched.
+    constexpr u32 kGameStateAddress = 0x80477D68u;
+    constexpr u32 kCssDataPointerAddress = 0x804D4B30u;
+    constexpr u32 kFirstPlayerOffset = 0x70u;
+    constexpr u32 kPlayerStride = 0x24u;
+    constexpr std::array<u8, 4> kRoster = {{0x10u, 0x04u, 0x05u, 0x06u}};
+    constexpr std::array<u8, 4> kSlotTypes = {{0u, 1u, 1u, 1u}};
+    std::scoped_lock lock(*_runtimeMutex);
+    if (_runtime == nullptr)
+        return NO;
+    auto &system = Core::System::GetInstance();
+    Core::CPUThreadGuard cpuThreadGuard(system);
+    auto &memory = system.GetMemory();
+    if (!memory.IsInitialized())
+        return NO;
+    const u32 gameState = memory.Read_U32(kGameStateAddress);
+    if (((gameState >> 24) & 0xFFu) != 0x02u || (gameState & 0xFFu) != 0u)
+        return NO;
+    const u32 cssData = memory.Read_U32(kCssDataPointerAddress);
+    if (memory.GetPointerForRange(cssData + kFirstPlayerOffset,
+                                  kPlayerStride * 3u + 4u) == nullptr)
+        return NO;
+    u32 packedPrevious = 0;
+    for (std::size_t player = 0; player < kRoster.size(); ++player) {
+        const u32 playerAddress =
+            cssData + kFirstPlayerOffset + static_cast<u32>(player) * kPlayerStride;
+        const u32 playerWord = memory.Read_U32(playerAddress);
+        if (static_cast<u8>(playerWord >> 16) != kSlotTypes[player])
+            return NO;
+        packedPrevious |= static_cast<u32>(playerWord >> 24) << (24u - player * 8u);
+    }
+    for (std::size_t player = 0; player < kRoster.size(); ++player) {
+        const u32 playerAddress =
+            cssData + kFirstPlayerOffset + static_cast<u32>(player) * kPlayerStride;
+        memory.Write_U8(kRoster[player], playerAddress);
+    }
+    if (previousValue != nullptr)
+        *previousValue = packedPrevious;
+    return YES;
+}
+
 - (void)beginNetplayWithRole:(moderngekko::frontend::NetplayRole)role
                      address:(NSString *)address
                     nickname:(NSString *)nickname
@@ -493,6 +857,7 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
              automaticBuffer:(BOOL)automaticBuffer
                 bufferFrames:(NSUInteger)bufferFrames
                   completion:(void (^)(NSString *_Nullable))completion {
+    _allowOfflineCheats->store(false, std::memory_order_release);
     [self stop];
     NSString *gameRoot = [_lastGameRoot copy];
     NSString *discImagePath = [_lastDiscImagePath copy];
@@ -507,6 +872,11 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
         }
 
         NSString *runtimeUserDirectory = MeleePadRuntimeUserDirectory(userDirectory);
+        NSError *cheatConfigError = nil;
+        MeleePadConfigureOfflineCheats(runtimeUserDirectory, NO, &cheatConfigError);
+        if (cheatConfigError != nil)
+            MeleePadLog(@"netplay cheat cleanup failed: %@",
+                      cheatConfigError.localizedDescription);
         UICommon::SetUserDirectory(runtimeUserDirectory.fileSystemRepresentation);
         UICommon::Init();
         moderngekko::detail::SetExternalUICommon(true);
@@ -514,6 +884,7 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
 
         Config::SetBase(Config::MAIN_CPU_THREAD, true);
         Config::SetBase(Config::MAIN_CPU_CORE, PowerPC::CPUCore::StaticRecomp);
+        Config::SetBase(Config::MAIN_ENABLE_CHEATS, false);
         Config::SetBase(Config::NETPLAY_SAVEDATA_LOAD, true);
         Config::SetBase(Config::NETPLAY_SAVEDATA_WRITE, false);
         Config::SetBase(Config::NETPLAY_SAVEDATA_SYNC_ALL_WII, false);
@@ -721,6 +1092,7 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
             UICommon::Shutdown();
             *self->_netplayServicesActive = NO;
         }
+        self->_allowOfflineCheats->store(true, std::memory_order_release);
         dispatch_async(dispatch_get_main_queue(), completion ?: ^{});
     });
 }
@@ -767,6 +1139,10 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
     if (!_running->load())
         return; // Runtime not booted yet; the mode applies at boot.
     [self applyAspectRatioMode:mode source:@"live"];
+}
+
+- (void)setModernCStickHorizontal:(BOOL)enabled {
+    _modernCStickHorizontal->store(enabled, std::memory_order_relaxed);
 }
 
 - (double)currentFPS {
@@ -1093,6 +1469,8 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
     delete _stopRequested;
     delete _starting;
     delete _running;
+    delete _modernCStickHorizontal;
+    delete _allowOfflineCheats;
     delete _runtimeMutex;
     delete _netplaySession;
     delete _netplayServicesActive;

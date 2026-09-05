@@ -568,16 +568,24 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
     }];
     fpsAction.state = settings.showFPSCounter ? UIMenuElementStateOn : UIMenuElementStateOff;
 
-    UIAction *shareDiagnosticAction =
-        [UIAction actionWithTitle:@"Export Diagnostic Log…"
-                            image:[UIImage systemImageNamed:@"square.and.arrow.up"]
+    UIAction *unlockAllAction =
+        [UIAction actionWithTitle:@"Unlock All Characters & Stages"
+                            image:[UIImage systemImageNamed:@"lock.open"]
                        identifier:nil handler:^(__kindof UIAction *action) {
         (void)action;
-        [weakSelf shareDiagnosticLog];
+        [weakSelf toggleUnlockAllCharactersAndStages];
     }];
+    unlockAllAction.state = settings.unlockAllCharactersAndStages ?
+        UIMenuElementStateOn : UIMenuElementStateOff;
+    UIMenu *cheatsMenu =
+        [UIMenu menuWithTitle:@"Offline Cheats"
+                        image:[UIImage systemImageNamed:@"wand.and.stars"]
+                   identifier:nil
+                      options:0
+                     children:@[unlockAllAction]];
 
     UIAction *reportProblemAction =
-        [UIAction actionWithTitle:@"Report Issue on GitHub…"
+        [UIAction actionWithTitle:@"Report a Problem…"
                             image:[UIImage systemImageNamed:@"exclamationmark.bubble"]
                        identifier:nil handler:^(__kindof UIAction *action) {
         (void)action;
@@ -616,50 +624,50 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
         displayMenu,
         fpsAction,
         controlsMenu,
+        cheatsMenu,
         dataMenu,
-        shareDiagnosticAction,
         reportProblemAction,
     ]];
 }
 
-- (void)shareDiagnosticLog {
-    NSString *reportID = [NSString stringWithFormat:@"SP-%@",
-        [[[NSUUID UUID] UUIDString] substringToIndex:8]];
-    NSString *technicalContext = [self.delegate gameOverlayDiagnosticContext:self];
-    NSError *error = nil;
-    NSURL *reportURL = MeleePadDiagnosticsReportURL(
-        reportID,
-        @{@"problem": @"", @"context": @"", @"frequency": @""},
-        technicalContext,
-        &error);
-    UIViewController *presenter = self.window.rootViewController;
-    if (reportURL == nil) {
-        UIAlertController *alert =
-            [UIAlertController alertControllerWithTitle:@"Diagnostic Log Unavailable"
-                                                message:error.localizedDescription
-                                         preferredStyle:UIAlertControllerStyleAlert];
-        [alert addAction:[UIAlertAction actionWithTitle:@"OK"
-                                                  style:UIAlertActionStyleDefault
-                                                handler:nil]];
-        [presenter presentViewController:alert animated:YES completion:nil];
+- (void)toggleUnlockAllCharactersAndStages {
+    MeleePadSettings *settings = [MeleePadSettings sharedSettings];
+    if (settings.unlockAllCharactersAndStages) {
+        settings.unlockAllCharactersAndStages = NO;
+        [settings synchronize];
+        [self refreshMenuButton];
+        [self.delegate gameOverlayRequestsOfflineCheatReload:self];
         return;
     }
 
-    MeleePadLog(@"diagnostic log requested id=%@ destination=share-sheet", reportID);
-    UIActivityViewController *share =
-        [[UIActivityViewController alloc] initWithActivityItems:@[reportURL]
-                                         applicationActivities:nil];
-    UIPopoverPresentationController *popover = share.popoverPresentationController;
-    popover.sourceView = _menuButton;
-    popover.sourceRect = _menuButton.bounds;
-    [presenter presentViewController:share animated:YES completion:nil];
+    UIAlertController *warning =
+        [UIAlertController alertControllerWithTitle:@"Enable Offline Unlocks?"
+                                            message:@"This unlocks all characters and stages in offline play and restarts the game. If Melee saves while the cheat is active, those unlocks may remain after you turn it off. Turning it off is not a rollback. Online Play always disables cheats."
+                                     preferredStyle:UIAlertControllerStyleAlert];
+    [warning addAction:[UIAlertAction actionWithTitle:@"Cancel"
+                                                style:UIAlertActionStyleCancel
+                                              handler:nil]];
+    __weak MeleePadGameOverlay *weakSelf = self;
+    [warning addAction:[UIAlertAction actionWithTitle:@"Enable & Restart"
+                                                style:UIAlertActionStyleDefault
+                                              handler:^(UIAlertAction *action) {
+        (void)action;
+        MeleePadSettings *currentSettings = [MeleePadSettings sharedSettings];
+        currentSettings.unlockAllCharactersAndStages = YES;
+        [currentSettings synchronize];
+        [weakSelf refreshMenuButton];
+        [weakSelf.delegate gameOverlayRequestsOfflineCheatReload:weakSelf];
+    }]];
+    warning.preferredAction = warning.actions.lastObject;
+    [self.window.rootViewController presentViewController:warning
+                                                  animated:YES completion:nil];
 }
 
 - (void)reportProblem {
     UIViewController *presenter = self.window.rootViewController;
     UIAlertController *prompt =
         [UIAlertController alertControllerWithTitle:@"Report a Problem"
-                                            message:@"Answer briefly and MeleePad will add the technical details. If the problem is visual, take a screenshot first and attach it with the report on GitHub. The report never includes your game image, extracted files, saves, signing material, or controller inputs. GitHub reports and attachments are public."
+                                            message:@"Answer briefly and MeleePad will create a diagnostic log with the technical details. You can review, save, or share the log before choosing whether to open GitHub. MeleePad never uploads it automatically. The log excludes your game image, extracted files, saves, signing material, and controller inputs. GitHub reports and attachments are public."
                                      preferredStyle:UIAlertControllerStyleAlert];
     [prompt addTextFieldWithConfigurationHandler:^(UITextField *field) {
         field.placeholder = @"What went wrong?";
@@ -677,24 +685,17 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
                                                 style:UIAlertActionStyleCancel
                                               handler:nil]];
     __weak MeleePadGameOverlay *weakSelf = self;
-    [prompt addAction:[UIAlertAction actionWithTitle:@"Share Report…"
+    [prompt addAction:[UIAlertAction actionWithTitle:@"Create Diagnostic & Continue…"
                                                 style:UIAlertActionStyleDefault
                                               handler:^(UIAlertAction *action) {
         (void)action;
-        [weakSelf createDiagnosticReportFromPrompt:prompt openGitHub:NO];
-    }]];
-    [prompt addAction:[UIAlertAction actionWithTitle:@"Report on GitHub"
-                                                style:UIAlertActionStyleDefault
-                                              handler:^(UIAlertAction *action) {
-        (void)action;
-        [weakSelf createDiagnosticReportFromPrompt:prompt openGitHub:YES];
+        [weakSelf createDiagnosticReportFromPrompt:prompt];
     }]];
     prompt.preferredAction = prompt.actions.lastObject;
     [presenter presentViewController:prompt animated:YES completion:nil];
 }
 
-- (void)createDiagnosticReportFromPrompt:(UIAlertController *)prompt
-                              openGitHub:(BOOL)openGitHub {
+- (void)createDiagnosticReportFromPrompt:(UIAlertController *)prompt {
     NSString *problem = prompt.textFields.count > 0 ? prompt.textFields[0].text : @"";
     NSString *context = prompt.textFields.count > 1 ? prompt.textFields[1].text : @"";
     NSString *frequency = prompt.textFields.count > 2 ? prompt.textFields[2].text : @"";
@@ -706,8 +707,8 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
         @"frequency": frequency ?: @"",
     };
     NSString *technicalContext = [self.delegate gameOverlayDiagnosticContext:self];
-    MeleePadLog(@"diagnostic report requested id=%@ destination=%@",
-              reportID, openGitHub ? @"github" : @"share-sheet");
+    MeleePadLog(@"diagnostic report requested id=%@ destination=review-share-sheet",
+              reportID);
     NSError *error = nil;
     NSURL *reportURL = MeleePadDiagnosticsReportURL(
         reportID, answers, technicalContext, &error);
@@ -724,18 +725,45 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
         return;
     }
 
-    if (openGitHub) {
-        [self openGitHubReportWithID:reportID answers:answers];
-        return;
-    }
-
     UIActivityViewController *share =
         [[UIActivityViewController alloc] initWithActivityItems:@[reportURL]
                                          applicationActivities:nil];
+    __weak MeleePadGameOverlay *weakSelf = self;
+    share.completionWithItemsHandler = ^(UIActivityType activityType,
+                                         BOOL completed,
+                                         NSArray *returnedItems,
+                                         NSError *activityError) {
+        (void)activityType;
+        (void)completed;
+        (void)returnedItems;
+        (void)activityError;
+        [weakSelf offerGitHubForReportID:reportID answers:answers];
+    };
     UIPopoverPresentationController *popover = share.popoverPresentationController;
     popover.sourceView = _menuButton;
     popover.sourceRect = _menuButton.bounds;
     [presenter presentViewController:share animated:YES completion:nil];
+}
+
+- (void)offerGitHubForReportID:(NSString *)reportID
+                       answers:(NSDictionary<NSString *, NSString *> *)answers {
+    UIViewController *presenter = self.window.rootViewController;
+    UIAlertController *alert =
+        [UIAlertController alertControllerWithTitle:@"Diagnostic Ready"
+                                            message:@"Open GitHub to finish the report, then attach Latest-MeleePad-Diagnostic.log manually. MeleePad does not upload the log for you. If the problem is visual, attach a screenshot too."
+                                     preferredStyle:UIAlertControllerStyleAlert];
+    [alert addAction:[UIAlertAction actionWithTitle:@"Not Now"
+                                              style:UIAlertActionStyleCancel
+                                            handler:nil]];
+    __weak MeleePadGameOverlay *weakSelf = self;
+    [alert addAction:[UIAlertAction actionWithTitle:@"Open GitHub"
+                                              style:UIAlertActionStyleDefault
+                                            handler:^(UIAlertAction *action) {
+        (void)action;
+        [weakSelf openGitHubReportWithID:reportID answers:answers];
+    }]];
+    alert.preferredAction = alert.actions.lastObject;
+    [presenter presentViewController:alert animated:YES completion:nil];
 }
 
 - (void)openGitHubReportWithID:(NSString *)reportID

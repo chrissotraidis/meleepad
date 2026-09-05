@@ -11,6 +11,7 @@ clang++ -std=c++23 "$ROOT/tests/MeleePadControllerSlotsTests.cpp" \
 
 clang++ -x objective-c++ -std=gnu++2b -fobjc-arc -framework Foundation \
   -I"$ROOT/apple/shared" \
+  "$ROOT/apple/shared/MeleePadControllerMapping.mm" \
   "$ROOT/apple/shared/MeleePadInputMixer.mm" \
   "$ROOT/tests/MeleePadControllerDisconnectTests.mm" \
   -o "$TEMP_DIR/MeleePadControllerDisconnectTests"

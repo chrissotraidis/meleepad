@@ -1,0 +1,149 @@
+diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp
+--- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp
++++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp
+@@ -190,6 +190,14 @@ StaticRecompCore::StaticRecompCore(Core::System& system)
+   {
+     m_dispatch_frame_log_path = path;
+     m_dispatch_frame_samples.reserve(262144);
++  }
++  if (const char* path = std::getenv("STATICRECOMP_DISPATCH_TIME_LOG"); path && path[0] != '\0')
++  {
++    m_dispatch_time_log_path = path;
++    m_dispatch_time_samples.reserve(65536);
++  }
++  if (!m_dispatch_frame_log_path.empty() || !m_dispatch_time_log_path.empty())
++  {
+     m_dispatch_sample_interval =
+         std::clamp<u64>(ReadDispatchSampleValue("STATICRECOMP_DISPATCH_SAMPLE_INTERVAL", 4096),
+                         2, 1u << 20);
+@@ -270,6 +278,40 @@ void StaticRecompCore::FlushDispatchFrameSamples(bool final)
+   }
+ }
+ 
++void StaticRecompCore::FlushDispatchTimeSamples(bool final)
++{
++  if (m_dispatch_time_log_path.empty() || m_dispatch_time_samples.empty())
++    return;
++
++  const char* mode = m_dispatch_time_log_started ? "a" : "w";
++  if (FILE* file = std::fopen(m_dispatch_time_log_path.c_str(), mode))
++  {
++    if (!m_dispatch_time_log_started)
++      std::fprintf(file, "present_frame,emulated_frame,pc,host_ns,clock_ns\n");
++    for (const DispatchTimeSample& sample : m_dispatch_time_samples)
++      std::fprintf(file, "%llu,%llu,%08x,%llu,%llu\n",
++                   static_cast<unsigned long long>(sample.present_frame),
++                   static_cast<unsigned long long>(sample.emulated_frame), sample.pc,
++                   static_cast<unsigned long long>(sample.host_ns),
++                   static_cast<unsigned long long>(sample.clock_ns));
++    std::fclose(file);
++    m_dispatch_time_log_started = true;
++    m_dispatch_time_samples_written += m_dispatch_time_samples.size();
++    m_dispatch_time_samples.clear();
++    if (final)
++      std::fprintf(stderr, "[staticrecomp] dispatch-time samples=%llu path=%s\n",
++                   static_cast<unsigned long long>(m_dispatch_time_samples_written),
++                   m_dispatch_time_log_path.c_str());
++  }
++  else
++  {
++    std::fprintf(stderr, "[staticrecomp] dispatch-time open failed: %s\n",
++                 m_dispatch_time_log_path.c_str());
++    m_dispatch_time_log_path.clear();
++    m_dispatch_time_samples.clear();
++  }
++}
++
+ void StaticRecompCore::FlushDispatchBurstSamples(bool final)
+ {
+   if (m_dispatch_burst_log_path.empty() || m_dispatch_burst_samples.empty())
+@@ -326,6 +368,7 @@ void StaticRecompCore::Shutdown()
+                  dispatch_samples[i].first,
+                  static_cast<unsigned long long>(dispatch_samples[i].second));
+   }
+   FlushDispatchFrameSamples(true);
++  FlushDispatchTimeSamples(true);
+   FlushDispatchBurstSamples(true);
+   NOTICE_LOG_FMT(POWERPC,
+                  "StaticRecomp: shutdown. native_dispatches={} fallback_steps={} "
+diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h
+--- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h
++++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h
+@@ -129,6 +129,7 @@ private:
+   u64 HashSelectedRamPages() const;
+   std::array<u64, 32> HashSelectedRamRegions() const;
+   void FlushDispatchFrameSamples(bool final);
++  void FlushDispatchTimeSamples(bool final);
+   void FlushDispatchBurstSamples(bool final);
+ 
+   // D4 SMC guard, verify-on-entry model. Every chunk starts Unverified; the
+@@ -216,6 +217,18 @@ private:
+   u64 m_dispatch_frame_samples_written = 0;
+   u64 m_dispatch_sample_interval = 4096;
+   u64 m_dispatch_sample_offset = 0;
++  struct DispatchTimeSample
++  {
++    u64 present_frame;
++    u64 emulated_frame;
++    u32 pc;
++    u64 host_ns;
++    u64 clock_ns;
++  };
++  std::string m_dispatch_time_log_path;
++  std::vector<DispatchTimeSample> m_dispatch_time_samples;
++  bool m_dispatch_time_log_started = false;
++  u64 m_dispatch_time_samples_written = 0;
+   struct DispatchBurstSample
+   {
+     u64 present_frame;
+diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
+--- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
++++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
+@@ -65,7 +65,9 @@ void StaticRecompCore::Run()
+   const bool log_phase = Common::FramePhaseTiming::IsEnabled();
+   const bool lockstep_enabled = m_lockstep_verifier->IsEnabled();
+   const bool sample_dispatches = !m_dispatch_frame_log_path.empty() ||
++                                 !m_dispatch_time_log_path.empty() ||
+                                  std::getenv("STATICRECOMP_DISPATCH_SAMPLE") != nullptr;
++  const bool sample_dispatch_time = !m_dispatch_time_log_path.empty();
+   const bool sample_dispatch_bursts = !m_dispatch_burst_log_path.empty();
+   const bool freeze_trace = std::getenv("STATICRECOMP_FREEZE_TRACE") != nullptr;
+   const bool has_rel_modules = m_module && m_module->num_rel_modules != 0;
+@@ -122,8 +124,11 @@ void StaticRecompCore::Run()
+             m_lockstep_verifier->Prepare(m_guest);
+           }
+ 
+-          if (sample_dispatches &&
+-              m_native_dispatches % m_dispatch_sample_interval == m_dispatch_sample_offset)
++          const bool selected_dispatch =
++              sample_dispatches &&
++              m_native_dispatches % m_dispatch_sample_interval == m_dispatch_sample_offset;
++          const u32 sampled_dispatch_pc = m_guest.pc;
++          if (selected_dispatch)
+           {
+             ++m_dispatch_samples[m_guest.pc];
+             if (!m_dispatch_frame_log_path.empty())
+@@ -161,9 +166,23 @@ void StaticRecompCore::Run()
+           if (has_rel_modules)
+             ResolveNativeAddress(runtime_dispatch_address, &linked_dispatch_address, nullptr);
+           m_guest.pc = linked_dispatch_address;
++          const TimePoint dispatch_time_start =
++              selected_dispatch && sample_dispatch_time ? Clock::now() : TimePoint{};
+           m_module->dispatch(&m_guest, linked_dispatch_address);
+           if (has_rel_modules)
+             m_guest.pc = TranslateRelAddress(m_guest.pc);
++          if (selected_dispatch && sample_dispatch_time)
++          {
++            const TimePoint dispatch_time_end = Clock::now();
++            const TimePoint dispatch_clock_end = Clock::now();
++            m_dispatch_time_samples.push_back(
++                {Common::FramePhaseTiming::GetPresentFrameIndex(),
++                 Common::FramePhaseTiming::GetEmulatedFrameIndex(), sampled_dispatch_pc,
++                 Common::FramePhaseTiming::ToNanoseconds(dispatch_time_end - dispatch_time_start),
++                 Common::FramePhaseTiming::ToNanoseconds(dispatch_clock_end - dispatch_time_end)});
++            if (m_dispatch_time_samples.size() >= 16384)
++              FlushDispatchTimeSamples(false);
++          }
+           ++m_native_dispatches;
+ 
+           if (do_ls)

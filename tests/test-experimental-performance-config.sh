@@ -68,11 +68,12 @@ for menu_contract in \
   'Show FPS Counter' \
   'Controller Button Mapping…' \
   'Touch Control Settings…' \
+  'Offline Cheats' \
+  'Unlock All Characters & Stages' \
   'Game Data & Saves' \
-  'Export Diagnostic Log…' \
-  'Report Issue on GitHub…'; do
+  'Report a Problem…'; do
   grep -Fq -- "$menu_contract" "$OVERLAY"
 done
-grep -Fq -- '- (void)shareDiagnosticLog' "$OVERLAY"
+grep -Fq -- '- (void)createDiagnosticReportFromPrompt:' "$OVERLAY"
 
 echo "Performance launch-argument and three-dot menu checks passed"

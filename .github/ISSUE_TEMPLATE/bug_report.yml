@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        MeleePad can fill most of this form: choose **••• → Report a Problem… → Report on GitHub** in the app.
+        MeleePad can fill most of this form: choose **••• → Report a Problem… → Create Diagnostic & Continue…**, review or save the diagnostic, then choose **Open GitHub**.
 
         Attach `On My iPhone/iPad → MeleePad → Diagnostics → Latest-MeleePad-Diagnostic.log`. If the problem is visual, also attach a screenshot or short video. Never upload game images, extracted assets, generated modules, saves, signing material, or an entire device container.
   - type: input

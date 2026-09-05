@@ -2,8 +2,11 @@
 
 #include <cassert>
 #include <iostream>
+#include <string>
 
 #import "MeleePadControllerMapping.h"
+#import "MeleePadInputPipeEncoder.h"
+#import "MeleePadSettings.h"
 
 static bool Equal(MeleePadControllerButtonMapping lhs,
                   MeleePadControllerButtonMapping rhs) {
@@ -34,11 +37,32 @@ int main(void) {
         rightStick.stickY = 30;
         rightStick.cStickX = 127;
         rightStick.cStickY = 50;
+
+        NSUserDefaults *userDefaults = NSUserDefaults.standardUserDefaults;
+        NSString *rightStickSmashKey = @"MeleePadRightStickSmashAttacks";
+        NSString *battleDefaultKey = @"MeleePadCStickBattleDefaultV2";
+        [userDefaults setBool:NO forKey:rightStickSmashKey];
+        [userDefaults removeObjectForKey:battleDefaultKey];
+        MeleePadSettings *settings = [MeleePadSettings sharedSettings];
+        assert(settings.rightStickSmashAttacks);
+        assert([userDefaults boolForKey:battleDefaultKey]);
+        MeleePadInputState standardCStick = MeleePadApplyRightStickSmashMode(
+            rightStick, settings.rightStickSmashAttacks, NO, NO);
+        assert(standardCStick.cStickX == rightStick.cStickX);
+        assert(standardCStick.cStickY == rightStick.cStickY);
+        const std::string standardCommands =
+            MeleePadEncodePipeCommands(standardCStick, 0, false);
+        assert(standardCommands.find("SET C 1.000 0.303\n") != std::string::npos);
+
+        settings.rightStickSmashAttacks = YES;
+        assert(settings.rightStickSmashAttacks);
         MeleePadInputState smash = MeleePadApplyRightStickSmashMode(
-            rightStick, YES, YES, NO);
+            rightStick, settings.rightStickSmashAttacks, YES, NO);
         assert(smash.stickX == 127 && smash.stickY == 0);
         assert(smash.cStickX == 0 && smash.cStickY == 0);
         assert((smash.buttons & MeleePadButtonA) != 0);
+        [userDefaults removeObjectForKey:rightStickSmashKey];
+        [userDefaults removeObjectForKey:battleDefaultKey];
 
         MeleePadInputState reversed = MeleePadApplyRightStickSmashMode(
             rightStick, YES, YES, YES);

@@ -1,0 +1,119 @@
+diff --git a/Data/Sys/GameSettings/GALE01r0.ini b/Data/Sys/GameSettings/GALE01r0.ini
+--- a/Data/Sys/GameSettings/GALE01r0.ini
++++ b/Data/Sys/GameSettings/GALE01r0.ini
+@@ -2,6 +2,7 @@
+ 
+ [Core]
+ StaticRecompIdlePC = 0x80348814
++StaticRecompSecondaryIdlePC = 0x80349494
+ StaticRecompCallerIdlePC = 0x80019550
+ StaticRecompCallerIdleLR = 0x801A4064
+ 
+diff --git a/Source/Core/Core/Config/StaticRecompSettings.cpp b/Source/Core/Core/Config/StaticRecompSettings.cpp
+--- a/Source/Core/Core/Config/StaticRecompSettings.cpp
++++ b/Source/Core/Core/Config/StaticRecompSettings.cpp
+@@ -6,6 +6,8 @@ namespace Config
+ {
+ const Info<bool> MAIN_STATICRECOMP_MODULE{{System::Main, "Core", "StaticRecompModule"}, true};
+ const Info<u32> MAIN_STATICRECOMP_IDLE_PC{{System::Main, "Core", "StaticRecompIdlePC"}, 0};
++const Info<u32> MAIN_STATICRECOMP_SECONDARY_IDLE_PC{
++    {System::Main, "Core", "StaticRecompSecondaryIdlePC"}, 0};
+ const Info<u32> MAIN_STATICRECOMP_CALLER_IDLE_PC{
+     {System::Main, "Core", "StaticRecompCallerIdlePC"}, 0};
+ const Info<u32> MAIN_STATICRECOMP_CALLER_IDLE_LR{
+diff --git a/Source/Core/Core/Config/StaticRecompSettings.h b/Source/Core/Core/Config/StaticRecompSettings.h
+--- a/Source/Core/Core/Config/StaticRecompSettings.h
++++ b/Source/Core/Core/Config/StaticRecompSettings.h
+@@ -7,6 +7,7 @@ namespace Config
+ {
+ extern const Info<bool> MAIN_STATICRECOMP_MODULE;
+ extern const Info<u32> MAIN_STATICRECOMP_IDLE_PC;
++extern const Info<u32> MAIN_STATICRECOMP_SECONDARY_IDLE_PC;
+ extern const Info<u32> MAIN_STATICRECOMP_CALLER_IDLE_PC;
+ extern const Info<u32> MAIN_STATICRECOMP_CALLER_IDLE_LR;
+ extern const Info<std::string> MAIN_STATICRECOMP_FALLBACK_RANGES;
+diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp
+--- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp
++++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp
+@@ -220,6 +220,11 @@ void StaticRecompCore::Init()
+ 
+   LoadModule();
+   m_idle_pc = Config::Get(Config::MAIN_STATICRECOMP_IDLE_PC);
++  m_secondary_idle_pc = Config::Get(Config::MAIN_STATICRECOMP_SECONDARY_IDLE_PC);
++  if (const char* pc = std::getenv("STATICRECOMP_SECONDARY_IDLE_PC"); pc && pc[0] != '\0')
++    m_secondary_idle_pc = static_cast<u32>(std::strtoul(pc, nullptr, 0));
++  if (m_secondary_idle_pc != 0)
++    std::fprintf(stderr, "[staticrecomp] secondary idle pc=%08x\n", m_secondary_idle_pc);
+   m_caller_idle_pc = Config::Get(Config::MAIN_STATICRECOMP_CALLER_IDLE_PC);
+   m_caller_idle_lr = Config::Get(Config::MAIN_STATICRECOMP_CALLER_IDLE_LR);
+   if (const char* pc = std::getenv("STATICRECOMP_CALLER_IDLE_PC"); pc && pc[0] != '\0')
+@@ -350,13 +354,14 @@ void StaticRecompCore::Shutdown()
+   std::fprintf(stderr,
+                "[staticrecomp] shutdown: native=%llu fallback=%llu native_exc=%llu hook_fb=%llu "
+                "smc_failed=%u verifications=%llu reverify_events=%llu bursts=%llu cycles=%llu "
+-               "caller_idle=%llu\n",
++               "caller_idle=%llu secondary_idle=%llu\n",
+                (unsigned long long)m_native_dispatches, (unsigned long long)m_fallback_steps,
+                (unsigned long long)m_native_exceptions,
+                (unsigned long long)m_hook_fallback_instructions, m_failed_chunks,
+                (unsigned long long)m_verifications, (unsigned long long)m_reverify_events,
+                (unsigned long long)m_bursts, (unsigned long long)m_charged_cycles,
+-               (unsigned long long)m_caller_idle_hits);
++               (unsigned long long)m_caller_idle_hits,
++               (unsigned long long)m_secondary_idle_hits);
+   std::vector<std::pair<u32, u64>> dispatch_samples(m_dispatch_samples.begin(),
+                                                     m_dispatch_samples.end());
+   std::sort(dispatch_samples.begin(), dispatch_samples.end(),
+diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h
+--- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h
++++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h
+@@ -288,6 +288,8 @@ private:
+   mutable u32 m_last_chunk_index = 0;
+ 
+   u32 m_idle_pc = 0;
++  u32 m_secondary_idle_pc = 0;
++  u64 m_secondary_idle_hits = 0;
+   u32 m_caller_idle_pc = 0;
+   u32 m_caller_idle_lr = 0;
+   u64 m_caller_idle_hits = 0;
+diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
+--- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
++++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
+@@ -72,6 +72,7 @@ void StaticRecompCore::Run()
+   const bool freeze_trace = std::getenv("STATICRECOMP_FREEZE_TRACE") != nullptr;
+   const bool has_rel_modules = m_module && m_module->num_rel_modules != 0;
+   const u32 idle_pc = m_idle_pc;
++  const u32 secondary_idle_pc = m_secondary_idle_pc;
+ 
+   m_guest.ram = memory.GetRAM();
+   m_guest.ram_size = memory.GetRamSizeReal();
+@@ -208,19 +209,28 @@ void StaticRecompCore::Run()
+ 
+           // Idle loop skipping for configured target loops (e.g. Wii Menu OSIdleThread)
+           const bool configured_idle = idle_pc != 0 && m_guest.pc == idle_pc;
++          const bool secondary_idle =
++              secondary_idle_pc != 0 && m_guest.pc == secondary_idle_pc;
+           const bool caller_idle = m_caller_idle_pc != 0 && m_caller_idle_lr != 0 &&
+                                    m_guest.pc == m_caller_idle_pc &&
+                                    m_guest.lr == m_caller_idle_lr;
+-          if (configured_idle || caller_idle)
++          if (configured_idle || secondary_idle || caller_idle)
+           {
+             const bool canonical_boundary =
+                 m_caller_idle_pc != 0 && m_caller_idle_lr != 0 ? caller_idle : configured_idle;
+             if (canonical_boundary && NetPlay::IsNetPlayRunning())
+               CaptureNetplayBoundarySnapshot();
+             const TimePoint idle_start = log_phase ? Clock::now() : TimePoint{};
+             m_system.GetCoreTiming().Idle();
+             if (caller_idle)
+               ++m_caller_idle_hits;
++            if (secondary_idle)
++            {
++              if (m_secondary_idle_hits == 0)
++                std::fprintf(stderr, "[staticrecomp] secondary idle first hit pc=%08x\n",
++                             secondary_idle_pc);
++              ++m_secondary_idle_hits;
++            }
+             if (log_phase)
+               Common::FramePhaseTiming::AddCpuIdle(Clock::now() - idle_start);
+           }

@@ -21,6 +21,14 @@
         // Clear its old preference so existing installs always return to the
         // stable product profile.
         [defaults removeObjectForKey:@"MeleePadExperimentalPerformanceMode"];
+        // Build 6's accepted battle behavior used host-side C-stick attacks by
+        // default. A short-lived regression build inverted that default. Move
+        // every existing install back to the accepted behavior exactly once;
+        // subsequent user changes remain respected.
+        if ([defaults objectForKey:@"MeleePadCStickBattleDefaultV2"] == nil) {
+            [defaults setBool:YES forKey:@"MeleePadRightStickSmashAttacks"];
+            [defaults setBool:YES forKey:@"MeleePadCStickBattleDefaultV2"];
+        }
         NSDictionary *saved = [defaults dictionaryForKey:@"MeleePadControlSizeScales"];
         _controlSizeScales = saved ? [saved mutableCopy] : [NSMutableDictionary dictionary];
     }
@@ -101,6 +109,16 @@
 - (void)setRightStickSmashAttacks:(BOOL)value {
     [[NSUserDefaults standardUserDefaults] setBool:value
                                             forKey:@"MeleePadRightStickSmashAttacks"];
+}
+
+- (BOOL)unlockAllCharactersAndStages {
+    return [[NSUserDefaults standardUserDefaults]
+        boolForKey:@"MeleePadUnlockAllCharactersAndStages"];
+}
+
+- (void)setUnlockAllCharactersAndStages:(BOOL)value {
+    [[NSUserDefaults standardUserDefaults] setBool:value
+                                            forKey:@"MeleePadUnlockAllCharactersAndStages"];
 }
 
 - (CGFloat)controlOpacity {

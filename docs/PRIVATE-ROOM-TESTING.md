@@ -1,6 +1,6 @@
 # Private Room community testing
 
-MeleePad current `main` build 6 is ready for controlled attempts with trusted
+MeleePad Preview 3 build 7 is ready for controlled attempts with trusted
 testers. It adds peer chat to the room screen. It is not a finished multiplayer
 beta. These tests determine whether the fixed-delay peer-to-peer gameplay is
 reliable and enjoyable enough to justify a public game browser.
@@ -25,7 +25,7 @@ character select, and rematch across independent networks.
 Both players need:
 
 - the same locally built, playable MeleePad version and build on both devices;
-- current `main` build 6 when testing Room Chat;
+- Preview 3 build 7 when testing Room Chat;
 - their own exact supported `GALE01` USA revision-0 game image and locally
   generated module;
 - matching gameplay settings;

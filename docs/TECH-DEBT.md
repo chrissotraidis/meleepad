@@ -1,6 +1,6 @@
 # meleepad technical debt
 
-Last updated: 2026-09-03
+Last updated: 2026-09-05
 
 This is the short, ranked engineering queue behind the active goal loop. It is
 not a substitute for `GOAL-LOOP.md` or evidence in `docs/artifacts/`.
@@ -352,16 +352,14 @@ friend play remains the first release; public matchmaking and Slippi rollback
 remain separate multi-month projects. See `docs/NETPLAY-FEASIBILITY.md` and
 `docs/artifacts/2026-09-02/g9-two-mac-melee-match-pass.md`.
 
-## P2 — unify GitHub issue reporting and diagnostic export
+## Closed in Preview 3 — unified problem reporting
 
-The three-dot menu now names the two existing capabilities explicitly:
-**Export Diagnostic Log…** creates a privacy-bounded local report, and
-**Report Issue on GitHub…** opens the prefilled public issue flow. They remain
-separate because an issue URL cannot attach the generated local log. A future
-single guided flow should generate the report, open the prefilled issue, and
-make the manual attachment step unmistakable. Any automatic upload would need
-explicit GitHub authentication, user confirmation, and the existing exclusions
-for game images, extracted data, saves, signing material, and controller input.
+**Report a Problem…** now creates the privacy-bounded diagnostic first, lets the
+player review or save it, and then offers the prefilled GitHub issue. The UI
+makes the required manual attachment step explicit because an issue URL cannot
+attach a local file. Nothing is uploaded automatically, and the existing
+exclusions for game images, extracted data, saves, signing material, controller
+input, room codes, chat, and addresses remain enforced.
 
 ## Closed directions — do not repeat without new evidence
 

@@ -38,7 +38,9 @@ static void MeleePadMigrateRenamedPreferences(void) {
     NSArray<NSString *> *suffixes = @[
         @"RenderScale", @"AspectRatioMode", @"ShowFPSCounter",
         @"HideControlsOnController", @"ModernCStickHorizontal",
-        @"RightStickSmashAttacks", @"ControlOpacity", @"ControlSizeScale",
+        @"RightStickSmashAttacks", @"UnlockAllCharactersAndStages",
+        @"CStickBattleDefaultV2",
+        @"ControlOpacity", @"ControlSizeScale",
         @"EditingControlLayout", @"ControlSizeScales", @"ControlOrigins",
         @"ExperimentalDPadOrigin", @"ExperimentalDPadScale",
         @"ExperimentalTouchControls", @"RetainedGameDataPath",
