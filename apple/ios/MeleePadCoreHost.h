@@ -102,6 +102,7 @@ NS_ASSUME_NONNULL_BEGIN
 /* Bounded, privacy-safe runtime and graphics state for a user-generated
  * diagnostic report. */
 - (NSString *)diagnosticSummary;
+- (NSString *)takeGameplayTimingSummary;
 
 @property(nonatomic, readonly, getter=isRunning) BOOL running;
 

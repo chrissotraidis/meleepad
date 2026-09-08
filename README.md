@@ -26,7 +26,7 @@ universal performance guarantee.*
 [Online play](#experimental-multiplayer) · [Get help](#reporting-issues)**
 
 > [!IMPORTANT]
-> MeleePad v0.1.0 Preview 3 makes experimental private Internet rooms and Direct
+> MeleePad v0.1.0 Preview 4 makes experimental private Internet rooms and Direct
 > IP available with temporary peer chat, compatibility checks, and the
 > development public-lobby UI. It is not an
 > online-play beta: there is no deployed public game browser, relay, automatic
@@ -35,28 +35,42 @@ universal performance guarantee.*
 > playable build must be generated locally from your own exact supported game
 > image. Performance and rendering still vary by scene and device.
 >
-> Preview 3 is build 7. Both players must use the same build.
+> Preview 4 is build 18. Both players must use the same build.
 
 ### At a glance
 
 | | What to expect |
 |---|---|
 | **Platforms** | iPhone, iPad, and Apple Silicon Mac |
-| **Game input** | Development build 11: verified USA v1.02 recommended, v1.00 retained; published Preview 3: v1.00 only |
+| **Game input** | Verified USA v1.02 recommended; v1.00 retained, each requiring its matching local module |
 | **Distribution** | Source plus an unsigned, non-playable IPA shell; playable builds are generated and signed locally |
 | **Controls** | Touch, supported physical controllers, and keyboard on Mac |
-| **Online play** | Experimental MeleePad-to-MeleePad private rooms and Direct IP, with temporary peer chat in Preview 3; not yet a public beta |
+| **Online play** | Experimental MeleePad-to-MeleePad private rooms and Direct IP, with temporary peer chat in Preview 4; not yet a public beta |
 | **Not included** | Melee, game assets, saves, signing material, or a generated game module |
 
-## Preferred v1.02 development work
+## What's new in Preview 4
 
-Development build 11 supports USA v1.02 as the preferred revision while
-preserving v1.00 and its existing data. New setups should use v1.02; existing
-v1.00 setups are not silently switched. This is separate from the published Preview 3 described
-above. See [version choices and build instructions](docs/MELEE-VERSIONS.md)
-and the [active goal and acceptance loop](docs/REVISION-102-GOAL-LOOP.md).
-Import support, module compilation, and gameplay acceptance are recorded
-separately; the decompilation does not itself establish a performance gain.
+Preview 4 (build 18) rolls up the latest device-tested changes:
+
+- **USA v1.02 recommended, v1.00 retained.** Import or switch versions with
+  separate game data and saves. The menu and Online Play show the active version.
+- **Floating touch stick.** Your thumb sets the stick center inside its pickup
+  zone; the stick hides when released. The D-pad is hidden by default and can
+  be restored in Controls.
+- **Lower CPU-loop overhead.** Normal gameplay compiles out disabled diagnostic
+  bookkeeping. Physical testing supports a modest improvement; heavy iPhone
+  scenes still slow down, especially under thermal pressure.
+- **Better gameplay logs.** Ten-second summaries include frame-time average,
+  p95 upper bound, maximum, slow-frame counts, and new audio underruns, alongside
+  FPS, CPU usage, thermal state, resolution, and graphics workload. No manual
+  profiler activation is needed. Logs remain local and can be shared through
+  **Report a Problem**.
+- **Clearer Online Play and macOS fixes.** Refreshed styling, version-compatibility
+  guidance, consistent fallback policy, corrected app branding and keyboard bindings.
+
+See [version choices](docs/MELEE-VERSIONS.md) and
+[Preview 4 notes](docs/releases/v0.1.0-preview.4.md). The decompilation supports
+revision-aware development and debugging; it does not itself guarantee a speedup.
 
 ## How MeleePad works
 
@@ -152,7 +166,7 @@ needs ordinary Apple development signing, just like other apps run from Xcode.
 
 Static recompilation depends on the executable's exact instructions, addresses,
 and data. Even legitimate regional or revision releases differ at those
-locations. Development build 11 supports verified USA v1.02 (disc revision 2),
+locations. Preview 4 supports verified USA v1.02 (disc revision 2),
 recommended for new setups, and USA v1.00 (disc revision 0). Each needs its own
 matching native module. Imports and saves remain separate.
 
@@ -161,8 +175,7 @@ The catalog accepts specific raw images and the verified v1.02 CISO; it does
 not accept arbitrary compressed or modified images. Renaming a file does not
 make it compatible. v1.01, PAL, and Japanese images remain unsupported.
 
-The published Preview 3/build 7 still supports only the original v1.00 raw
-image; the development changes have not been published as a new release.
+Preview 4 supports both revisions; older Preview 3/build 7 supported only v1.00.
 
 </details>
 
@@ -179,10 +192,10 @@ extracts the data the runtime needs. That data stays on your device.
 <details>
 <summary>Can I download a playable IPA?</summary>
 
-No. The [Preview 3 prerelease](https://github.com/chrissotraidis/meleepad/releases/tag/v0.1.0-preview.3)
+No. The [Preview 4 prerelease](https://github.com/chrissotraidis/meleepad/releases/tag/v0.1.0-preview.4)
 includes source and an unsigned, module-free IPA shell for inspection and
 signing-workflow development. It deliberately excludes
-`gGALE01_recomp.dylib`, so importing an ISO into that IPA cannot make it
+`gGALE01_recomp.dylib`, and `gGALE01r2_recomp.dylib`, so importing an ISO into that IPA cannot make it
 playable.
 
 A playable iPhone or iPad build must be generated locally from your own
@@ -196,7 +209,7 @@ with [first-launch game-data import](#first-launch-on-iphone-or-ipad).
 <details>
 <summary>Does multiplayer work?</summary>
 
-Experimentally. Preview 3 can create private eight-character room codes through
+Experimentally. Preview 4 can create private eight-character room codes through
 Dolphin's public traversal service, and Direct IP remains available. Retained
 Mac/iPad Simulator tests connected and ran synchronized gameplay in both host
 directions.
@@ -215,7 +228,7 @@ the exact boundary.
 - **Public Games** is the easiest discovery flow when a supported lobby service
   is configured. You can see the host, seated players, open seats, room state,
   freshness, and exact build compatibility before joining. This remains a
-  local development feature; Preview 3 does not ship with a production public
+  local development feature; Preview 4 does not ship with a production public
   browser.
 - **Private Room** is the best current choice for friends. The host creates an
   eight-character room code and shares it privately. Dolphin's traversal
@@ -269,7 +282,7 @@ discover strangers by itself: a service must publish and expire rooms, keep
 connection codes hidden until a compatible player joins, limit spam, carry
 room chat, and accept reports.
 
-Preview 3 has no production service address, so the app deliberately fails
+Preview 4 has no production service address, so the app deliberately fails
 closed. It does not send names, chat, or room information to an unknown server,
 and it does not fall back to an insecure public HTTP endpoint. The development
 service currently stores rooms and reports only in memory and is not suitable
@@ -299,7 +312,7 @@ MeleePad asks you to confirm the display name other players will see before
 connecting. The confirmed name is saved on that device. It is not an account,
 a verified identity, or included in exported diagnostic logs.
 
-Preview 3 build 7 shows **Room Chat** after a Private Room or Direct IP
+Preview 4 build 18 shows **Room Chat** after a Private Room or Direct IP
 session connects. Members can type messages up to 160 characters. These
 messages use Dolphin's existing peer gameplay connection, not a MeleePad lobby
 server. They are plaintext like the gameplay traffic, kept only in a small
@@ -390,11 +403,11 @@ working. Treat four-seat rooms as development UI until that gate passes.
 <details>
 <summary>Why doesn't Slippi work with MeleePad?</summary>
 
-No. Slippi is not a service that MeleePad can simply turn on. It combines a
+No. Slippi is not a service that MeleePad can simply turn on. It combines
 extensive injected game code, a customized Dolphin
 runtime, rollback networking, accounts, and private matchmaking services.
 
-MeleePad supports v1.02 and v1.00 in development build 11 and uses its own
+MeleePad supports v1.02 and v1.00 in Preview 4 and uses its own
 fixed-delay protocol. Sharing the v1.02 target does not make it Slippi-compatible.
 Slippi supports Melee v1.02 and expects Slippi's game modifications and network
 protocol. The two systems are not compatible, so MeleePad users cannot join the
@@ -425,8 +438,8 @@ not passed its release gates.
 | macOS | Native Apple Silicon launcher and runner, Metal rendering, keyboard and controller profiles, matches, saves, and settings | Final display and worst-frame acceptance work remains |
 | iPhone and iPad | Native app shell, Metal gameplay, touch controls, controller mapping, More menu, exact-image import, persistent saves and settings, and diagnostic export | Serious water, reflection, and shadow rendering defects remain; the full visual, audio, controller, and lifecycle matrix has not passed |
 | Performance | A physical iPad can hold 59.9–60.0 FPS/VPS at 2x resolution during observed solo play | Preview 1 can fall to 46–57 FPS in heavier scenes under thermal pressure; results are scene- and device-specific |
-| Experimental multiplayer | Preview 3 fixed-delay Private Room and Direct IP transport, eight-character room codes, temporary peer chat, native Host/Join lobby, compatibility fingerprinting, and synchronized Mac/iPad Simulator runs in both host directions | No public matchmaking endpoint, physical-device/outside-network/full-match beta evidence, relay, or Slippi rollback |
-| Distribution | Preview 3 source plus an unsigned, module-free IPA shell; locally generated, locally signed playable apps | Public IPA is not playable as downloaded; no App Store or TestFlight build; the locally generated game module is not distributed |
+| Experimental multiplayer | Preview 4 fixed-delay Private Room and Direct IP transport, eight-character room codes, temporary peer chat, native Host/Join lobby, compatibility fingerprinting, and synchronized Mac/iPad Simulator runs in both host directions | No public matchmaking endpoint, physical-device/outside-network/full-match beta evidence, relay, or Slippi rollback |
+| Distribution | Preview 4 source plus an unsigned, module-free IPA shell; locally generated, locally signed playable apps | Public IPA is not playable as downloaded; no App Store or TestFlight build; the locally generated game module is not distributed |
 
 The combat-only right-stick mapping has passed a hands-on physical-iPad retest,
 including the required menu/gameplay behavior. The current evidence, remaining
@@ -568,7 +581,7 @@ physical-controller profiles are preserved.
 ## Experimental multiplayer
 
 > [!WARNING]
-> **Online play is not ready for general use.** Preview 3 contains experimental
+> **Online play is not ready for general use.** Preview 4 contains experimental
 > private rooms and Direct IP. Its Public Games interface has passed local
 > development testing, but no production public-game service is deployed.
 > Build 7 includes peer chat in Private Room and Direct IP for controlled tests.
@@ -577,7 +590,7 @@ physical-controller profiles are preserved.
 |---|---|
 | Private eight-character room codes | Production public-game browser |
 | Direct IP for advanced testing | Automatic or ranked matchmaking |
-| Temporary peer chat in Preview 3 build 7 | Moderated public chat service |
+| Temporary peer chat in Preview 4 build 18 | Moderated public chat service |
 | Two-player Mac/iPad Simulator evidence | Verified four-player online rooms |
 | Physical-iPad room creation | Physical-device completed Internet matches |
 | Compatibility checks and desync shutdown | Relay fallback or encrypted gameplay |
@@ -588,9 +601,8 @@ physical-controller profiles are preserved.
 1. Arrange a game with another MeleePad player outside the app.
 2. Confirm that both players use the same build, the exact supported `GALE01`
    game revision, modules, and matching gameplay settings. Both peers must use
-   build 11 for current development testing; the protocol rejects build 8 and
-   earlier. For the
-   published Preview 3, use build 7 and v1.00 on both devices.
+   Preview 4/build 18 and the same game revision (v1.02 recommended).
+   Older Preview 3 builds are incompatible with this version.
 3. The host opens **More (•••) → Online Play → Private Room → Host**.
 4. After the app displays an eight-character room code, the host sends it to
    the other player through a trusted channel.
@@ -619,7 +631,7 @@ report the complete result, including slow or failed attempts.
   data, saves, or signing material.
 
 <details>
-<summary>How does Preview 3 connect the players?</summary>
+<summary>How does Preview 4 connect the players?</summary>
 
 - Both players run the match locally; MeleePad exchanges synchronized
   controller input rather than streaming video.
@@ -657,7 +669,7 @@ the [multiplayer goal loop](docs/NETPLAY-BETA-GOAL-LOOP.md).
 
 - **Private Room** is the working Internet-room preview. Players arrange a game
   elsewhere and exchange an ephemeral room code privately. Current `main`
-  build 7 includes temporary chat over the same peer connection.
+  build 18 includes temporary chat over the same peer connection.
 - **Public Games** is the planned discovery layer. Its native UI can show
   compatible room cards and supports bounded room chat, Hide, and Report in
   local development tests. No production endpoint is deployed.
@@ -696,11 +708,11 @@ moderation, and deployment gates are in the
 multi-game directory boundary and MeleePad-first implementation sequence are in
 the [Pad Lobby Protocol goal loop](docs/PAD-LOBBY-PROTOCOL-GOAL-LOOP.md).
 
-### Plan after Preview 3
+### Plan after Preview 4
 
 The next-preview plan is deliberately staged:
 
-1. run bounded Private Room community tests on Preview 3 build 7,
+1. run bounded Private Room community tests on Preview 4 build 18,
    beginning with trusted two-player pairs on independent networks and a chat
    message in each direction;
 2. finish full matches on physical Apple devices across independent networks,
@@ -735,7 +747,9 @@ buffer policy, full-match determinism, and physical-device thermal testing.
 
 ## Reporting issues
 
-Use **More (•••) → Share Diagnostic Logs** to export a diagnostic package. Then
+Use **More (•••) → Report a Problem…** to review and share a diagnostic package.
+Gameplay timing summaries are collected automatically; note the approximate time
+and scene when a slowdown happens. No profiler switch is required. Then
 [open a MeleePad GitHub issue](https://github.com/chrissotraidis/meleepad/issues/new)
 and include:
 

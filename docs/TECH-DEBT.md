@@ -5,8 +5,9 @@ Last updated: 2026-09-08
 This is the short, ranked engineering queue behind the active goal loop. It is
 not a substitute for `GOAL-LOOP.md` or evidence in `docs/artifacts/`.
 
-Current work, native hardware profiling resumed: [v1.02 iPhone performance goal](IPHONE-102-PERFORMANCE-GOAL-LOOP.md).
-The owner requested merging the build-17 increment after physical gameplay.
+Performance evidence: [v1.02 iPhone performance goal](IPHONE-102-PERFORMANCE-GOAL-LOOP.md).
+Preview 4/build 18 rolls up the merged build-17 increment and lightweight
+gameplay timing logs.
 Sustained performance and physical netplay limitations remain open.
 
 ## Current performance investigation — private build 17
@@ -21,9 +22,9 @@ sustained heavy-match slowdowns. Patch 0056 makes the change reproducible.
 
 The owner's latest gameplay logs confirm 41–45 FPS slowdown samples with
 serious thermal pressure and CPU-thread utilization of 86–93%. The owner finds
-it improved but still imperfect. Next logging work is frame-time p95/max,
-missed-frame counts and audio-underrun deltas at existing frame boundaries;
-avoid always-on per-dispatch timing. See the [owner-run assessment](artifacts/2026-09-08/build17-owner-gameplay.md).
+it improved but still imperfect. Build 18 now logs frame-time p95/max, slow-frame counts and audio-underrun
+deltas using existing frame timestamps. Next performance work should target a
+flagged slow interval; always-on per-dispatch timing remains excluded. See the [owner-run assessment](artifacts/2026-09-08/build17-owner-gameplay.md).
 
 Neither tested math candidate is retained. Deferred floating-point classification
 substantially reduces isolated inverse-matrix time, but physical four-fighter

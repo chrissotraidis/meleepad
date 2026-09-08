@@ -222,6 +222,7 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
     BOOL _audioSessionNeedsReactivation;
     BOOL _systemStateRetryScheduled;
     NSUInteger _systemStateRetryAttempts;
+    unsigned long long _lastReportedAudioUnderruns;
     NSString *_activePerformanceProfile;
     NSString *_activePerformanceSource;
     NSString *_activeFrameMode;
@@ -1246,6 +1247,24 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
     auto &metrics = Core::System::GetInstance().GetPerfMetrics();
     return [NSString stringWithFormat:@"%ux%u", metrics.GetEFBWidth(),
                                       metrics.GetEFBHeight()];
+}
+
+- (NSString *)takeGameplayTimingSummary {
+    const auto frames = Core::System::GetInstance().GetPerfMetrics().TakeFrameIntervalSummary();
+    unsigned long long underruns = 0;
+    if (SoundStream *stream = Core::System::GetInstance().GetSoundStream()) {
+        if (Mixer *mixer = stream->GetMixer())
+            underruns = mixer->GetDMAUnderrunCount();
+    }
+    const unsigned long long delta = underruns >= _lastReportedAudioUnderruns
+        ? underruns - _lastReportedAudioUnderruns : underruns;
+    _lastReportedAudioUnderruns = underruns;
+    return [NSString stringWithFormat:
+        @"frameIntervals=%llu frameAvgMs=%.2f frameP95UpperMs=%.2f frameMaxMs=%.2f "
+         @"framesOver20ms=%llu framesOver33ms=%llu framesOver50ms=%llu audioUnderrunsDelta=%llu",
+        (unsigned long long)frames.frames, frames.average_ms, frames.p95_upper_ms,
+        frames.maximum_ms, (unsigned long long)frames.over_20_ms,
+        (unsigned long long)frames.over_33_ms, (unsigned long long)frames.over_50_ms, delta];
 }
 
 - (NSString *)diagnosticSummary {
