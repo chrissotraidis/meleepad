@@ -385,3 +385,27 @@ Original trig is restored. Device game data remains installed. Hardware
 retention remains open pending this candidate's capture and a valid comparison.
 Private scripts/logs are under `alias-preflight/build-scalar-family*`,
 `test-scalar-family-*.log`, and `scalar-candidate/`.
+
+
+### Build 16 not retained; native profiling connection fails
+
+Build 16 reached the same roster/stage, opening stage select one guest frame
+earlier. Against the cooled control its CPU means are 16.576, 21.206 and
+23.418 ms (+6.52%, +25.89%, +23.35%); FPS is 56.14, 45.15 and 40.90. Draws,
+primitives and guest cycles also differ, and thermal state changes from fair
+to serious. This does not establish an intrinsic regression or improvement,
+but it fails the retention gate. Do not ship either private math candidate.
+
+Both candidate captures are preserved. Build 16 was stopped and baseline-module
+build 15 restored, without launching another benchmark. No current private
+optimization is installed. The outstanding problem remains substantial
+sustained CPU/thermal performance, despite the isolated matrix improvement.
+
+A bounded native CPU Profiler attempt failed to find the PID that CoreDevice
+confirmed running. A second attempt by app name timed out waiting for the
+physical device to boot. Instruments lists that exact iPhone; get-task-allow
+is true, Developer Mode is enabled, and DDI services are available. Installed
+Xcode is 26.6 (17F113), device OS 26.6.1. These facts establish a profiler
+connection failure, not its root cause or a confirmed Xcode incompatibility.
+Do not repeat warm match comparisons as a substitute for native attribution.
+Private errors and device-state receipts are under `scalar-candidate/`.

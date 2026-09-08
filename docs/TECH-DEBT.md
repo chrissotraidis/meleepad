@@ -9,26 +9,27 @@ Current active work: [v1.02 iPhone performance goal](IPHONE-102-PERFORMANCE-GOAL
 The owner accepted build 11 as the merged baseline; performance and physical
 netplay limitations below remain open.
 
-## Current performance investigation — private builds 12–15
+## Current performance investigation — private builds 12–16
 
-A source-guided deferred floating-point classification prototype reduces sampled
-inverse-matrix entry time on the physical iPhone, but no substantial whole-game
-improvement is established. Sine/cosine regressed in the cooled capture and are being removed. The
-prototype remains private and has not replaced the accepted main module.
+Neither tested math candidate is retained. Deferred floating-point classification
+substantially reduces isolated inverse-matrix time, but physical four-fighter
+comparisons do not establish a consistent whole-game improvement. Trig changes
+regressed; removing them and adding scalar matrix-add still failed the hardware
+retention gate. The original module is restored in private build 15.
 
-The existing physical four-fighter benchmark now supports v1.02 using verified
-decompilation symbols and layouts. It reaches a fixed roster on Big Blue through
-normal menu input plus guarded benchmark-only seed/roster/stage writes. The first
-candidate/control pair varied in both directions under serious thermal pressure.
-A cooled pair favors the candidate by about 4% CPU time in closely matched
-workloads, but different starting thermal states limit attribution. A revised
-matrix-only candidate is building. Treat this as unresolved sustained CPU/thermal performance,
-not a version-import or resolution-setting fix.
+The physical four-fighter route now supports v1.02 using verified decompilation
+symbols and layouts. It reaches a fixed roster on Big Blue. Captures show strong
+thermal sensitivity: a cooled baseline begins near 60 FPS and slows as it warms.
+One cooled pair favored a candidate by about 4% CPU time, but differing starting
+thermal states and subsequent contrary results prevent retaining that claim.
 
-Next decision: finish the cooled comparison and retain only a demonstrated
-whole-game benefit. Do not ship the prototype, extrapolate its leaf timing to
-FPS, or keep running warm comparisons to seek a favorable number. See the
-[full evidence and current device state](IPHONE-102-PERFORMANCE-GOAL-LOOP.md).
+Next gate is native CPU attribution, not more warm match repetitions. The CLI
+CPU Profiler cannot attach by PID or app name although CoreDevice sees the app,
+Developer Mode/DDI are available, and the debugging entitlement is enabled.
+Xcode 26.6 versus device OS 26.6.1 does not itself prove incompatibility; the
+profiler connection failure needs diagnosis. See the [full evidence and current
+device state](IPHONE-102-PERFORMANCE-GOAL-LOOP.md). No experimental module has
+been merged or published, and substantial performance improvement remains open.
 
 ## Build 9 handoff — v1.02, performance, and hardware netplay
 
