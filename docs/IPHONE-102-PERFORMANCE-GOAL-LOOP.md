@@ -366,3 +366,22 @@ move in both directions. Reject the trig component. A revised private module
 is building with inverse plus the correctness-tested scalar matrix-add region,
 restoring the original trig chunk. No further phone build is installed yet;
 build 14 was stopped after saving its capture. Retention remains unproven.
+
+
+### Matrix-only build 16 launched
+
+The revised integrated module passed 100,000 inverse and 100,000 scaled-add
+comparisons, plus the 10,000-case original-trig comparison. Scaled-add checks
+include output MMIO/boundary fallback and partial output/input aliasing. Both
+matrix tests use the compiled module dispatcher on each side. Host timing is
+about 61% lower for inverse and 37–39% lower for scaled-add, not a whole-frame
+or device estimate.
+
+The physical module compiled/linked, private build 16 passed strict signature
+verification, and it was installed and launched with the fixed four-player
+route and capture enabled. The app executable is the existing route-enabled
+build; only the v1.02 module changes, and v1.00's module remains byte-identical.
+Original trig is restored. Device game data remains installed. Hardware
+retention remains open pending this candidate's capture and a valid comparison.
+Private scripts/logs are under `alias-preflight/build-scalar-family*`,
+`test-scalar-family-*.log`, and `scalar-candidate/`.
