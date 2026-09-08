@@ -224,3 +224,30 @@ launched with profiling enabled. Its v1.00 module is byte-identical to build
 12; existing app data was retained. Physical correctness, sustained heavy-scene
 performance and whether the gain is worth shipping remain open. Installation
 and launch receipts are under `ref/revision-102/performance-loop/math-candidate/`.
+
+
+### First physical candidate samples: useful local gain, no whole-frame claim
+
+Build 13's fresh runtime log confirms revision 2 and its new module size.
+It reached heavy graphics automatically after the light opening scene; the
+owner has not confirmed a controlled multi-fighter match. The two 600-frame
+windows at emulated frames 7000 and 8800 are complete in both CSV sets.
+However, neither window has a single frame with matching draw and primitive
+counts across baseline and candidate. Workloads differ substantially.
+Candidate CPU-thread means are 20.842 and 15.108 ms versus baseline 20.273
+and 23.586 ms. These differences cannot establish a whole-frame speedup.
+
+Across those windows, mean corrected inclusive time per sampled inverse entry
+falls from 777.51 ns (262 samples) to 322.85 ns (292 samples). Cosine remains
+316.85 versus 319.04 ns; sine remains 342.32 versus 337.59 ns. This supports
+an on-device benefit for the inverse mechanism, but not the added trig region
+or a substantial application-wide improvement. Different input distributions
+and thermal scheduling still limit the per-entry comparison.
+
+The integrated host comparisons also passed all four host rounding modes:
+400,000 inverse and 40,000 trig entries. Logs are private. The next source
+candidate is deferred classification across the paired-single matrix region;
+its helpers repeatedly classify results in `cpu_interpreter_float.c`. This
+is distinct from the previously rejected standalone matrix leaf replacement.
+Owner-driven heavy-match capture remains requested; build 13's profiler is
+currently active. No release or merge of the experiment is justified yet.
