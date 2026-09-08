@@ -24,7 +24,7 @@ implementing the newly requested revision support.
 | Gate | Evidence required | State |
 | --- | --- | --- |
 | R0 Input verified | Identify container, disc revision, executable and data hashes | Verified supplied CISO, executable hash, FST extents; independent retail asset comparison remains open |
-| R1 Build separation | Independently prepare both revisions without overwriting active v1.00 module or extraction; compile v1.02 | Passed: separate r0/r2 extraction and module stores; Simulator/device r2 modules built; macOS 14 module rebuilt and packaged |
+| R1 Build separation | Independently prepare both revisions without overwriting active v1.00 module or extraction; compile v1.02 | Passed: separate r0/r2 extraction and module stores; Simulator/device modules for both revisions built; macOS 14 module rebuilt and packaged |
 | R2 Runtime correctness | Audit every revision-specific address, input hook, idle shortcut and diagnostic write; verify v1.02 against executable/source | Implemented: revision-specific waits and scene address; legacy diagnostic writes gated to r0; runtime boot and input observed |
 | R3 Import and selection | Preferred-version explanation, validated imports, independent storage, module selection, legacy migration | Passed in Simulator: both actual imports, both selection directions, accurate labels; r2 save unchanged after r0 import |
 | R4 Online identity | Actual selected revision in discovery and transport; reject mixed revisions/builds/mods; positive and negative tests | Identity implemented; service tests pass for mixed-revision rejection and matching-r2 acceptance; direct transport rejects mixed revisions (guest exit 12); matching r2 peers produced 44 matched snapshots in bounded title/attract run; controlled online match remains open |
@@ -89,7 +89,7 @@ directions, not prerequisites or promised outcomes of this loop.
 ## Build and transport checkpoint
 
 - Simulator build 8 and unsigned device build 8 compile successfully. Both
-  Simulator modules and the v1.02 device module compile with matching identity
+  Simulator and device modules for both revisions compile with matching identity
   sidecars. The separate `com.meleepad.RevisionQA` app was signed and verified;
   installation was rejected because the iPad had not been unlocked recently.
   The existing installed MeleePad was not replaced.
@@ -146,3 +146,26 @@ loading its module. The host was stopped normally after the bounded test.
 Private evidence: `peer-r2-trace-summary.json`, `peer-r2-*.log`, and
 `peer-mixed-*.log` under `ref/revision-102/`. The iPad installation recheck still
 reported a locked device; no installed MeleePad app was replaced.
+
+
+## Cross-platform and input follow-up (2026-09-08)
+
+A bounded macOS-host/iOS-Simulator-guest run produced 109 matching canonical
+snapshots through callback frame 10680 (last sequence 1931580), with no mismatch
+records. This adds cross-platform evidence for the observed title/attract route;
+a player-controlled online match and physical-device latency remain open.
+Private evidence: `cross-summary.json` and `cross-host.log`.
+
+Both revision-specific device modules now build and carry verified DOL identity
+sidecars. The isolated Revision QA device app was staged with both and its
+signature verified. Physical installation still requires the paired iPad to be
+unlocked; the installed production app has not been replaced.
+
+The reverse Simulator-host test confirms that a touch Start press reaches
+`NetPlayClient::PollLocalPad` as button value `0x1000` on local/game pad 0.
+The title-screen transition has not yet been established. Optional
+`MELEEPAD_NETPLAY_TRACE_INPUT=1` diagnostics record button/connection changes at
+local polling and after dequeueing synchronized input, so the next investigation
+can distinguish input delivery from the guest game's response. This does not
+change controller bindings, input timing, or the network protocol. Leave it
+unset outside diagnostics. Private evidence: `sim-input-stderr.log`.
