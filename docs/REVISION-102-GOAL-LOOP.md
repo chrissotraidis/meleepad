@@ -6,6 +6,14 @@ decompilation, and pursuing measured improvements. This loop governs that new
 work; historical performance gates remain evidence requirements, not a ban on
 implementing the newly requested revision support.
 
+## Accepted baseline and successor goal
+
+On 2026-09-08 the owner accepted build 11 as the next baseline and authorized
+merge. PR #4 merged as `5661889`; no new public IPA was requested. The revision
+support work is complete for this accepted scope. Known heavy-scene slowdown
+and physical online-match acceptance remain documented debt. Further work is
+governed by [the new iPhone v1.02 performance loop](IPHONE-102-PERFORMANCE-GOAL-LOOP.md).
+
 ## Product contract
 
 - Detect the actual imported revision; never infer it from a filename.

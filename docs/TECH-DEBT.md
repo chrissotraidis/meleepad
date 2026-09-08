@@ -5,6 +5,54 @@ Last updated: 2026-09-08
 This is the short, ranked engineering queue behind the active goal loop. It is
 not a substitute for `GOAL-LOOP.md` or evidence in `docs/artifacts/`.
 
+Current work, native hardware profiling resumed: [v1.02 iPhone performance goal](IPHONE-102-PERFORMANCE-GOAL-LOOP.md).
+The owner requested merging the build-17 increment after physical gameplay.
+Sustained performance and physical netplay limitations remain open.
+
+## Current performance investigation — private build 17
+
+Build 17 adds a modest host-loop optimization:
+normal execution compiles out disabled diagnostic branches, while timing,
+lockstep, and diagnostic runs use the same fully instrumented loop. A physical
+25-second four-fighter comparison reduces loop self samples from 1,683 to
+980 ms (41.8%); total CPU-thread samples are 2.38% lower, with unchanged game
+modules. This is a targeted improvement, not a precise FPS gain or a fix for
+sustained heavy-match slowdowns. Patch 0056 makes the change reproducible.
+
+The owner's latest gameplay logs confirm 41–45 FPS slowdown samples with
+serious thermal pressure and CPU-thread utilization of 86–93%. The owner finds
+it improved but still imperfect. Next logging work is frame-time p95/max,
+missed-frame counts and audio-underrun deltas at existing frame boundaries;
+avoid always-on per-dispatch timing. See the [owner-run assessment](artifacts/2026-09-08/build17-owner-gameplay.md).
+
+Neither tested math candidate is retained. Deferred floating-point classification
+substantially reduces isolated inverse-matrix time, but physical four-fighter
+comparisons do not establish a consistent whole-game improvement. Trig changes
+regressed; removing them and adding scalar matrix-add still failed the hardware
+retention gate. The original module remains unchanged in private build 17.
+
+The physical four-fighter route now supports v1.02 using verified decompilation
+symbols and layouts. It reaches a fixed roster on Big Blue. Captures show strong
+thermal sensitivity: a cooled baseline begins near 60 FPS and slows as it warms.
+One cooled pair favored a candidate by about 4% CPU time, but differing starting
+thermal states and subsequent contrary results prevent retaining that claim.
+
+The owner reconnected the iPhone and two 25-second native Time Profiler
+captures of the four-fighter route succeeded. With internal capture disabled,
+CPU leaf samples split into 46.29% generated game bodies, 24.10% module helpers
+and dispatch, and 29.58% core/system. The video worker spends substantial time
+in FIFO/status polling; prior sleep-threshold experiments already regressed or
+failed to exceed noise and should not be repeated without a different mechanism.
+
+Internal diagnostic clock work accounts for 7.35% of CPU samples when capture
+is enabled, versus 0.04% disabled. Keep internal capture off during native
+profiling. The capture-disabled run still slowed to 47.5 FPS in one later
+interval, so logging is not the whole issue. Next source gate: map matrix/joint
+native sample offsets to exact decompilation functions before selecting a
+bounded region optimization. See the [full evidence and current device
+state](IPHONE-102-PERFORMANCE-GOAL-LOOP.md). That attribution led to the build-17 host-loop specialization above.
+No new sustained FPS claim or physical online acceptance is established.
+
 ## Build 9 handoff — v1.02, performance, and hardware netplay
 
 USA v1.02 is now preferred for new development setups; v1.00 remains supported
