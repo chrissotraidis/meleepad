@@ -74,3 +74,9 @@ are mapped separately. The old primary shortcut maps to `SITransfer`, so it
 is disabled for v1.02 pending independent timing evidence. Existing v1.00
 benchmark memory writes are disabled for v1.02 rather than applied to unrelated
 addresses. Performance and rendering changes still require measured evidence.
+
+For local peer acceptance, set `MELEEPAD_NETPLAY_TRACE_CANONICAL=1` on the
+host runner to record every received canonical report and successful paired
+comparison. A zero sequence means there is no new snapshot to compare, not a
+successful comparison. Use a known initialized QA save to reach the normal
+main-loop boundary, and keep modal startup coverage separate from gameplay.

@@ -27,7 +27,7 @@ implementing the newly requested revision support.
 | R1 Build separation | Independently prepare both revisions without overwriting active v1.00 module or extraction; compile v1.02 | Passed: separate r0/r2 extraction and module stores; Simulator/device r2 modules built; macOS 14 module rebuilt and packaged |
 | R2 Runtime correctness | Audit every revision-specific address, input hook, idle shortcut and diagnostic write; verify v1.02 against executable/source | Implemented: revision-specific waits and scene address; legacy diagnostic writes gated to r0; runtime boot and input observed |
 | R3 Import and selection | Preferred-version explanation, validated imports, independent storage, module selection, legacy migration | Passed in Simulator: both actual imports, both selection directions, accurate labels; r2 save unchanged after r0 import |
-| R4 Online identity | Actual selected revision in discovery and transport; reject mixed revisions/builds/mods; positive and negative tests | Identity implemented; service tests pass for mixed-revision rejection and matching-r2 acceptance; two local r2 peers passed compatibility and booted matching modules; synchronized gameplay not yet accepted |
+| R4 Online identity | Actual selected revision in discovery and transport; reject mixed revisions/builds/mods; positive and negative tests | Identity implemented; service tests pass for mixed-revision rejection and matching-r2 acceptance; direct transport rejects mixed revisions (guest exit 12); matching r2 peers produced 44 matched snapshots in bounded title/attract run; controlled online match remains open |
 | R5 Product acceptance | Build both Apple targets; visible import, boot, controls, match/results, audio, lifecycle; preserve v1.00 | Simulator r2: save creation, menus, character select, Classic match and stage results observed; r0 boot/save and return to r2 passed. Device app builds; separate QA app signed; install blocked by locked iPad |
 | R6 Decompilation improvements | Pinned complete upstream source; named profiling; investigate a concrete defect/hotspot and validate any fix | Pinned completed source; executable-checked symbolizer; audited scheduler and pad waits. No measured performance claim; reflection/thermal investigation remains open |
 | R7 Delivery | Relevant checks, docs and exact acceptance/debt ledger; audit distributable boundaries | Full repository checks pass; docs implemented; macOS layout/signature passed; public module-free IPA audited and playable-module rejection passed; hardware acceptance open |
@@ -121,3 +121,28 @@ directions, not prerequisites or promised outcomes of this loop.
 4. Add training/diagnostic features from verified game state only after the
    revision and runtime acceptance gates pass. Rollback/Slippi interoperability
    and wholesale native source replacement require separate designs.
+
+## Canonical trace follow-up (2026-09-08)
+
+The original logger printed success only when a sampled boundary sequence was
+an exact multiple of 600. Silent logs therefore did not prove missing reports
+or matching gameplay. An opt-in `MELEEPAD_NETPLAY_TRACE_CANONICAL=1` now prints
+received report identity/frame/sequence and every successfully paired match.
+It changes diagnostics only, not the comparison, sampling, packet format, or
+mismatch policy. Leave the variable unset for normal logging.
+
+A fresh-save local run matched six startup snapshots before reaching a modal
+save screen outside the selected main-loop boundary. A subsequent bounded run
+using the existing isolated QA simulator save produced 44 matching canonical
+snapshots, last sequence 488880, through host callback frame 16440. No mismatch
+or unpaired-snapshot records appeared. The visible host reached title and
+attract-mode gameplay. This verifies sampled same-build local determinism for
+that route, not a player-controlled online match, cross-platform synchronization,
+network latency, audio, or physical-device acceptance.
+
+The direct mixed-revision test hosted v1.00 and joined with v1.02. The guest
+exited with code 12 (`CompatibilityMismatch`) before opening its lobby or
+loading its module. The host was stopped normally after the bounded test.
+Private evidence: `peer-r2-trace-summary.json`, `peer-r2-*.log`, and
+`peer-mixed-*.log` under `ref/revision-102/`. The iPad installation recheck still
+reported a locked device; no installed MeleePad app was replaced.

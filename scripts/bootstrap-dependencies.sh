@@ -381,6 +381,7 @@ apply_patch_once_or_marker "$MG" "$secondary_idle_policy_patch" \
   src/runtime/dolphin_runtime.cpp \
   StaticRecompSecondaryIdlePC
 apply_patch_once "$MG/vendor/dolphin" "$ROOT/patches/moderngekko-dolphin/0051-gale01r2-staticrecomp-idle.patch"
+apply_patch_once "$MG/vendor/dolphin" "$ROOT/patches/moderngekko-dolphin/0052-netplay-canonical-acceptance-trace.patch"
 apply_patch_once "$MG" "$ROOT/patches/moderngekko/0023-melee-revision-selection.patch"
 apply_patch_once "$MG" "$ROOT/patches/moderngekko/0024-revision-support-netplay-version.patch"
 verify_patch_scope "$MG" "$mg_patch" "$ROOT"/patches/moderngekko/*.patch -- \
