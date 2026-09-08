@@ -1,0 +1,32 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -489,6 +489,7 @@
+     set_target_properties(moderngekko-run PROPERTIES
+         OUTPUT_NAME "${MODERNGEKKO_RUNNER_OUTPUT_NAME}")
+     target_compile_definitions(moderngekko-run PRIVATE
++        MODERNGEKKO_FRONTEND_NAME="${MODERNGEKKO_FRONTEND_NAME}"
+         MODERNGEKKO_RUNNER_NAME="${MODERNGEKKO_RUNNER_OUTPUT_NAME}"
+         MODERNGEKKO_USER_DIRECTORY_NAME="${MODERNGEKKO_USER_DIRECTORY_NAME}")
+     if(MODERNGEKKO_DEFAULT_WINDOW_TITLE)
+diff --git a/tools/netplay_session.cpp b/tools/netplay_session.cpp
+--- a/tools/netplay_session.cpp
++++ b/tools/netplay_session.cpp
+@@ -67,7 +67,7 @@
+       return false;
+     const float scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
+     m_window = SDL_CreateWindow(
+-        "KirbyRecomp Netplay Lobby", static_cast<int>(820 * scale),
++        MODERNGEKKO_FRONTEND_NAME " Netplay Lobby", static_cast<int>(820 * scale),
+         static_cast<int>(600 * scale),
+         SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
+     if (!m_window)
+@@ -189,7 +189,7 @@
+     const ImGuiViewport *viewport = ImGui::GetMainViewport();
+     ImGui::SetNextWindowPos(viewport->WorkPos);
+     ImGui::SetNextWindowSize(viewport->WorkSize);
+-    ImGui::Begin("KirbyRecomp Netplay", nullptr,
++    ImGui::Begin(MODERNGEKKO_FRONTEND_NAME " Netplay", nullptr,
+                  ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove |
+                      ImGuiWindowFlags_NoSavedSettings);
+     const bool hosting = options.role == NetplayRole::Host;

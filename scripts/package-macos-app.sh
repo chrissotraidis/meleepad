@@ -100,10 +100,10 @@ cp "$ROOT/apple/macos/default-config.ini" "$OUTPUT/Contents/Resources/default-co
 cp "$ROOT/apple/macos/default-GCPadNew.ini" "$OUTPUT/Contents/Resources/default-GCPadNew.ini"
 chmod +x "$OUTPUT/Contents/MacOS/MeleePad"
 
-"$ROOT/scripts/test-macos-package-layout.sh" "$OUTPUT"
-
-source_icon="$ROOT/ref/sunpad/apple/ios/Assets.xcassets/AppIcon.appiconset/AppIcon.png"
+source_icon="$ROOT/apple/ios/Assets.xcassets/AppIcon.appiconset/AppIcon.png"
 cp "$source_icon" "$OUTPUT/Contents/Resources/AppIcon.png"
+
+"$ROOT/scripts/test-macos-package-layout.sh" "$OUTPUT"
 
 codesign --force --deep --sign - "$OUTPUT"
 codesign --verify --deep --strict "$OUTPUT"

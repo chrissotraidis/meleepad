@@ -204,3 +204,28 @@ device, retaining existing SDL and pipe mappings. The focused controller-config
 regression test, full repository checks, and rebuilt macOS package layout pass.
 The launcher's picker remains SDL-only; this change addresses the explicit
 netplay runner keyboard path. Runtime keyboard acceptance is being checked separately.
+
+
+## Branding and timing divergence follow-up (2026-09-08)
+
+The user identified the macOS SunPad icon and KirbyRecomp lobby title. The
+packager now copies MeleePad's existing original icon; the lobby uses the
+configured frontend product name. Package checks verify the icon bytes and
+MeleePad lobby title in the rebuilt runner. Full repository checks and macOS
+package/signature checks passed; the live window was observed as
+"MeleePad Netplay Lobby" after rebuild.
+
+A fresh-profile keyboard/netplay run generated the corrected Quartz bindings,
+but CUA key presses did not produce logged local button changes. Runtime
+keyboard acceptance remains open. The preserved old profile was intentionally
+not overwritten; the fix affects newly generated profiles.
+
+The same cross-platform run exited to its lobby with a desync at callback frame
+6120. Two canonical comparisons diverged only in timebase: sequence 374160
+(delta -2160) and sequence 375540 (delta -1287). CPU state/integer/FPR/paired and
+RAM hashes match in those records. This is a failed timing/determinism gate,
+not a passing match or proof that timing differences are harmless. Earlier
+bounded matching runs remain scoped to their sampled routes. Preserve the
+comparison policy while investigating the source of timing divergence.
+Private evidence: `cross-keyboard-clean-summary.json`,
+`sim-keyboard-clean-stderr.log`, and `cross-guest-keyboard-clean.log`.
