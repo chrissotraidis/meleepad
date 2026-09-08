@@ -88,3 +88,10 @@ composed path; do not add another generic profiler.
   matrix leaf specialization and establishes inclusive-time bias. Preserve
   that result. Decomp joint/collision inspection informs composed paths, not
   a renewed claim that leaf SIMD is a sufficient fix.
+
+- Handoff: private diagnostic build 12 is prepared from the accepted regular
+  app with the new host executable. Its existing game modules are unchanged;
+  signing with the baseline certificate and strict bundle verification pass.
+  It is not installed or published. The device still has accepted build 11.
+  Diagnostics/privacy tests and dispatch-time analyzer tests pass. Next step
+  is the short physical heavy-scene capture, then one selected optimization.
