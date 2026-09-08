@@ -330,3 +330,20 @@ process was terminated after capture, leaving the phone idle to cool. A cooled
 comparison is warranted by the unresolved thermal/workload confounds; repeated
 warm runs are not. Private analysis: `route-comparison1.json`, `compare-route.py`,
 and both route directories' `capture1-sha256.json` files.
+
+
+### Cooled control captured
+
+The baseline was confirmed stopped, then left idle for just over five minutes
+before relaunch. Its route again fixed the same roster at frame 2042 and opened
+stage selection at 2043. Initial telemetry reported serious, then fair, then
+serious again later in the run; idle duration alone is not a thermal-state
+measurement. CPU means for the three windows are 15.561, 16.844 and 18.985 ms;
+FPS from mean frame time is 58.53, 56.88 and 50.54. This shows the substantial
+thermal sensitivity of the baseline, not an optimization gain.
+
+Complete capture files and hashes are `route-control/*-cooled2.*` and
+`cooled2-sha256.json`. The baseline process was stopped at 10:33:47 UTC and
+candidate build 14 was reinstalled without launching it. The matching candidate
+cooldown is in progress. The goal remains incomplete and the experimental
+module remains outside main and any public release.
