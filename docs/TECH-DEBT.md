@@ -47,6 +47,31 @@ and whether the connection was LAN or Internet. A LAN result must not be posted
 as proof of Internet play, matchmaking, or Slippi support. Until this passes,
 describe online play as experimental; announce version support separately.
 
+## Build 10 — visible revision and physical app identity
+
+The owner reported severe iPhone lag and could not tell which Melee revision
+was running. Device inventory exposed two apps: the regular MeleePad still had
+build 6 on iPad and build 7 on iPhone, while Revision QA had build 9. The QA
+containers had verified v1.02 extraction, but no retained ISO. Do not confuse
+QA installation with updating the owner's regular app.
+
+Build 10 puts the detected Melee version in the three-dot menu title, removes
+recommendation text from the Game Data & Saves row, and shows the current game
+and app build above all Online Play connection modes. Its version picker shows
+current selection before recommendation guidance. Boot refreshes the menu after
+rebasing and validating the game root, avoiding stale container paths.
+
+The regular apps were updated in place under their existing legacy bundle
+identity. Both device ISO read-backs match the verified source; both boot logs
+confirm revision 2 and Melee-v1.02.iso exists=1. Old Melee GCI files and save
+states were removed, and fresh v1.02 saves are used, as explicitly requested.
+The stale retained-image filename restored by legacy preference migration was
+also fixed: startup searches the selected revision folder when that path is
+missing. The physical iPhone reaches the fresh-save prompt. Lag remains unresolved: neither a revision change nor ISO retention
+is a measured speed fix. Next physical acceptance must identify the regular
+app, build, game version, actual ISO boot, and gameplay scene before comparing
+performance or diagnosing network delay.
+
 ## Preview 1 accepted debt — physical-iPad thermal slowdown
 
 Preview 1 is complete with this issue explicitly accepted as technical debt,

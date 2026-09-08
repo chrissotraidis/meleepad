@@ -383,3 +383,29 @@ results, and rematch are pending the owner's physical interaction.
 The subsequent iPhone launch succeeded after unlock. Its retrieved runtime log
 confirms version 0.1.0/build 9 and runtime-thread startup with a module present.
 This closes the launch blocker, not physical gameplay/netplay acceptance.
+
+
+## Build 10 — owner-requested regular-app revision reset
+
+The regular installed apps were still build 6 (iPad) and build 7 (iPhone),
+separate from build-9 Revision QA. Updated those exact regular bundle identities
+to build 10, staged both revision modules, explicitly selected revision 2, and
+transferred the actual verified v1.02 ISO plus extraction. Full device ISO
+read-back hashes on both equal
+`979c42a2cda2d022370ceeace9afb0bb6e1374287aea61c77e8f5b27f53ee526`.
+Old Melee GCI files were deleted and their directories verified empty; old
+save-state directories were removed. New r2 save storage starts fresh.
+
+Legacy preference migration restored an obsolete ISO filename on the first
+boot. Fixed missing retained-image resolution to search the selected revision's
+folder. Final logs on both devices report build 10, verified game revision=2,
+`boot disc path=Melee-v1.02.iso exists=1`, and runtime discImage=1. The physical
+iPhone mirror shows the fresh-save prompt. No gameplay speed claim follows
+from this startup observation.
+
+The menu title now includes the detected Melee version; Game Data & Saves has
+a short title; the picker identifies current selection; Online Play shows
+current game and build above all three connection choices and explicitly
+explains v1.00/v1.02 incompatibility. Device build, signature verification, and
+repository checks pass. Physical menu inspection is requested from the owner;
+full gameplay and hardware netplay acceptance remain open.

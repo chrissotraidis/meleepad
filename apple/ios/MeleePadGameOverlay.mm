@@ -532,7 +532,7 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
                                         options:0
                                        children:@[renderMenu, aspectMenu]];
 
-    UIMenu *dataMenu = [UIMenu menuWithTitle:[NSString stringWithFormat:@"Game Data & Saves · %@", MeleePadRevisionLabel([MeleePadSettings sharedSettings].gameRevision)]
+    UIMenu *dataMenu = [UIMenu menuWithTitle:@"Game Data & Saves"
                                        image:[UIImage systemImageNamed:@"internaldrive"]
                                   identifier:nil
                                      options:0
@@ -620,7 +620,8 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
         [weakSelf.delegate gameOverlayRequestsOnlinePlay:weakSelf];
     }];
 
-    return [UIMenu menuWithTitle:@"MeleePad" children:@[
+    return [UIMenu menuWithTitle:[NSString stringWithFormat:@"MeleePad · %@",
+        MeleePadRevisionLabel(MeleePadRevisionAtRoot(settings.extractedGameRoot))] children:@[
         onlinePlayAction,
         displayMenu,
         fpsAction,

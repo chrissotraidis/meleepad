@@ -1,4 +1,5 @@
 #import "MeleePadRevision.h"
+#import "MeleePadSettings.h"
 #import "MeleePadOnlinePlayViewController.h"
 #import "MeleePadDiagnostics.h"
 #import "MeleePadPublicLobbyClient.h"
@@ -306,7 +307,7 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
         [self educationRowWithSymbol:@"point.3.connected.trianglepath.dotted" title:@"1. Choose a connection"
             detail:@"Browse public games, share a private code, or use Direct IP on a trusted network."],
         [self educationRowWithSymbol:@"person.3.fill" title:@"2. Check the room"
-            detail:@"Make sure the build matches and use room chat to coordinate."],
+            detail:@"Both players need Melee v1.02, or both need v1.00, with matching MeleePad builds and game data. The versions cannot play together."],
         [self educationRowWithSymbol:@"checkmark.circle.fill" title:@"3. Ready up"
             detail:@"Each player marks Ready. The host starts when everyone is set."],
     ]];
@@ -641,8 +642,15 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
     _lobbyStack.spacing = 12.0;
     _lobbyStack.hidden = YES;
 
+    UILabel *versionStatus = [self mutedLabel];
+    versionStatus.numberOfLines = 0;
+    versionStatus.accessibilityIdentifier = @"online-current-game-version";
+    versionStatus.text = [NSString stringWithFormat:
+        @"Your game: %@ · MeleePad build %@\nBoth players must use the same Melee version and app build. v1.02 and v1.00 cannot join each other. This applies to all three connection types.",
+        MeleePadRevisionLabel(MeleePadRevisionAtRoot([MeleePadSettings sharedSettings].extractedGameRoot)),
+        [NSBundle.mainBundle objectForInfoDictionaryKey:@"CFBundleVersion"] ?: @"unknown"];
     UIStackView *content = [[UIStackView alloc]
-        initWithArrangedSubviews:@[_heroStack, _setupStack, _lobbyStack]];
+        initWithArrangedSubviews:@[_heroStack, versionStatus, _setupStack, _lobbyStack]];
     content.axis = UILayoutConstraintAxisVertical;
     content.spacing = 14.0;
     content.translatesAutoresizingMaskIntoConstraints = NO;

@@ -31,8 +31,8 @@ static inline NSInteger MeleePadRevisionAtRoot(NSString *root) {
 }
 
 static inline NSString *MeleePadRevisionLabel(NSInteger revision) {
-    return revision == 2 ? @"Melee USA v1.02 · Recommended" :
-           revision == 0 ? @"Melee USA v1.00" : @"No supported game selected";
+    return revision == 2 ? @"Melee v1.02" :
+           revision == 0 ? @"Melee v1.00" : @"No supported game selected";
 }
 
 static inline NSString *MeleePadRevisionGuidance(void) {

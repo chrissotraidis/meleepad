@@ -985,6 +985,8 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
         return;
     }
 
+    // Refresh after rebasing and verifying the selected game root.
+    [_overlay refreshMenuButton];
     NSString *userDirectory = settings.gameRevision == 2
         ? [supportRoot stringByAppendingPathComponent:@"User-r2"] : supportRoot;
     [[NSFileManager defaultManager] createDirectoryAtPath:userDirectory
@@ -997,7 +999,9 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     // installs preserve the file but change the container UUID, so rebase the
     // persisted absolute path when necessary.
     NSString *discFileName = settings.retainedGameDataPath.lastPathComponent;
-    if (discFileName.length == 0) {
+    if (discFileName.length == 0 || ![fileManager fileExistsAtPath:
+            [gameDataDirectory stringByAppendingPathComponent:discFileName]]) {
+        discFileName = nil;
         NSArray<NSString *> *entries = [fileManager contentsOfDirectoryAtPath:gameDataDirectory
                                                                         error:nil];
         for (NSString *entry in entries) {
@@ -1043,6 +1047,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
         settings.retainedGameDataPath = discImagePath;
         [settings synchronize];
     }
+    MeleePadLog(@"boot verified game revision=%ld", (long)actualRevision);
     MeleePadLog(@"boot disc path=%@ exists=%d", discImagePath.length > 0
               ? discImagePath.lastPathComponent : @"none",
               discImagePath.length > 0 && [fileManager fileExistsAtPath:discImagePath]);
@@ -1632,7 +1637,9 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
         return;
     }
     UIAlertController *choice = [UIAlertController alertControllerWithTitle:@"Melee Versions"
-        message:MeleePadRevisionGuidance() preferredStyle:UIAlertControllerStyleAlert];
+        message:[NSString stringWithFormat:@"Current game: %@\n\n%@",
+            MeleePadRevisionLabel(MeleePadRevisionAtRoot([MeleePadSettings sharedSettings].extractedGameRoot)),
+            MeleePadRevisionGuidance()] preferredStyle:UIAlertControllerStyleAlert];
     __weak MeleePadGameViewController *weakSelf = self;
     for (NSNumber *value in @[@2, @0]) {
         NSInteger revision = value.integerValue;
