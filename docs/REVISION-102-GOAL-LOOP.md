@@ -169,3 +169,16 @@ local polling and after dequeueing synchronized input, so the next investigation
 can distinguish input delivery from the guest game's response. This does not
 change controller bindings, input timing, or the network protocol. Leave it
 unset outside diagnostics. Private evidence: `sim-input-stderr.log`.
+
+
+The subsequent delivery-trace run confirmed Start at both local polling and
+synchronized dequeue (`0x1000`, game pad 0). UI observation then verified
+leaving attract mode, entering the main menu, navigating to Versus/Melee, and
+selecting Fox with the Simulator touch controller. The macOS peer visibly
+showed the same selected fighter. Thus the earlier failure to advance has not
+been reproduced as a controller defect; no input behavior change was made.
+Remote keyboard control and completing a controlled match remain unverified.
+This run recorded 64 matching snapshots before/menu transitions, with no
+mismatch records at the checkpoint; those samples do not cover every menu
+state. Private evidence: `sim-delivery-stderr.log` and
+`cross-guest-delivery.log`.
