@@ -1,7 +1,12 @@
 diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Sync.cpp b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Sync.cpp
 --- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Sync.cpp
 +++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Sync.cpp
-@@ -6,6 +6,7 @@
+@@ -3,9 +3,12 @@
+ 
+ #include "Core/PowerPC/StaticRecomp/StaticRecompCore.h"
+ #include "Core/System.h"
++#include "Core/Config/MainSettings.h"
++#include "VideoCommon/Fifo.h"
  #include "Core/PowerPC/PowerPC.h"
  #include "Core/HW/SystemTimers.h"
  #include <cstdio>
@@ -9,13 +14,28 @@ diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Sync.cpp b/S
  #include <cstring>
  
  namespace
-@@ -112,6 +113,20 @@
+@@ -112,6 +115,35 @@
    ++m_netplay_boundary_sequence;
    if (m_netplay_boundary_sequence % 60 != 0)
      return;
 +
 +  if (std::getenv("MELEEPAD_NETPLAY_TRACE_BOUNDARY_CLOCK"))
 +  {
++    if (m_netplay_boundary_sequence == 60)
++    {
++      std::fprintf(stderr,
++                   "[staticrecomp] netplay-scheduling dual_core=%u deterministic_gpu=%u "
++                   "sync_gpu=%u sync_on_idle=%u max_distance=%d min_distance=%d "
++                   "overclock_enabled=%u overclock=%.6f\n",
++                   unsigned(m_system.IsDualCoreMode()),
++                   unsigned(m_system.GetFifo().UseDeterministicGPUThread()),
++                   unsigned(m_system.GetFifo().UseSyncGPU()),
++                   unsigned(Config::Get(Config::MAIN_SYNC_ON_SKIP_IDLE)),
++                   Config::Get(Config::MAIN_SYNC_GPU_MAX_DISTANCE),
++                   Config::Get(Config::MAIN_SYNC_GPU_MIN_DISTANCE),
++                   unsigned(Config::Get(Config::MAIN_OVERCLOCK_ENABLE)),
++                   double(Config::Get(Config::MAIN_OVERCLOCK)));
++    }
 +    const u64 live_timebase = m_system.GetSystemTimers().GetFakeTimeBase();
 +    std::fprintf(stderr,
 +                 "[staticrecomp] boundary-clock sequence=%llu cached=%llu live=%llu "

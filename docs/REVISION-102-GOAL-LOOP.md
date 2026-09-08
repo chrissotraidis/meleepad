@@ -280,3 +280,20 @@ and dispatch/fallback paths still need measurement. Both test peers were
 stopped after preserving evidence. Private files: `sim-match-stderr.log`,
 `cross-match-guest.log`, `cross-match-summary.json`, and
 `analyze-match-clocks.py`.
+
+
+## Focused execution-path follow-up (2026-09-08)
+
+The scheduling trace now logs effective dual-core, deterministic-GPU, GPU sync,
+idle sync, distance and overclock settings once at the first sampled boundary.
+Simulator and macOS builds plus repository checks pass. No runtime scheduling
+policy changed.
+
+Source inspection found an execution-path difference: desktop initializes
+`JitArm64` fallback unless `STATICRECOMP_NO_FALLBACK_JIT` is set, while iOS
+excludes it at compilation. Prior cross-platform test scripts did not set that
+variable. The existing override can isolate this difference without changing
+production behavior. A private `cross-parity.py` harness is prepared with it,
+but the comparison has not run yet. The idle Simulator host was stopped.
+The next test should exercise the known results-to-next-stage transition with
+matched interpreter fallback before adding more diagnostics or claiming a fix.
