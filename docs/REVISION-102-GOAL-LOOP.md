@@ -358,3 +358,24 @@ iPad still has two MeleePad processes running, so this candidate was not
 installed over an active session. Its path is
 `ref/revision-102/build9-device-qa/MeleePad.app`. Existing app data and the
 installed build-8 QA app remain unchanged.
+
+
+## Owner-directed handoff and physical-only netplay (2026-09-08)
+
+The owner requested an end to extended Simulator testing and a concise
+performance/decompilation handoff. No measured speed improvement is claimed.
+README now describes build 9's preferred v1.02 plus retained v1.00 accurately;
+TECH-DEBT records specific unproven performance hypotheses and bounded next steps.
+The Mac/Simulator Versus experiment reached two selected fighters and gameplay,
+but was stopped at the owner's direction before results acceptance. The QA
+Simulator was shut down and the desktop peer stopped. Do not resume this route.
+
+Further netplay acceptance uses only the attached physical iPad and iPhone.
+The exact same signed build-9 Revision QA app installed successfully on both,
+with both revision modules. The iPad's existing r2 extraction remains present.
+The new iPhone QA container was seeded with private v1.02 extraction, and its
+read-back executable SHA-256 matches the catalog. The iPad QA launch succeeded; the iPhone launch was rejected because the
+device was locked. Unlock and launch remain pending there. Launching alone
+is not gameplay acceptance. Existing production apps and their data
+were not replaced. Hands-on room creation, joining, two-player control, match
+results, and rematch are pending the owner's physical interaction.

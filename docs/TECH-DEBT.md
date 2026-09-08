@@ -1,9 +1,51 @@
 # meleepad technical debt
 
-Last updated: 2026-09-05
+Last updated: 2026-09-08
 
 This is the short, ranked engineering queue behind the active goal loop. It is
 not a substitute for `GOAL-LOOP.md` or evidence in `docs/artifacts/`.
+
+## Build 9 handoff — v1.02, performance, and hardware netplay
+
+USA v1.02 is now preferred for new development setups; v1.00 remains supported
+with its existing data and separate revision storage. Build 9 is not a published
+release. See [version details](MELEE-VERSIONS.md) and
+[the evidence ledger](REVISION-102-GOAL-LOOP.md).
+
+**No measured performance improvement from this decompilation pass.** The
+completed source is pinned and its symbols are checked against the executable.
+It helped audit v1.02 idle/controller-wait addresses and gate legacy diagnostic
+writes. It has not replaced generated game code with an optimized native source
+port. Decompilation completion does not itself change the runtime's GPU, memory,
+CPU dispatch, or thermal costs.
+
+Next performance hypotheses, in order:
+
+1. Use the pinned symbols to name the hottest guest functions in one repeatable
+   physical-device heavy scene. Measure dispatch/fallback cost before choosing
+   a function for specialization; do not replace broad sections speculatively.
+2. Revisit known video-thread/Metal and reflection costs alongside CPU timing.
+   Source-level game changes will not cure a renderer-bound frame by themselves.
+3. Re-run the existing pause/resume thermal reproduction with frame-time tails
+   and audio underruns. Compare the same device, revision, scene, and settings.
+
+These are hypotheses, not measured wins. Stop after one bounded baseline and
+one justified candidate; carry inconclusive results forward instead of spending
+another session on open-ended synchronization traces.
+
+Netplay build 9 aligns desktop fallback execution with iOS and rejects older
+protocol peers. Bounded Mac–Simulator timing/state and mixed-revision rejection
+tests passed; they do not establish complete hardware or Internet matches.
+The owner now requires all further netplay acceptance on the attached physical
+iPad and iPhone, not multiple Simulators or Mac–Simulator sessions. The desktop
+test was stopped before its results gate.
+
+Remaining demonstration gate: same build 9 and verified v1.02 on both physical
+devices; connect, exercise both players' controls, finish one match, compare
+results, and start another without desync. Record device audio/input behavior
+and whether the connection was LAN or Internet. A LAN result must not be posted
+as proof of Internet play, matchmaking, or Slippi support. Until this passes,
+describe online play as experimental; announce version support separately.
 
 ## Preview 1 accepted debt — physical-iPad thermal slowdown
 
