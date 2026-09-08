@@ -347,3 +347,22 @@ Complete capture files and hashes are `route-control/*-cooled2.*` and
 candidate build 14 was reinstalled without launching it. The matching candidate
 cooldown is in progress. The goal remains incomplete and the experimental
 module remains outside main and any public release.
+
+
+### Cooled candidate: promising aggregate, reject the trig component
+
+After the same five-minute idle interval, candidate build 14 reports nominal
+at startup, unlike the control's initially serious then fair state. Candidate
+CPU means are 14.935, 16.245 and 18.102 ms, respectively 4.02%, 3.56% and 4.65%
+below the cooled control; FPS is 59.88, 58.69 and 52.80. In the latter two
+windows, draws/primitives/cycles/dispatches differ by at most 0.16%. This is
+encouraging aggregate evidence but the starting thermal-state difference
+prevents attributing the full gain to the optimization.
+
+Corrected inclusive entry timing in those latter windows isolates a problem:
+inverse is 648.02 ns control versus 318.23 candidate, but cosine increases
+294.64 to 425.40 ns and sine 270.33 to 313.23 ns. Unchanged reference routines
+move in both directions. Reject the trig component. A revised private module
+is building with inverse plus the correctness-tested scalar matrix-add region,
+restoring the original trig chunk. No further phone build is installed yet;
+build 14 was stopped after saving its capture. Retention remains unproven.
