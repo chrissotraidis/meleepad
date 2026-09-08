@@ -340,3 +340,21 @@ Revision QA app remains build 8 and cannot join build-9 peers.
 The rebuilt native mixed-revision test again rejects the v1.02 guest against
 a v1.00 host during compatibility validation (guest exit 12, before module
 load). The final repository check run passes.
+
+
+## Build-9 upgrade-path audit (2026-09-08)
+
+An existing build-8 dependency checkout still has transport prefix 9. Rewriting
+the earlier prefix-8 patch directly to 10 would fail on that checkout. Restore
+the original 8-to-9 patch and compose a new 9-to-10 patch; the earlier patch
+recognizes the retained final marker on repeated bootstrap. Actual bootstrap
+helpers were exercised in isolated directories with prefixes 8, 9, and 10: all
+reach the exact current source and pass a second run. An unexpected prefix 999
+is rejected without modifying the file. The real checkout bootstrap passes.
+
+A separate private build-9 Revision QA candidate was staged with both verified
+revision modules and signed; strict nested signature verification passes. The
+iPad still has two MeleePad processes running, so this candidate was not
+installed over an active session. Its path is
+`ref/revision-102/build9-device-qa/MeleePad.app`. Existing app data and the
+installed build-8 QA app remain unchanged.

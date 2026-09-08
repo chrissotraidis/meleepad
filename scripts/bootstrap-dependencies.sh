@@ -386,9 +386,12 @@ apply_patch_once "$MG/vendor/dolphin" "$ROOT/patches/moderngekko-dolphin/0053-ne
 apply_patch_once "$MG/vendor/dolphin" "$ROOT/patches/moderngekko-dolphin/0054-netplay-boundary-clock-trace.patch"
 apply_patch_once "$MG/vendor/dolphin" "$ROOT/patches/moderngekko-dolphin/0055-netplay-interpreter-fallback.patch"
 apply_patch_once "$MG" "$ROOT/patches/moderngekko/0023-melee-revision-selection.patch"
-apply_patch_once "$MG" "$ROOT/patches/moderngekko/0024-revision-support-netplay-version.patch"
+apply_patch_once_or_marker "$MG" "$ROOT/patches/moderngekko/0024-revision-support-netplay-version.patch" \
+  tools/netplay_compatibility.cpp \
+  'return "moderngekko-netplay-10|"'
 apply_patch_once "$MG" "$ROOT/patches/moderngekko/0025-macos-keyboard-bindings.patch"
 apply_patch_once "$MG" "$ROOT/patches/moderngekko/0026-netplay-product-branding.patch"
+apply_patch_once "$MG" "$ROOT/patches/moderngekko/0027-netplay-fallback-compatibility.patch"
 verify_patch_scope "$MG" "$mg_patch" "$ROOT"/patches/moderngekko/*.patch -- \
   vendor/dolphin
 verify_patch_scope "$MG/vendor/dolphin" "$dolphin_patch" "$mg_patch" \
