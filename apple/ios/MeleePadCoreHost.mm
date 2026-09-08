@@ -727,13 +727,17 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
 
 - (MeleePadBenchmarkGuestState)benchmarkGuestState {
     MeleePadBenchmarkGuestState result = {};
-    if (_gameRevision != 0) return result;
-    // Revision-1.00 globals validated from the generated instructions. Read
+    if (_gameRevision != 0 && _gameRevision != 2) return result;
+    // v1.02 globals and layouts are verified against doldecomp/melee
+    // ae5898e symbols, mncharsel.c and mn/types.h; retain v1.00 addresses. Read
     // the active P1 CSS cursor pointer instead of assuming one heap address;
     // different game modes allocate that same cursor at different locations.
-    constexpr u32 kGameStateAddress = 0x80477D68u;
-    constexpr u32 kCursorPointerAddress = 0x8049EA88u;
-    constexpr u32 kCssDataPointerAddress = 0x804D4B30u;
+    const u32 kGameStateAddress = _gameRevision == 2
+        ? 0x80479D30u : 0x80477D68u;
+    const u32 kCursorPointerAddress = _gameRevision == 2
+        ? 0x804A0BC0u : 0x8049EA88u;
+    const u32 kCssDataPointerAddress = _gameRevision == 2
+        ? 0x804D6CB0u : 0x804D4B30u;
     std::scoped_lock lock(*_runtimeMutex);
     if (_runtime == nullptr)
         return result;
@@ -793,12 +797,14 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
 }
 
 - (BOOL)setBenchmarkRandomSeed:(u32)seed previousValue:(u32 *)previousValue {
-    if (_gameRevision != 0) return NO;
-    // The revision-1.00 DOL loads its HSD random-state pointer from r13-22292.
+    if (_gameRevision != 0 && _gameRevision != 2) return NO;
+    // Each revision has its own verified HSD seed and seed_ptr globals.
     // Validate the initialized pointer before making this benchmark-only RAM
-    // write so a different game revision fails closed.
-    constexpr u32 kRandomSeedAddress = 0x804D3E08u;
-    constexpr u32 kRandomSeedPointerAddress = 0x804D3E0Cu;
+    // write so an unexpected initialized layout fails closed.
+    const u32 kRandomSeedAddress = _gameRevision == 2
+        ? 0x804D5F90u : 0x804D3E08u;
+    const u32 kRandomSeedPointerAddress = _gameRevision == 2
+        ? 0x804D5F94u : 0x804D3E0Cu;
     std::scoped_lock lock(*_runtimeMutex);
     if (_runtime == nullptr)
         return NO;
@@ -815,12 +821,13 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
 }
 
 - (BOOL)setBenchmarkForcedStage:(u8)stageId previousValue:(u8 *)previousValue {
-    if (_gameRevision != 0) return NO;
-    // Revision-1.00 stores mnStageSel's active SSSData pointer at r13-18960.
+    if (_gameRevision != 0 && _gameRevision != 2) return NO;
+    // Resolve mnStageSel's active SSSData pointer for the verified revision.
     // Callers additionally gate this write on Training mode's stage-select
     // scene. Validate the pointed-to structure before changing its one signed
     // force_stage_id byte; unexpected revisions and layouts fail closed.
-    constexpr u32 kStageSelectDataPointerAddress = 0x804D4B10u;
+    const u32 kStageSelectDataPointerAddress = _gameRevision == 2
+        ? 0x804D6C90u : 0x804D4B10u;
     std::scoped_lock lock(*_runtimeMutex);
     if (_runtime == nullptr)
         return NO;
@@ -843,13 +850,15 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
 }
 
 - (BOOL)setBenchmarkFourPlayerRosterPreviousValue:(u32 *)previousValue {
-    if (_gameRevision != 0) return NO;
-    // Revision-1.00 stores the active CSSData pointer at r13-18928. The route
+    if (_gameRevision != 0 && _gameRevision != 2) return NO;
+    // Both verified CSSData layouts use players at +0x70, stride 0x24. The route
     // opens every controller door through normal UI input first; this narrow,
     // benchmark-only write then removes random CPU-token overlap while leaving
     // the match rules, port kinds, levels, costumes, and saved data untouched.
-    constexpr u32 kGameStateAddress = 0x80477D68u;
-    constexpr u32 kCssDataPointerAddress = 0x804D4B30u;
+    const u32 kGameStateAddress = _gameRevision == 2
+        ? 0x80479D30u : 0x80477D68u;
+    const u32 kCssDataPointerAddress = _gameRevision == 2
+        ? 0x804D6CB0u : 0x804D4B30u;
     constexpr u32 kFirstPlayerOffset = 0x70u;
     constexpr u32 kPlayerStride = 0x24u;
     constexpr std::array<u8, 4> kRoster = {{0x10u, 0x04u, 0x05u, 0x06u}};

@@ -274,3 +274,32 @@ owner but not yet confirmed. Automatic scene workloads differ, so further
 small host optimizations cannot settle acceptance. Hold integration/release
 of the candidate until that hardware comparison can establish whether it is
 worth retaining. Existing stable main and device game data remain preserved.
+
+
+### Automated v1.02 comparison route
+
+The owner-driven gate above is not the only available next action. Inspection
+found the existing four-player route, whose guest readers/writers explicitly
+rejected revision 2. Its v1.02 address selection is now implemented using the
+pinned decomp's symbols and struct layouts: state_machine 80479D30, P1 cursor
+pointer 804A0BC0, CSSData pointer 804D6CB0, SSSData pointer 804D6C90, and HSD
+seed/seed_ptr 804D5F90/804D5F94. Pointer/layout checks and v1.00 addresses remain.
+The changes are restricted to the existing developer benchmark launch mode.
+
+Route tests and the physical-iOS Release build passed. Private build 14 is
+installed and running `versus-four-big-blue-v1` with capture enabled, using
+build 13's optimized modules. A control build 15 is prepared with the same
+executable bytes before the code-signature blob and the baseline v1.02 module.
+Signature differences reflect the different build-number seal. The route's
+actual fixed-roster/stage acceptance is not yet established; opening menu
+input is confirmed by a fresh runtime log. This route is a fixed workload
+setup, not a claim of frame-exact deterministic replay.
+
+
+Build 14 route progression is now verified in `route-candidate/runtime-second.log`:
+normal input enabled the three CPU doors; at emulated frame 2042 the checked
+roster write set 10040506, frame 2043 confirmed slot types 00/01/01/01, and
+the stage selector accepted forced stage 0x13 (Big Blue). Both seed boundary
+writes succeeded. This removes the immediate need for owner-operated setup;
+the physical comparison can proceed autonomously. Whole-frame improvement
+remains unverified until both runs are captured and compared.
