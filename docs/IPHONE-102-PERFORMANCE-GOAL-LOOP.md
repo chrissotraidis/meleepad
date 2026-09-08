@@ -439,3 +439,63 @@ The goal is blocked on restoring the Instruments device session, not complete.
 Resume by verifying the iPhone appears in Instruments, then collect a bounded
 native CPU profile of the fixed heavy match before selecting another change.
 The original module remains restored; no candidate is approved for release.
+
+
+### Reconnected iPhone: native heavy-match attribution completed
+
+After the owner reconnected the iPhone, Time Profiler successfully attached.
+A 15-second connection check contained startup samples only; it is not gameplay
+evidence. Two subsequent 25-second recordings captured the fixed four-fighter
+Big Blue route on private build 15, verified USA v1.02, original module,
+1x rendering and 4:3. No new module was installed. The second recording disabled
+internal phase and dispatch timing (`MELEEPAD_PERFORMANCE_CAPTURE=0`). Its route
+used the documented wall-clock fallback and reached the same fixed roster and
+stage; it is not a frame-exact A/B comparison.
+
+Native running-sample attribution with internal capture disabled:
+
+| Measurement | Result |
+| --- | ---: |
+| CPU-thread sampled time | 25,079 ms |
+| Video-thread sampled time | 18,682 ms |
+| Generated guest-body leaf samples / CPU thread | 46.29% |
+| Module helper/dispatcher leaf samples / CPU thread | 24.10% |
+| Core/system leaf samples / CPU thread | 29.58% |
+| Clock leaf samples / CPU thread | 0.04% |
+| `ppc_fmadd_op` self / CPU thread | 5.40% |
+| `ppc_fp_available` self / CPU thread | 4.49% |
+| `RunGpuLoop` plus `SetCPStatusFromGPU` self / video thread | 46.91% |
+
+These are statistical native CPU samples, not GPU execution times or predicted
+FPS gains. The large video-loop share includes polling, but the complete loop
+must not be classified as removable idle work. Earlier I7 already rejected
+immediate sleeping and a 1,024-spin threshold after context switches increased.
+This trace does not justify repeating either rejected change.
+
+Internal capture substantially perturbs the CPU profile: clock leaf samples
+were 7.35% with it enabled, versus 0.04% disabled. The source calls the thread
+CPU clock at each timed CPU slice. This is diagnostic overhead, not a newly
+removed shipping cost. Future native attribution should keep internal capture
+off; use phase/dispatch captures separately when frame alignment is required.
+The capture-disabled run still slowed: runtime logs reported 55.6 and 47.5 FPS
+in later intervals with CPU-thread utilization near 99% and thermal state fair.
+Thus internal timing does not explain away the owner's slowdown.
+
+The most useful next optimization hypothesis remains a bounded native region
+that reduces repeated guest-state/helper round trips across the matrix/joint
+path. Native samples identify matrix chunk `80341940` as the largest caller of
+paired loads and FP availability checks; inverse/scalar chunk `80379940`
+concentrates multiply/add helpers. These chunk names span many guest functions;
+map sampled instruction offsets to exact decompilation functions before choosing
+another entry. A tiny leaf optimization cannot recover the entire inclusive
+entry share. Prior inverse/trig/scalar candidates remain rejected; no new
+whole-game performance improvement is claimed.
+
+Private evidence is under `ref/revision-102/performance-loop/scalar-candidate/`:
+`reconnected-heavy.trace`, `reconnected-clean.trace`, their exported samples,
+summary/family reports, and the matching fresh runtime/phase/dispatch pulls.
+The first clean-trace sample export crashed; a fresh export succeeded. Both
+recordings completed normally. The app was stopped after collection to end the
+benchmark and allow cooling; build 15 and game data are unchanged. No Simulator,
+QuickTime recording, release upload, or netplay test was used. The physical
+connection blocker is resolved; the performance objective is still unfinished.

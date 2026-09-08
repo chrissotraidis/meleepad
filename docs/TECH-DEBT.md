@@ -5,7 +5,7 @@ Last updated: 2026-09-08
 This is the short, ranked engineering queue behind the active goal loop. It is
 not a substitute for `GOAL-LOOP.md` or evidence in `docs/artifacts/`.
 
-Current work, blocked on the Instruments device connection: [v1.02 iPhone performance goal](IPHONE-102-PERFORMANCE-GOAL-LOOP.md).
+Current work, native hardware profiling resumed: [v1.02 iPhone performance goal](IPHONE-102-PERFORMANCE-GOAL-LOOP.md).
 The owner accepted build 11 as the merged baseline; performance and physical
 netplay limitations below remain open.
 
@@ -23,15 +23,21 @@ thermal sensitivity: a cooled baseline begins near 60 FPS and slows as it warms.
 One cooled pair favored a candidate by about 4% CPU time, but differing starting
 thermal states and subsequent contrary results prevent retaining that claim.
 
-Next gate is native CPU attribution, not more warm match repetitions. The CLI
-CPU Profiler cannot attach by PID or app name although CoreDevice sees the app,
-Developer Mode/DDI are available, and the debugging entitlement is enabled.
-Xcode 26.6 versus device OS 26.6.1 does not itself prove incompatibility; the
-GUI also omits the physical device; Instruments logs `kAMDNotConnectedError`
-and requests reconnecting it. The owner has been asked to unlock/reconnect the
-iPhone USB cable. See the [full evidence and current
-device state](IPHONE-102-PERFORMANCE-GOAL-LOOP.md). No experimental module has
-been merged or published, and substantial performance improvement remains open.
+The owner reconnected the iPhone and two 25-second native Time Profiler
+captures of the four-fighter route succeeded. With internal capture disabled,
+CPU leaf samples split into 46.29% generated game bodies, 24.10% module helpers
+and dispatch, and 29.58% core/system. The video worker spends substantial time
+in FIFO/status polling; prior sleep-threshold experiments already regressed or
+failed to exceed noise and should not be repeated without a different mechanism.
+
+Internal diagnostic clock work accounts for 7.35% of CPU samples when capture
+is enabled, versus 0.04% disabled. Keep internal capture off during native
+profiling. The capture-disabled run still slowed to 47.5 FPS in one later
+interval, so logging is not the whole issue. Next source gate: map matrix/joint
+native sample offsets to exact decompilation functions before selecting a
+bounded region optimization. See the [full evidence and current device
+state](IPHONE-102-PERFORMANCE-GOAL-LOOP.md). Build 15 was stopped after collection;
+no candidate was installed or retained and no new FPS gain is established.
 
 ## Build 9 handoff — v1.02, performance, and hardware netplay
 
