@@ -425,3 +425,17 @@ cable. This is now the concrete external step for native profiling, not a claim
 that Xcode must be upgraded. The baseline-module build 15 remains installed and
 stopped. Native profiling is the current gate; neither experimental math module
 is retained, and the full performance goal is not achieved.
+
+
+### Blocked audit
+
+The native-profiler connection failure has persisted across three consecutive
+goal turns: CLI attachment failed, GUI/log diagnosis confirmed the missing
+physical device and kAMDNotConnectedError, and a fresh GUI recheck still lists
+only the Mac and Additional Simulators. The requested physical unlock/USB
+reconnect has not been confirmed. Further speculative optimizations or repeated
+warm timings would not establish the required substantial physical improvement.
+The goal is blocked on restoring the Instruments device session, not complete.
+Resume by verifying the iPhone appears in Instruments, then collect a bounded
+native CPU profile of the fixed heavy match before selecting another change.
+The original module remains restored; no candidate is approved for release.
