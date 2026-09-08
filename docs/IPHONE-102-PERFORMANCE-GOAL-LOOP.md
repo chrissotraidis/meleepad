@@ -195,3 +195,32 @@ Private source snapshots, executable, exact logs and SHA-256 manifest are in
 is `inverse-deferred.c` with `deferred-float.c`; the expanded test result is
 `test-inverse-deferred-edge.log`. The goal remains incomplete until a useful
 connected-path implementation passes physical-iPhone validation.
+
+
+## Integrated private math module
+
+The deferred-classification mechanism now also covers the connected sine,
+cosine and absolute-value region, retaining the generated arithmetic and
+call/cycle boundaries. The private module routes only guarded exact entries
+through the candidate and rejoins the original chunk return dispatcher.
+Unsupported states retain the original generated path. No production module
+or accepted main source has been replaced.
+
+The integrated Mac module passed 100,000 inverse-transpose and 10,000
+trigonometric comparisons against the original compiled module through the
+same module-dispatch interface. Comparisons cover complete CPUState and RAM,
+including edge floats, FP control bits, cycle exits and fallback conditions.
+The inverse microbenchmark measured 350–356 ns baseline versus 136–139 ns
+candidate across seven alternating pairs. This is local host timing, not an
+iPhone or whole-frame improvement. Earlier direct-wrapper timing is not a
+comparable integrated benchmark.
+
+Private reproducible integration/build scripts and logs are in
+`ref/revision-102/performance-loop/alias-preflight/`: `build-family.py`,
+`build-family-ios.py`, `test-family-inverse.log`, and `test-family-trig.log`.
+The physical iOS module built successfully. Private build 13 passed strict
+code-signature verification, was installed over the regular iPhone app and
+launched with profiling enabled. Its v1.00 module is byte-identical to build
+12; existing app data was retained. Physical correctness, sustained heavy-scene
+performance and whether the gain is worth shipping remain open. Installation
+and launch receipts are under `ref/revision-102/performance-loop/math-candidate/`.
