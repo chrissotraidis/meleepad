@@ -80,3 +80,12 @@ host runner to record every received canonical report and successful paired
 comparison. A zero sequence means there is no new snapshot to compare, not a
 successful comparison. Use a known initialized QA save to reach the normal
 main-loop boundary, and keep modal startup coverage separate from gameplay.
+
+
+For a macOS runner launched with `--controller 'Quartz/0/Keyboard & Mouse'`,
+keyboard bindings now follow Dolphin's macOS defaults: arrow keys move,
+X/Z/C/S map to A/B/X/Y, D to Z, Return to Start, Q/W to L/R, I/K/J/L to
+the C-stick, and T/G/F/H to the D-pad. Previously this explicit keyboard device
+received SDL gamepad bindings, which could not resolve its keys. This fixes the
+runner configuration path; the launcher's controller picker still lists SDL
+gamepads.

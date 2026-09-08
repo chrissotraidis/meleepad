@@ -385,6 +385,7 @@ apply_patch_once "$MG/vendor/dolphin" "$ROOT/patches/moderngekko-dolphin/0052-ne
 apply_patch_once "$MG/vendor/dolphin" "$ROOT/patches/moderngekko-dolphin/0053-netplay-local-input-trace.patch"
 apply_patch_once "$MG" "$ROOT/patches/moderngekko/0023-melee-revision-selection.patch"
 apply_patch_once "$MG" "$ROOT/patches/moderngekko/0024-revision-support-netplay-version.patch"
+apply_patch_once "$MG" "$ROOT/patches/moderngekko/0025-macos-keyboard-bindings.patch"
 verify_patch_scope "$MG" "$mg_patch" "$ROOT"/patches/moderngekko/*.patch -- \
   vendor/dolphin
 verify_patch_scope "$MG/vendor/dolphin" "$dolphin_patch" "$mg_patch" \

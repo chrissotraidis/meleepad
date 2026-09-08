@@ -28,7 +28,7 @@ implementing the newly requested revision support.
 | R2 Runtime correctness | Audit every revision-specific address, input hook, idle shortcut and diagnostic write; verify v1.02 against executable/source | Implemented: revision-specific waits and scene address; legacy diagnostic writes gated to r0; runtime boot and input observed |
 | R3 Import and selection | Preferred-version explanation, validated imports, independent storage, module selection, legacy migration | Passed in Simulator: both actual imports, both selection directions, accurate labels; r2 save unchanged after r0 import |
 | R4 Online identity | Actual selected revision in discovery and transport; reject mixed revisions/builds/mods; positive and negative tests | Identity implemented; service tests pass for mixed-revision rejection and matching-r2 acceptance; direct transport rejects mixed revisions (guest exit 12); matching r2 peers produced 44 matched snapshots in bounded title/attract run; controlled online match remains open |
-| R5 Product acceptance | Build both Apple targets; visible import, boot, controls, match/results, audio, lifecycle; preserve v1.00 | Simulator r2: save creation, menus, character select, Classic match and stage results observed; r0 boot/save and return to r2 passed. Device app builds; separate QA app signed; install blocked by locked iPad |
+| R5 Product acceptance | Build both Apple targets; visible import, boot, controls, match/results, audio, lifecycle; preserve v1.00 | Simulator r2: save creation, menus, character select, Classic match and stage results observed; r0 boot/save and return to r2 passed. Device app builds; separate QA app signed; installed on iPad; v1.02 first save prompt observed, hands-on match pending |
 | R6 Decompilation improvements | Pinned complete upstream source; named profiling; investigate a concrete defect/hotspot and validate any fix | Pinned completed source; executable-checked symbolizer; audited scheduler and pad waits. No measured performance claim; reflection/thermal investigation remains open |
 | R7 Delivery | Relevant checks, docs and exact acceptance/debt ledger; audit distributable boundaries | Full repository checks pass; docs implemented; macOS layout/signature passed; public module-free IPA audited and playable-module rejection passed; hardware acceptance open |
 
@@ -182,3 +182,25 @@ This run recorded 64 matching snapshots before/menu transitions, with no
 mismatch records at the checkpoint; those samples do not cover every menu
 state. Private evidence: `sim-delivery-stderr.log` and
 `cross-guest-delivery.log`.
+
+
+## Physical boot and keyboard configuration (2026-09-08)
+
+The iPad became available. The separately signed `com.meleepad.RevisionQA` app
+installed successfully with both revision modules. Only its new private
+container was provisioned with extracted v1.02 data and an initial revision
+preference; no production container was changed. Reading its executable back
+verified the catalog SHA-256. QuickTime showed the app progress from first-frame
+loading to Melee's new-save prompt. This proves physical v1.02 boot, but not
+physical import UX, touch responsiveness, gameplay performance, speaker audio,
+or v1.00 regression acceptance. QuickTime routes audio through HDMIOutput, so a
+separate unmirrored speaker check remains necessary. The user has been asked
+for a hands-on match. Private evidence: `device-qa-runtime.log` and
+`device-qa-transfer.log`.
+
+The macOS test's explicit Quartz keyboard selection received SDL gamepad
+bindings. Patch 0025 generates Dolphin's macOS keyboard defaults for that exact
+device, retaining existing SDL and pipe mappings. The focused controller-config
+regression test, full repository checks, and rebuilt macOS package layout pass.
+The launcher's picker remains SDL-only; this change addresses the explicit
+runner keyboard path. Runtime keyboard acceptance is being checked separately.
