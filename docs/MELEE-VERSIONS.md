@@ -83,9 +83,9 @@ main-loop boundary, and keep modal startup coverage separate from gameplay.
 
 
 For a macOS netplay runner launched with `--controller 'Quartz/0/Keyboard & Mouse'`,
-newly generated keyboard bindings now follow Dolphin's macOS defaults: arrow keys move,
-X/Z/C/S map to A/B/X/Y, D to Z, Return to Start, Q/W to L/R, I/K/J/L to
-the C-stick, and T/G/F/H to the D-pad. Previously this explicit keyboard device
-received SDL gamepad bindings, which could not resolve its keys. This fixes the
-netplay runner configuration path; the launcher's controller picker still lists SDL
-gamepads. Existing controller profiles are preserved.
+newly generated keyboard bindings match MeleePad's packaged keyboard profile:
+WASD moves; J/K/U/I map to A/B/X/Y; Space also jumps; O maps to Z; Return starts;
+Q/E map to L/R; arrow keys control the C-stick; T/G/F/H control the D-pad.
+Previously this explicit keyboard device received SDL gamepad bindings, which
+could not resolve its keys. Existing controller profiles are preserved. The
+launcher's controller picker still lists SDL gamepads.

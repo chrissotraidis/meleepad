@@ -1,37 +1,36 @@
 diff --git a/tools/frontend_config.cpp b/tools/frontend_config.cpp
 --- a/tools/frontend_config.cpp
 +++ b/tools/frontend_config.cpp
-@@ -385,6 +385,35 @@
+@@ -385,6 +385,34 @@
      if (i >= controllers.size())
        continue;
      output << "Device = " << controllers[i] << '\n';
-+    // Match Dolphin's macOS keyboard defaults; SDL button names do not
-+    // resolve on a Quartz keyboard device.
++    // Match MeleePad's packaged keyboard profile for explicit netplay selection.
 +    if (controllers[i] == "Quartz/0/Keyboard & Mouse") {
-+      output << "Buttons/A = `X`\n"
-+                "Buttons/B = `Z`\n"
-+                "Buttons/X = `C`\n"
-+                "Buttons/Y = `S`\n"
-+                "Buttons/Z = `D`\n"
-+                "Buttons/Start = `Return`\n"
-+                "Main Stick/Up = `Up Arrow`\n"
-+                "Main Stick/Down = `Down Arrow`\n"
-+                "Main Stick/Left = `Left Arrow`\n"
-+                "Main Stick/Right = `Right Arrow`\n"
-+                "C-Stick/Up = `I`\n"
-+                "C-Stick/Down = `K`\n"
-+                "C-Stick/Left = `J`\n"
-+                "C-Stick/Right = `L`\n"
-+                "Triggers/L = `Q`\n"
-+                "Triggers/R = `W`\n"
-+                "Triggers/L-Analog = `Q`\n"
-+                "Triggers/R-Analog = `W`\n"
-+                "D-Pad/Up = `T`\n"
-+                "D-Pad/Down = `G`\n"
-+                "D-Pad/Left = `F`\n"
-+                "D-Pad/Right = `H`\n"
++      output << "Buttons/A = J\n"
++                "Buttons/B = K\n"
++                "Buttons/X = U | Space\n"
++                "Buttons/Y = I\n"
++                "Buttons/Z = O\n"
++                "Buttons/Start = Return\n"
++                "Main Stick/Up = W\n"
++                "Main Stick/Down = S\n"
++                "Main Stick/Left = A\n"
++                "Main Stick/Right = D\n"
 +                "Main Stick/Calibration = 100.00\n"
-+                "C-Stick/Calibration = 100.00\n";
++                "C-Stick/Up = `Up Arrow`\n"
++                "C-Stick/Down = `Down Arrow`\n"
++                "C-Stick/Left = `Left Arrow`\n"
++                "C-Stick/Right = `Right Arrow`\n"
++                "C-Stick/Calibration = 100.00\n"
++                "Triggers/L = Q\n"
++                "Triggers/R = E\n"
++                "Triggers/L-Analog = Q\n"
++                "Triggers/R-Analog = E\n"
++                "D-Pad/Up = T\n"
++                "D-Pad/Down = G\n"
++                "D-Pad/Left = F\n"
++                "D-Pad/Right = H\n";
 +      continue;
 +    }
      if (ControllerRequiresBackgroundInput(controllers[i])) {
@@ -51,10 +50,10 @@ diff --git a/tests/frontend_config_test.cpp b/tests/frontend_config_test.cpp
 +  std::ifstream keyboard_input(directory / "Config" / CONTROLLER_CONFIG_NAME);
 +  const std::string keyboard_generated{std::istreambuf_iterator<char>(keyboard_input),
 +                                       std::istreambuf_iterator<char>()};
-+  if (!keyboard_generated.contains("Buttons/A = `X`\n") ||
-+      !keyboard_generated.contains("Buttons/Start = `Return`\n") ||
-+      !keyboard_generated.contains("Main Stick/Up = `Up Arrow`\n") ||
-+      !keyboard_generated.contains("Triggers/L = `Q`\n") ||
++  if (!keyboard_generated.contains("Buttons/A = J\n") ||
++      !keyboard_generated.contains("Buttons/Start = Return\n") ||
++      !keyboard_generated.contains("Main Stick/Up = W\n") ||
++      !keyboard_generated.contains("Triggers/L = Q\n") ||
 +      keyboard_generated.contains("Button A") ||
 +      keyboard_generated.contains("Motor L"))
 +    return 18;

@@ -229,3 +229,23 @@ bounded matching runs remain scoped to their sampled routes. Preserve the
 comparison policy while investigating the source of timing divergence.
 Private evidence: `cross-keyboard-clean-summary.json`,
 `sim-keyboard-clean-stderr.log`, and `cross-guest-keyboard-clean.log`.
+
+
+## Boundary-clock diagnostic follow-up (2026-09-08)
+
+Patch 0054 adds opt-in `MELEEPAD_NETPLAY_TRACE_BOUNDARY_CLOCK=1` output at the
+existing sampled boundaries: cached/live timebase, burst base/cycles, and
+Dolphin downcount. It changes no timing or comparison behavior. Both desktop and
+Simulator builds compile; the bounded five-minute cross-platform run paired
+4,200 clock samples with identical cached values between peers. Within either
+peer, cached minus live timebase ranged from -1 to 0 ticks, with no larger
+sampling offset. This run reached Classic character selection via touch input;
+it did not reproduce the earlier timebase divergence or complete a match.
+The harness ended at its timeout and both test peers were stopped. A longer
+controlled gameplay reproduction is still required. Private evidence:
+`sim-clock-stderr.log`, `cross-guest-clock.log`, and
+`analyze-boundary-clocks.py`.
+
+The new Quartz profile now follows MeleePad's existing packaged WASD/J/K layout
+instead of introducing Dolphin's different defaults. Existing custom profiles
+remain preserved; the focused generator regression test passes.
