@@ -251,3 +251,26 @@ its helpers repeatedly classify results in `cpu_interpreter_float.c`. This
 is distinct from the previously rejected standalone matrix leaf replacement.
 Owner-driven heavy-match capture remains requested; build 13's profiler is
 currently active. No release or merge of the experiment is justified yet.
+
+
+### Follow-up screen and bounded capture closure
+
+Inspection rejected the proposed paired-single extension: the generated
+PSMTXConcat arithmetic is already inline and does not call the repeated FPRF
+classification helpers. Extending that mechanism there would have no basis.
+The scalar HSD_MtxScaledAdd region does still use twelve scalar multiply-add
+helpers. A guarded private prototype passed 100,000 whole-state/RAM entry
+comparisons against the compiled baseline. Its direct-wrapper host timing
+cannot yet support an integrated or physical gain; no new device build was
+made from this extension.
+
+The build 13 capture was saved under `math-candidate/*-bounded-final.*` with
+SHA-256 hashes, then profiling was disabled by normal relaunch. Fresh runtime
+session 2026-09-08T10:11:07.899Z confirms build 13 without capture activation.
+The earlier statement that its profiler remains active is superseded.
+
+Next gate is a reproducible physical multi-fighter match, requested from the
+owner but not yet confirmed. Automatic scene workloads differ, so further
+small host optimizations cannot settle acceptance. Hold integration/release
+of the candidate until that hardware comparison can establish whether it is
+worth retaining. Existing stable main and device game data remain preserved.
