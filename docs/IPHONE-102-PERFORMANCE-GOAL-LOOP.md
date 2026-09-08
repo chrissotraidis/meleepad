@@ -499,3 +499,66 @@ recordings completed normally. The app was stopped after collection to end the
 benchmark and allow cooling; build 15 and game data are unchanged. No Simulator,
 QuickTime recording, release upload, or netplay test was used. The physical
 connection blocker is resolved; the performance objective is still unfinished.
+
+
+### Build 17 — separate normal CPU execution from diagnostics
+
+Native instruction inspection mapped the matrix-write hot offsets back to
+`WriteMTXPS4x3`/the previously rejected GX family. Another replacement of that
+leaf would repeat the closed experiment. The fresh control instead confirms
+that the host `StaticRecompCore::Run` loop itself consumes about 9% of CPU-thread
+samples even with phase/dispatch capture off.
+
+Patch 0056 compiles two versions of the same loop. `Run()` selects the diagnostic
+version when phase timing, lockstep, dispatch sampling/timing/burst logging, or
+freeze tracing is enabled; ordinary execution selects the version in which
+those branches and bookkeeping compile away. The execution body from module and
+idle setup onward is byte-identical source. Cycle charges, timebase updates,
+interrupt/exception delivery, fallback, SMC eligibility, stop/pause handling,
+and canonical netplay-boundary capture remain in both paths. Neither game
+module changes, and no game-data changes are required.
+
+An exact physical-iOS compiler screen reduced the normal function from 1,491 to
+841 ARM64 instructions and its stack frame from 544 to 192 bytes. Diagnostic
+call sites disappear only from the normal specialization. These are code-size
+and code-generation facts, not FPS claims.
+
+A fresh physical control (build 15) and candidate (build 17) both ran the fixed
+four-fighter Big Blue route with capture disabled, v1.02, original modules,
+1x EFB and 4:3. The candidate started after five minutes stopped for cooling;
+both native trace intervals report nominal thermals. Each 25-second Time
+Profiler recording began approximately 74 seconds after launch. The route's
+wall-clock fallback reached the fixed roster/stage in both runs, but subsequent
+AI/workload progression is not frame-exact.
+
+| Native running samples | Control | Build 17 |
+| --- | ---: | ---: |
+| CPU-thread total | 18,515 ms | 18,075 ms |
+| Normal execution-loop self | 1,683 ms | 980 ms |
+| Loop self / CPU-thread total | 9.09% | 5.42% |
+| Unchanged game module self, including helpers | 12,953 ms | 13,131 ms |
+| Video-thread total | 11,774 ms | 12,183 ms |
+
+The targeted loop drops 41.8% in sampled self time while module samples differ
+by +1.37%. Checking direct compiler-outlined callees found no shifted sample
+bucket explaining the loop reduction. Total CPU samples are 2.38% lower in
+this interval. This supports retaining a modest host-loop optimization on the
+working branch; it does not establish a precise whole-game speedup or sustained
+60 FPS. Later runtime FPS readings remain mixed and both runs slow as workload
+and thermal state change. Do not advertise the iPhone slowdown as fixed.
+
+The core and physical iOS Release build pass. Existing benchmark route,
+diagnostic/privacy, idle-policy, lightweight-frame recorder, and dispatch-time
+checks pass. The patch passes `git apply --check` and `--recount` against the
+saved baseline and reproduces the built source exactly. Private evidence and
+signed build-17 manifest are in
+`ref/revision-102/performance-loop/loop-specialization/`. Instruments sample
+exports intermittently crashed; exporting the complete candidate trace to
+stdout succeeded with exit 0, and the complete XML was parsed for the table.
+No online acceptance, public IPA, or release/main merge is claimed.
+
+A separate physical diagnostic-path smoke test on build 17 enabled capture and
+produced 1,739 data rows in a fresh phase CSV. The runtime reached normal game
+execution. Capture and the benchmark route were then disabled by normal
+relaunch; build 17 remains installed for owner testing. This is not a physical
+lockstep/netplay acceptance result.

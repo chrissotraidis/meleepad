@@ -1,0 +1,57 @@
+diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h
+--- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h
++++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h
+@@ -103,6 +103,8 @@
+   const char* GetName() const override { return "StaticRecomp"; }
+ 
+ private:
++  template <bool Diagnostics>
++  void RunWithDiagnostics();
+   // JitBaseBlockCache with no generated blocks; exists so generic
+   // icache-invalidation plumbing in JitInterface has a real object to talk
+   // to, and to feed every invalidation into the SMC demotion guard (D4).
+diff --git a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
+--- a/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
++++ b/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp
+@@ -56,20 +56,34 @@
+ 
+ void StaticRecompCore::Run()
+ {
++  const bool diagnostics = Common::FramePhaseTiming::IsEnabled() ||
++      m_lockstep_verifier->IsEnabled() || !m_dispatch_frame_log_path.empty() ||
++      !m_dispatch_time_log_path.empty() || !m_dispatch_burst_log_path.empty() ||
++      std::getenv("STATICRECOMP_DISPATCH_SAMPLE") != nullptr ||
++      std::getenv("STATICRECOMP_FREEZE_TRACE") != nullptr;
++  if (diagnostics)
++    RunWithDiagnostics<true>();
++  else
++    RunWithDiagnostics<false>();
++}
++
++template <bool Diagnostics>
++void StaticRecompCore::RunWithDiagnostics()
++{
+   auto& core_timing = m_system.GetCoreTiming();
+   auto& power_pc = m_system.GetPowerPC();
+   auto& ppc = power_pc.GetPPCState();
+   auto& interpreter = m_system.GetInterpreter();
+   auto& memory = m_system.GetMemory();
+   const CPU::State* state_ptr = m_system.GetCPU().GetStatePtr();
+-  const bool log_phase = Common::FramePhaseTiming::IsEnabled();
+-  const bool lockstep_enabled = m_lockstep_verifier->IsEnabled();
+-  const bool sample_dispatches = !m_dispatch_frame_log_path.empty() ||
++  const bool log_phase = Diagnostics && Common::FramePhaseTiming::IsEnabled();
++  const bool lockstep_enabled = Diagnostics && m_lockstep_verifier->IsEnabled();
++  const bool sample_dispatches = Diagnostics && (!m_dispatch_frame_log_path.empty() ||
+                                  !m_dispatch_time_log_path.empty() ||
+-                                 std::getenv("STATICRECOMP_DISPATCH_SAMPLE") != nullptr;
+-  const bool sample_dispatch_time = !m_dispatch_time_log_path.empty();
+-  const bool sample_dispatch_bursts = !m_dispatch_burst_log_path.empty();
+-  const bool freeze_trace = std::getenv("STATICRECOMP_FREEZE_TRACE") != nullptr;
++                                 std::getenv("STATICRECOMP_DISPATCH_SAMPLE") != nullptr);
++  const bool sample_dispatch_time = Diagnostics && !m_dispatch_time_log_path.empty();
++  const bool sample_dispatch_bursts = Diagnostics && !m_dispatch_burst_log_path.empty();
++  const bool freeze_trace = Diagnostics && std::getenv("STATICRECOMP_FREEZE_TRACE") != nullptr;
+   const bool has_rel_modules = m_module && m_module->num_rel_modules != 0;
+   const u32 idle_pc = m_idle_pc;
+   const u32 secondary_idle_pc = m_secondary_idle_pc;

@@ -9,7 +9,15 @@ Current work, native hardware profiling resumed: [v1.02 iPhone performance goal]
 The owner accepted build 11 as the merged baseline; performance and physical
 netplay limitations below remain open.
 
-## Current performance investigation — private builds 12–16
+## Current performance investigation — private build 17
+
+Build 17 retains a modest host-loop optimization on the working branch:
+normal execution compiles out disabled diagnostic branches, while timing,
+lockstep, and diagnostic runs use the same fully instrumented loop. A physical
+25-second four-fighter comparison reduces loop self samples from 1,683 to
+980 ms (41.8%); total CPU-thread samples are 2.38% lower, with unchanged game
+modules. This is a targeted improvement, not a precise FPS gain or a fix for
+sustained heavy-match slowdowns. Patch 0056 makes the change reproducible.
 
 Neither tested math candidate is retained. Deferred floating-point classification
 substantially reduces isolated inverse-matrix time, but physical four-fighter
@@ -36,8 +44,8 @@ profiling. The capture-disabled run still slowed to 47.5 FPS in one later
 interval, so logging is not the whole issue. Next source gate: map matrix/joint
 native sample offsets to exact decompilation functions before selecting a
 bounded region optimization. See the [full evidence and current device
-state](IPHONE-102-PERFORMANCE-GOAL-LOOP.md). Build 15 was stopped after collection;
-no candidate was installed or retained and no new FPS gain is established.
+state](IPHONE-102-PERFORMANCE-GOAL-LOOP.md). That attribution led to the build-17 host-loop specialization above.
+No new sustained FPS claim or physical online acceptance is established.
 
 ## Build 9 handoff — v1.02, performance, and hardware netplay
 
