@@ -203,4 +203,4 @@ bindings. Patch 0025 generates Dolphin's macOS keyboard defaults for that exact
 device, retaining existing SDL and pipe mappings. The focused controller-config
 regression test, full repository checks, and rebuilt macOS package layout pass.
 The launcher's picker remains SDL-only; this change addresses the explicit
-runner keyboard path. Runtime keyboard acceptance is being checked separately.
+netplay runner keyboard path. Runtime keyboard acceptance is being checked separately.
