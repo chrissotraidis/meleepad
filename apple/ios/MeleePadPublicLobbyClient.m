@@ -1,9 +1,10 @@
+#import "MeleePadSettings.h"
 #import "MeleePadPublicLobbyClient.h"
 #import "MeleePadDiagnostics.h"
 
 #import <TargetConditionals.h>
 
-NSString *const MeleePadPublicLobbyProtocol = @"moderngekko-netplay-8";
+NSString *const MeleePadPublicLobbyProtocol = @"moderngekko-netplay-9";
 NSString *const MeleePadPublicLobbyProductID = @"meleepad";
 static const NSUInteger MeleePadMaximumLobbyResponseBytes = 64 * 1024;
 
@@ -28,6 +29,7 @@ static NSString *MeleePadLobbyRoute(NSString *path) {
     NSURLSession *_session;
     NSString *_token;
     NSString *_nickname;
+    NSInteger _sessionGameRevision;
     NSString *_activeRoomID;
     NSString *_localSessionID;
     BOOL _hosting;
@@ -81,7 +83,8 @@ static NSString *MeleePadLobbyRoute(NSString *path) {
                  error:@"Public games are not configured in this build. Private rooms still work."];
         return;
     }
-    if (_token.length > 0 && [_nickname isEqualToString:nickname]) {
+    NSInteger revision = [MeleePadSettings sharedSettings].gameRevision;
+    if (_token.length > 0 && [_nickname isEqualToString:nickname] && _sessionGameRevision == revision) {
         [self complete:completion result:@{@"ready": @YES} error:nil];
         return;
     }
@@ -96,7 +99,7 @@ static NSString *MeleePadLobbyRoute(NSString *path) {
         @"build": build,
         @"protocol": MeleePadPublicLobbyProtocol,
         @"game_id": @"GALE01",
-        @"game_revision": @"r0",
+        @"game_revision": [NSString stringWithFormat:@"r%ld", (long)revision],
     };
     __weak MeleePadPublicLobbyClient *weakSelf = self;
     [self requestMethod:@"POST" path:@"/v1/sessions" body:body authenticated:NO
@@ -106,6 +109,7 @@ static NSString *MeleePadLobbyRoute(NSString *path) {
             strongSelf->_token = result[@"token"];
             strongSelf->_localSessionID = result[@"session_id"];
             strongSelf->_nickname = [nickname copy];
+            strongSelf->_sessionGameRevision = revision;
         }
         [strongSelf complete:completion result:result error:error];
     }];

@@ -48,6 +48,9 @@ NS_ASSUME_NONNULL_BEGIN
 /* Applies persisted settings to the touch controls. */
 - (void)applySettings;
 
+/* Refreshes version and settings labels after switching or importing a game. */
+- (void)refreshMenuButton;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -67,6 +67,34 @@ cp "$ROOT/apple/macos/MeleePad" "$OUTPUT/Contents/MacOS/MeleePad"
 cp "$BUILD/MeleePadFrontend" "$OUTPUT/Contents/MacOS/MeleePadFrontend"
 cp "$BUILD/MeleePadRunner" "$OUTPUT/Contents/MacOS/MeleePadRunner"
 cp "$active_module" "$OUTPUT/Contents/MacOS/gGALE01_recomp.dylib"
+# Package every prepared revision under its executable hash. The runner selects
+# this directory from the imported game, never from a shared GALE01 pointer.
+python3 - "$TPL" "$OUTPUT/Contents/MacOS" <<'PYMODULES'
+import hashlib, pathlib, shutil, subprocess, sys
+root, out = map(pathlib.Path, sys.argv[1:])
+for revision in (0, 2):
+    suffix = "-r2" if revision == 2 else ""
+    pointer = root / f"build/modules-macos14{suffix}/GALE01/active-module.txt"
+    if not pointer.is_file():
+        continue
+    module = pathlib.Path(pointer.read_text().strip())
+    if not module.is_absolute(): module = root / module
+    dol = root / f"extracted/Super-Smash-Bros-Melee-GALE01-r{revision}/sys/main.dol"
+    digest = hashlib.sha256(dol.read_bytes()).hexdigest()
+    manifest = module.parent / "manifest.txt"
+    if not manifest.is_file() or f"dol_sha256={digest}" not in manifest.read_text().splitlines():
+        raise SystemExit(f"Revision {revision} module does not match extracted executable")
+    build = subprocess.check_output(["vtool", "-show-build", str(module)], text=True)
+    fields = dict(line.split() for line in build.splitlines() if len(line.split()) == 2)
+    if fields.get("platform") != "MACOS" or int(fields.get("minos", "99").split(".")[0]) > 14:
+        raise SystemExit(f"Revision {revision} module does not target macOS 14")
+    deps = subprocess.check_output(["otool", "-L", str(module)], text=True)
+    if "/opt/homebrew" in deps or "/usr/local" in deps:
+        raise SystemExit(f"Revision {revision} module has non-portable dependencies")
+    destination = out / "StaticRecompModules" / digest
+    destination.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(module, destination / "gGALE01_recomp.dylib")
+PYMODULES
 cp -R "$BUILD/Sys" "$OUTPUT/Contents/Resources/Sys"
 cp "$ROOT/apple/macos/default-config.ini" "$OUTPUT/Contents/Resources/default-config.ini"
 cp "$ROOT/apple/macos/default-GCPadNew.ini" "$OUTPUT/Contents/Resources/default-GCPadNew.ini"

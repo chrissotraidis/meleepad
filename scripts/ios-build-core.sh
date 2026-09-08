@@ -14,6 +14,13 @@ TPL="$ROOT/ref/ModernGekko-Template"
 TOOLCHAIN="$ROOT/scripts/ios-simulator-toolchain.cmake"
 BUILD="$MG/build-ios-iphonesimulator-meleepad-static"
 MODULE_BUILD="/tmp/meleepad-module-ios-simulator"
+REVISION=${MELEEPAD_GAME_REVISION:-0}
+case "$REVISION" in 0|2) ;; *) echo "supported revisions: 0 or 2" >&2; exit 2;; esac
+MODULES="$TPL/build/modules-macos14"
+if [[ "$REVISION" == 2 ]]; then
+  MODULE_BUILD="${MODULE_BUILD}-r2"
+  MODULES="$TPL/build/modules-macos14-r2"
+fi
 
 "$ROOT/scripts/bootstrap-dependencies.sh"
 
@@ -44,7 +51,7 @@ echo "==> Building GALE01 recompiled module for iOS Simulator"
 # The promoted macOS PGO dylib intentionally has no adjacent private source
 # tree. Resolve the platform-neutral DolRecomp sources through the active module
 # pointer written by prepare-game.sh.
-ACTIVE_MODULE_FILE="$TPL/build/modules-macos14/GALE01/active-module.txt"
+ACTIVE_MODULE_FILE="$MODULES/GALE01/active-module.txt"
 if [[ ! -f "$ACTIVE_MODULE_FILE" ]]; then
   echo "prepared module pointer missing; run scripts/prepare-game.sh first" >&2
   exit 1
@@ -52,6 +59,11 @@ fi
 ACTIVE_MODULE="$(<"$ACTIVE_MODULE_FILE")"
 if [[ "$ACTIVE_MODULE" != /* ]]; then
   ACTIVE_MODULE="$TPL/$ACTIVE_MODULE"
+fi
+EXPECTED_DOL_SHA256=$(shasum -a 256 "$TPL/extracted/Super-Smash-Bros-Melee-GALE01-r${REVISION}/sys/main.dol" | awk '{print $1}')
+if ! grep -Fxq "dol_sha256=$EXPECTED_DOL_SHA256" "$(dirname "$ACTIVE_MODULE")/manifest.txt"; then
+  echo "module pointer does not match selected revision; prepare that revision again" >&2
+  exit 1
 fi
 GEN="$(dirname "$ACTIVE_MODULE")/dolrecomp-output/generated"
 if [[ ! -f "$GEN/generated.c" || ! -f "$GEN/generated.h" ]]; then
@@ -69,6 +81,9 @@ cmake -S "$MG/vendor/dolphin/module-template" -B "$MODULE_BUILD" -G Ninja \
   -DCHASSIS_ABI_DIR="$MG/vendor/dolphin/Source/Core/Core/PowerPC/StaticRecomp"
 ninja -C "$MODULE_BUILD" -j8
 
+# Identity travels with the locally generated module; signing does not change
+# this source-executable hash.
+shasum -a 256 "$TPL/extracted/Super-Smash-Bros-Melee-GALE01-r${REVISION}/sys/main.dol" | awk '{print $1}' > "$MODULE_BUILD/gGALE01_recomp.dylib.dol-sha256"
 echo "==> Provisioning app"
 "$ROOT/scripts/ios-provision.sh"
 

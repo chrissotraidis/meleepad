@@ -24,9 +24,10 @@ for text in (
         raise SystemExit(f"missing game-data setup guard: {text}")
 if startup.index("if (!gameRootReadable)") > startup.index("_coreHost ="):
     raise SystemExit("game-data guard must run before runtime creation")
-for text in ('importConfiguration.title = @"Choose ISO or GCM"',
+for text in ('importConfiguration.title = @"Import Game Data"',
              'initWithString:@"Game data required\\n"',
-             '@"2393aadd346c23e3e44291e7bb7e16dbc4970bc703028261659a87cde9d90484"',
+             'MeleePadRevisions()',
+             'importedRevision[@"dol_sha256"]',
              '@"files/GmRegEnd.dat"',
              '@"files/MnSlChr.dat"',
              '@"files/MnSlMap.dat"',
@@ -52,7 +53,7 @@ if "sunPadSupportRoot" in source:
     raise SystemExit("stale support-root selector remains")
 PY
 
-grep -Fq 'Import or Reimport Game Data' "$OVERLAY"
+grep -Fq 'Choose Version or Import Game Data' "$OVERLAY"
 grep -Fq 'MeleePadMigrateRenamedPreferences' "$APP_DELEGATE"
 grep -Fq '@"ControllerButtonMappingV1"' "$APP_DELEGATE"
 grep -Fq '[storedKey hasSuffix:suffix]' "$APP_DELEGATE"

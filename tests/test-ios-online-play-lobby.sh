@@ -166,7 +166,7 @@ grep -Fq 'MeleePadPublicLobbyClient.m in Sources' "$PROJECT"
 grep -Fq 'MeleePadPublicLobbyClient.h' "$PROJECT"
 
 for contract in \
-  'moderngekko-netplay-8' \
+  'moderngekko-netplay-9' \
   'MELEEPAD_LOBBY_BASE_URL' \
   'ephemeralSessionConfiguration' \
   'HTTPCookieAcceptPolicyNever' \

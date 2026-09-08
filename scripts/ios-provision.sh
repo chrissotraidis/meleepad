@@ -123,3 +123,19 @@ $DEVICE_MODULE_ENTRY
 </plist>
 PLIST
 echo "dev config: $OUT/dev-config.plist"
+
+python3 - "$OUT/dev-config.plist" "$TPL" "$PLATFORM" <<'PYCONFIG'
+import pathlib, plistlib, sys
+path, template, platform = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2]), sys.argv[3]
+config = plistlib.loads(path.read_bytes())
+config["DevModulesByRevision"] = {}
+config["DevGameRootsByRevision"] = {}
+for revision in (0, 2):
+    suffix = "-r2" if revision == 2 else ""
+    module = pathlib.Path(f"/tmp/meleepad-module-ios-{platform}{suffix}/gGALE01_recomp.dylib")
+    root = template / f"extracted/Super-Smash-Bros-Melee-GALE01-r{revision}"
+    if module.is_file() and root.is_dir():
+        config["DevModulesByRevision"][f"r{revision}"] = str(module)
+        config["DevGameRootsByRevision"][f"r{revision}"] = str(root)
+path.write_bytes(plistlib.dumps(config))
+PYCONFIG

@@ -48,6 +48,15 @@ universal performance guarantee.*
 | **Online play** | Experimental MeleePad-to-MeleePad private rooms and Direct IP, with temporary peer chat in Preview 3; not yet a public beta |
 | **Not included** | Melee, game assets, saves, signing material, or a generated game module |
 
+## Preferred v1.02 development work
+
+Development build 8 is adding USA v1.02 as the recommended revision while
+preserving v1.00. This is separate from the published Preview 3 described
+above. See [version choices and build instructions](docs/MELEE-VERSIONS.md)
+and the [active goal and acceptance loop](docs/REVISION-102-GOAL-LOOP.md).
+Import support, module compilation, and gameplay acceptance are recorded
+separately; the decompilation does not itself establish a performance gain.
+
 ## How MeleePad works
 
 MeleePad does not depend on a completed source-code decompilation of Melee.

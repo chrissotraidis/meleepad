@@ -1,3 +1,4 @@
+#import "MeleePadRevision.h"
 #import "MeleePadOnlinePlayViewController.h"
 #import "MeleePadDiagnostics.h"
 #import "MeleePadPublicLobbyClient.h"
@@ -1305,14 +1306,17 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
         ? room[@"app_version"] : @"unknown";
     NSString *build = [room[@"build"] isKindOfClass:NSString.class]
         ? room[@"build"] : @"unknown";
+    NSString *hostRevision = [room[@"game_revision"] isKindOfClass:NSString.class] ? room[@"game_revision"] : @"unknown";
+    NSString *hostGame = [hostRevision isEqualToString:@"r2"] ? @"Melee v1.02" :
+        [hostRevision isEqualToString:@"r0"] ? @"Melee v1.00" : @"Unknown Melee version";
     if (joinable) {
         compatibility.text = [NSString stringWithFormat:
-            @"Same build · MeleePad %@ (%@) · Ready to join", version, build];
+            @"%@ · MeleePad %@ (%@) · Ready to join", hostGame, version, build];
     } else if (!compatible) {
         NSString *reason = [room[@"compatibility"] isKindOfClass:NSString.class]
             ? room[@"compatibility"] : @"This room uses a different build";
-        compatibility.text = [NSString stringWithFormat:@"%@ · Host: MeleePad %@ (%@)",
-            reason, version, build];
+        compatibility.text = [NSString stringWithFormat:@"%@ · Host: %@, MeleePad %@ (%@)",
+            reason, hostGame, version, build];
     } else {
         compatibility.text = [NSString stringWithFormat:@"Same build · %@",
             waiting ? @"Room is full" : @"Match already started"];

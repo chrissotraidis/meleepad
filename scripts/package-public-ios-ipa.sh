@@ -6,7 +6,7 @@ set -euo pipefail
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 SOURCE_APP=${1:-}
-OUTPUT=${2:-"$ROOT/artifacts/MeleePad-v0.1.0-preview.3-module-free-unsigned.ipa"}
+OUTPUT=${2:-"$ROOT/artifacts/MeleePad-v0.1.0-build8-module-free-unsigned.ipa"}
 
 if [[ -z "$SOURCE_APP" || ! -d "$SOURCE_APP" ]]; then
   echo "usage: $0 /path/to/MeleePad.app [output.ipa]" >&2
@@ -19,8 +19,8 @@ mkdir -p "$OUTPUT_DIR"
 OUTPUT="$(cd "$OUTPUT_DIR" && pwd)/$(basename "$OUTPUT")"
 
 source_prohibited="$(find "$SOURCE_APP" -type f \( \
-    -name 'gGALE01_recomp.dylib' -o -name '*.iso' -o -name '*.gcm' -o \
-    -name '*.rvz' -o -name '*.gci' -o -name '*.sav' -o \
+    -name '*recomp*.dylib' -o -name '*.iso' -o -name '*.gcm' -o \
+    -name '*.ciso' -o -name '*.rvz' -o -name '*.gci' -o -name '*.sav' -o \
     -name 'embedded.mobileprovision' \) -print -quit)"
 if [[ -n "$source_prohibited" ]]; then
   echo "refusing to package an app containing a game module, game/save data, or provisioning profile" >&2
@@ -45,7 +45,7 @@ executable="$(plutil -extract CFBundleExecutable raw -o - "$APP/Info.plist")"
 
 [[ "$identifier" == com.meleepad.MeleePad ]]
 [[ "$version" == 0.1.0 ]]
-[[ "$build" == 7 ]]
+[[ "$build" == 8 ]]
 [[ "$(lipo -archs "$APP/$executable")" == arm64 ]]
 
 if codesign -d "$APP" >/dev/null 2>&1; then
@@ -53,8 +53,8 @@ if codesign -d "$APP" >/dev/null 2>&1; then
   exit 1
 fi
 packaged_prohibited="$(find "$APP" -type f \( \
-    -name 'gGALE01_recomp.dylib' -o -name '*.iso' -o -name '*.gcm' -o \
-    -name '*.rvz' -o -name '*.gci' -o -name '*.sav' -o \
+    -name '*recomp*.dylib' -o -name '*.iso' -o -name '*.gcm' -o \
+    -name '*.ciso' -o -name '*.rvz' -o -name '*.gci' -o -name '*.sav' -o \
     -name '*.mobileprovision' -o -name '*.p12' -o -name '*.cer' -o \
     -name '*.key' \) -print -quit)"
 if [[ -n "$packaged_prohibited" ]]; then

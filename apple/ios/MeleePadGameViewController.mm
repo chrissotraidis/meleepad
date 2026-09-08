@@ -10,6 +10,7 @@
 #import "MeleePadOnlinePlayViewController.h"
 #import "MeleePadPublicLobbyClient.h"
 #import "MeleePadSettings.h"
+#import "MeleePadRevision.h"
 
 #import <CommonCrypto/CommonDigest.h>
 #import <GameController/GameController.h>
@@ -27,8 +28,7 @@
 #include <vector>
 
 static constexpr CGFloat MeleePadDrawableScale = 1.0;
-static NSString *const MeleePadSupportedImageSHA256 =
-    @"2393aadd346c23e3e44291e7bb7e16dbc4970bc703028261659a87cde9d90484";
+
 
 static uintptr_t MeleePadControllerInstanceID(GCController *controller) {
     return reinterpret_cast<uintptr_t>((__bridge void *)controller);
@@ -166,7 +166,7 @@ static MeleePadPhysicalControllerButton MeleePadMappedPhysicalButton(
     }
 }
 
-static NSString *_Nullable MeleePadSHA256ForFile(NSString *path, NSError **error) {
+static NSString *_Nullable MeleePadSHA256ForFile(NSString *path, NSError **error, NSString **md5Result = nullptr) {
     NSFileHandle *handle = [NSFileHandle fileHandleForReadingAtPath:path];
     if (handle == nil) {
         if (error != nil) {
@@ -179,6 +179,8 @@ static NSString *_Nullable MeleePadSHA256ForFile(NSString *path, NSError **error
 
     CC_SHA256_CTX context;
     CC_SHA256_Init(&context);
+    CC_MD5_CTX md5;
+    if (md5Result) CC_MD5_Init(&md5);
     while (true) {
         NSError *readError = nil;
         NSData *data = [handle readDataUpToLength:4 * 1024 * 1024 error:&readError];
@@ -191,6 +193,7 @@ static NSString *_Nullable MeleePadSHA256ForFile(NSString *path, NSError **error
         if (data.length == 0)
             break;
         CC_SHA256_Update(&context, data.bytes, (CC_LONG)data.length);
+        if (md5Result) CC_MD5_Update(&md5, data.bytes, (CC_LONG)data.length);
     }
     [handle closeFile];
 
@@ -199,6 +202,13 @@ static NSString *_Nullable MeleePadSHA256ForFile(NSString *path, NSError **error
     NSMutableString *hex = [NSMutableString stringWithCapacity:CC_SHA256_DIGEST_LENGTH * 2];
     for (unsigned char byte : digest)
         [hex appendFormat:@"%02x", byte];
+    if (md5Result) {
+        unsigned char legacyDigest[CC_MD5_DIGEST_LENGTH];
+        CC_MD5_Final(legacyDigest, &md5);
+        NSMutableString *legacyHex = [NSMutableString string];
+        for (unsigned char byte : legacyDigest) [legacyHex appendFormat:@"%02x", byte];
+        *md5Result = legacyHex;
+    }
     return hex;
 }
 
@@ -329,7 +339,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     _gameDataImportButton = [UIButton buttonWithType:UIButtonTypeSystem];
     UIButtonConfiguration *importConfiguration =
         [UIButtonConfiguration filledButtonConfiguration];
-    importConfiguration.title = @"Choose ISO or GCM";
+    importConfiguration.title = @"Import Game Data";
     importConfiguration.cornerStyle = UIButtonConfigurationCornerStyleMedium;
     importConfiguration.baseBackgroundColor = UIColor.systemBlueColor;
     importConfiguration.baseForegroundColor = UIColor.whiteColor;
@@ -480,11 +490,16 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 }
 
 - (NSString *)modulePathFromConfiguration:(NSDictionary *)configuration {
-    NSString *hostPath = configuration[@"DevModulePath"];
+    NSInteger revision = [MeleePadSettings sharedSettings].gameRevision;
+    NSString *key = [NSString stringWithFormat:@"r%ld", (long)revision];
+    NSString *hostPath = configuration[@"DevModulesByRevision"][key];
+    if (hostPath.length == 0 && revision == 0)
+        hostPath = configuration[@"DevModulePath"];
     if (hostPath.length > 0 && [[NSFileManager defaultManager] fileExistsAtPath:hostPath])
         return hostPath;
 
-    NSString *deviceRelativePath = configuration[@"DeviceModuleRelativePath"];
+    NSString *deviceRelativePath = revision == 2 ? @"gGALE01r2_recomp.dylib" :
+        configuration[@"DeviceModuleRelativePath"];
 #if !TARGET_OS_SIMULATOR
     // Simulator and device provisioning share a generated development plist.
     // A Simulator build may therefore leave DevModulePath pointing at the Mac.
@@ -845,21 +860,16 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     [_bootActivityIndicator startAnimating];
     NSBundle *bundle = NSBundle.mainBundle;
     NSString *configPath = [bundle pathForResource:@"dev-config" ofType:@"plist"];
-    if (configPath == nil) {
-        MeleePadLog(@"boot skipped reason=dev config missing");
-        _bootStatusLabel.text = @"MeleePad needs its local game data before it can start.";
-        _bootStatusLabel.accessibilityLabel = _bootStatusLabel.text;
-        [_bootActivityIndicator stopAnimating];
-        return; // Not a dev-provisioned build; import flow is a later stage.
-    }
-    NSDictionary *config = [NSDictionary dictionaryWithContentsOfFile:configPath];
+    NSDictionary *config = configPath ? [NSDictionary dictionaryWithContentsOfFile:configPath] : @{};
     MeleePadSettings *settings = [MeleePadSettings sharedSettings];
+    [_overlay refreshMenuButton];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     // App updates can relocate the data-container UUID. On physical devices,
     // derive imported data from the current sandbox instead of trusting an
     // absolute path persisted by a previous installation.
     NSString *supportRoot = [self meleePadSupportRoot];
-    NSString *gameDataDirectory = [supportRoot stringByAppendingPathComponent:@"GameData"];
+    NSString *gameDataDirectory = [supportRoot stringByAppendingPathComponent:
+        settings.gameRevision == 2 ? @"GameData-r2" : @"GameData"];
 
     // Side-by-side diagnostic builds may carry a known progressed save so a
     // performance run can begin in representative gameplay. Seed it exactly
@@ -906,7 +916,9 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     NSString *gameRoot = currentContainerRoot;
 #if TARGET_OS_SIMULATOR
     if (!currentRootExists) {
-        NSString *developmentRoot = config[@"DevGameRoot"];
+        NSString *developmentRoot = config[@"DevGameRootsByRevision"][[NSString stringWithFormat:@"r%ld", (long)settings.gameRevision]];
+        if (developmentRoot.length == 0 && settings.gameRevision == 0)
+            developmentRoot = config[@"DevGameRoot"];
         if (developmentRoot.length > 0)
             gameRoot = developmentRoot;
     }
@@ -944,7 +956,26 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
         return;
     }
 
+    NSInteger actualRevision = MeleePadRevisionAtRoot(gameRoot);
+    if (actualRevision != settings.gameRevision) {
+        [self presentBootError:@"The selected version does not match its game data. Import that version again."];
+        return;
+    }
     NSString *modulePath = [self modulePathFromConfiguration:config];
+    if (modulePath.length == 0 || ![fileManager fileExistsAtPath:modulePath]) {
+        [self showGameDataSetupState];
+        _bootStatusLabel.text = [NSString stringWithFormat:@"%@ game data is available. This build needs its matching locally compiled game module before it can play.", MeleePadRevisionLabel(actualRevision)];
+        _bootStatusLabel.accessibilityLabel = _bootStatusLabel.text;
+        return;
+    }
+    if (actualRevision == 2) {
+        NSString *identity = [NSString stringWithContentsOfFile:[modulePath stringByAppendingString:@".dol-sha256"] encoding:NSUTF8StringEncoding error:nil];
+        identity = [identity stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
+        if (![identity isEqualToString:MeleePadRevision(actualRevision)[@"dol_sha256"]]) {
+            [self presentBootError:@"The v1.02 module identity is missing or incompatible. Rebuild and provision its matching module."];
+            return;
+        }
+    }
     if (gameRoot.length == 0 || modulePath.length == 0) {
         MeleePadLog(@"boot skipped gameRoot=%d modulePath=%d",
                   gameRoot.length > 0, modulePath.length > 0);
@@ -954,7 +985,8 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
         return;
     }
 
-    NSString *userDirectory = supportRoot;
+    NSString *userDirectory = settings.gameRevision == 2
+        ? [supportRoot stringByAppendingPathComponent:@"User-r2"] : supportRoot;
     [[NSFileManager defaultManager] createDirectoryAtPath:userDirectory
                               withIntermediateDirectories:YES
                                                attributes:nil
@@ -972,6 +1004,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
             NSString *extension = entry.pathExtension.lowercaseString;
             if ([extension isEqualToString:@"iso"] ||
                 [extension isEqualToString:@"gcm"] ||
+                [extension isEqualToString:@"ciso"] ||
                 [extension isEqualToString:@"rvz"]) {
                 discFileName = entry;
                 break;
@@ -1051,11 +1084,11 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     NSMutableAttributedString *message = [[NSMutableAttributedString alloc]
         initWithString:@"Game data required\n" attributes:titleAttributes];
     [message appendAttributedString:[[NSAttributedString alloc]
-        initWithString:@"MeleePad does not include game files. Choose your own legally obtained Super Smash Bros. Melee USA disc image (GALE01, revision 0) to continue."
+        initWithString:@"Import your own Melee USA disc image. v1.02 is recommended; v1.00 remains supported. Choose Import to compare versions."
              attributes:bodyAttributes]];
     _bootStatusLabel.attributedText = message;
     _bootStatusLabel.accessibilityLabel =
-        @"Game data required. MeleePad does not include game files. Choose your own legally obtained Super Smash Bros. Melee USA disc image, GALE01 revision zero, to continue.";
+        _bootStatusLabel.text;
     _gameDataImportButton.hidden = NO;
     [self.view setNeedsLayout];
 }
@@ -1150,6 +1183,10 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 }
 
 - (void)gameOverlayRequestsGameDataRemoval:(MeleePadGameOverlay *)overlay {
+    if (_onlinePlaySessionRequested) {
+        [self presentBootError:@"Leave Online Play before changing game data or versions."];
+        return;
+    }
     (void)overlay;
     if (_coreHost != nil) {
         [_coreHost stop];
@@ -1157,7 +1194,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     }
 
     NSString *dataDirectory = [[self meleePadSupportRoot]
-        stringByAppendingPathComponent:@"GameData"];
+        stringByAppendingPathComponent:[MeleePadSettings sharedSettings].gameRevision == 2 ? @"GameData-r2" : @"GameData"];
     NSError *error = nil;
     if ([[NSFileManager defaultManager] fileExistsAtPath:dataDirectory] &&
         ![[NSFileManager defaultManager] removeItemAtPath:dataDirectory error:&error]) {
@@ -1590,9 +1627,40 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 }
 
 - (void)presentGameDataImport {
+    if (_onlinePlaySessionRequested) {
+        [self presentBootError:@"Leave Online Play before changing game data or versions."];
+        return;
+    }
+    UIAlertController *choice = [UIAlertController alertControllerWithTitle:@"Melee Versions"
+        message:MeleePadRevisionGuidance() preferredStyle:UIAlertControllerStyleAlert];
+    __weak MeleePadGameViewController *weakSelf = self;
+    for (NSNumber *value in @[@2, @0]) {
+        NSInteger revision = value.integerValue;
+        NSString *directory = [[self meleePadSupportRoot] stringByAppendingPathComponent:
+            revision == 2 ? @"GameData-r2/GALE01" : @"GameData/GALE01"];
+        if (MeleePadRevisionAtRoot(directory) != revision)
+            continue;
+        [choice addAction:[UIAlertAction actionWithTitle:[@"Play " stringByAppendingString:MeleePadRevisionLabel(revision)] style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+            MeleePadGameViewController *strongSelf = weakSelf;
+            if (strongSelf == nil) return;
+            [strongSelf->_coreHost stop];
+            strongSelf->_coreHost = nil;
+            [MeleePadSettings sharedSettings].gameRevision = revision;
+            [strongSelf startGameIfProvisioned];
+        }]];
+    }
+    [choice addAction:[UIAlertAction actionWithTitle:@"Import a Disc Image" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [weakSelf presentGameDataPicker];
+    }]];
+    [choice addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    [self presentViewController:choice animated:YES completion:nil];
+}
+
+- (void)presentGameDataPicker {
     NSArray<UTType *> *types = @[
         [UTType typeWithFilenameExtension:@"iso"],
         [UTType typeWithFilenameExtension:@"gcm"],
+        [UTType typeWithFilenameExtension:@"ciso"],
         UTTypeData,
     ];
     UIDocumentPickerViewController *picker =
@@ -1632,6 +1700,10 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 }
 
 - (void)presentGameDataFolderImport {
+    if (_onlinePlaySessionRequested) {
+        [self presentBootError:@"Leave Online Play before changing game data or versions."];
+        return;
+    }
     NSArray<NSURL *> *images = [self gameImagesInDocumentsDirectory];
     if (images.count == 1) {
         [self importGameDataFromURL:images.firstObject];
@@ -1670,6 +1742,10 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 }
 
 - (void)importGameDataFromURL:(NSURL *)url {
+    if (_onlinePlaySessionRequested) {
+        [self presentBootError:@"Leave Online Play before changing game data or versions."];
+        return;
+    }
     UIAlertController *progressAlert =
         [UIAlertController alertControllerWithTitle:@"Importing Game Data"
                                             message:@"Validating and copying the disc…"
@@ -1698,6 +1774,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
         BOOL securityScoped = [url startAccessingSecurityScopedResource];
         NSString *validationError = [weakSelf validateGameDataAtURL:url];
         NSError *copyError = nil;
+        __block NSDictionary *importedRevision = nil;
         if (validationError == nil) {
             [[NSFileManager defaultManager] createDirectoryAtPath:stagingDirectory
                                       withIntermediateDirectories:YES
@@ -1710,9 +1787,14 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
                                                     error:&copyError];
         }
         if (validationError == nil && copyError == nil) {
-            NSString *hash = MeleePadSHA256ForFile(stagedImage, &copyError);
-            if (copyError == nil && ![hash isEqualToString:MeleePadSupportedImageSHA256])
-                validationError = @"The image SHA-256 does not match supported GALE01 USA revision 0 data.";
+            NSString *md5 = nil;
+            NSString *hash = MeleePadSHA256ForFile(stagedImage, &copyError, &md5);
+            for (NSDictionary *revision in MeleePadRevisions())
+                for (NSDictionary *image in revision[@"images"])
+                    if ([hash isEqualToString:image[@"sha256"]] || [md5 isEqualToString:image[@"md5"]])
+                        importedRevision = revision;
+            if (copyError == nil && importedRevision == nil)
+                validationError = @"This image does not match a verified USA v1.00 or v1.02 image. No installed game was changed.";
         }
         if (securityScoped)
             [url stopAccessingSecurityScopedResource];
@@ -1749,6 +1831,16 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
                     return;
                 }
 
+                NSInteger revision = [importedRevision[@"revision"] integerValue];
+                NSString *dolHash = MeleePadSHA256ForFile([stagedRoot stringByAppendingPathComponent:@"sys/main.dol"], nil);
+                if (MeleePadRevisionAtRoot(stagedRoot) != revision ||
+                    ![dolHash isEqualToString:importedRevision[@"dol_sha256"]]) {
+                    [[NSFileManager defaultManager] removeItemAtPath:stagingDirectory error:nil];
+                    [progressAlert dismissViewControllerAnimated:YES completion:^{
+                        [completedSelf presentBootError:@"The extracted executable does not match this Melee version."];
+                    }];
+                    return;
+                }
                 NSArray<NSString *> *required = @[
                     @"sys/boot.bin", @"sys/bi2.bin", @"sys/apploader.img",
                     @"sys/fst.bin", @"sys/main.dol", @"files/opening.bnr",
@@ -1778,7 +1870,8 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
                     [completedSelf->_coreHost stop];
                     completedSelf->_coreHost = nil;
                 }
-                NSString *dataDirectory = [supportRoot stringByAppendingPathComponent:@"GameData"];
+                NSString *dataDirectory = [supportRoot stringByAppendingPathComponent:
+                    revision == 2 ? @"GameData-r2" : @"GameData"];
                 NSFileManager *fileManager = [NSFileManager defaultManager];
                 NSError *swapError = nil;
                 if ([fileManager fileExistsAtPath:dataDirectory]) {
@@ -1804,12 +1897,19 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
                 NSString *destination = [dataDirectory stringByAppendingPathComponent:@"GALE01.iso"];
                 NSString *extractRoot = [dataDirectory stringByAppendingPathComponent:@"GALE01"];
                 MeleePadSettings *settings = [MeleePadSettings sharedSettings];
+                settings.gameRevision = revision;
                 settings.retainedGameDataPath = destination;
                 settings.extractedGameRoot = extractRoot;
                 [settings synchronize];
                 MeleePadLog(@"game data import activated filename=%@", destination.lastPathComponent);
                 [progressAlert dismissViewControllerAnimated:YES completion:^{
-                    [completedSelf startGameIfProvisioned];
+                    UIAlertController *notice = [UIAlertController alertControllerWithTitle:MeleePadRevisionLabel(revision)
+                        message:[NSString stringWithFormat:@"Import complete. Your other installed version and its saves are preserved.\n\n%@", MeleePadRevisionGuidance()]
+                        preferredStyle:UIAlertControllerStyleAlert];
+                    [notice addAction:[UIAlertAction actionWithTitle:@"Continue" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+                        [completedSelf startGameIfProvisioned];
+                    }]];
+                    [completedSelf presentViewController:notice animated:YES completion:nil];
                 }];
             }];
         });
@@ -1827,20 +1927,15 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 
     NSNumber *fileSize = [[[NSFileManager defaultManager]
         attributesOfItemAtPath:url.path error:nil] objectForKey:NSFileSize];
-    if (fileSize.unsignedLongLongValue != 1459978240ULL)
-        return @"The image size does not match the supported GALE01 USA revision 0 disc.";
+    BOOL supportedSize = NO;
+    for (NSDictionary *revision in MeleePadRevisions())
+        for (NSDictionary *image in revision[@"images"])
+            if ([image[@"size"] unsignedLongLongValue] == fileSize.unsignedLongLongValue)
+                supportedSize = YES;
+    if (!supportedSize)
+        return @"Unsupported image size. Import a verified Melee USA v1.00 or v1.02 ISO/GCM or supported CISO.";
+    // Full-file hash and extracted executable identity are checked before activation.
 
-    const uint8_t *bytes = (const uint8_t *)header.bytes;
-    uint32_t magic = CFSwapInt32BigToHost(*(uint32_t *)(bytes + 0x1C));
-    if (magic != 0xC2339F3D)
-        return @"The file is not a GameCube disc image (bad magic).";
-    char gameId[7] = {0};
-    // The GameCube disc header starts with the six-character game code.
-    memcpy(gameId, bytes + 0x00, 6);
-    if (strncmp(gameId, "GALE01", 6) != 0)
-        return [NSString stringWithFormat:@"Unsupported game ID '%s'; MeleePad currently supports GALE01 (Super Smash Bros. Melee USA).", gameId];
-    if (bytes[6] != 0 || bytes[7] != 0)
-        return @"MeleePad currently supports disc 0, revision 0 only.";
     return nil;
 }
 

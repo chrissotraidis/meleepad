@@ -1,3 +1,4 @@
+#import "MeleePadRevision.h"
 #import "MeleePadGameOverlay.h"
 
 #import "MeleePadDiagnostics.h"
@@ -531,12 +532,12 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
                                         options:0
                                        children:@[renderMenu, aspectMenu]];
 
-    UIMenu *dataMenu = [UIMenu menuWithTitle:@"Game Data & Saves"
+    UIMenu *dataMenu = [UIMenu menuWithTitle:[NSString stringWithFormat:@"Game Data & Saves · %@", MeleePadRevisionLabel([MeleePadSettings sharedSettings].gameRevision)]
                                        image:[UIImage systemImageNamed:@"internaldrive"]
                                   identifier:nil
                                      options:0
                                     children:@[
-        [UIAction actionWithTitle:@"Import or Reimport Game Data"
+        [UIAction actionWithTitle:@"Choose Version or Import Game Data"
                             image:[UIImage systemImageNamed:@"arrow.triangle.2.circlepath"]
                        identifier:nil handler:^(__kindof UIAction *action) {
             (void)action;
@@ -844,7 +845,7 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
     __weak MeleePadGameOverlay *weakSelf = self;
     UIAlertController *alert =
         [UIAlertController alertControllerWithTitle:@"Remove Stored Game Data?"
-                                            message:@"The retained game image and extracted game files will be removed now. Your save files and control settings are not affected."
+                                            message:@"Only the selected version’s disc image and extracted files will be removed. Your other version, saves, and control settings are kept."
                                      preferredStyle:UIAlertControllerStyleAlert];
     [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
     [alert addAction:[UIAlertAction actionWithTitle:@"Remove" style:UIAlertActionStyleDestructive

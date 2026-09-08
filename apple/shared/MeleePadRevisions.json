@@ -1,0 +1,39 @@
+[
+  {
+    "revision": 0,
+    "version": "1.00",
+    "recommended": false,
+    "dol_sha256": "0f09e240e37586a996b2bcbc8904fb589cf2d7cfa79c916e33a7cf1c316a2448",
+    "images": [
+      {
+        "format": "iso",
+        "size": 1459978240,
+        "sha256": "2393aadd346c23e3e44291e7bb7e16dbc4970bc703028261659a87cde9d90484"
+      }
+    ]
+  },
+  {
+    "revision": 2,
+    "version": "1.02",
+    "recommended": true,
+    "dol_sha256": "dc21504513424350bda17a7c65e82371b45112a5dfc1e9f2749a8b7ab0eff646",
+    "images": [
+      {
+        "format": "iso",
+        "size": 1459978240,
+        "sha256": "979c42a2cda2d022370ceeace9afb0bb6e1374287aea61c77e8f5b27f53ee526"
+      },
+      {
+        "format": "ciso",
+        "size": 1449165376,
+        "sha256": "b7de482eb955c8a96b6746dfa043b69ae7bf6c7c2a09ac382b9da126faa7055c"
+      },
+      {
+        "format": "iso",
+        "size": 1459978240,
+        "md5": "0e63d4223b01d9aba596259dc155a174",
+        "source": "https://github.com/UnclePunch/Training-Mode"
+      }
+    ]
+  }
+]

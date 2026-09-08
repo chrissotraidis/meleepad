@@ -1,3 +1,4 @@
+#import "MeleePadRevision.h"
 #import "MeleePadCoreHost.h"
 #import "MeleePadControllerMapping.h"
 #import "../shared/MeleePadBenchmarkRoute.h"
@@ -95,10 +96,12 @@ static NSString *const MeleePadUnlockAllCodeName = @"$All Characters and Stages"
  * selects it. Unrelated user sections and code selections are preserved. */
 static BOOL MeleePadConfigureOfflineCheats(NSString *userDirectory,
                                            BOOL unlockAll,
+                                           NSInteger revision,
                                            NSError **error) {
     NSFileManager *fileManager = NSFileManager.defaultManager;
     NSString *directory = [userDirectory stringByAppendingPathComponent:@"GameSettings"];
-    NSString *path = [directory stringByAppendingPathComponent:@"GALE01r0.ini"];
+    NSString *path = [directory stringByAppendingPathComponent:
+        revision == 2 ? @"GALE01r2.ini" : @"GALE01r0.ini"];
     NSString *existing = [NSString stringWithContentsOfFile:path
                                                    encoding:NSUTF8StringEncoding
                                                       error:nil];
@@ -227,6 +230,7 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
     std::unique_ptr<moderngekko::frontend::NetplaySession> *_netplaySession;
     BOOL *_netplayServicesActive;
     BOOL *_netplayBootInstalled;
+    NSInteger _gameRevision;
     NSString *_lastGameRoot;
     NSString *_lastDiscImagePath;
     NSString *_lastModulePath;
@@ -281,6 +285,11 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
                    onError:(void (^)(NSString *))onError {
     if (_running->load() || _starting->load() || _gameThread->joinable())
         return;
+    _gameRevision = MeleePadRevisionAtRoot(gameRoot);
+    if (_gameRevision < 0) {
+        if (onError) onError(@"Unsupported Melee revision.");
+        return;
+    }
     _lastGameRoot = [gameRoot copy];
     _lastDiscImagePath = [discImagePath copy];
     _lastModulePath = [modulePath copy];
@@ -377,7 +386,7 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
             [MeleePadSettings sharedSettings].unlockAllCharactersAndStages;
         NSError *cheatConfigError = nil;
         const BOOL hasEnabledOfflineCode = MeleePadConfigureOfflineCheats(
-            runtimeUserDirectory, unlockAll, &cheatConfigError);
+            runtimeUserDirectory, unlockAll, _gameRevision, &cheatConfigError);
         if (cheatConfigError != nil) {
             MeleePadLog(@"offline cheat configuration failed: %@",
                       cheatConfigError.localizedDescription);
@@ -460,6 +469,7 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
             }
             return;
         }
+        if (_gameRevision == 0) {
         // GALE01's OS scheduler waits here while no guest thread is runnable.
         // ModernGekko's existing idle seam advances to the next emulated event
         // instead of burning the host CPU on the polling loop.
@@ -474,6 +484,18 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
         Config::SetBase(Config::MAIN_STATICRECOMP_CALLER_IDLE_PC, 0x80019550u);
         Config::SetBase(Config::MAIN_STATICRECOMP_CALLER_IDLE_LR, 0x801A4064u);
         MeleePadLog(@"runtime scheduler idle skip=enabled pc=80348814 secondary=80349494 caller=80019550/801A4064");
+        } else {
+            // Verified against v1.02 main.dol and pinned doldecomp source:
+            // scheduler no-runnable-thread paths and gm_801A4D34's raw-pad
+            // queue wait. The shared service is idle only for this caller.
+            // The old primary address maps to SITransfer, not SelectThread.
+            // Do not port that shortcut without an independent timing proof.
+            Config::SetBase(Config::MAIN_STATICRECOMP_IDLE_PC, 0u);
+            Config::SetBase(Config::MAIN_STATICRECOMP_SECONDARY_IDLE_PC, 0x8034B164u);
+            Config::SetBase(Config::MAIN_STATICRECOMP_CALLER_IDLE_PC, 0x800195D0u);
+            Config::SetBase(Config::MAIN_STATICRECOMP_CALLER_IDLE_LR, 0x801A4DACu);
+            MeleePadLog(@"runtime scheduler revision=2 caller=800195D0/801A4DAC");
+        }
         // Netplay never runs local codes. Offline boots enable Dolphin's code
         // engine only when the local GameINI contains an enabled selection.
         Config::SetBase(Config::MAIN_ENABLE_CHEATS,
@@ -692,6 +714,7 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
 
 - (MeleePadBenchmarkGuestState)benchmarkGuestState {
     MeleePadBenchmarkGuestState result = {};
+    if (_gameRevision != 0) return result;
     // Revision-1.00 globals validated from the generated instructions. Read
     // the active P1 CSS cursor pointer instead of assuming one heap address;
     // different game modes allocate that same cursor at different locations.
@@ -757,6 +780,7 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
 }
 
 - (BOOL)setBenchmarkRandomSeed:(u32)seed previousValue:(u32 *)previousValue {
+    if (_gameRevision != 0) return NO;
     // The revision-1.00 DOL loads its HSD random-state pointer from r13-22292.
     // Validate the initialized pointer before making this benchmark-only RAM
     // write so a different game revision fails closed.
@@ -778,6 +802,7 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
 }
 
 - (BOOL)setBenchmarkForcedStage:(u8)stageId previousValue:(u8 *)previousValue {
+    if (_gameRevision != 0) return NO;
     // Revision-1.00 stores mnStageSel's active SSSData pointer at r13-18960.
     // Callers additionally gate this write on Training mode's stage-select
     // scene. Validate the pointed-to structure before changing its one signed
@@ -805,6 +830,7 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
 }
 
 - (BOOL)setBenchmarkFourPlayerRosterPreviousValue:(u32 *)previousValue {
+    if (_gameRevision != 0) return NO;
     // Revision-1.00 stores the active CSSData pointer at r13-18928. The route
     // opens every controller door through normal UI input first; this narrow,
     // benchmark-only write then removes random CPU-token overlap while leaving
@@ -873,7 +899,7 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
 
         NSString *runtimeUserDirectory = MeleePadRuntimeUserDirectory(userDirectory);
         NSError *cheatConfigError = nil;
-        MeleePadConfigureOfflineCheats(runtimeUserDirectory, NO, &cheatConfigError);
+        MeleePadConfigureOfflineCheats(runtimeUserDirectory, NO, _gameRevision, &cheatConfigError);
         if (cheatConfigError != nil)
             MeleePadLog(@"netplay cheat cleanup failed: %@",
                       cheatConfigError.localizedDescription);
@@ -1167,10 +1193,9 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
     if (!_running->load())
         return NO;
 
-    // GALE01 revision 0's verified GameState address. Do not use the public
-    // revision-1.02 gm_804D6720 scene pointer here: it addresses unrelated
-    // memory in the supported revision-1.00 image.
-    constexpr u32 kGameStateAddress = 0x80477D68u;
+    // state_machine routing bytes have the same verified layout in both
+    // revisions. v1.02's gm_804D6720 is a different scene-info pointer.
+    const u32 kGameStateAddress = _gameRevision == 2 ? 0x80479D30u : 0x80477D68u;
     std::scoped_lock lock(*_runtimeMutex);
     if (_runtime == nullptr)
         return NO;

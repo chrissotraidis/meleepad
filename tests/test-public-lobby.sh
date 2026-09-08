@@ -58,7 +58,7 @@ for contract in '"roster"' '"open_seats"' '"updated_seconds_ago"' '"joinable"' '
   grep -Fq "$contract" "$SERVER"
 done
 
-grep -Fq 'moderngekko-netplay-8' "$CLIENT"
+grep -Fq 'moderngekko-netplay-9' "$CLIENT"
 grep -Fq 'MeleePadPublicLobbyProductID' "$CLIENT"
 grep -Fq '/v1/activity' "$CLIENT"
 grep -Fq 'moderngekko-netplay-8' "$ROOT/services/lobby/test_server.py"

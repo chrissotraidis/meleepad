@@ -11,6 +11,7 @@ done
 for script in tests/*.sh; do
   bash -n "$script"
 done
+python3 tests/test-revisions.py
 python3 scripts/test_classify_g5_intervals.py
 python3 scripts/test_analyze_triggered_native_pcs.py
 python3 scripts/test_lightweight_frame_timing_patch.py
@@ -62,7 +63,7 @@ tests/test-capture-projection-trigger.sh
 tests/test-g8-human-acceptance-harness.sh
 
 prohibited=$(git ls-files | grep -E \
-  '(^|/)(ref|DerivedData|Provisioned|build[^/]*)/|\.(iso|gcm|rvz|wia|wbfs|gcz|dylib|ipa|xcarchive|mobileprovision|p12|pem|key|gci|sav|raw|profraw|profdata)$' || true)
+  '(^|/)(ref|DerivedData|Provisioned|build[^/]*)/|\.(iso|gcm|ciso|rvz|wia|wbfs|gcz|dylib|ipa|xcarchive|mobileprovision|p12|pem|key|gci|sav|raw|profraw|profdata)$' || true)
 if [[ -n "$prohibited" ]]; then
   echo "prohibited tracked material:" >&2
   echo "$prohibited" >&2

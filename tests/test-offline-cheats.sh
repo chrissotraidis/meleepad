@@ -20,7 +20,7 @@ done
 grep -Fq 'boolForKey:@"MeleePadUnlockAllCharactersAndStages"' "$SETTINGS"
 grep -Fq '@"UnlockAllCharactersAndStages"' "$APP_DELEGATE"
 grep -Fq 'MeleePadUnlockAllCodeName = @"$All Characters and Stages"' "$HOST"
-grep -Fq 'stringByAppendingPathComponent:@"GALE01r0.ini"' "$HOST"
+grep -Fq 'revision == 2 ? @"GALE01r2.ini" : @"GALE01r0.ini"' "$HOST"
 grep -Fq '_allowOfflineCheats->store(false' "$HOST"
 grep -Fq 'MeleePadConfigureOfflineCheats(runtimeUserDirectory, NO' "$HOST"
 grep -Fq 'Config::SetBase(Config::MAIN_ENABLE_CHEATS, false)' "$HOST"

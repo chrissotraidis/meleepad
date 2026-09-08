@@ -1,0 +1,143 @@
+diff --git a/tools/moderngekko_launcher.cpp b/tools/moderngekko_launcher.cpp
+--- a/tools/moderngekko_launcher.cpp
++++ b/tools/moderngekko_launcher.cpp
+@@ -80,9 +80,22 @@
+   std::string device;
+ };
+ 
++static const char* MeleeRevisionLabel(const moderngekko::GameMetadata& metadata)
++{
++  if (metadata.disc_id != "GALE01") return nullptr;
++  if (metadata.dol_sha256 == "dc21504513424350bda17a7c65e82371b45112a5dfc1e9f2749a8b7ab0eff646")
++    return "USA v1.02 (recommended)";
++  if (metadata.dol_sha256 == "0f09e240e37586a996b2bcbc8904fb589cf2d7cfa79c916e33a7cf1c316a2448")
++    return "USA v1.00";
++  return "Unsupported Melee executable";
++}
++
+ std::string RequiredGameError(const moderngekko::GameMetadata& metadata)
+ {
+ #ifdef MODERNGEKKO_REQUIRED_DISC_ID
++  if (metadata.disc_id == "GALE01" &&
++      std::string(MeleeRevisionLabel(metadata)) == "Unsupported Melee executable")
++    return "Use a verified USA v1.02 (recommended) or v1.00 executable.";
+   if (metadata.disc_id != MODERNGEKKO_REQUIRED_DISC_ID)
+     return "expected disc ID " MODERNGEKKO_REQUIRED_DISC_ID ", found " + metadata.disc_id;
+ #endif
+@@ -473,7 +486,10 @@
+   const fs::path output = games_directory / "Game";
+ #else
+   const fs::path games_directory = user_directory / "games";
+-  const fs::path output = games_directory / disc_id;
++  const auto revision = volume->GetRevision(partition);
++  const std::string game_folder = disc_id == "GALE01" && revision && *revision != 0
++      ? disc_id + "-r" + std::to_string(*revision) : disc_id;
++  const fs::path output = games_directory / game_folder;
+ #endif
+   std::error_code ec;
+   if (fs::is_directory(output, ec))
+@@ -496,7 +512,7 @@
+     return true;
+   }
+ 
+-  const fs::path staging = games_directory / (disc_id + ".extracting");
++  const fs::path staging = games_directory / (output.filename().string() + ".extracting");
+   fs::remove_all(staging, ec);
+   fs::create_directories(staging / "files", ec);
+   if (ec)
+@@ -878,8 +894,33 @@
+     ImGui::TextUnformatted(MODERNGEKKO_FRONTEND_NAME);
+     ImGui::Separator();
+ 
++#ifdef MODERNGEKKO_REQUIRED_DISC_ID
++    if (std::string(MODERNGEKKO_REQUIRED_DISC_ID) == "GALE01") {
++      ImGui::TextWrapped("Melee USA v1.02 is recommended for new setups and future improvements. "
++                         "v1.00 keeps existing copies usable. Online peers need matching game "
++                         "versions and compatible builds. This does not enable Slippi.");
++      for (const auto& folder : {"GALE01-r2", "GALE01"}) {
++        const auto candidate = user_directory / "games" / folder;
++        const char* label = std::string(folder) == "GALE01-r2"
++            ? "Use USA v1.02 (recommended)" : "Use USA v1.00";
++        if (candidate != current_game && fs::is_regular_file(candidate / "sys" / "main.dol") &&
++            ImGui::Button(label)) {
++          // Hash/inspect only when selected, never during the rendering loop.
++          auto game = moderngekko::InspectGame(candidate);
++          std::string error = game ? RequiredGameError(*game.metadata) : game.error;
++          if (game && error.empty() &&
++              WriteDefaultGame(user_directory, release_directory, candidate, &error)) {
++            current_game = candidate;
++            current_metadata = std::move(game);
++          } else { std::lock_guard lock(dialog.mutex); dialog.error = error; }
++        }
++      }
++    }
++#endif
+     if (current_metadata)
+     {
++      if (const char* revision = MeleeRevisionLabel(*current_metadata.metadata))
++        ImGui::TextUnformatted(revision);
+       ImGui::Text("Ready: %s [%s]", current_metadata.metadata->game_name.c_str(),
+                   current_metadata.metadata->disc_id.c_str());
+       if (ImGui::Button("Play", ImVec2(180 * scale, 42 * scale)))
+@@ -1093,15 +1134,16 @@
+     if (selected_image)
+       ImGui::TextWrapped("%s", selected_image->string().c_str());
+     else
+-      ImGui::TextDisabled("No ISO, WBFS, or RVZ selected");
++      ImGui::TextDisabled("No disc image selected");
+ 
+     if (!extraction.running)
+     {
+-      if (ImGui::Button("Browse for ISO / WBFS / RVZ"))
++      if (ImGui::Button("Browse for Disc Image"))
+       {
+         static constexpr SDL_DialogFileFilter filters[] = {
+-            {"Disc images", "iso;wbfs;rvz"},
+-            {"ISO", "iso"},
++            {"Disc images", "iso;gcm;ciso;wbfs;rvz"},
++            {"ISO / GCM", "iso;gcm"},
++            {"CISO", "ciso"},
+             {"WBFS", "wbfs"},
+             {"RVZ", "rvz"}};
+         const std::string documents = DocumentsDirectory().string();
+diff --git a/tools/moderngekko_run.cpp b/tools/moderngekko_run.cpp
+--- a/tools/moderngekko_run.cpp
++++ b/tools/moderngekko_run.cpp
+@@ -305,15 +305,33 @@
+     else {
+       const std::string module_name =
+           "g" + inspected.metadata->disc_id + "_recomp" + LibrarySuffix();
++      // Prefer a module identified by executable hash so disc revisions with
++      // the same six-character game ID never select each other's native code.
++      const auto revision_module = executable_directory / "StaticRecompModules" /
++                                   inspected.metadata->dol_sha256 / module_name;
++      const auto user_revision_module = config.user_directory / "StaticRecompModules" /
++                                        inspected.metadata->dol_sha256 / module_name;
+       const auto bundled = executable_directory / module_name;
+-      const auto user_module =
+-          config.user_directory / "StaticRecompModules" / module_name;
+-      if (std::filesystem::is_regular_file(bundled))
++      const auto user_module = config.user_directory / "StaticRecompModules" / module_name;
++      const bool legacy_allowed = inspected.metadata->disc_id != "GALE01" ||
++          inspected.metadata->dol_sha256 ==
++              "0f09e240e37586a996b2bcbc8904fb589cf2d7cfa79c916e33a7cf1c316a2448";
++      if (std::filesystem::is_regular_file(revision_module))
++        module_path = revision_module;
++      else if (std::filesystem::is_regular_file(user_revision_module))
++        module_path = user_revision_module;
++      else if (legacy_allowed && std::filesystem::is_regular_file(bundled))
+         module_path = bundled;
+-      else if (std::filesystem::is_regular_file(user_module))
++      else if (legacy_allowed && std::filesystem::is_regular_file(user_module))
+         module_path = user_module;
+     }
+   }
++#ifdef MODERNGEKKO_REQUIRED_DISC_ID
++  if (module_path.empty() && inspected.metadata->disc_id == "GALE01") {
++    std::cerr << "This Melee version needs its matching locally built game module.\n";
++    return 2;
++  }
++#endif
+   if (!module_path.empty())
+     config.module =
+         moderngekko::ModuleSource::DynamicPath(std::move(module_path));

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AB0000000000000000000101 /* MeleePadRevisions.json in Resources */ = {isa = PBXBuildFile; fileRef = AB0000000000000000000201; };
 		AA0000000000000000000101 /* MeleePadAppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000201 /* MeleePadAppDelegate.mm */; };
 		AA0000000000000000000102 /* MeleePadGameViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000202 /* MeleePadGameViewController.mm */; };
 		AA0000000000000000000103 /* MeleePadGameOverlay.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000203 /* MeleePadGameOverlay.mm */; };
@@ -42,6 +43,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		AB0000000000000000000202 /* MeleePadRevision.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MeleePadRevision.h; sourceTree = "<group>"; };
+		AB0000000000000000000201 /* MeleePadRevisions.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = MeleePadRevisions.json; sourceTree = "<group>"; };
 		AA0000000000000000000201 /* MeleePadAppDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = MeleePadAppDelegate.mm; sourceTree = "<group>"; };
 		AA0000000000000000000202 /* MeleePadGameViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = MeleePadGameViewController.mm; sourceTree = "<group>"; };
 		AA0000000000000000000203 /* MeleePadGameOverlay.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = MeleePadGameOverlay.mm; sourceTree = "<group>"; };
@@ -163,6 +166,8 @@
 		AA0000000000000000000406 /* shared */ = {
 			isa = PBXGroup;
 			children = (
+				AB0000000000000000000201 /* MeleePadRevisions.json */,
+				AB0000000000000000000202 /* MeleePadRevision.h */,
 				AA0000000000000000000231 /* MeleePadDiagnostics.mm */,
 				AA0000000000000000000232 /* MeleePadDiagnostics.h */,
 				AA0000000000000000000236 /* MeleePadControllerMapping.mm */,
@@ -270,6 +275,7 @@
 				AA0000000000000000000114 /* dev-config.plist in Resources */,
 				AA0000000000000000000105 /* Assets.xcassets in Resources */,
 				AA0000000000000000000124 /* PrivacyInfo.xcprivacy in Resources */,
+				AB0000000000000000000101 /* MeleePadRevisions.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -362,7 +368,7 @@
 				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 8;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				HEADER_SEARCH_PATHS = (
@@ -422,7 +428,7 @@
 				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 8;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				HEADER_SEARCH_PATHS = (
