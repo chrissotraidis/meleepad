@@ -6,12 +6,12 @@ This is the short, ranked engineering queue behind the active goal loop. It is
 not a substitute for `GOAL-LOOP.md` or evidence in `docs/artifacts/`.
 
 Current work, native hardware profiling resumed: [v1.02 iPhone performance goal](IPHONE-102-PERFORMANCE-GOAL-LOOP.md).
-The owner accepted build 11 as the merged baseline; performance and physical
-netplay limitations below remain open.
+The owner requested merging the build-17 increment after physical gameplay.
+Sustained performance and physical netplay limitations remain open.
 
 ## Current performance investigation — private build 17
 
-Build 17 retains a modest host-loop optimization on the working branch:
+Build 17 adds a modest host-loop optimization:
 normal execution compiles out disabled diagnostic branches, while timing,
 lockstep, and diagnostic runs use the same fully instrumented loop. A physical
 25-second four-fighter comparison reduces loop self samples from 1,683 to
@@ -19,11 +19,17 @@ lockstep, and diagnostic runs use the same fully instrumented loop. A physical
 modules. This is a targeted improvement, not a precise FPS gain or a fix for
 sustained heavy-match slowdowns. Patch 0056 makes the change reproducible.
 
+The owner's latest gameplay logs confirm 41–45 FPS slowdown samples with
+serious thermal pressure and CPU-thread utilization of 86–93%. The owner finds
+it improved but still imperfect. Next logging work is frame-time p95/max,
+missed-frame counts and audio-underrun deltas at existing frame boundaries;
+avoid always-on per-dispatch timing. See the [owner-run assessment](artifacts/2026-09-08/build17-owner-gameplay.md).
+
 Neither tested math candidate is retained. Deferred floating-point classification
 substantially reduces isolated inverse-matrix time, but physical four-fighter
 comparisons do not establish a consistent whole-game improvement. Trig changes
 regressed; removing them and adding scalar matrix-add still failed the hardware
-retention gate. The original module is restored in private build 15.
+retention gate. The original module remains unchanged in private build 17.
 
 The physical four-fighter route now supports v1.02 using verified decompilation
 symbols and layouts. It reaches a fixed roster on Big Blue. Captures show strong
