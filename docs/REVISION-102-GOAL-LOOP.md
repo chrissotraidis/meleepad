@@ -249,3 +249,34 @@ controlled gameplay reproduction is still required. Private evidence:
 The new Quartz profile now follows MeleePad's existing packaged WASD/J/K layout
 instead of introducing Dolphin's different defaults. Existing custom profiles
 remain preserved; the focused generator regression test passes.
+
+
+## Controlled route and reproduced divergence (2026-09-08)
+
+The longer Simulator-host/macOS-guest run reached Classic character selection
+with touch input, selected Fox, and reached Stage Clear. Both visible peers
+showed the same 77,700 score, time bonus 27,800, damage 0, and bonus list. The
+battle itself occurred between screenshots; this is observed matching results,
+not continuous gameplay or two-player-input acceptance.
+
+Continuing from results reproduced the failure. There were 37 matching report
+comparisons before two divergent comparisons: sequence 416580 differed in
+timebase (+16731 ticks in the report), then 470460 differed in timebase, CPU
+state and sampled RAM (first differing RAM region at 0x80400000). The denser
+clock trace identifies the first paired clock difference at sequence 414720:
+Simulator cached/live 34108812678687225 versus macOS cached/live
+34108812678702669, a 15444-tick difference. Each peer's cached/live difference
+remained at most one tick across the run, ruling out a large cached-clock
+reporting offset for this reproduction. The prior matching boundary was
+414660, before the long results-screen gap. This needs an execution/scheduling
+investigation across that gap; comparison tolerances must not be widened.
+
+Pinned decomp symbols identify diagnostic live PC 0x8034738C as
+`OSRestoreInterrupts`, and the sampled caller boundary 0x800195D0 as
+`lb_800195D0`. The live PC is contextual, not the canonical comparison point.
+Source review confirms netplay syncs GPU timing settings and requests GPU
+determinism during BootManager initialization, but effective runtime settings
+and dispatch/fallback paths still need measurement. Both test peers were
+stopped after preserving evidence. Private files: `sim-match-stderr.log`,
+`cross-match-guest.log`, `cross-match-summary.json`, and
+`analyze-match-clocks.py`.
