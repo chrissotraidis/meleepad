@@ -1,6 +1,6 @@
 # Melee versions
 
-Development build 8 adds USA v1.02 as the preferred target while retaining
+Development build 9 includes USA v1.02 as the preferred target while retaining
 v1.00. The published Preview 3 remains a v1.00-only, module-free shell.
 See [the active acceptance ledger](REVISION-102-GOAL-LOOP.md) before making
 claims about the development build.
@@ -20,7 +20,11 @@ location; a new v1.02 save starts fresh rather than modifying the old save.
 Online peers must have matching game versions, compatible builds, game assets,
 modules and gameplay modifications. A room label is not the final check: the
 peer transport also verifies game/module/asset fingerprints. Development build
-8 uses a new transport compatibility prefix and rejects older peers.
+9 uses a new transport compatibility prefix and rejects older peers, including
+build 8. Netplay now uses interpreter fallback on desktop to match the iOS
+execution path; ordinary offline desktop fallback is unchanged. This addresses
+a measured cross-platform timing difference, but full-match online acceptance
+is still in progress.
 
 ## Supported images
 

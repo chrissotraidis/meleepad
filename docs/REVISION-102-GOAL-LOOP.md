@@ -297,3 +297,46 @@ production behavior. A private `cross-parity.py` harness is prepared with it,
 but the comparison has not run yet. The idle Simulator host was stopped.
 The next test should exercise the known results-to-next-stage transition with
 matched interpreter fallback before adding more diagnostics or claiming a fix.
+
+
+## Automatic fallback parity policy (2026-09-08)
+
+The diagnostic override run reached visible Fox-versus-Samus gameplay, Stage
+Clear, and the next team stage on Dream Land. Its 21,850 paired sampled boundary
+clocks matched exactly, with no divergent canonical reports observed. Both
+peers logged identical effective GPU/CPU scheduling settings. Opponent and
+stage selection differed from the failing run, so this is supporting evidence
+for fallback parity rather than a controlled proof that every desync is fixed.
+
+Build 9 now automatically selects interpreter fallback during netplay on
+desktop, matching iOS's existing execution contract. The normal offline desktop
+path remains unchanged. Native transport and iOS discovery both advance to
+compatibility prefix 10, preventing old builds from joining the changed policy.
+The existing dependency bootstrap passes; the new runtime patch passes a
+reverse/forward application round trip. Repository checks, Simulator app build,
+and macOS package checks pass. Private override evidence: `sim-parity-stderr.log`,
+`cross-parity-guest.log`, and `analyze-parity-clocks.py`.
+
+A fresh build-9 Simulator-host/macOS-guest run explicitly removes the diagnostic
+override and confirms both peers log `netplay fallback=interpreter`. It reaches
+actual Classic gameplay with touch movement and attack input. The bounded run ended with 23,318 paired timing samples and 80 canonical
+comparisons matching, with no divergent reports. Fox-versus-Link gameplay and
+a round restart were visible; the specific Stage Clear-to-next-stage route
+was not reproduced in this run and remains open. Both peers were stopped.
+Private evidence: `sim-policy-stderr.log`, `cross-policy-guest.log`, and
+`analyze-policy-clocks.py`.
+Sampling only covers the existing canonical boundaries and selected RAM; it
+is not a per-frame, full-memory proof. Physical gameplay, two-human-player
+input, audio, and sustained performance remain separate acceptance work.
+
+
+Build-9 device compilation also passes. The public packager correctly rejects
+the local app with its generated module; a separate module-free copy passes
+the archive audit. Private IPA SHA-256:
+`650dd0cb65f132b3b4f40d0c2feb8b3f166d788bc7a5a3dfbad5ae12a5c8333d`.
+Nothing was published or installed over the owner's physical app. The installed
+Revision QA app remains build 8 and cannot join build-9 peers.
+
+The rebuilt native mixed-revision test again rejects the v1.02 guest against
+a v1.00 host during compatibility validation (guest exit 12, before module
+load). The final repository check run passes.

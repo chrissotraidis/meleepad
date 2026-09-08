@@ -4,7 +4,7 @@
 
 #import <TargetConditionals.h>
 
-NSString *const MeleePadPublicLobbyProtocol = @"moderngekko-netplay-9";
+NSString *const MeleePadPublicLobbyProtocol = @"moderngekko-netplay-10";
 NSString *const MeleePadPublicLobbyProductID = @"meleepad";
 static const NSUInteger MeleePadMaximumLobbyResponseBytes = 64 * 1024;
 
