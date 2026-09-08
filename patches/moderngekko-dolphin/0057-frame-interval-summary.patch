@@ -1,0 +1,132 @@
+diff --git a/Source/Core/VideoCommon/FrameIntervalSummary.h b/Source/Core/VideoCommon/FrameIntervalSummary.h
+new file mode 100644
+--- /dev/null
++++ b/Source/Core/VideoCommon/FrameIntervalSummary.h
+@@ -0,0 +1,71 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++#pragma once
++
++#include <algorithm>
++#include <array>
++#include <cmath>
++#include <cstdint>
++#include <mutex>
++
++// Reuses existing frame timestamps; no clock reads or allocation per frame.
++// Percentiles use 1 ms buckets. The overflow bucket uses the observed maximum.
++class FrameIntervalSummary
++{
++public:
++  struct Snapshot
++  {
++    std::uint64_t frames = 0;
++    double average_ms = 0;
++    double p95_upper_ms = 0;
++    double maximum_ms = 0;
++    std::uint64_t over_20_ms = 0;
++    std::uint64_t over_33_ms = 0;
++    std::uint64_t over_50_ms = 0;
++  };
++
++  void Record(double milliseconds)
++  {
++    if (!std::isfinite(milliseconds) || milliseconds <= 0)
++      return;
++    const auto bucket = static_cast<std::size_t>(std::min(250.0, std::ceil(milliseconds)));
++    std::lock_guard lock(m_mutex);
++    ++m_bins[bucket];
++    ++m_snapshot.frames;
++    m_total_ms += milliseconds;
++    m_snapshot.maximum_ms = std::max(m_snapshot.maximum_ms, milliseconds);
++    m_snapshot.over_20_ms += milliseconds > 20.0;
++    m_snapshot.over_33_ms += milliseconds > 1000.0 / 30.0;
++    m_snapshot.over_50_ms += milliseconds > 50.0;
++  }
++
++  Snapshot Take()
++  {
++    std::lock_guard lock(m_mutex);
++    Snapshot result = m_snapshot;
++    if (result.frames)
++    {
++      result.average_ms = m_total_ms / result.frames;
++      const auto rank = result.frames - result.frames / 20; // ceil(0.95 * n)
++      std::uint64_t count = 0;
++      for (std::size_t i = 0; i < m_bins.size(); ++i)
++      {
++        count += m_bins[i];
++        if (count >= rank)
++        {
++          result.p95_upper_ms = i == 250 ? result.maximum_ms : static_cast<double>(i);
++          break;
++        }
++      }
++    }
++    m_snapshot = {};
++    m_total_ms = 0;
++    m_bins.fill(0);
++    return result;
++  }
++
++private:
++  std::mutex m_mutex;
++  Snapshot m_snapshot;
++  double m_total_ms = 0;
++  std::array<std::uint64_t, 251> m_bins{};
++};
+diff --git a/Source/Core/VideoCommon/PerformanceTracker.h b/Source/Core/VideoCommon/PerformanceTracker.h
+--- a/Source/Core/VideoCommon/PerformanceTracker.h
++++ b/Source/Core/VideoCommon/PerformanceTracker.h
+@@ -11,6 +11,7 @@
+ #include "Common/CommonTypes.h"
+ #include "Common/SPSCQueue.h"
+ #include "VideoCommon/LightweightFrameTimingRecorder.h"
++#include "VideoCommon/FrameIntervalSummary.h"
+ 
+ class PerformanceTracker
+ {
+@@ -41,8 +42,10 @@
+   DT GetDtStd() const;
+   DT GetLastRawDt() const;
+   void InvalidateLastTime();
++  FrameIntervalSummary::Snapshot TakeFrameIntervalSummary() { return m_frame_intervals.Take(); }
+ 
+ private:
++  FrameIntervalSummary m_frame_intervals;
+   void LogRenderTimeToFile(DT val);
+ 
+   void HandleRawDt(DT value);
+diff --git a/Source/Core/VideoCommon/PerformanceTracker.cpp b/Source/Core/VideoCommon/PerformanceTracker.cpp
+--- a/Source/Core/VideoCommon/PerformanceTracker.cpp
++++ b/Source/Core/VideoCommon/PerformanceTracker.cpp
+@@ -37,6 +37,7 @@
+ 
+ void PerformanceTracker::Reset()
+ {
++  m_frame_intervals.Take();
+   m_raw_dts.Clear();
+   m_dt_queue.clear();
+ 
+@@ -66,6 +67,8 @@
+     m_lightweight_frame_timing->Record(current_time,
+                                        Common::FramePhaseTiming::GetEmulatedFrameIndex());
+ 
++  if (m_log_name == "render_times.txt")
++    m_frame_intervals.Record(DT_ms(diff).count());
+   m_last_raw_dt = diff;
+   m_raw_dts.Push(diff);
+ }
+diff --git a/Source/Core/VideoCommon/PerformanceMetrics.h b/Source/Core/VideoCommon/PerformanceMetrics.h
+--- a/Source/Core/VideoCommon/PerformanceMetrics.h
++++ b/Source/Core/VideoCommon/PerformanceMetrics.h
+@@ -38,6 +38,10 @@
+ 
+   // Getter Functions. May be called from any thread.
+   double GetFPS() const;
++  FrameIntervalSummary::Snapshot TakeFrameIntervalSummary()
++  {
++    return m_fps_counter.TakeFrameIntervalSummary();
++  }
+   double GetVPS() const;
+   double GetSpeed() const;
+   double GetMaxSpeed() const;

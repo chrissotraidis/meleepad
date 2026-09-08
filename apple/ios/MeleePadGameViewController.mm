@@ -584,7 +584,8 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
                       topThreads];
             NSString *graphics = [[_coreHost diagnosticSummary]
                 stringByReplacingOccurrencesOfString:@"\n" withString:@" "];
-            MeleePadLog(@"performance %@ %@", _lastPerformanceSummary, graphics);
+            MeleePadLog(@"performance %@ %@ %@", _lastPerformanceSummary,
+                        [_coreHost takeGameplayTimingSummary], graphics);
         }
     } else if (_coreHost != nil && !_bootStatusLabel.hidden &&
                _bootActivityIndicator.isAnimating) {

@@ -5,7 +5,10 @@ ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 RUN="$ROOT/ref/ModernGekko/vendor/dolphin/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp"
 
 for contract in \
-  'const bool lockstep_enabled = m_lockstep_verifier->IsEnabled();' \
+  'const bool lockstep_enabled = Diagnostics && m_lockstep_verifier->IsEnabled();' \
+  'RunWithDiagnostics<true>();' \
+  'RunWithDiagnostics<false>();' \
+  'const bool diagnostics = Common::FramePhaseTiming::IsEnabled() ||' \
   'STATICRECOMP_DISPATCH_SAMPLE' \
   'STATICRECOMP_FREEZE_TRACE' \
   'const bool has_rel_modules = m_module && m_module->num_rel_modules != 0;' \
