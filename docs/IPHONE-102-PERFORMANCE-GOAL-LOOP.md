@@ -149,3 +149,49 @@ math timing alone cannot qualify it for a claimed device improvement.
 The final CSVs were copied before restarting the regular app without capture
 environment variables. The unflushed trailing dispatch buffer is deliberately
 not part of the evidence. No new optimization has been installed.
+
+## Matrix-code preflight: deferred result classification
+
+The first code experiment now exists privately and has been executed. It is
+not installed on the iPhone or enabled in the accepted main build.
+
+- Adding a restricted context pointer produced identical ARM64 instruction
+  text in all three screened hot chunks. Rejected without a device build.
+- A guarded direct-RAM version of the inverse-transpose region preserved
+  20,000 CPU-state/RAM comparisons, but improved local time only about 1–3%.
+- Inlining the unchanged FP helpers and hoisting FP-availability checks under
+  a validated no-callback entry improved that local result to roughly 7–11%.
+  This remained too small for a device candidate.
+- Deferring the overwritten FPSCR result-classification field (FPRF) until
+  each exit improved the same local region by **34–38%** in the initial run.
+  An expanded run passed **100,000 adversarial entry comparisons** and
+  measured 37.3–38.6% across seven alternating local timing pairs.
+
+The final expanded run compares complete CPUState (normalizing only the RAM
+pointer) and 64 KiB of RAM after each tested entry. Inputs include matrix
+aliases, signed zero, NaNs, infinities, subnormals, raw float bit patterns,
+FP-disabled entry, reservation state, and boundary/MMIO addresses that must
+fall back. These are Mac-host comparisons against the extracted existing
+generated region, not an iPhone test or proof of a whole connected path.
+
+The mechanism preserves arithmetic and exception-helper code. Within the
+validated RAM-only region, no memory callback or journal can observe an
+intermediate FPRF value; arithmetic helpers read other FPSCR fields, not that
+classification field. Record the most recent successful FP result, then
+compute/commit its classification before every region exit. Keep exception
+flags, rounding, registers, memory writes and cycle charges unchanged. The
+fast entry rejects FP-disabled state, reservations, an active write journal
+and memory ranges outside the checked matrices/stack/constants.
+
+This is a **mechanism preflight**, not a decision to ship another isolated
+leaf. The inverse-transpose entry represented only about 4.3% of sampled
+dispatch time, and that share is inclusive. Its local gain cannot establish a
+substantial whole-game improvement. The next step is to extend and measure
+the mechanism across the connected joint-transform math path, including its
+trigonometric work, while preserving observation and exit boundaries.
+
+Private source snapshots, executable, exact logs and SHA-256 manifest are in
+`ref/revision-102/performance-loop/alias-preflight/`. The successful artifact
+is `inverse-deferred.c` with `deferred-float.c`; the expanded test result is
+`test-inverse-deferred-edge.log`. The goal remains incomplete until a useful
+connected-path implementation passes physical-iPhone validation.
