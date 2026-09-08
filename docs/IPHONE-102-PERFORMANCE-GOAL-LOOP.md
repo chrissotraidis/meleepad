@@ -21,8 +21,10 @@ The older v1.00 investigations remain in [the previous iPhone ledger](IPHONE-PER
   testing remain the acceptance evidence; no replacement IPA was published.
 - [Latest evidence](artifacts/2026-09-08/iphone-heavy-scene-performance.md):
   verified v1.02 on iPhone build 11, 1×/4:3, samples at 9.9 then 34–43 FPS.
-- New goal is active. Current step: obtain useful attribution with the existing
-  profiler and inspect one connected function family for specialization.
+- Current step: physical build 12 is installed and running with profiling.
+  Initial CSV retrieval confirms 2,310 complete frame rows and 32,768 timed
+  dispatch rows; these initial records do not yet include a heavy scene.
+  Wait for the short gameplay reproduction before selecting an optimization.
 
 ## Loop
 
@@ -95,3 +97,10 @@ composed path; do not add another generic profiler.
   It is not installed or published. The device still has accepted build 11.
   Diagnostics/privacy tests and dispatch-time analyzer tests pass. Next step
   is the short physical heavy-scene capture, then one selected optimization.
+
+- Execution correction: the previous handoff ended without running the next
+  step. Build 12 has now actually been installed in the regular iPhone app
+  container and launched with capture enabled. Runtime log confirms build 12,
+  verified revision 2, and profiler activation. Both CSVs were retrieved and
+  parsed successfully. Installation preserves game data. Heavy-scene
+  reproduction is pending; initial menu samples are not optimization evidence.
