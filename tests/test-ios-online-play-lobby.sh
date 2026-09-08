@@ -46,7 +46,7 @@ done
 
 for contract in \
   '@"Online Play"' \
-  '@"Play Melee Together"' \
+  '@"READY TO PLAY?"' \
   '@"MELEE ONLINE  ·  2–4 PLAYERS"' \
   '@"How does Online Play work?"' \
   '@"Your player name"' \

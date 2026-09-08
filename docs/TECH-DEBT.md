@@ -72,6 +72,28 @@ is a measured speed fix. Next physical acceptance must identify the regular
 app, build, game version, actual ISO boot, and gameplay scene before comparing
 performance or diagnosing network delay.
 
+## Build 11 — touch follow-up and resolution observation
+
+The owner reports substantially better iPhone gameplay with regular build 10
+and verified v1.02 ISO boot, with some later slowdowns. This is hands-on
+feedback, not a controlled performance comparison. The earlier regular app
+was build 7, so the observation cannot isolate revision, retained ISO, or a
+single runtime change as its cause.
+
+Resolution changes are taking effect: the physical log at 07:44:07 UTC reports
+EFB 2560x2112 and renderScale=4; after return to 1x it reports 640x528. This
+disproves a general claim that the setting does nothing internally. Visible
+quality and the reported slowdown still need scene-specific interpretation;
+textures and 2D artwork do not gain detail merely from higher EFB resolution.
+
+Build 11 adapts KartPad's floating main stick: each touch sets a new center in
+the pickup zone, artwork disappears on release, and cancellation/resize resets
+input. Fixed C-stick remains unchanged. Layout editing exposes the resting
+position. D-pad defaults hidden, with Controls → Show D-Pad to restore it.
+Online Play receives a visual refresh without changing connection behavior.
+Physical touch feel and multiplayer layout inspection are owner acceptance
+items for the installed iPhone build; no Simulator netplay is requested.
+
 ## Preview 1 accepted debt — physical-iPad thermal slowdown
 
 Preview 1 is complete with this issue explicitly accepted as technical debt,

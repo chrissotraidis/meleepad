@@ -42,7 +42,7 @@ universal performance guarantee.*
 | | What to expect |
 |---|---|
 | **Platforms** | iPhone, iPad, and Apple Silicon Mac |
-| **Game input** | Development build 10: verified USA v1.02 recommended, v1.00 retained; published Preview 3: v1.00 only |
+| **Game input** | Development build 11: verified USA v1.02 recommended, v1.00 retained; published Preview 3: v1.00 only |
 | **Distribution** | Source plus an unsigned, non-playable IPA shell; playable builds are generated and signed locally |
 | **Controls** | Touch, supported physical controllers, and keyboard on Mac |
 | **Online play** | Experimental MeleePad-to-MeleePad private rooms and Direct IP, with temporary peer chat in Preview 3; not yet a public beta |
@@ -50,7 +50,7 @@ universal performance guarantee.*
 
 ## Preferred v1.02 development work
 
-Development build 10 supports USA v1.02 as the preferred revision while
+Development build 11 supports USA v1.02 as the preferred revision while
 preserving v1.00 and its existing data. New setups should use v1.02; existing
 v1.00 setups are not silently switched. This is separate from the published Preview 3 described
 above. See [version choices and build instructions](docs/MELEE-VERSIONS.md)
@@ -152,7 +152,7 @@ needs ordinary Apple development signing, just like other apps run from Xcode.
 
 Static recompilation depends on the executable's exact instructions, addresses,
 and data. Even legitimate regional or revision releases differ at those
-locations. Development build 10 supports verified USA v1.02 (disc revision 2),
+locations. Development build 11 supports verified USA v1.02 (disc revision 2),
 recommended for new setups, and USA v1.00 (disc revision 0). Each needs its own
 matching native module. Imports and saves remain separate.
 
@@ -394,7 +394,7 @@ No. Slippi is not a service that MeleePad can simply turn on. It combines a
 extensive injected game code, a customized Dolphin
 runtime, rollback networking, accounts, and private matchmaking services.
 
-MeleePad supports v1.02 and v1.00 in development build 10 and uses its own
+MeleePad supports v1.02 and v1.00 in development build 11 and uses its own
 fixed-delay protocol. Sharing the v1.02 target does not make it Slippi-compatible.
 Slippi supports Melee v1.02 and expects Slippi's game modifications and network
 protocol. The two systems are not compatible, so MeleePad users cannot join the
@@ -588,7 +588,8 @@ physical-controller profiles are preserved.
 1. Arrange a game with another MeleePad player outside the app.
 2. Confirm that both players use the same build, the exact supported `GALE01`
    game revision, modules, and matching gameplay settings. Both peers must use
-   build 10 for its new execution policy; build 10 rejects older peers. For the
+   build 11 for current development testing; the protocol rejects build 8 and
+   earlier. For the
    published Preview 3, use build 7 and v1.00 on both devices.
 3. The host opens **More (•••) → Online Play → Private Room → Host**.
 4. After the app displays an eight-character room code, the host sends it to

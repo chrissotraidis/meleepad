@@ -409,3 +409,21 @@ current game and build above all three connection choices and explicitly
 explains v1.00/v1.02 incompatibility. Device build, signature verification, and
 repository checks pass. Physical menu inspection is requested from the owner;
 full gameplay and hardware netplay acceptance remain open.
+
+
+## Build 11 — owner-requested floating touch controls
+
+Adapted KartPad's main-stick pickup zone and touch-relative anchor. Artwork is
+hidden without a touch; release, cancellation, and resize reset the stick.
+D-pad defaults hidden on iPhone/iPad, with Controls → Show D-Pad to restore it.
+Layout editing retains visible resting controls. Existing physical-controller
+mapping, C-stick behavior, saved game data, and display preferences are retained.
+Online Play receives a violet/teal hero and a distinct local-version card.
+
+The owner's physical feedback reports a substantial improvement with build 10
+and remaining slowdowns. The live log proves that render scale changes the EFB:
+4x = 2560x2112, 1x = 640x528. Menu choices now name these target dimensions.
+No new rendering optimization is claimed. Device compilation, strict bundle
+signature verification, and repository checks pass. Build 11 was installed over
+the regular iPhone app for the owner's touch-feel test; iPad remains build 10.
+QuickTime was closed at the owner's request and no new recording was started.
