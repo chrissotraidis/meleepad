@@ -5,6 +5,10 @@ Last updated: 2026-09-08
 This is the short, ranked engineering queue behind the active goal loop. It is
 not a substitute for `GOAL-LOOP.md` or evidence in `docs/artifacts/`.
 
+Current active work: [v1.02 iPhone performance goal](IPHONE-102-PERFORMANCE-GOAL-LOOP.md).
+The owner accepted build 11 as the merged baseline; performance and physical
+netplay limitations below remain open.
+
 ## Build 9 handoff — v1.02, performance, and hardware netplay
 
 USA v1.02 is now preferred for new development setups; v1.00 remains supported

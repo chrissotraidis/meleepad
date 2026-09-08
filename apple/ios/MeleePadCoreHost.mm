@@ -379,6 +379,19 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
               userDirectory:(NSString *)userDirectory {
     std::string errorMessage;
     @autoreleasepool {
+        // Developer launch option: reuse the existing profiler without enabling
+        // per-frame tracing in ordinary builds or adding another settings page.
+        if ([NSProcessInfo.processInfo.environment[@"MELEEPAD_PERFORMANCE_CAPTURE"]
+                isEqualToString:@"1"]) {
+            NSString *logs = MeleePadDiagnosticsLogPath().stringByDeletingLastPathComponent;
+            NSString *phasePath = [logs stringByAppendingPathComponent:@"performance-phase.csv"];
+            NSString *dispatchPath = [logs stringByAppendingPathComponent:@"performance-dispatch.csv"];
+            setenv("MELEEPAD_FRAME_PHASE_LOG", phasePath.fileSystemRepresentation, 1);
+            setenv("STATICRECOMP_DISPATCH_TIME_LOG", dispatchPath.fileSystemRepresentation, 1);
+            // A prime interval reduces alignment with repeating dispatch paths.
+            setenv("STATICRECOMP_DISPATCH_SAMPLE_INTERVAL", "4093", 1);
+            MeleePadLog(@"performance capture enabled interval=4093 files=performance-phase.csv,performance-dispatch.csv; diagnostic timing includes observer overhead");
+        }
         NSString *runtimeUserDirectory = MeleePadRuntimeUserDirectory(userDirectory);
         const BOOL offlineCheatsAllowed =
             _allowOfflineCheats->load(std::memory_order_acquire);
