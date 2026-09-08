@@ -379,3 +379,7 @@ device was locked. Unlock and launch remain pending there. Launching alone
 is not gameplay acceptance. Existing production apps and their data
 were not replaced. Hands-on room creation, joining, two-player control, match
 results, and rematch are pending the owner's physical interaction.
+
+The subsequent iPhone launch succeeded after unlock. Its retrieved runtime log
+confirms version 0.1.0/build 9 and runtime-thread startup with a module present.
+This closes the launch blocker, not physical gameplay/netplay acceptance.
