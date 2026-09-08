@@ -19,19 +19,10 @@ writes. It has not replaced generated game code with an optimized native source
 port. Decompilation completion does not itself change the runtime's GPU, memory,
 CPU dispatch, or thermal costs.
 
-Next performance hypotheses, in order:
-
-1. Use the pinned symbols to name the hottest guest functions in one repeatable
-   physical-device heavy scene. Measure dispatch/fallback cost before choosing
-   a function for specialization; do not replace broad sections speculatively.
-2. Revisit known video-thread/Metal and reflection costs alongside CPU timing.
-   Source-level game changes will not cure a renderer-bound frame by themselves.
-3. Re-run the existing pause/resume thermal reproduction with frame-time tails
-   and audio underruns. Compare the same device, revision, scene, and settings.
-
-These are hypotheses, not measured wins. Stop after one bounded baseline and
-one justified candidate; carry inconclusive results forward instead of spending
-another session on open-ended synchronization traces.
+The current performance investigation and ranked candidates are recorded in
+[the build-11 physical-iPhone report](artifacts/2026-09-08/iphone-heavy-scene-performance.md).
+It supersedes the earlier generic hypothesis list: one short scene attribution,
+one justified implementation candidate, then stop if inconclusive.
 
 Netplay build 9 aligns desktop fallback execution with iOS and rejects older
 protocol peers. Bounded Mac–Simulator timing/state and mixed-revision rejection
@@ -93,6 +84,26 @@ position. D-pad defaults hidden, with Controls → Show D-Pad to restore it.
 Online Play receives a visual refresh without changing connection behavior.
 Physical touch feel and multiplayer layout inspection are owner acceptance
 items for the installed iPhone build; no Simulator netplay is requested.
+
+## Build 11 — confirmed heavy-scene iPhone slowdown
+
+The latest regular-iPhone log confirms verified v1.02, build 11. At 1× / 4:3,
+the 08:01:26 UTC sample reports 9.9 FPS; the next three report 34.2, 37.8 and
+43.2 FPS. Audio underruns rise from 43 to 368. CPU-thread utilization reaches
+97.7–99.2% while video-thread CPU reaches 70.6–73.7%. Serious thermal state
+persists throughout the run, including earlier 60 FPS samples. Later 60 FPS
+samples may be in-game pause, so do not call them proven gameplay recovery.
+
+No new speedup was implemented in this research pass. The ranked candidates
+are connected animation/collision specialization with live native state,
+precompiled common iOS vertex decoders, and shader warm-up/fallback work.
+Individual matrix kernels were already investigated and their projected gain
+was too small; do not repeat that work. New shader creation overlaps the worst
+sample, but its time cost is unknown. Existing async shader/cache settings are
+already enabled. See the [evidence and bounded implementation gate](artifacts/2026-09-08/iphone-heavy-scene-performance.md).
+
+Do not advertise consistently smooth iPhone gameplay. Preserve experimental
+online status until a physical iPad–iPhone match passes separately.
 
 ## Preview 1 accepted debt — physical-iPad thermal slowdown
 
