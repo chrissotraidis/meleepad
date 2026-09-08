@@ -21,10 +21,9 @@ The older v1.00 investigations remain in [the previous iPhone ledger](IPHONE-PER
   testing remain the acceptance evidence; no replacement IPA was published.
 - [Latest evidence](artifacts/2026-09-08/iphone-heavy-scene-performance.md):
   verified v1.02 on iPhone build 11, 1×/4:3, samples at 9.9 then 34–43 FPS.
-- Current step: physical build 12 is installed and running with profiling.
-  Initial CSV retrieval confirms 2,310 complete frame rows and 32,768 timed
-  dispatch rows; these initial records do not yet include a heavy scene.
-  Wait for the short gameplay reproduction before selecting an optimization.
+- Current step: heavy-scene capture is complete and the iPhone has been
+  relaunched normally with profiling off. The selected optimization lane is
+  composed matrix processing; see the measured attribution below.
 
 ## Loop
 
@@ -104,3 +103,49 @@ composed path; do not add another generic profiler.
   verified revision 2, and profiler activation. Both CSVs were retrieved and
   parsed successfully. Installation preserves game data. Heavy-scene
   reproduction is pending; initial menu samples are not optimization evidence.
+
+## First completed v1.02 physical capture
+
+The previous execution turn made concrete progress by installing and running
+build 12. This continuation retrieved heavy-frame data, checked complete
+window coverage, and symbolized PCs against the hash-verified v1.02 DOL.
+
+| Emulated frames | Rows | Mean frame | CPU-thread mean | Metal pipeline creation/frame | Timed dispatch samples |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 7000–7599 | 600 | 21.333 ms | 20.273 ms | 0.0035 ms | 24,991 |
+| 8800–9399 | 600 | 24.548 ms | 23.586 ms | 0.021 ms | 21,227 |
+
+Both windows are inside the flushed dispatch trace. An initial live copy
+ended at frame 9023 and therefore could not support the entire second window;
+that incomplete analysis was replaced with the final capture. Raw logs and
+hashes remain private under `ref/revision-102/performance-loop/`.
+
+The logged settings are 1× / original 4:3, with serious thermal state during
+the slowdown. These are instrumented observations, not an uninstrumented
+performance baseline. Stage/fighter identity has not been independently
+confirmed; heavy graphics and CPU slowdown are observed directly.
+
+Across these two windows, the leading named entries by mean sampled dispatch
+time are PSMTXConcat (6.09%), GXLoadPosMtxImm (5.83%),
+HSD_MtxInverseTranspose (4.30%), GXLoadNrmMtxImm (3.41%), sinf (3.25%) and
+cosf (3.00%). HSD_MtxScaledAdd contributes 1.79%. These are percentages of
+corrected sampled dispatch time, not exclusive leaf time or whole-frame
+savings. Estimated dispatch coverage is only 79.2% / 68.9% of CPU-thread time.
+
+Decision: postpone shader warm-up and vertex-loader changes as the first
+experiment. CPU-thread cost nearly fills the observed frame budget, and
+recorded pipeline-creation cost is small in these sustained intervals. This
+does not measure all GPU work or explain every first-use hitch.
+
+The next code experiment should cover a connected matrix path, not repeat the
+rejected standalone GX leaf. The pinned `SetupEnvelopeModelMtx` implementation
+(`src/sysdolphin/baselib/pobj.c:1125`) provides one concrete composition of
+joint preparation, concat, weighted accumulation, inverse-transpose and GX
+upload. Source structure makes this a candidate, not proof that all sampled
+matrix calls originate there. Any private preflight must preserve intermediate
+guest state/memory, cycle exits, FP rounding and code-validity guards; local
+math timing alone cannot qualify it for a claimed device improvement.
+
+The final CSVs were copied before restarting the regular app without capture
+environment variables. The unflushed trailing dispatch buffer is deliberately
+not part of the evidence. No new optimization has been installed.
