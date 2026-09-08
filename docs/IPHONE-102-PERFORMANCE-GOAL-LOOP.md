@@ -409,3 +409,19 @@ Xcode is 26.6 (17F113), device OS 26.6.1. These facts establish a profiler
 connection failure, not its root cause or a confirmed Xcode incompatibility.
 Do not repeat warm match comparisons as a substitute for native attribution.
 Private errors and device-state receipts are under `scalar-candidate/`.
+
+
+### Profiler connection diagnosis: physical reconnect requested
+
+The Instruments GUI opens but its device picker lists only the Mac and
+Additional Simulators, not either attached physical device. No recording was
+started. Scoped Instruments/DTServiceHub logs report `kAMDNotConnectedError`
+(0xe800000b), failure to start the device session, and an explicit instruction
+to reconnect the device. CoreDevice discovery and app installation still work;
+that does not imply the Instruments connection is healthy.
+
+The owner has been asked to unlock and physically reconnect the iPhone's USB
+cable. This is now the concrete external step for native profiling, not a claim
+that Xcode must be upgraded. The baseline-module build 15 remains installed and
+stopped. Native profiling is the current gate; neither experimental math module
+is retained, and the full performance goal is not achieved.

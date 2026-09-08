@@ -27,7 +27,9 @@ Next gate is native CPU attribution, not more warm match repetitions. The CLI
 CPU Profiler cannot attach by PID or app name although CoreDevice sees the app,
 Developer Mode/DDI are available, and the debugging entitlement is enabled.
 Xcode 26.6 versus device OS 26.6.1 does not itself prove incompatibility; the
-profiler connection failure needs diagnosis. See the [full evidence and current
+GUI also omits the physical device; Instruments logs `kAMDNotConnectedError`
+and requests reconnecting it. The owner has been asked to unlock/reconnect the
+iPhone USB cable. See the [full evidence and current
 device state](IPHONE-102-PERFORMANCE-GOAL-LOOP.md). No experimental module has
 been merged or published, and substantial performance improvement remains open.
 
