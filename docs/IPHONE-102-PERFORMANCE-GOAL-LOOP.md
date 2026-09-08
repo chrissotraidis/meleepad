@@ -303,3 +303,30 @@ the stage selector accepted forced stage 0x13 (Big Blue). Both seed boundary
 writes succeeded. This removes the immediate need for owner-operated setup;
 the physical comparison can proceed autonomously. Whole-frame improvement
 remains unverified until both runs are captured and compared.
+
+
+### First fixed four-player pair: inconclusive under thermal pressure
+
+Both builds reached the checked 10040506 roster and Big Blue. Build 14 uses
+the candidate module; build 15 uses the original module. Both use the same
+app executable before its signature blob, original 4:3, 1x rendering, and
+identical profiling flags. Complete phase and dispatch windows were saved
+privately with hashes. Both runs report serious thermal state.
+
+| Emulated frames | Candidate CPU ms | Control CPU ms | Candidate FPS | Control FPS |
+| --- | ---: | ---: | ---: | ---: |
+| 3000–3599 | 17.048 | 15.671 | 54.49 | 58.05 |
+| 4200–4799 | 19.786 | 16.970 | 48.39 | 55.74 |
+| 5400–5999 | 20.919 | 26.618 | 45.83 | 36.05 |
+
+FPS here is 1000 divided by mean recorded frame time. Candidate draw counts
+are +5.64%, +2.67%, and -1.37%; primitives are +1.93%, +1.59%, and -3.83%.
+This is not equal-work evidence or a consistent improvement. Thermal pressure
+also changes within the broad serious category. Do not retain the candidate
+from this pair or claim the heavy-scene slowdown is fixed.
+
+The original module is currently installed in private build 15. The benchmark
+process was terminated after capture, leaving the phone idle to cool. A cooled
+comparison is warranted by the unresolved thermal/workload confounds; repeated
+warm runs are not. Private analysis: `route-comparison1.json`, `compare-route.py`,
+and both route directories' `capture1-sha256.json` files.

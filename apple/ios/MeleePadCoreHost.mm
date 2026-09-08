@@ -823,7 +823,7 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
 - (BOOL)setBenchmarkForcedStage:(u8)stageId previousValue:(u8 *)previousValue {
     if (_gameRevision != 0 && _gameRevision != 2) return NO;
     // Resolve mnStageSel's active SSSData pointer for the verified revision.
-    // Callers additionally gate this write on Training mode's stage-select
+    // Callers additionally gate this write on the route's stage-select
     // scene. Validate the pointed-to structure before changing its one signed
     // force_stage_id byte; unexpected revisions and layouts fail closed.
     const u32 kStageSelectDataPointerAddress = _gameRevision == 2
