@@ -1,3 +1,4 @@
+#import "MeleePadRevision.h"
 #import "MeleePadGameOverlay.h"
 
 #import "MeleePadDiagnostics.h"
@@ -183,6 +184,128 @@
     [self reset];
 }
 
+@end
+
+// Floating touch behavior adapted from KartPadFloatingStick.h.
+@interface MeleePadFloatingStickView : MeleePadStickView
+@property(nonatomic, assign) BOOL floatingEnabled;
+- (void)refreshPresentation;
+@end
+
+@implementation MeleePadFloatingStickView {
+  NSArray<UIView *> *_fixedArtwork;
+  UIView *_disc;
+  UIView *_thumb;
+  UIColor *_baseColor;
+  UITouch *_ownedTouch;
+  CGPoint _anchor;
+  CGPoint _axis;
+}
+@synthesize floatingEnabled = _floatingEnabled;
+
+- (instancetype)initWithFrame:(CGRect)frame {
+  if ((self = [super initWithFrame:frame])) {
+    _fixedArtwork = self.subviews.copy;
+    _floatingEnabled = YES;
+    _disc = [UIView new];
+    _disc.userInteractionEnabled = NO;
+    _disc.layer.borderWidth = 2.0;
+    _disc.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.68].CGColor;
+    _thumb = [UIView new];
+    [_disc addSubview:_thumb];
+    [self addSubview:_disc];
+    [self refreshPresentation];
+  }
+  return self;
+}
+
+- (void)applyBaseColor:(UIColor *)baseColor thumbColor:(UIColor *)thumbColor {
+  [super applyBaseColor:baseColor thumbColor:thumbColor];
+  _baseColor = baseColor;
+  _disc.backgroundColor = baseColor;
+  _thumb.backgroundColor = thumbColor;
+  [self refreshPresentation];
+}
+
+- (void)setFloatingEnabled:(BOOL)enabled {
+  if (_floatingEnabled != enabled) [self reset];
+  _floatingEnabled = enabled;
+  [self refreshPresentation];
+}
+
+- (BOOL)active { return _floatingEnabled ? (_ownedTouch != nil || super.active) : super.active; }
+
+- (void)refreshPresentation {
+  self.backgroundColor = _floatingEnabled ? UIColor.clearColor : _baseColor;
+  if (_floatingEnabled) self.layer.borderWidth = 0;
+  for (UIView *artwork in _fixedArtwork) artwork.hidden = _floatingEnabled;
+  _disc.hidden = !_floatingEnabled || _ownedTouch == nil;
+  CGFloat side = MIN(self.bounds.size.width, self.bounds.size.height);
+  _disc.bounds = CGRectMake(0, 0, side, side);
+  _disc.center = _anchor;
+  _disc.layer.cornerRadius = side * 0.5;
+  CGFloat thumb = side * 0.42;
+  _thumb.bounds = CGRectMake(0, 0, thumb, thumb);
+  _thumb.layer.cornerRadius = thumb * 0.5;
+  CGFloat travel = MAX(0, (side - thumb) * 0.5 - 4);
+  _thumb.center = CGPointMake(side * 0.5 + _axis.x * travel,
+                              side * 0.5 - _axis.y * travel);
+}
+
+- (void)layoutSubviews {
+  [super layoutSubviews];
+  // Rotation/resizing must not carry an old steering value into a new surface.
+  if (_ownedTouch != nil) [self reset];
+  [self refreshPresentation];
+}
+
+- (BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event {
+  if (!_floatingEnabled) return [super pointInside:point withEvent:event];
+  // A generous pickup zone around the editable resting position. Buttons
+  // above this view keep normal hit-test priority; an owned touch stays owned.
+  return CGRectContainsPoint(CGRectInset(self.bounds,
+      -self.bounds.size.width * 0.65, -self.bounds.size.height * 0.45), point);
+}
+
+- (void)reset {
+  _ownedTouch = nil;
+  _axis = CGPointZero;
+  [super reset];
+  [self refreshPresentation];
+}
+
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+  if (!_floatingEnabled) { [super touchesBegan:touches withEvent:event]; return; }
+  if (_ownedTouch != nil) return;
+  _ownedTouch = touches.anyObject;
+  _anchor = [_ownedTouch locationInView:self];
+  _axis = CGPointZero;
+  if (self.valueChanged) self.valueChanged(0, 0);
+  [self refreshPresentation];
+}
+
+- (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+  if (!_floatingEnabled) { [super touchesMoved:touches withEvent:event]; return; }
+  if (_ownedTouch == nil || ![touches containsObject:_ownedTouch]) return;
+  CGPoint point = [_ownedTouch locationInView:self];
+  CGFloat radius = MAX(1, MIN(self.bounds.size.width, self.bounds.size.height) * 0.5);
+  CGFloat x = (point.x - _anchor.x) / radius;
+  CGFloat y = (_anchor.y - point.y) / radius;
+  CGFloat length = MAX(1, hypot(x, y));
+  _axis = CGPointMake(x / length, y / length);
+  if (self.valueChanged) self.valueChanged(_axis.x, _axis.y);
+  [self refreshPresentation];
+}
+
+- (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+  if (!_floatingEnabled) { [super touchesEnded:touches withEvent:event]; return; }
+  if (_ownedTouch != nil && [touches containsObject:_ownedTouch]) [self reset];
+}
+
+- (void)touchesCancelled:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+  if (!_floatingEnabled) { [super touchesCancelled:touches withEvent:event]; return; }
+  if (_ownedTouch != nil && [touches containsObject:_ownedTouch]) [self reset];
+}
 @end
 
 @interface MeleePadGameButton : UIButton
@@ -513,10 +636,10 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
     MeleePadSettings *settings = [MeleePadSettings sharedSettings];
 
     UIMenu *renderMenu = [UIMenu menuWithTitle:@"Render Resolution" children:@[
-        [self renderAction:@"1× (Native)" scale:1],
-        [self renderAction:@"2×" scale:2],
-        [self renderAction:@"3×" scale:3],
-        [self renderAction:@"4×" scale:4],
+        [self renderAction:@"1× · 640×528 (Native)" scale:1],
+        [self renderAction:@"2× · 1280×1056" scale:2],
+        [self renderAction:@"3× · 1920×1584" scale:3],
+        [self renderAction:@"4× · 2560×2112" scale:4],
     ]];
 
     UIMenu *aspectMenu = [UIMenu menuWithTitle:@"Aspect Ratio" children:@[
@@ -536,7 +659,7 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
                                   identifier:nil
                                      options:0
                                     children:@[
-        [UIAction actionWithTitle:@"Import or Reimport Game Data"
+        [UIAction actionWithTitle:@"Choose Version or Import Game Data"
                             image:[UIImage systemImageNamed:@"arrow.triangle.2.circlepath"]
                        identifier:nil handler:^(__kindof UIAction *action) {
             (void)action;
@@ -592,11 +715,21 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
         [weakSelf reportProblem];
     }];
 
+    UIAction *dpadAction = [UIAction actionWithTitle:@"Show D-Pad"
+        image:[UIImage systemImageNamed:@"dpad"] identifier:nil handler:^(__kindof UIAction *action) {
+        NSUserDefaults *defaults = NSUserDefaults.standardUserDefaults;
+        [defaults setBool:![defaults boolForKey:@"MeleePadShowDPad"] forKey:@"MeleePadShowDPad"];
+        [weakSelf clearTouchInput];
+        [weakSelf updateControlAppearance];
+        [weakSelf refreshMenuButton];
+    }];
+    dpadAction.state = [NSUserDefaults.standardUserDefaults boolForKey:@"MeleePadShowDPad"]
+        ? UIMenuElementStateOn : UIMenuElementStateOff;
     UIMenu *controlsMenu = [UIMenu menuWithTitle:@"Controls"
                                            image:[UIImage systemImageNamed:@"gamecontroller"]
                                       identifier:nil
                                          options:0
-                                        children:@[
+                                        children:@[dpadAction,
         [UIAction actionWithTitle:@"Controller Button Mapping…"
                             image:[UIImage systemImageNamed:@"gamecontroller"]
                        identifier:nil handler:^(__kindof UIAction *action) {
@@ -619,7 +752,8 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
         [weakSelf.delegate gameOverlayRequestsOnlinePlay:weakSelf];
     }];
 
-    return [UIMenu menuWithTitle:@"MeleePad" children:@[
+    return [UIMenu menuWithTitle:[NSString stringWithFormat:@"MeleePad · %@",
+        MeleePadRevisionLabel(MeleePadRevisionAtRoot(settings.extractedGameRoot))] children:@[
         onlinePlayAction,
         displayMenu,
         fpsAction,
@@ -844,7 +978,7 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
     __weak MeleePadGameOverlay *weakSelf = self;
     UIAlertController *alert =
         [UIAlertController alertControllerWithTitle:@"Remove Stored Game Data?"
-                                            message:@"The retained game image and extracted game files will be removed now. Your save files and control settings are not affected."
+                                            message:@"Only the selected version’s disc image and extracted files will be removed. Your other version, saves, and control settings are kept."
                                      preferredStyle:UIAlertControllerStyleAlert];
     [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
     [alert addAction:[UIAlertAction actionWithTitle:@"Remove" style:UIAlertActionStyleDestructive
@@ -861,8 +995,8 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
     _buttons = [NSMutableArray array];
     _editGestures = [NSMutableArray array];
 
-    _moveStick = [self makeStick];
-    _cStick = [self makeStick];
+    _moveStick = [self makeStickFloating:YES];
+    _cStick = [self makeStickFloating:NO];
     [_moveStick configureAccessibilityWithLabel:@"Move stick"];
     _moveStick.accessibilityIdentifier = @"move";
     [_cStick configureAccessibilityWithLabel:@"C stick"];
@@ -901,8 +1035,9 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
     [self addEditGesturesToControl:_experimentalDPadGroup];
 }
 
-- (MeleePadStickView *)makeStick {
-    MeleePadStickView *stick = [[MeleePadStickView alloc] initWithFrame:CGRectMake(0, 0, 128, 128)];
+- (MeleePadStickView *)makeStickFloating:(BOOL)floating {
+    Class stickClass = floating ? MeleePadFloatingStickView.class : MeleePadStickView.class;
+    MeleePadStickView *stick = [[stickClass alloc] initWithFrame:CGRectMake(0, 0, 128, 128)];
     __weak MeleePadGameOverlay *weakSelf = self;
     __weak MeleePadStickView *weakStick = stick;
     stick.valueChanged = ^(float x, float y) {
@@ -1632,9 +1767,11 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
     CGFloat alpha = _editingLayout ? 1.0 : [MeleePadSettings sharedSettings].controlOpacity;
     BOOL groupedDPad = YES;
     for (UIView *control in [self gameplayControls]) {
-        control.hidden = hidden;
-        control.userInteractionEnabled = !hidden;
-        control.alpha = hidden ? 0.0 : alpha;
+        BOOL hideControl = hidden || (!_editingLayout && [self isDPadButton:control] &&
+            ![NSUserDefaults.standardUserDefaults boolForKey:@"MeleePadShowDPad"]);
+        control.hidden = hideControl;
+        control.userInteractionEnabled = !hideControl;
+        control.alpha = hideControl ? 0.0 : alpha;
         UIColor *border = [UIColor colorWithWhite:1.0 alpha:0.68];
         CGFloat borderWidth = 2.0;
         if (_editingLayout && !(groupedDPad && [self isDPadButton:control])) {
@@ -1647,6 +1784,7 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
         control.layer.borderWidth = borderWidth;
     }
 
+    ((MeleePadFloatingStickView *)_moveStick).floatingEnabled = !_editingLayout;
     BOOL showDPadGroup = _editingLayout && !hidden;
     _experimentalDPadGroup.hidden = !showDPadGroup;
     _experimentalDPadGroup.userInteractionEnabled = showDPadGroup;

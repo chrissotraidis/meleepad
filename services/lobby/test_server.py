@@ -196,6 +196,22 @@ class LobbyServiceTest(unittest.TestCase):
         )
         self.assertEqual("1234abcd", joined["traversal_code"])
 
+    def test_revisions_are_visible_but_mixed_revision_join_is_rejected(self):
+        host = self.session("RevisionTwoHost", game_revision="r2")
+        room = self.request("POST", "/v1/rooms",
+                            {"traversal_code": "1234abcd", "region": "asia"},
+                            host["token"], 201)
+        guest = self.session("RevisionZeroGuest", game_revision="r0")
+        listing = self.request("GET", "/v1/rooms", token=guest["token"])
+        card = next(item for item in listing["rooms"] if item["room_id"] == room["room_id"])
+        self.assertEqual("r2", card["game_revision"])
+        self.assertFalse(card["joinable"])
+        self.assertEqual("Different game revision", card["compatibility"])
+        self.request("POST", f"/v1/rooms/{room['room_id']}/join", {}, guest["token"], 409)
+        same = self.session("RevisionTwoGuest", game_revision="r2")
+        joined = self.request("POST", f"/v1/rooms/{room['room_id']}/join", {}, same["token"])
+        self.assertEqual("1234abcd", joined["traversal_code"])
+
     def test_incompatible_build_is_visible_but_cannot_join(self):
         host = self.session("VersionHost")
         room = self.request(

@@ -1,0 +1,62 @@
+diff --git a/tools/frontend_config.cpp b/tools/frontend_config.cpp
+--- a/tools/frontend_config.cpp
++++ b/tools/frontend_config.cpp
+@@ -385,6 +385,34 @@
+     if (i >= controllers.size())
+       continue;
+     output << "Device = " << controllers[i] << '\n';
++    // Match MeleePad's packaged keyboard profile for explicit netplay selection.
++    if (controllers[i] == "Quartz/0/Keyboard & Mouse") {
++      output << "Buttons/A = J\n"
++                "Buttons/B = K\n"
++                "Buttons/X = U | Space\n"
++                "Buttons/Y = I\n"
++                "Buttons/Z = O\n"
++                "Buttons/Start = Return\n"
++                "Main Stick/Up = W\n"
++                "Main Stick/Down = S\n"
++                "Main Stick/Left = A\n"
++                "Main Stick/Right = D\n"
++                "Main Stick/Calibration = 100.00\n"
++                "C-Stick/Up = `Up Arrow`\n"
++                "C-Stick/Down = `Down Arrow`\n"
++                "C-Stick/Left = `Left Arrow`\n"
++                "C-Stick/Right = `Right Arrow`\n"
++                "C-Stick/Calibration = 100.00\n"
++                "Triggers/L = Q\n"
++                "Triggers/R = E\n"
++                "Triggers/L-Analog = Q\n"
++                "Triggers/R-Analog = E\n"
++                "D-Pad/Up = T\n"
++                "D-Pad/Down = G\n"
++                "D-Pad/Left = F\n"
++                "D-Pad/Right = H\n";
++      continue;
++    }
+     if (ControllerRequiresBackgroundInput(controllers[i])) {
+       output << "Buttons/A = `Button A`\n"
+                 "Buttons/B = `Button B`\n"
+diff --git a/tests/frontend_config_test.cpp b/tests/frontend_config_test.cpp
+--- a/tests/frontend_config_test.cpp
++++ b/tests/frontend_config_test.cpp
+@@ -101,6 +101,20 @@
+       generated.contains("[Wiimote") || generated.contains("[BalanceBoard]")) {
+     return 5;
+   }
++  const std::array keyboard_controllers = {std::string("Quartz/0/Keyboard & Mouse")};
++  if (!moderngekko::frontend::GenerateControllerConfig(
++          directory, keyboard_controllers, &error))
++    return 17;
++  std::ifstream keyboard_input(directory / "Config" / CONTROLLER_CONFIG_NAME);
++  const std::string keyboard_generated{std::istreambuf_iterator<char>(keyboard_input),
++                                       std::istreambuf_iterator<char>()};
++  if (!keyboard_generated.contains("Buttons/A = J\n") ||
++      !keyboard_generated.contains("Buttons/Start = Return\n") ||
++      !keyboard_generated.contains("Main Stick/Up = W\n") ||
++      !keyboard_generated.contains("Triggers/L = Q\n") ||
++      keyboard_generated.contains("Button A") ||
++      keyboard_generated.contains("Motor L"))
++    return 18;
+   const std::array pipe_controllers = {std::string("Pipe/0/meleepad")};
+   if (!moderngekko::frontend::GenerateControllerConfig(
+           directory, pipe_controllers, &error))

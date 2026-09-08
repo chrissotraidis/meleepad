@@ -1,0 +1,12 @@
+diff --git a/tools/netplay_compatibility.cpp b/tools/netplay_compatibility.cpp
+--- a/tools/netplay_compatibility.cpp
++++ b/tools/netplay_compatibility.cpp
+@@ -141,7 +141,7 @@
+       module = "rejected";
+     }
+   }
+-  return "moderngekko-netplay-9|" + Common::GetScmRevGitStr() + "|" +
++  return "moderngekko-netplay-10|" + Common::GetScmRevGitStr() + "|" +
+          game.disc_id + "|" + game.dol_sha256 + "|" + game.rel_sha256 + "|" +
+          game.assets_sha256 + "|" +
+          std::to_string(MODERNGEKKO_MODULE_ABI_VERSION) + "|" +

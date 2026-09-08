@@ -46,7 +46,7 @@ done
 
 for contract in \
   '@"Online Play"' \
-  '@"Play Melee Together"' \
+  '@"READY TO PLAY?"' \
   '@"MELEE ONLINE  ·  2–4 PLAYERS"' \
   '@"How does Online Play work?"' \
   '@"Your player name"' \
@@ -166,7 +166,7 @@ grep -Fq 'MeleePadPublicLobbyClient.m in Sources' "$PROJECT"
 grep -Fq 'MeleePadPublicLobbyClient.h' "$PROJECT"
 
 for contract in \
-  'moderngekko-netplay-8' \
+  'moderngekko-netplay-10' \
   'MELEEPAD_LOBBY_BASE_URL' \
   'ephemeralSessionConfiguration' \
   'HTTPCookieAcceptPolicyNever' \

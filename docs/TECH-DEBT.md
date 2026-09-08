@@ -1,9 +1,109 @@
 # meleepad technical debt
 
-Last updated: 2026-09-05
+Last updated: 2026-09-08
 
 This is the short, ranked engineering queue behind the active goal loop. It is
 not a substitute for `GOAL-LOOP.md` or evidence in `docs/artifacts/`.
+
+## Build 9 handoff — v1.02, performance, and hardware netplay
+
+USA v1.02 is now preferred for new development setups; v1.00 remains supported
+with its existing data and separate revision storage. Build 9 is not a published
+release. See [version details](MELEE-VERSIONS.md) and
+[the evidence ledger](REVISION-102-GOAL-LOOP.md).
+
+**No measured performance improvement from this decompilation pass.** The
+completed source is pinned and its symbols are checked against the executable.
+It helped audit v1.02 idle/controller-wait addresses and gate legacy diagnostic
+writes. It has not replaced generated game code with an optimized native source
+port. Decompilation completion does not itself change the runtime's GPU, memory,
+CPU dispatch, or thermal costs.
+
+The current performance investigation and ranked candidates are recorded in
+[the build-11 physical-iPhone report](artifacts/2026-09-08/iphone-heavy-scene-performance.md).
+It supersedes the earlier generic hypothesis list: one short scene attribution,
+one justified implementation candidate, then stop if inconclusive.
+
+Netplay build 9 aligns desktop fallback execution with iOS and rejects older
+protocol peers. Bounded Mac–Simulator timing/state and mixed-revision rejection
+tests passed; they do not establish complete hardware or Internet matches.
+The owner now requires all further netplay acceptance on the attached physical
+iPad and iPhone, not multiple Simulators or Mac–Simulator sessions. The desktop
+test was stopped before its results gate.
+
+Remaining demonstration gate: same build 9 and verified v1.02 on both physical
+devices; connect, exercise both players' controls, finish one match, compare
+results, and start another without desync. Record device audio/input behavior
+and whether the connection was LAN or Internet. A LAN result must not be posted
+as proof of Internet play, matchmaking, or Slippi support. Until this passes,
+describe online play as experimental; announce version support separately.
+
+## Build 10 — visible revision and physical app identity
+
+The owner reported severe iPhone lag and could not tell which Melee revision
+was running. Device inventory exposed two apps: the regular MeleePad still had
+build 6 on iPad and build 7 on iPhone, while Revision QA had build 9. The QA
+containers had verified v1.02 extraction, but no retained ISO. Do not confuse
+QA installation with updating the owner's regular app.
+
+Build 10 puts the detected Melee version in the three-dot menu title, removes
+recommendation text from the Game Data & Saves row, and shows the current game
+and app build above all Online Play connection modes. Its version picker shows
+current selection before recommendation guidance. Boot refreshes the menu after
+rebasing and validating the game root, avoiding stale container paths.
+
+The regular apps were updated in place under their existing legacy bundle
+identity. Both device ISO read-backs match the verified source; both boot logs
+confirm revision 2 and Melee-v1.02.iso exists=1. Old Melee GCI files and save
+states were removed, and fresh v1.02 saves are used, as explicitly requested.
+The stale retained-image filename restored by legacy preference migration was
+also fixed: startup searches the selected revision folder when that path is
+missing. The physical iPhone reaches the fresh-save prompt. Lag remains unresolved: neither a revision change nor ISO retention
+is a measured speed fix. Next physical acceptance must identify the regular
+app, build, game version, actual ISO boot, and gameplay scene before comparing
+performance or diagnosing network delay.
+
+## Build 11 — touch follow-up and resolution observation
+
+The owner reports substantially better iPhone gameplay with regular build 10
+and verified v1.02 ISO boot, with some later slowdowns. This is hands-on
+feedback, not a controlled performance comparison. The earlier regular app
+was build 7, so the observation cannot isolate revision, retained ISO, or a
+single runtime change as its cause.
+
+Resolution changes are taking effect: the physical log at 07:44:07 UTC reports
+EFB 2560x2112 and renderScale=4; after return to 1x it reports 640x528. This
+disproves a general claim that the setting does nothing internally. Visible
+quality and the reported slowdown still need scene-specific interpretation;
+textures and 2D artwork do not gain detail merely from higher EFB resolution.
+
+Build 11 adapts KartPad's floating main stick: each touch sets a new center in
+the pickup zone, artwork disappears on release, and cancellation/resize resets
+input. Fixed C-stick remains unchanged. Layout editing exposes the resting
+position. D-pad defaults hidden, with Controls → Show D-Pad to restore it.
+Online Play receives a visual refresh without changing connection behavior.
+Physical touch feel and multiplayer layout inspection are owner acceptance
+items for the installed iPhone build; no Simulator netplay is requested.
+
+## Build 11 — confirmed heavy-scene iPhone slowdown
+
+The latest regular-iPhone log confirms verified v1.02, build 11. At 1× / 4:3,
+the 08:01:26 UTC sample reports 9.9 FPS; the next three report 34.2, 37.8 and
+43.2 FPS. Audio underruns rise from 43 to 368. CPU-thread utilization reaches
+97.7–99.2% while video-thread CPU reaches 70.6–73.7%. Serious thermal state
+persists throughout the run, including earlier 60 FPS samples. Later 60 FPS
+samples may be in-game pause, so do not call them proven gameplay recovery.
+
+No new speedup was implemented in this research pass. The ranked candidates
+are connected animation/collision specialization with live native state,
+precompiled common iOS vertex decoders, and shader warm-up/fallback work.
+Individual matrix kernels were already investigated and their projected gain
+was too small; do not repeat that work. New shader creation overlaps the worst
+sample, but its time cost is unknown. Existing async shader/cache settings are
+already enabled. See the [evidence and bounded implementation gate](artifacts/2026-09-08/iphone-heavy-scene-performance.md).
+
+Do not advertise consistently smooth iPhone gameplay. Preserve experimental
+online status until a physical iPad–iPhone match passes separately.
 
 ## Preview 1 accepted debt — physical-iPad thermal slowdown
 

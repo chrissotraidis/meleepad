@@ -35,6 +35,15 @@
     return self;
 }
 
+- (NSInteger)gameRevision {
+    return [[NSUserDefaults standardUserDefaults] integerForKey:@"MeleePadGameRevision"] == 2 ? 2 : 0;
+}
+
+- (void)setGameRevision:(NSInteger)revision {
+    if (revision == 0 || revision == 2)
+        [[NSUserDefaults standardUserDefaults] setInteger:revision forKey:@"MeleePadGameRevision"];
+}
+
 - (NSInteger)renderScale {
     NSNumber *value = [[NSUserDefaults standardUserDefaults] objectForKey:@"MeleePadRenderScale"];
     if (value == nil)

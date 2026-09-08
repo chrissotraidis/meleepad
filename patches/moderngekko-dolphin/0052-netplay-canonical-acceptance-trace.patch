@@ -1,0 +1,34 @@
+diff --git a/Source/Core/Core/NetPlay/NetPlayServer.cpp b/Source/Core/Core/NetPlay/NetPlayServer.cpp
+--- a/Source/Core/Core/NetPlay/NetPlayServer.cpp
++++ b/Source/Core/Core/NetPlay/NetPlayServer.cpp
+@@ -8,6 +8,7 @@
+ #include <chrono>
+ #include <cstddef>
+ #include <cstdio>
++#include <cstdlib>
+ #include <memory>
+ #include <mutex>
+ #include <optional>
+@@ -1142,6 +1143,13 @@
+     canonical.ram_hash = Common::PacketReadU64(packet);
+     for (u64& region_hash : canonical.ram_region_hashes)
+       region_hash = Common::PacketReadU64(packet);
++
++    // Opt-in acceptance trace: silence must not be mistaken for matched peers.
++    const bool trace_canonical = std::getenv("MELEEPAD_NETPLAY_TRACE_CANONICAL") != nullptr;
++    if (trace_canonical)
++      std::fprintf(stderr, "[netplay] canonical-report pid=%u callback_frame=%u sequence=%llu\n",
++                   static_cast<unsigned>(player.pid), frame,
++                   static_cast<unsigned long long>(canonical.sequence));
+ 
+     if (m_desync_detected || canonical.sequence == 0)
+       break;
+@@ -1253,7 +1261,7 @@
+       else
+       {
+         m_desync_mismatch_count = 0;
+-        if (canonical.sequence % 600 == 0)
++        if (trace_canonical || canonical.sequence % 600 == 0)
+         {
+           std::fprintf(stderr,
+                        "[netplay] canonical-match sequence=%llu state_hash=%#018llx "

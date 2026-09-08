@@ -9,6 +9,9 @@ test -x "$APP/Contents/MacOS/MeleePad"
 test -x "$APP/Contents/MacOS/MeleePadFrontend"
 test -x "$APP/Contents/MacOS/MeleePadRunner"
 test -f "$APP/Contents/MacOS/gGALE01_recomp.dylib"
+cmp "$ROOT/apple/ios/Assets.xcassets/AppIcon.appiconset/AppIcon.png" \
+  "$APP/Contents/Resources/AppIcon.png"
+strings "$APP/Contents/MacOS/MeleePadRunner" | grep -Fx "MeleePad Netplay Lobby" >/dev/null
 grep -Fqx 'fullscreen=true' "$APP/Contents/Resources/default-config.ini"
 test "$(plutil -extract LSApplicationCategoryType raw "$APP/Contents/Info.plist")" = \
   "public.app-category.games"

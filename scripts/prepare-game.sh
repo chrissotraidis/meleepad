@@ -8,12 +8,10 @@ ISO=${1:-}
 PGO_INPUT=${2:-${MELEEPAD_PGO_PROFILE:-}}
 PGO_PROFILE=
 PGO_GENERATE=0
-EXPECTED_SIZE=1459978240
-EXPECTED_SHA256=2393aadd346c23e3e44291e7bb7e16dbc4970bc703028261659a87cde9d90484
 EXPECTED_FILES=1209
 
 if [[ -z "$ISO" || ! -f "$ISO" ]]; then
-  echo "usage: $0 /path/to/GALE01-revision-0.iso [private-profile.profdata | --pgo-generate]" >&2
+  echo "usage: $0 /path/to/Melee-USA.iso-or-ciso [private-profile.profdata | --pgo-generate]" >&2
   exit 2
 fi
 ISO="$(cd "$(dirname "$ISO")" && pwd)/$(basename "$ISO")"
@@ -33,27 +31,32 @@ elif [[ -n "$PGO_INPUT" ]]; then
   fi
 fi
 
-actual_size=$(stat -f %z "$ISO")
-actual_sha=$(shasum -a 256 "$ISO" | awk '{print $1}')
-game_id=$(dd if="$ISO" bs=1 count=6 2>/dev/null)
-disc_number=$(od -An -tu1 -j6 -N1 "$ISO" | tr -d ' ')
-revision=$(od -An -tu1 -j7 -N1 "$ISO" | tr -d ' ')
-if [[ "$actual_size" != "$EXPECTED_SIZE" || "$actual_sha" != "$EXPECTED_SHA256" ||
-      "$game_id" != GALE01 || "$disc_number" != 0 || "$revision" != 0 ]]; then
-  echo "unsupported disc image" >&2
-  echo "  size=$actual_size sha256=$actual_sha id=$game_id disc=$disc_number revision=$revision" >&2
-  echo "meleepad currently targets the exact GALE01 revision 0 image documented in STATUS.md." >&2
-  exit 1
+identity=$(python3 "$ROOT/scripts/identify-game.py" "$ISO")
+revision=$(python3 -c 'import json,sys; print(json.load(sys.stdin)["revision"])' <<<"$identity")
+EXPECTED_SHA256=$(python3 -c 'import json,sys; print(json.load(sys.stdin)["image_sha256"])' <<<"$identity")
+EXPECTED_DOL_SHA256=$(python3 -c 'import json,sys; print(json.load(sys.stdin)["dol_sha256"])' <<<"$identity")
+image_format=$(python3 -c 'import json,sys; print(json.load(sys.stdin)["format"])' <<<"$identity")
+if [[ "$image_format" == ciso ]]; then
+  normalized="$ROOT/ref/normalized/GALE01-r${revision}.iso"
+  mkdir -p "$(dirname "$normalized")"
+  if [[ ! -f "$normalized" ]]; then
+    python3 "$ROOT/scripts/identify-game.py" "$ISO" --normalize "$normalized" >/dev/null
+  fi
+  normalized_revision=$(python3 "$ROOT/scripts/identify-game.py" "$normalized" --field revision)
+  [[ "$normalized_revision" == "$revision" ]]
+  ISO="$normalized"
+  EXPECTED_SHA256=$(shasum -a 256 "$ISO" | awk '{print $1}')
 fi
 
 "$ROOT/scripts/bootstrap-dependencies.sh"
 
 MG="$ROOT/ref/ModernGekko"
 TPL="$ROOT/ref/ModernGekko-Template"
-GAME="$TPL/extracted/Super-Smash-Bros-Melee-GALE01-r0"
+GAME="$TPL/extracted/Super-Smash-Bros-Melee-GALE01-r${revision}"
 MODULES="$TPL/build/modules-macos14"
+if [[ "$revision" != 0 ]]; then MODULES="$TPL/build/modules-macos14-r${revision}"; fi
 MARKER="$GAME/.meleepad-source-sha256"
-BUILD="$MG/build-desktop-tools-meleepad"
+BUILD="${MELEEPAD_TOOLS_BUILD:-$MG/build-desktop-tools-meleepad}"
 
 cmake -S "$MG" -B "$BUILD" -G Ninja \
   -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_DEPLOYMENT_TARGET=14.0 \
@@ -92,6 +95,8 @@ if [[ ! -f "$MARKER" ]]; then
   printf '%s\n' "$EXPECTED_SHA256" > "$MARKER"
 fi
 
+[[ "$(shasum -a 256 "$GAME/sys/main.dol" | awk '{print $1}')" == "$EXPECTED_DOL_SHA256" ]]
+
 export MACOSX_DEPLOYMENT_TARGET=14.0
 build_args=(build "$GAME" --backend c --toolchain clang --output "$MODULES")
 if [[ -n "$PGO_PROFILE" ]]; then
@@ -100,4 +105,4 @@ elif [[ "$PGO_GENERATE" == 1 ]]; then
   build_args+=(--pgo-generate)
 fi
 "$BUILD/moderngekko-port" "${build_args[@]}"
-echo "Prepared GALE01 revision 0 at $GAME"
+echo "Prepared GALE01 revision $revision at $GAME"

@@ -50,6 +50,9 @@ typedef NS_ENUM(NSInteger, MeleePadAspectRatioMode) {
 /* Save/load the retained game-data path (Application Support on mobile). */
 @property(nonatomic, copy, nullable) NSString *retainedGameDataPath;
 
+/* Selected supported disc revision. Existing installs remain on revision 0. */
+@property(nonatomic, assign) NSInteger gameRevision;
+
 /* Extracted game tree (sys/ + files/) produced from the retained image. */
 @property(nonatomic, copy, nullable) NSString *extractedGameRoot;
 

@@ -1,0 +1,17 @@
+diff --git a/Data/Sys/GameSettings/GALE01r2.ini b/Data/Sys/GameSettings/GALE01r2.ini
+index de5627492b..3dce63ae28 100644
+--- a/Data/Sys/GameSettings/GALE01r2.ini
++++ b/Data/Sys/GameSettings/GALE01r2.ini
+@@ -1,5 +1,12 @@
+ # GALE01 - Super Smash Bros. Melee
+ 
++[Core]
++# v1.02 SelectThread no-runnable-thread loop and caller-qualified pad wait.
++StaticRecompIdlePC = 0x00000000
++StaticRecompSecondaryIdlePC = 0x8034B164
++StaticRecompCallerIdlePC = 0x800195D0
++StaticRecompCallerIdleLR = 0x801A4DAC
++
+ [ActionReplay]
+ $Items Off
+ 0045C370 000000FF

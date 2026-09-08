@@ -42,11 +42,21 @@ universal performance guarantee.*
 | | What to expect |
 |---|---|
 | **Platforms** | iPhone, iPad, and Apple Silicon Mac |
-| **Game input** | Your own exact USA `GALE01` revision 0 disc image |
+| **Game input** | Development build 11: verified USA v1.02 recommended, v1.00 retained; published Preview 3: v1.00 only |
 | **Distribution** | Source plus an unsigned, non-playable IPA shell; playable builds are generated and signed locally |
 | **Controls** | Touch, supported physical controllers, and keyboard on Mac |
 | **Online play** | Experimental MeleePad-to-MeleePad private rooms and Direct IP, with temporary peer chat in Preview 3; not yet a public beta |
 | **Not included** | Melee, game assets, saves, signing material, or a generated game module |
+
+## Preferred v1.02 development work
+
+Development build 11 supports USA v1.02 as the preferred revision while
+preserving v1.00 and its existing data. New setups should use v1.02; existing
+v1.00 setups are not silently switched. This is separate from the published Preview 3 described
+above. See [version choices and build instructions](docs/MELEE-VERSIONS.md)
+and the [active goal and acceptance loop](docs/REVISION-102-GOAL-LOOP.md).
+Import support, module compilation, and gameplay acceptance are recorded
+separately; the decompilation does not itself establish a performance gain.
 
 ## How MeleePad works
 
@@ -57,7 +67,8 @@ processor before the app runs.
 
 The build pipeline works in five stages:
 
-1. You provide your own supported `GALE01` revision 0 disc image locally.
+1. You provide your own supported USA `GALE01` disc image locally: v1.02
+   (recommended) or v1.00.
 2. The tooling verifies that exact image and extracts its executable and game
    data. Nothing is downloaded from Nintendo or committed to this repository.
 3. [DolRecomp](https://github.com/ExpansionPak/DolRecomp) reads the GameCube
@@ -137,26 +148,21 @@ needs ordinary Apple development signing, just like other apps run from Xcode.
 </details>
 
 <details>
-<summary>Why does MeleePad require one exact disc revision?</summary>
+<summary>Which game revisions and images does MeleePad support?</summary>
 
 Static recompilation depends on the executable's exact instructions, addresses,
 and data. Even legitimate regional or revision releases differ at those
-locations. MeleePad currently supports only the original uncompressed USA
-`GALE01` revision 0 image commonly called Melee v1.00.
+locations. Development build 11 supports verified USA v1.02 (disc revision 2),
+recommended for new setups, and USA v1.00 (disc revision 0). Each needs its own
+matching native module. Imports and saves remain separate.
 
-| Property | Required value |
-|---|---|
-| Game | Super Smash Bros. Melee (USA) |
-| Game ID | `GALE01` |
-| Disc number | `0` |
-| Disc revision byte | `0` |
-| File format | Raw ISO/GCM, not RVZ, WIA, CISO, NKit, ZIP, or 7z |
-| Exact size | `1,459,978,240` bytes |
-| SHA-256 | `2393aadd346c23e3e44291e7bb7e16dbc4970bc703028261659a87cde9d90484` |
+See [supported images, hashes, and version tradeoffs](docs/MELEE-VERSIONS.md).
+The catalog accepts specific raw images and the verified v1.02 CISO; it does
+not accept arbitrary compressed or modified images. Renaming a file does not
+make it compatible. v1.01, PAL, and Japanese images remain unsupported.
 
-Revision 1/v1.01, revision 2/v1.02, PAL, and Japanese images are not supported.
-Renaming another image to `GALE01.iso` does not make it compatible; MeleePad
-verifies the file's contents.
+The published Preview 3/build 7 still supports only the original v1.00 raw
+image; the development changes have not been published as a new release.
 
 </details>
 
@@ -351,7 +357,7 @@ second proof, not implemented in this MeleePad pass.
 Check these in order:
 
 1. Both players use the same MeleePad version/build and the supported `GALE01`
-   revision 0 game data.
+   game revision, matching modules, and matching game data.
 2. The host keeps MeleePad open, chooses **Host**, and listens on UDP port
    `2626`; the guest chooses **Join** and enters the host's reachable address
    and the same port.
@@ -385,10 +391,11 @@ working. Treat four-seat rooms as development UI until that gate passes.
 <summary>Why doesn't Slippi work with MeleePad?</summary>
 
 No. Slippi is not a service that MeleePad can simply turn on. It combines a
-different Melee revision, extensive injected game code, a customized Dolphin
+extensive injected game code, a customized Dolphin
 runtime, rollback networking, accounts, and private matchmaking services.
 
-MeleePad currently supports Melee v1.00 and uses its own fixed-delay protocol.
+MeleePad supports v1.02 and v1.00 in development build 11 and uses its own
+fixed-delay protocol. Sharing the v1.02 target does not make it Slippi-compatible.
 Slippi supports Melee v1.02 and expects Slippi's game modifications and network
 protocol. The two systems are not compatible, so MeleePad users cannot join the
 normal Slippi player pool. Supporting that would require a major separate port
@@ -438,13 +445,12 @@ To build MeleePad, you need:
 - an Apple Silicon Mac;
 - Xcode 26.x;
 - CMake, Ninja, Git, ripgrep, and Python 3; and
-- your own legally obtained USA revision 0 Melee disc image (`GALE01`) in raw
-  ISO or GCM form: exactly 1,459,978,240 bytes with SHA-256
-  `2393aadd346c23e3e44291e7bb7e16dbc4970bc703028261659a87cde9d90484`.
+- your own supported USA Melee disc image (`GALE01`): v1.02 recommended,
+  or v1.00 for existing setups.
 
-MeleePad supports that exact USA v1.00/revision-0 image only. The preparation
-scripts validate the size, hash, game ID, disc number, and revision, and reject
-unsupported or compressed input.
+Use [the version guide](docs/MELEE-VERSIONS.md) to identify supported input and
+build the matching module. Preparation verifies content and executable identity;
+it rejects unlisted images. Each revision has separate extraction/module storage.
 
 ## Build from source
 
@@ -581,8 +587,10 @@ physical-controller profiles are preserved.
 
 1. Arrange a game with another MeleePad player outside the app.
 2. Confirm that both players use the same build, the exact supported `GALE01`
-   revision 0 image, and matching gameplay settings. Use Preview 3 build 7 on
-   both devices when testing peer chat.
+   game revision, modules, and matching gameplay settings. Both peers must use
+   build 11 for current development testing; the protocol rejects build 8 and
+   earlier. For the
+   published Preview 3, use build 7 and v1.00 on both devices.
 3. The host opens **More (•••) → Online Play → Private Room → Host**.
 4. After the app displays an eight-character room code, the host sends it to
    the other player through a trusted channel.

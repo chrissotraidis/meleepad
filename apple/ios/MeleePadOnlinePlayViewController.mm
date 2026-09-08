@@ -1,3 +1,5 @@
+#import "MeleePadRevision.h"
+#import "MeleePadSettings.h"
 #import "MeleePadOnlinePlayViewController.h"
 #import "MeleePadDiagnostics.h"
 #import "MeleePadPublicLobbyClient.h"
@@ -203,7 +205,7 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
     _heroKickerRow.alignment = UIStackViewAlignmentCenter;
     _heroKickerRow.spacing = 8.0;
     _heroTitleLabel = [UILabel new];
-    _heroTitleLabel.text = @"Play Melee Together";
+    _heroTitleLabel.text = @"READY TO PLAY?";
     _heroTitleLabel.textColor = UIColor.whiteColor;
     MeleePadStyleLabel(_heroTitleLabel, UIFontTextStyleLargeTitle, UIFontWeightBold);
     _heroTitleLabel.font = [[UIFontMetrics metricsForTextStyle:UIFontTextStyleLargeTitle]
@@ -211,7 +213,7 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
         maximumPointSize:38.0];
     _heroTitleLabel.numberOfLines = 0;
     _heroDetailLabel = [UILabel new];
-    _heroDetailLabel.text = @"Find a room or invite friends. Check the build, ready up, and play.";
+    _heroDetailLabel.text = @"One room. Up to four players. Bring your next match to MeleePad.";
     _heroDetailLabel.textColor = [UIColor colorWithWhite:0.82 alpha:1.0];
     MeleePadStyleLabel(_heroDetailLabel, UIFontTextStyleBody, UIFontWeightRegular);
     _heroDetailLabel.font = [[UIFontMetrics metricsForTextStyle:UIFontTextStyleBody]
@@ -230,9 +232,9 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
     _heroStack.clipsToBounds = YES;
     _heroGradient = [CAGradientLayer layer];
     _heroGradient.colors = @[
-        (id)[UIColor colorWithRed:0.03 green:0.38 blue:0.66 alpha:0.94].CGColor,
-        (id)[UIColor colorWithRed:0.10 green:0.25 blue:0.58 alpha:0.94].CGColor,
-        (id)[UIColor colorWithRed:0.31 green:0.10 blue:0.54 alpha:0.96].CGColor,
+        (id)[UIColor colorWithRed:0.07 green:0.12 blue:0.30 alpha:1.0].CGColor,
+        (id)[UIColor colorWithRed:0.23 green:0.12 blue:0.48 alpha:1.0].CGColor,
+        (id)[UIColor colorWithRed:0.12 green:0.36 blue:0.48 alpha:1.0].CGColor,
     ];
     _heroGradient.locations = @[@0.0, @0.55, @1.0];
     _heroGradient.startPoint = CGPointMake(0.0, 0.0);
@@ -305,7 +307,7 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
         [self educationRowWithSymbol:@"point.3.connected.trianglepath.dotted" title:@"1. Choose a connection"
             detail:@"Browse public games, share a private code, or use Direct IP on a trusted network."],
         [self educationRowWithSymbol:@"person.3.fill" title:@"2. Check the room"
-            detail:@"Make sure the build matches and use room chat to coordinate."],
+            detail:@"Both players need Melee v1.02, or both need v1.00, with matching MeleePad builds and game data. The versions cannot play together."],
         [self educationRowWithSymbol:@"checkmark.circle.fill" title:@"3. Ready up"
             detail:@"Each player marks Ready. The host starts when everyone is set."],
     ]];
@@ -640,8 +642,29 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
     _lobbyStack.spacing = 12.0;
     _lobbyStack.hidden = YES;
 
+    UILabel *versionStatus = [self mutedLabel];
+    versionStatus.numberOfLines = 0;
+    versionStatus.accessibilityIdentifier = @"online-current-game-version";
+    versionStatus.text = [NSString stringWithFormat:
+        @"Your game: %@ · MeleePad build %@\nBoth players must use the same Melee version and app build. v1.02 and v1.00 cannot join each other. This applies to all three connection types.",
+        MeleePadRevisionLabel(MeleePadRevisionAtRoot([MeleePadSettings sharedSettings].extractedGameRoot)),
+        [NSBundle.mainBundle objectForInfoDictionaryKey:@"CFBundleVersion"] ?: @"unknown"];
+    UIImageView *versionIcon = [[UIImageView alloc] initWithImage:[UIImage systemImageNamed:@"checkmark.shield"]];
+    versionIcon.tintColor = MeleePadOnlineAccentColor();
+    versionIcon.contentMode = UIViewContentModeScaleAspectFit;
+    [versionIcon.widthAnchor constraintEqualToConstant:28].active = YES;
+    [versionIcon.heightAnchor constraintEqualToConstant:28].active = YES;
+    UIStackView *versionCard = [[UIStackView alloc] initWithArrangedSubviews:@[versionIcon, versionStatus]];
+    versionCard.alignment = UIStackViewAlignmentCenter;
+    versionCard.spacing = 12;
+    versionCard.layoutMarginsRelativeArrangement = YES;
+    versionCard.layoutMargins = UIEdgeInsetsMake(14, 16, 14, 16);
+    versionCard.backgroundColor = [UIColor colorWithRed:0.06 green:0.11 blue:0.17 alpha:1];
+    versionCard.layer.cornerRadius = 18;
+    versionCard.layer.borderWidth = 1;
+    versionCard.layer.borderColor = [MeleePadOnlineAccentColor() colorWithAlphaComponent:0.35].CGColor;
     UIStackView *content = [[UIStackView alloc]
-        initWithArrangedSubviews:@[_heroStack, _setupStack, _lobbyStack]];
+        initWithArrangedSubviews:@[_heroStack, versionCard, _setupStack, _lobbyStack]];
     content.axis = UILayoutConstraintAxisVertical;
     content.spacing = 14.0;
     content.translatesAutoresizingMaskIntoConstraints = NO;
@@ -1305,14 +1328,17 @@ static UIColor *MeleePadSeatColor(NSUInteger index) {
         ? room[@"app_version"] : @"unknown";
     NSString *build = [room[@"build"] isKindOfClass:NSString.class]
         ? room[@"build"] : @"unknown";
+    NSString *hostRevision = [room[@"game_revision"] isKindOfClass:NSString.class] ? room[@"game_revision"] : @"unknown";
+    NSString *hostGame = [hostRevision isEqualToString:@"r2"] ? @"Melee v1.02" :
+        [hostRevision isEqualToString:@"r0"] ? @"Melee v1.00" : @"Unknown Melee version";
     if (joinable) {
         compatibility.text = [NSString stringWithFormat:
-            @"Same build · MeleePad %@ (%@) · Ready to join", version, build];
+            @"%@ · MeleePad %@ (%@) · Ready to join", hostGame, version, build];
     } else if (!compatible) {
         NSString *reason = [room[@"compatibility"] isKindOfClass:NSString.class]
             ? room[@"compatibility"] : @"This room uses a different build";
-        compatibility.text = [NSString stringWithFormat:@"%@ · Host: MeleePad %@ (%@)",
-            reason, version, build];
+        compatibility.text = [NSString stringWithFormat:@"%@ · Host: %@, MeleePad %@ (%@)",
+            reason, hostGame, version, build];
     } else {
         compatibility.text = [NSString stringWithFormat:@"Same build · %@",
             waiting ? @"Room is full" : @"Match already started"];

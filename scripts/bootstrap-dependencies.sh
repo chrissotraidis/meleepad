@@ -16,13 +16,14 @@ TPL_REV=1ee85bb5e09c38f493a09f5fa6e9dc8228b23e42
 RECOMPCORE_REV=af7a1a4854ee243b92926875e5a6b66663b0fda0
 SUNPAD_REV=e43f0ea6b797e5110787171957c9dc3c6213269c
 MELEE_REV=8b5e380f412dc6bad8cc0557fa8fd95fee6815ed
+MELEE_COMPLETE_REV=ae5898ee0dfda41b34fdf846f7d680a33e14779d
 MEX_REV=c9f25da0e59e8c387895371934e98eb5046796b3
 
 mkdir -p "$REF"
 
 ensure_checkout() {
   local url=$1 destination=$2 revision=$3
-  if [[ ! -d "$destination/.git" ]]; then
+  if [[ ! -e "$destination/.git" ]]; then
     git clone --filter=blob:none "$url" "$destination"
     git -C "$destination" checkout --detach "$revision"
   fi
@@ -100,6 +101,7 @@ ensure_checkout https://github.com/ExpansionPak/ModernGekko-Template.git "$TPL" 
 ensure_checkout https://github.com/ExpansionPak/RecompCore.git \
   "$REF/RecompCore" "$RECOMPCORE_REV"
 ensure_checkout https://github.com/doldecomp/melee.git "$REF/melee" "$MELEE_REV"
+ensure_checkout https://github.com/doldecomp/melee.git "$REF/melee-complete" "$MELEE_COMPLETE_REV"
 ensure_checkout https://github.com/akaneia/m-ex.git "$REF/m-ex" "$MEX_REV"
 
 if [[ -n "$(git -C "$TPL" status --porcelain --untracked-files=all)" ]]; then
@@ -378,6 +380,18 @@ apply_patch_once_or_marker "$MG" "$netplay_peer_chat_patch" \
 apply_patch_once_or_marker "$MG" "$secondary_idle_policy_patch" \
   src/runtime/dolphin_runtime.cpp \
   StaticRecompSecondaryIdlePC
+apply_patch_once "$MG/vendor/dolphin" "$ROOT/patches/moderngekko-dolphin/0051-gale01r2-staticrecomp-idle.patch"
+apply_patch_once "$MG/vendor/dolphin" "$ROOT/patches/moderngekko-dolphin/0052-netplay-canonical-acceptance-trace.patch"
+apply_patch_once "$MG/vendor/dolphin" "$ROOT/patches/moderngekko-dolphin/0053-netplay-local-input-trace.patch"
+apply_patch_once "$MG/vendor/dolphin" "$ROOT/patches/moderngekko-dolphin/0054-netplay-boundary-clock-trace.patch"
+apply_patch_once "$MG/vendor/dolphin" "$ROOT/patches/moderngekko-dolphin/0055-netplay-interpreter-fallback.patch"
+apply_patch_once "$MG" "$ROOT/patches/moderngekko/0023-melee-revision-selection.patch"
+apply_patch_once_or_marker "$MG" "$ROOT/patches/moderngekko/0024-revision-support-netplay-version.patch" \
+  tools/netplay_compatibility.cpp \
+  'return "moderngekko-netplay-10|"'
+apply_patch_once "$MG" "$ROOT/patches/moderngekko/0025-macos-keyboard-bindings.patch"
+apply_patch_once "$MG" "$ROOT/patches/moderngekko/0026-netplay-product-branding.patch"
+apply_patch_once "$MG" "$ROOT/patches/moderngekko/0027-netplay-fallback-compatibility.patch"
 verify_patch_scope "$MG" "$mg_patch" "$ROOT"/patches/moderngekko/*.patch -- \
   vendor/dolphin
 verify_patch_scope "$MG/vendor/dolphin" "$dolphin_patch" "$mg_patch" \
