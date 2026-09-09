@@ -172,6 +172,9 @@ Start with the [resume handoff](docs/SESSION-HANDOFF-2026-09-09.md) for preserve
 builds, findings, and the next bounded investigation. Research code is preserved
 on `codex/decomp-connected-performance`; it is separate from the public release.
 
+See [potential expansions](docs/EXPANSION-AVENUES.md) for researched feature
+ideas, integration prerequisites, and first validation steps.
+
 ## Requirements
 
 To build MeleePad, you need:
