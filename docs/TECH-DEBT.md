@@ -2,7 +2,10 @@
 
 Last updated: 2026-09-09
 
-This is the short, ranked engineering queue behind the active goal loop. It is
+Session stopped for today; no active goal. Start with the
+[September 9 handoff](SESSION-HANDOFF-2026-09-09.md) when resuming.
+
+This is the short, ranked engineering queue for future work. It is
 not a substitute for `GOAL-LOOP.md` or evidence in `docs/artifacts/`.
 
 Performance evidence: [v1.02 iPhone performance goal](IPHONE-102-PERFORMANCE-GOAL-LOOP.md).
@@ -24,7 +27,7 @@ No proven general FPS gain or public release follows. Next establish a repeatabl
 combat fixture with matching temperature, and measure useful video processing
 versus FIFO/status polling before choosing a larger engine change.
 
-## Latest owner gameplay — build 18
+## Earlier owner gameplay — build 18
 
 The [2026-09-09 manual iPhone log review](IPHONE-OWNER-RUN-2026-09-09.md)
 confirms 37.9–45.6 FPS dips and 340 DMA empty-queue events across the retained
@@ -39,7 +42,7 @@ revision-aware scene snapshots at the CPU frame boundary; the convenient
 The report records the implementation boundary and remaining validation.
 No runtime patch or new build was installed during this owner-run inspection.
 
-## Active decompilation investigation — after Preview 4
+## Earlier decompilation investigation — after Preview 4
 
 The [bounded decompilation loop](DECOMP-PERFORMANCE-GOAL-LOOP.md) now maps saved
 native samples to exact source functions, using a debug rebuild whose machine
@@ -64,7 +67,7 @@ profile an identical scene window. Distinguish combat from results before
 claiming a four-fighter speedup. Preserve the reproducible matrix candidate
 for that focused comparison; do not repeat broad optimization sweeps.
 
-## Current performance investigation — private build 17
+## Earlier performance investigation — private build 17
 
 Build 17 adds a modest host-loop optimization:
 normal execution compiles out disabled diagnostic branches, while timing,
