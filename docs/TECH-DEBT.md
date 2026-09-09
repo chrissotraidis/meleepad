@@ -13,6 +13,15 @@ Preview 4/build 18 rolls up the merged build-17 increment and lightweight
 gameplay timing logs.
 Sustained performance and physical netplay limitations remain open.
 
+## Additional upstream research
+
+The [September 9 GitHub survey](MELEE-GITHUB-RESEARCH-2026-09-09.md) identifies
+September 5 DolRecomp state-transfer changes, now tested on Apple ARM64.
+The bounded trial found no repeatable speed gain, roughly 6.17x sample code
+size, and FP-exception cycle-accounting differences; no upgrade is accepted.
+Replay-driven control repetition must precede another app A/B. Additional Melee
+ports are mostly early or share already-reviewed code.
+
 ## Completed scene-aware follow-up
 
 The [bounded scene-aware goal](IPHONE-SCENE-PERFORMANCE-GOAL.md) retains
