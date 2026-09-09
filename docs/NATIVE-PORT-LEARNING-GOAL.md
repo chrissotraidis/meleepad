@@ -140,3 +140,25 @@ it. Do not repeat the earlier arithmetic matrix experiment or broad sleep sweeps
 Architecture and 120 FPS comparison complete. Metal submission candidate
 screened and deprioritized for sustained iPhone throughput. GX boundary
 specialization is the next active step; no speed patch has been installed.
+
+## Candidate implementation in progress
+
+The private candidate specializes only the load prefix of `WriteMTXPS4x3`
+(`0x80341408`) and `WriteMTXPS3x3from3x4` (`0x8034143C`). It uses the existing
+bit-preserving paired-single conversion, retains scalar-load semantics, and
+branches back into the original generated code before the first write. Guards
+require enabled floating-point/paired loads, GQR0 zero, and a complete ordinary
+RAM input span. Other inputs retain the original implementation, including
+mid-function entry. Cycle decrement and all stores remain in place.
+
+This is deliberately not raw matrix copying: paired-single conversion and
+callback-visible register state are part of the contract. The differential
+harness compares final CPU state, RAM, return status, module metadata, and full
+CPU snapshots at ordered MMIO callbacks, including callbacks that change CPU
+state. Exceptional floats, nonzero GQRs, disabled FP/paired loads, RAM boundaries,
+aliases and unaligned input are included. Tests are prepared, not yet passed.
+
+Private reproduction: `ref/native-port-learning/prepare-gx.py` builds from the
+existing exact module object set; `test-gx.py` prepares and runs the comparison.
+The link command and source hashes are retained in `gx-build.json` after a
+successful link. No module or generated game code is added to Git.
