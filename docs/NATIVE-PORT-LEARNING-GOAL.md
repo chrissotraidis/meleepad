@@ -156,9 +156,45 @@ callback-visible register state are part of the contract. The differential
 harness compares final CPU state, RAM, return status, module metadata, and full
 CPU snapshots at ordered MMIO callbacks, including callbacks that change CPU
 state. Exceptional floats, nonzero GQRs, disabled FP/paired loads, RAM boundaries,
-aliases and unaligned input are included. Tests are prepared, not yet passed.
+aliases and unaligned input are included. The Mac module comparison passed 3,000 cases per helper (6,000 total).
 
 Private reproduction: `ref/native-port-learning/prepare-gx.py` builds from the
 existing exact module object set; `test-gx.py` prepares and runs the comparison.
 The link command and source hashes are retained in `gx-build.json` after a
 successful link. No module or generated game code is added to Git.
+
+## Host result and hardware availability
+
+The optimized Mac module linked with only the target chunk object replaced.
+ABI, code ranges, SMC ranges, and original chunk hashes compare equal. All
+6,000 differential cases passed, including complete callback-time CPU snapshots
+(normalizing only the RAM allocation pointer), ordered MMIO events, return
+status, final CPU state, and the full 5 MiB test RAM image. The test is retained
+as `tests/GXUploadDifferentialTests.c`; run with original and candidate module
+paths. These synthetic callbacks do not replace real runtime/graphics checks.
+
+Five alternating-order host microbenchmark rounds measured:
+
+| Helper | Control range | Candidate range | Median paired reduction |
+|---|---:|---:|---:|
+| Position upload | 69.5–73.7 ns | 52.5–53.9 ns | 25.29% |
+| Normal upload | 50.3–53.5 ns | 39.2–42.3 ns | 19.60% |
+
+These are isolated helper costs with synthetic MMIO callbacks, not GPU or FPS
+measurements. The 11% profile share belongs to containing upload routines;
+multiplying it by the helper microbenchmark percentage is not a measured
+whole-game gain. This passes the host screen and justifies a single bounded
+device comparison, not promotion.
+
+`python3 scripts/prepare-gx-upload-experiment.py --generated <private-generated-dir>
+--out <fresh-ignored-dir>` reproduces the tested private generated chunk byte
+for byte. It rejects other source hashes and non-private output; it never
+enables the candidate. Build with the original flags and module object set.
+Exact local compile/link commands and hashes are in the ignored `gx-build.json`;
+`test-gx.log` contains the differential and timing results.
+
+CoreDevice currently lists both attached-device records as **disconnected**.
+No device was launched, installed, or modified. The iOS module build is underway
+independently; physical validation remains pending connection. Continue from the
+existing build handle rather than restarting it. Do not claim device acceptance
+from the host test or install automatically if the user is actively playing.
