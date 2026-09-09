@@ -10,6 +10,21 @@ Preview 4/build 18 rolls up the merged build-17 increment and lightweight
 gameplay timing logs.
 Sustained performance and physical netplay limitations remain open.
 
+## Latest owner gameplay — build 18
+
+The [2026-09-09 manual iPhone log review](IPHONE-OWNER-RUN-2026-09-09.md)
+confirms 37.9–45.6 FPS dips and 340 DMA empty-queue events across the retained
+session. The latest slow cluster has CPU-thread utilization of 94–98% and
+serious thermal pressure, but earlier dips also occur at fair thermal state.
+Later 60 FPS reports while still serious prevent attributing everything to heat.
+
+The audio queue's ±2% correction cannot cover a sustained roughly 25% game-speed
+deficit. Do not treat a larger buffer as a performance fix. Next capture
+revision-aware scene snapshots at the CPU frame boundary; the convenient
+`RunOnCPUThread` helper pauses execution and is unsuitable for routine sampling.
+The report records the implementation boundary and remaining validation.
+No runtime patch or new build was installed during this owner-run inspection.
+
 ## Active decompilation investigation — after Preview 4
 
 The [bounded decompilation loop](DECOMP-PERFORMANCE-GOAL-LOOP.md) now maps saved

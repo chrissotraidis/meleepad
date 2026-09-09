@@ -1,5 +1,11 @@
 # meleepad performance ledger
 
+Fresh [owner gameplay logs](IPHONE-OWNER-RUN-2026-09-09.md) reproduce the iPhone
+problem on restored build 18: 37.9–45.6 FPS dips, CPU-thread saturation and
+340 DMA empty-queue events. Hardware/thermal constraints contribute, but scene
+workload remains unresolved. The report separates lifecycle stalls and audio
+queue limits from sustained gameplay and records the safe next diagnostic step.
+
 The 2026-09-09 [decompilation-informed investigation](DECOMP-PERFORMANCE-GOAL-LOOP.md)
 starts from Preview 4/build 18. Exact native-to-source attribution now identifies
 matrix work across generated chunks. A local-register prototype is promising
