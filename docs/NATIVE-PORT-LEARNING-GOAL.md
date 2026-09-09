@@ -1,6 +1,7 @@
 # Learning from other Melee ports
 
-Started September 9, 2026. Active bounded investigation on
+Started September 9, 2026. Blocked on physical-device connection after three
+consecutive goal-turn checks. Bounded investigation on
 `codex/native-port-learning`. The prior session handoff remains historical.
 No new device install, release, or performance improvement is claimed here.
 
@@ -223,3 +224,8 @@ build-20 package available for an in-place restoration. Compare combat-only
 frame timing and audio underruns, exclude results and mixed scene windows, and
 repeat only a promising first pair. A disconnected device is not a rejected
 optimization result. Do not turn this wait into unrelated research or new tests.
+
+The final connection recheck still reports both device records disconnected.
+The goal is blocked, not complete or rejected. Resume with the existing candidate
+after the iPhone is connected and unlocked; no rebuild or host-test repeat is
+needed unless source or baseline state has changed.
