@@ -51,6 +51,9 @@ NS_ASSUME_NONNULL_BEGIN
 /* Refreshes version and settings labels after switching or importing a game. */
 - (void)refreshMenuButton;
 
+/* Settings that can be used before the runtime starts. */
+- (UIMenu *)startupMenu;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -267,6 +267,10 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     UILabel *_bootStatusLabel;
     UIActivityIndicatorView *_bootActivityIndicator;
     UIButton *_gameDataImportButton;
+    UIView *_homeView;
+    UILabel *_homeStatusLabel;
+    UIButton *_homeSettingsButton;
+    BOOL _playRequested;
     MeleePadControllerSlots _controllerSlots;
     NSMutableDictionary<NSNumber *, GCController *> *_configuredControllers;
     CGSize _lastLoggedDrawableSize;
@@ -800,6 +804,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 }
 
 - (void)settingsChanged:(NSNotification *)notification {
+    if (_homeView != nil) _homeSettingsButton.menu = [_overlay startupMenu];
     (void)notification;
     MeleePadSettings *settings = [MeleePadSettings sharedSettings];
     [_coreHost setRenderScale:settings.renderScale];
@@ -851,9 +856,115 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
               screen.scale, screen.nativeScale, (long)screen.maximumFramesPerSecond);
 }
 
+- (void)playFromHome {
+    _playRequested = YES;
+    [_homeView removeFromSuperview];
+    _homeView = nil;
+    _overlay.hidden = NO;
+    [self startGameIfProvisioned];
+}
+
+- (void)showHomeForRevision:(NSInteger)revision {
+    [_homeView removeFromSuperview];
+    [_bootActivityIndicator stopAnimating];
+    _bootStatusLabel.hidden = YES;
+    _overlay.hidden = YES;
+    _homeView = [UIView new];
+    _homeView.backgroundColor = [UIColor colorWithRed:0.055 green:0.063 blue:0.085 alpha:1];
+    _homeView.frame = self.view.bounds;
+    _homeView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    [self.view addSubview:_homeView];
+    _homeSettingsButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    UIButtonConfiguration *menuConfiguration = [UIButtonConfiguration plainButtonConfiguration];
+    menuConfiguration.image = [UIImage systemImageNamed:@"gearshape"];
+    menuConfiguration.baseForegroundColor = UIColor.whiteColor;
+    _homeSettingsButton.configuration = menuConfiguration;
+    _homeSettingsButton.accessibilityLabel = @"Settings";
+    _homeSettingsButton.showsMenuAsPrimaryAction = YES;
+    _homeSettingsButton.menu = [_overlay startupMenu];
+    _homeSettingsButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [_homeView addSubview:_homeSettingsButton];
+    [NSLayoutConstraint activateConstraints:@[
+        [_homeSettingsButton.trailingAnchor constraintEqualToAnchor:_homeView.safeAreaLayoutGuide.trailingAnchor constant:-16],
+        [_homeSettingsButton.topAnchor constraintEqualToAnchor:_homeView.safeAreaLayoutGuide.topAnchor constant:8],
+        [_homeSettingsButton.widthAnchor constraintEqualToConstant:44],
+        [_homeSettingsButton.heightAnchor constraintEqualToConstant:44],
+    ]];
+
+    UIStackView *content = [UIStackView new];
+    content.axis = UILayoutConstraintAxisVertical;
+    content.spacing = 14;
+    content.translatesAutoresizingMaskIntoConstraints = NO;
+    [_homeView addSubview:content];
+    UILabel *brand = [UILabel new];
+    brand.text = @"MeleePad";
+    brand.font = [UIFont systemFontOfSize:34 weight:UIFontWeightBold];
+    brand.textColor = UIColor.whiteColor;
+    [content addArrangedSubview:brand];
+    UILabel *subtitle = [UILabel new];
+    subtitle.text = @"Ready when you are.";
+    subtitle.font = [UIFont preferredFontForTextStyle:UIFontTextStyleTitle3];
+    subtitle.textColor = [UIColor colorWithWhite:0.72 alpha:1];
+    [content addArrangedSubview:subtitle];
+    UILabel *version = [UILabel new];
+    BOOL ready = revision >= 0;
+    version.text = ready ? [NSString stringWithFormat:@"%@ · Installed", MeleePadRevisionLabel(revision)]
+        : @"Import your copy of Melee to get started.";
+    _homeStatusLabel = version;
+    version.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
+    version.textColor = UIColor.whiteColor;
+    version.numberOfLines = 0;
+    [content addArrangedSubview:version];
+    UIButton *play = [UIButton buttonWithType:UIButtonTypeSystem];
+    UIButtonConfiguration *configuration = [UIButtonConfiguration filledButtonConfiguration];
+    configuration.title = ready ? @"Play Melee" : @"Import Game Data";
+    configuration.image = [UIImage systemImageNamed:ready ? @"play.fill" : @"square.and.arrow.down"];
+    configuration.imagePadding = 10;
+    configuration.baseBackgroundColor = [UIColor colorWithRed:0.20 green:0.43 blue:0.73 alpha:1];
+    configuration.baseForegroundColor = UIColor.whiteColor;
+    configuration.contentInsets = NSDirectionalEdgeInsetsMake(18, 24, 18, 24);
+    configuration.cornerStyle = UIButtonConfigurationCornerStyleLarge;
+    play.configuration = configuration;
+    play.accessibilityIdentifier = ready ? @"home.play" : @"home.import";
+    [play addTarget:self action:ready ? @selector(playFromHome) : @selector(presentGameDataImport)
+          forControlEvents:UIControlEventTouchUpInside];
+    [content addArrangedSubview:play];
+    UIButton *data = [UIButton buttonWithType:UIButtonTypeSystem];
+    configuration = [UIButtonConfiguration tintedButtonConfiguration];
+    configuration.title = @"Game Data";
+    configuration.image = [UIImage systemImageNamed:@"square.and.arrow.down"];
+    configuration.imagePadding = 8;
+    configuration.baseForegroundColor = UIColor.whiteColor;
+    configuration.contentInsets = NSDirectionalEdgeInsetsMake(12, 20, 12, 20);
+    data.configuration = configuration;
+    [data addTarget:self action:@selector(presentGameDataImport) forControlEvents:UIControlEventTouchUpInside];
+    if (ready) [content addArrangedSubview:data];
+    UILabel *hint = [UILabel new];
+    hint.text = ready ? @"Touch controls and controller options are available in game."
+        : @"USA v1.02 is recommended. v1.00 is also supported. Your game files stay on this device.";
+    hint.numberOfLines = 0;
+    hint.font = [UIFont preferredFontForTextStyle:UIFontTextStyleFootnote];
+    hint.textColor = [UIColor colorWithWhite:0.65 alpha:1];
+    [content addArrangedSubview:hint];
+    UILayoutGuide *safe = _homeView.safeAreaLayoutGuide;
+    NSLayoutConstraint *preferredWidth = [content.widthAnchor constraintEqualToConstant:520];
+    preferredWidth.priority = UILayoutPriorityDefaultHigh;
+    preferredWidth.active = YES;
+    [NSLayoutConstraint activateConstraints:@[
+        [content.centerXAnchor constraintEqualToAnchor:safe.centerXAnchor],
+        [content.centerYAnchor constraintEqualToAnchor:safe.centerYAnchor],
+        [content.widthAnchor constraintLessThanOrEqualToConstant:520],
+        [content.leadingAnchor constraintGreaterThanOrEqualToAnchor:safe.leadingAnchor constant:28],
+        [content.trailingAnchor constraintLessThanOrEqualToAnchor:safe.trailingAnchor constant:-28],
+    ]];
+}
+
 - (void)startGameIfProvisioned {
     if (_coreHost != nil)
         return;
+    [_homeView removeFromSuperview];
+    _homeView = nil;
+    _overlay.hidden = NO;
     _gameDataImportButton.hidden = YES;
     _bootStatusLabel.hidden = NO;
     _bootStatusLabel.text = @"Preparing runtime…";
@@ -965,8 +1076,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     NSString *modulePath = [self modulePathFromConfiguration:config];
     if (modulePath.length == 0 || ![fileManager fileExistsAtPath:modulePath]) {
         [self showGameDataSetupState];
-        _bootStatusLabel.text = [NSString stringWithFormat:@"%@ game data is available. This build needs its matching locally compiled game module before it can play.", MeleePadRevisionLabel(actualRevision)];
-        _bootStatusLabel.accessibilityLabel = _bootStatusLabel.text;
+        _homeStatusLabel.text = [NSString stringWithFormat:@"%@ is installed. This build still needs its matching game module before it can play.", MeleePadRevisionLabel(actualRevision)];
         return;
     }
     if (actualRevision == 2) {
@@ -983,6 +1093,19 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
         _bootStatusLabel.text = @"MeleePad could not find its local game data.";
         _bootStatusLabel.accessibilityLabel = _bootStatusLabel.text;
         [_bootActivityIndicator stopAnimating];
+        return;
+    }
+
+    // Test routes retain direct boot; ordinary launches wait for an explicit Play.
+    NSArray<NSString *> *launchArguments = NSProcessInfo.processInfo.arguments;
+    NSDictionary<NSString *, NSString *> *launchEnvironment = NSProcessInfo.processInfo.environment;
+    BOOL automatedLaunch = launchEnvironment[@"MELEEPAD_BENCHMARK_ROUTE"].length > 0 ||
+        launchEnvironment[@"MELEEPAD_NETPLAY_AUTO_ROLE"].length > 0 ||
+        [launchEnvironment[@"MELEEPAD_EXTERNAL_PIPE_INPUT"] boolValue];
+    for (NSString *argument in launchArguments)
+        if ([argument hasPrefix:@"-meleepad"]) automatedLaunch = YES;
+    if (!_playRequested && !automatedLaunch) {
+        [self showHomeForRevision:actualRevision];
         return;
     }
 
@@ -1058,6 +1181,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
               [fileManager fileExistsAtPath:gameRoot], discImagePath.length > 0,
               [fileManager fileExistsAtPath:modulePath], NSStringFromCGSize(layer.drawableSize));
     _coreHost = [[MeleePadCoreHost alloc] initWithLayer:layer];
+    [self startInputConsumer];
     __weak MeleePadGameViewController *weakSelf = self;
     _bootStatusLabel.text = @"Starting game…";
     _bootStatusLabel.accessibilityLabel = @"Starting game";
@@ -1071,32 +1195,8 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 }
 
 - (void)showGameDataSetupState {
-    [_bootActivityIndicator stopAnimating];
-    _bootStatusLabel.hidden = NO;
-
-    NSMutableParagraphStyle *paragraph = [NSMutableParagraphStyle new];
-    paragraph.alignment = NSTextAlignmentCenter;
-    paragraph.paragraphSpacing = 8.0;
-    NSDictionary *titleAttributes = @{
-        NSFontAttributeName: [UIFont systemFontOfSize:24.0 weight:UIFontWeightBold],
-        NSForegroundColorAttributeName: UIColor.whiteColor,
-        NSParagraphStyleAttributeName: paragraph,
-    };
-    NSDictionary *bodyAttributes = @{
-        NSFontAttributeName: [UIFont systemFontOfSize:16.0 weight:UIFontWeightRegular],
-        NSForegroundColorAttributeName: [UIColor colorWithWhite:1.0 alpha:0.82],
-        NSParagraphStyleAttributeName: paragraph,
-    };
-    NSMutableAttributedString *message = [[NSMutableAttributedString alloc]
-        initWithString:@"Game data required\n" attributes:titleAttributes];
-    [message appendAttributedString:[[NSAttributedString alloc]
-        initWithString:@"Import your own Melee USA disc image. v1.02 is recommended; v1.00 remains supported. Choose Import to compare versions."
-             attributes:bodyAttributes]];
-    _bootStatusLabel.attributedText = message;
-    _bootStatusLabel.accessibilityLabel =
-        _bootStatusLabel.text;
-    _gameDataImportButton.hidden = NO;
-    [self.view setNeedsLayout];
+    _gameDataImportButton.hidden = YES;
+    [self showHomeForRevision:-1];
 }
 
 - (void)presentBootError:(NSString *)message {
@@ -1111,6 +1211,8 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 }
 
 - (void)startInputConsumer {
+    if (_homeView != nil)
+        return;
     // Feed the game thread the merged touch+controller snapshot at 60 Hz.
     // Private automation can own the same FIFO directly. Without this guard,
     // the normal publisher overwrites a scripted stick position with its

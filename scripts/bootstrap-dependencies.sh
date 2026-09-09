@@ -395,6 +395,7 @@ apply_patch_once_or_marker "$MG" "$ROOT/patches/moderngekko/0024-revision-suppor
 apply_patch_once "$MG" "$ROOT/patches/moderngekko/0025-macos-keyboard-bindings.patch"
 apply_patch_once "$MG" "$ROOT/patches/moderngekko/0026-netplay-product-branding.patch"
 apply_patch_once "$MG" "$ROOT/patches/moderngekko/0027-netplay-fallback-compatibility.patch"
+apply_patch_once "$MG" "$ROOT/patches/moderngekko/0028-polished-launcher.patch"
 verify_patch_scope "$MG" "$mg_patch" "$ROOT"/patches/moderngekko/*.patch -- \
   vendor/dolphin
 verify_patch_scope "$MG/vendor/dolphin" "$dolphin_patch" "$mg_patch" \

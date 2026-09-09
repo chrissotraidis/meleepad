@@ -632,6 +632,14 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
 }
 
 - (UIMenu *)buildMenu {
+    return [self buildMenuForStartup:NO];
+}
+
+- (UIMenu *)startupMenu {
+    return [self buildMenuForStartup:YES];
+}
+
+- (UIMenu *)buildMenuForStartup:(BOOL)startup {
     __weak MeleePadGameOverlay *weakSelf = self;
     MeleePadSettings *settings = [MeleePadSettings sharedSettings];
 
@@ -751,6 +759,12 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
         (void)action;
         [weakSelf.delegate gameOverlayRequestsOnlinePlay:weakSelf];
     }];
+
+    if (startup) {
+        return [UIMenu menuWithTitle:@"MeleePad Settings" children:@[
+            displayMenu, dataMenu, reportProblemAction,
+        ]];
+    }
 
     return [UIMenu menuWithTitle:[NSString stringWithFormat:@"MeleePad · %@",
         MeleePadRevisionLabel(MeleePadRevisionAtRoot(settings.extractedGameRoot))] children:@[
