@@ -869,94 +869,152 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     [_bootActivityIndicator stopAnimating];
     _bootStatusLabel.hidden = YES;
     _overlay.hidden = YES;
+    BOOL ready = revision >= 0;
+    BOOL compact = CGRectGetHeight(self.view.bounds) < 500;
+    UIColor *amber = [UIColor colorWithRed:1 green:0.69 blue:0.20 alpha:1];
+    UIColor *muted = [UIColor colorWithRed:0.66 green:0.72 blue:0.86 alpha:1];
     _homeView = [UIView new];
-    _homeView.backgroundColor = [UIColor colorWithRed:0.055 green:0.063 blue:0.085 alpha:1];
+    _homeView.backgroundColor = [UIColor colorWithRed:0.025 green:0.035 blue:0.085 alpha:1];
     _homeView.frame = self.view.bounds;
     _homeView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:_homeView];
-    _homeSettingsButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    UIButtonConfiguration *menuConfiguration = [UIButtonConfiguration plainButtonConfiguration];
-    menuConfiguration.image = [UIImage systemImageNamed:@"gearshape"];
-    menuConfiguration.baseForegroundColor = UIColor.whiteColor;
-    _homeSettingsButton.configuration = menuConfiguration;
-    _homeSettingsButton.accessibilityLabel = @"Settings";
-    _homeSettingsButton.showsMenuAsPrimaryAction = YES;
-    _homeSettingsButton.menu = [_overlay startupMenu];
-    _homeSettingsButton.translatesAutoresizingMaskIntoConstraints = NO;
-    [_homeView addSubview:_homeSettingsButton];
-    [NSLayoutConstraint activateConstraints:@[
-        [_homeSettingsButton.trailingAnchor constraintEqualToAnchor:_homeView.safeAreaLayoutGuide.trailingAnchor constant:-16],
-        [_homeSettingsButton.topAnchor constraintEqualToAnchor:_homeView.safeAreaLayoutGuide.topAnchor constant:8],
-        [_homeSettingsButton.widthAnchor constraintEqualToConstant:44],
-        [_homeSettingsButton.heightAnchor constraintEqualToConstant:44],
-    ]];
 
+    UIStackView *layout = [UIStackView new];
+    layout.axis = UILayoutConstraintAxisHorizontal;
+    layout.spacing = compact ? 24 : 48;
+    layout.alignment = UIStackViewAlignmentCenter;
+    layout.translatesAutoresizingMaskIntoConstraints = NO;
+    [_homeView addSubview:layout];
+
+    UIStackView *identity = [UIStackView new];
+    identity.axis = UILayoutConstraintAxisVertical;
+    identity.spacing = compact ? 6 : 14;
+    identity.alignment = UIStackViewAlignmentCenter;
+    [layout addArrangedSubview:identity];
+    UIImageView *emblem = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"HomeEmblem"]];
+    emblem.contentMode = UIViewContentModeScaleAspectFit;
+    emblem.isAccessibilityElement = NO;
+    [identity addArrangedSubview:emblem];
+    [emblem.widthAnchor constraintEqualToAnchor:identity.widthAnchor].active = YES;
+    [emblem.heightAnchor constraintEqualToAnchor:emblem.widthAnchor].active = YES;
+    UILabel *brand = [UILabel new];
+    brand.text = @"MELEEPAD";
+    UIFontDescriptor *heavy = [[UIFont systemFontOfSize:compact ? 30 : 48 weight:UIFontWeightBlack]
+        .fontDescriptor fontDescriptorWithSymbolicTraits:UIFontDescriptorTraitItalic];
+    brand.font = [UIFont fontWithDescriptor:heavy size:0];
+    brand.textColor = UIColor.whiteColor;
+    brand.adjustsFontSizeToFitWidth = YES;
+    brand.minimumScaleFactor = 0.7;
+    [identity addArrangedSubview:brand];
+    UILabel *edition = [UILabel new];
+    edition.text = @"THE GAMECUBE CLASSIC. ON YOUR TERMS.";
+    edition.font = [UIFont systemFontOfSize:compact ? 9 : 11 weight:UIFontWeightBold];
+    edition.textColor = amber;
+    edition.adjustsFontSizeToFitWidth = YES;
+    [identity addArrangedSubview:edition];
+
+    UIView *panel = [UIView new];
+    panel.backgroundColor = [UIColor colorWithRed:0.075 green:0.095 blue:0.20 alpha:1];
+    panel.layer.cornerRadius = compact ? 20 : 28;
+    panel.layer.borderWidth = 1;
+    panel.layer.borderColor = [UIColor colorWithRed:0.23 green:0.29 blue:0.48 alpha:1].CGColor;
+    [layout addArrangedSubview:panel];
     UIStackView *content = [UIStackView new];
     content.axis = UILayoutConstraintAxisVertical;
-    content.spacing = 14;
+    content.spacing = compact ? 10 : 20;
     content.translatesAutoresizingMaskIntoConstraints = NO;
-    [_homeView addSubview:content];
-    UILabel *brand = [UILabel new];
-    brand.text = @"MeleePad";
-    brand.font = [UIFont systemFontOfSize:34 weight:UIFontWeightBold];
-    brand.textColor = UIColor.whiteColor;
-    [content addArrangedSubview:brand];
-    UILabel *subtitle = [UILabel new];
-    subtitle.text = @"Ready when you are.";
-    subtitle.font = [UIFont preferredFontForTextStyle:UIFontTextStyleTitle3];
-    subtitle.textColor = [UIColor colorWithWhite:0.72 alpha:1];
-    [content addArrangedSubview:subtitle];
-    UILabel *version = [UILabel new];
-    BOOL ready = revision >= 0;
-    version.text = ready ? [NSString stringWithFormat:@"%@ · Installed", MeleePadRevisionLabel(revision)]
-        : @"Import your copy of Melee to get started.";
-    _homeStatusLabel = version;
-    version.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
-    version.textColor = UIColor.whiteColor;
-    version.numberOfLines = 0;
-    [content addArrangedSubview:version];
+    [panel addSubview:content];
+    UILabel *eyebrow = [UILabel new];
+    eyebrow.text = ready ? @"YOUR NEXT MATCH" : @"BUILD YOUR SETUP";
+    eyebrow.font = [UIFont systemFontOfSize:11 weight:UIFontWeightHeavy];
+    eyebrow.textColor = amber;
+    [content addArrangedSubview:eyebrow];
+    UILabel *title = [UILabel new];
+    title.text = @"Super Smash Bros.\nMelee";
+    title.numberOfLines = 2;
+    title.font = [UIFont systemFontOfSize:compact ? 27 : 38 weight:UIFontWeightBold];
+    title.textColor = UIColor.whiteColor;
+    [content addArrangedSubview:title];
+    _homeStatusLabel = [UILabel new];
+    _homeStatusLabel.text = ready
+        ? [NSString stringWithFormat:@"%@  ·  Installed", MeleePadRevisionLabel(revision)]
+        : @"Bring your own USA v1.02 or v1.00 disc image.";
+    _homeStatusLabel.font = [UIFont systemFontOfSize:compact ? 13 : 15 weight:UIFontWeightMedium];
+    _homeStatusLabel.textColor = ready ? [UIColor colorWithRed:0.42 green:0.89 blue:0.75 alpha:1] : muted;
+    _homeStatusLabel.numberOfLines = 0;
+    [content addArrangedSubview:_homeStatusLabel];
+
     UIButton *play = [UIButton buttonWithType:UIButtonTypeSystem];
     UIButtonConfiguration *configuration = [UIButtonConfiguration filledButtonConfiguration];
-    configuration.title = ready ? @"Play Melee" : @"Import Game Data";
+    configuration.title = ready ? @"PLAY MELEE" : @"IMPORT GAME DATA";
     configuration.image = [UIImage systemImageNamed:ready ? @"play.fill" : @"square.and.arrow.down"];
-    configuration.imagePadding = 10;
-    configuration.baseBackgroundColor = [UIColor colorWithRed:0.20 green:0.43 blue:0.73 alpha:1];
-    configuration.baseForegroundColor = UIColor.whiteColor;
-    configuration.contentInsets = NSDirectionalEdgeInsetsMake(18, 24, 18, 24);
-    configuration.cornerStyle = UIButtonConfigurationCornerStyleLarge;
+    configuration.imagePadding = 12;
+    configuration.baseBackgroundColor = amber;
+    configuration.baseForegroundColor = [UIColor colorWithRed:0.10 green:0.07 blue:0.02 alpha:1];
+    configuration.contentInsets = NSDirectionalEdgeInsetsMake(compact ? 14 : 20, 20, compact ? 14 : 20, 20);
+    configuration.cornerStyle = UIButtonConfigurationCornerStyleMedium;
+    configuration.titleTextAttributesTransformer = ^NSDictionary *(NSDictionary *attributes) {
+        NSMutableDictionary *updated = [attributes mutableCopy];
+        updated[NSFontAttributeName] = [UIFont systemFontOfSize:16 weight:UIFontWeightHeavy];
+        return updated;
+    };
     play.configuration = configuration;
     play.accessibilityIdentifier = ready ? @"home.play" : @"home.import";
     [play addTarget:self action:ready ? @selector(playFromHome) : @selector(presentGameDataImport)
           forControlEvents:UIControlEventTouchUpInside];
     [content addArrangedSubview:play];
-    UIButton *data = [UIButton buttonWithType:UIButtonTypeSystem];
-    configuration = [UIButtonConfiguration tintedButtonConfiguration];
-    configuration.title = @"Game Data";
-    configuration.image = [UIImage systemImageNamed:@"square.and.arrow.down"];
-    configuration.imagePadding = 8;
+
+    UIStackView *actions = [UIStackView new];
+    actions.spacing = 10;
+    actions.distribution = UIStackViewDistributionFillEqually;
+    [content addArrangedSubview:actions];
+    if (ready) {
+        UIButton *data = [UIButton buttonWithType:UIButtonTypeSystem];
+        configuration = [UIButtonConfiguration filledButtonConfiguration];
+        configuration.title = @"Game Data";
+        configuration.image = [UIImage systemImageNamed:@"opticaldisc"];
+        configuration.imagePadding = 7;
+        configuration.baseBackgroundColor = [UIColor colorWithRed:0.16 green:0.20 blue:0.35 alpha:1];
+        configuration.baseForegroundColor = UIColor.whiteColor;
+        configuration.contentInsets = NSDirectionalEdgeInsetsMake(12, 8, 12, 8);
+        data.configuration = configuration;
+        [data addTarget:self action:@selector(presentGameDataImport) forControlEvents:UIControlEventTouchUpInside];
+        [actions addArrangedSubview:data];
+    }
+    _homeSettingsButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    configuration = [UIButtonConfiguration filledButtonConfiguration];
+    configuration.title = @"Settings";
+    configuration.image = [UIImage systemImageNamed:@"slider.horizontal.3"];
+    configuration.imagePadding = 7;
+    configuration.baseBackgroundColor = [UIColor colorWithRed:0.16 green:0.20 blue:0.35 alpha:1];
     configuration.baseForegroundColor = UIColor.whiteColor;
-    configuration.contentInsets = NSDirectionalEdgeInsetsMake(12, 20, 12, 20);
-    data.configuration = configuration;
-    [data addTarget:self action:@selector(presentGameDataImport) forControlEvents:UIControlEventTouchUpInside];
-    if (ready) [content addArrangedSubview:data];
-    UILabel *hint = [UILabel new];
-    hint.text = ready ? @"Touch controls and controller options are available in game."
-        : @"USA v1.02 is recommended. v1.00 is also supported. Your game files stay on this device.";
-    hint.numberOfLines = 0;
-    hint.font = [UIFont preferredFontForTextStyle:UIFontTextStyleFootnote];
-    hint.textColor = [UIColor colorWithWhite:0.65 alpha:1];
-    [content addArrangedSubview:hint];
-    UILayoutGuide *safe = _homeView.safeAreaLayoutGuide;
-    NSLayoutConstraint *preferredWidth = [content.widthAnchor constraintEqualToConstant:520];
+    configuration.contentInsets = NSDirectionalEdgeInsetsMake(12, 8, 12, 8);
+    _homeSettingsButton.configuration = configuration;
+    _homeSettingsButton.showsMenuAsPrimaryAction = YES;
+    _homeSettingsButton.menu = [_overlay startupMenu];
+    [actions addArrangedSubview:_homeSettingsButton];
+    UILabel *footer = [UILabel new];
+    footer.text = [NSString stringWithFormat:@"MELEEPAD  /  BUILD %@", [NSBundle.mainBundle objectForInfoDictionaryKey:@"CFBundleVersion"]];
+    footer.font = [UIFont monospacedSystemFontOfSize:10 weight:UIFontWeightMedium];
+    footer.textColor = muted;
+    [content addArrangedSubview:footer];
+
+    CGFloat padding = compact ? 20 : 32;
+    [NSLayoutConstraint activateConstraints:@[
+        [content.leadingAnchor constraintEqualToAnchor:panel.leadingAnchor constant:padding],
+        [content.trailingAnchor constraintEqualToAnchor:panel.trailingAnchor constant:-padding],
+        [content.topAnchor constraintEqualToAnchor:panel.topAnchor constant:padding],
+        [content.bottomAnchor constraintEqualToAnchor:panel.bottomAnchor constant:-padding],
+        [identity.widthAnchor constraintEqualToAnchor:layout.widthAnchor multiplier:0.38],
+        [layout.centerXAnchor constraintEqualToAnchor:_homeView.safeAreaLayoutGuide.centerXAnchor],
+        [layout.centerYAnchor constraintEqualToAnchor:_homeView.safeAreaLayoutGuide.centerYAnchor],
+        [layout.leadingAnchor constraintGreaterThanOrEqualToAnchor:_homeView.safeAreaLayoutGuide.leadingAnchor constant:24],
+        [layout.trailingAnchor constraintLessThanOrEqualToAnchor:_homeView.safeAreaLayoutGuide.trailingAnchor constant:-24],
+        [layout.widthAnchor constraintLessThanOrEqualToConstant:1080],
+    ]];
+    NSLayoutConstraint *preferredWidth = [layout.widthAnchor constraintEqualToAnchor:_homeView.safeAreaLayoutGuide.widthAnchor constant:-64];
     preferredWidth.priority = UILayoutPriorityDefaultHigh;
     preferredWidth.active = YES;
-    [NSLayoutConstraint activateConstraints:@[
-        [content.centerXAnchor constraintEqualToAnchor:safe.centerXAnchor],
-        [content.centerYAnchor constraintEqualToAnchor:safe.centerYAnchor],
-        [content.widthAnchor constraintLessThanOrEqualToConstant:520],
-        [content.leadingAnchor constraintGreaterThanOrEqualToAnchor:safe.leadingAnchor constant:28],
-        [content.trailingAnchor constraintLessThanOrEqualToAnchor:safe.trailingAnchor constant:-28],
-    ]];
 }
 
 - (void)startGameIfProvisioned {

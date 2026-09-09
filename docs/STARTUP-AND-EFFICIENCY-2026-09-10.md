@@ -36,9 +36,15 @@ and automated netplay launches retain direct boot. No game module was changed.
   reverse application and `git diff --check` passed.
 
 Private build logs, screenshots and sample are in `ref/launcher-polish/`.
-Physical iPhone/iPad installations, original game data, modules and saves were
-not changed. Unrelated concurrent Slippi/FAQ research and image files were left
-outside this change.
+The follow-up themed home uses the existing MeleePad emblem, navy/violet panels,
+an amber Play action, and a green installed-version label. The generic welcome
+headline was removed. Build 23 was installed in place and launched on the hardware
+iPad; device app inventory and runtime logs confirm the build. The v1.02 ISO size
+and timestamps and all ten configuration files were unchanged. Preferences were
+unchanged except the extracted-root path updating to the relocated app container.
+Game modules match the existing private build byte for byte. iPhone hardware was
+not changed. The themed iPhone/iPad Simulator layouts were inspected, and Settings
+and Play were checked again. Unrelated Slippi/FAQ research remains outside this change.
 
 ## Upstream efficiency screen
 
@@ -74,5 +80,5 @@ remains exact guest-PC attribution of the CPU hotspots, followed by a measured
 shared routine replacement, as described in the
 [native Mac comparison](NATIVE-MACOS-COMPARISON-GOAL.md). Avoid repeating the
 previous matrix candidate without a deterministic scene and matched thermal
-conditions. Physical acceptance of the new home screen remains a deployment
-step; no release or device installation is claimed here.
+conditions. Build 23 is installed on the hardware iPad for user review; no new public release
+or gameplay performance improvement is claimed here.
