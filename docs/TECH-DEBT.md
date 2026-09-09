@@ -10,6 +10,20 @@ Preview 4/build 18 rolls up the merged build-17 increment and lightweight
 gameplay timing logs.
 Sustained performance and physical netplay limitations remain open.
 
+## Completed scene-aware follow-up
+
+The [bounded scene-aware goal](IPHONE-SCENE-PERFORMANCE-GOAL.md) retains
+nonblocking CPU-frame diagnostics in private build 20, with both stable build 18
+game modules unchanged. Actual logs separate VS combat slowdown from the much
+heavier results screen. The older unclassified tails are not combat acceptance.
+
+A combat-only matrix pair improved its mean by 5.02%, but thermal/workload
+confounds and an invalid-temperature confirmation prevented promotion. The
+phone is returned to diagnostic build 20; the matrix candidate remains private.
+No proven general FPS gain or public release follows. Next establish a repeatable
+combat fixture with matching temperature, and measure useful video processing
+versus FIFO/status polling before choosing a larger engine change.
+
 ## Latest owner gameplay — build 18
 
 The [2026-09-09 manual iPhone log review](IPHONE-OWNER-RUN-2026-09-09.md)

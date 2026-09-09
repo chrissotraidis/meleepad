@@ -1,5 +1,11 @@
 # meleepad performance ledger
 
+The [scene-aware follow-up](IPHONE-SCENE-PERFORMANCE-GOAL.md) retains private
+build 20 diagnostics with unchanged stable game modules. It confirms combat
+slowdown separately from the very expensive VS-results tail. The matrix retry
+is not promoted: its first pair's apparent 5.02% mean improvement did not obtain
+a valid matched-temperature confirmation. There is no new proven FPS gain.
+
 Fresh [owner gameplay logs](IPHONE-OWNER-RUN-2026-09-09.md) reproduce the iPhone
 problem on restored build 18: 37.9–45.6 FPS dips, CPU-thread saturation and
 340 DMA empty-queue events. Hardware/thermal constraints contribute, but scene
