@@ -6,8 +6,9 @@ Do not present the diagnostics or an isolated favorable comparison as a speed fi
 
 ## Preserved state
 
-- Branch: `codex/decomp-connected-performance`. Work is committed locally;
-  no push, merge, new public IPA, or release was made during this follow-up.
+- Branch: `codex/decomp-connected-performance`. Research code and commits are preserved on this remote branch. The
+  documentation handoff is published separately to main; the experimental code
+  is not merged. No new public IPA or release was made during this follow-up.
 - Stable baseline: Preview 4/build 18, main commit `83b81ed`.
 - iPhone: private build 20, with the unchanged stable v1.00/v1.02 game modules
   and new scene diagnostics. Final in-place restoration and normal startup were
