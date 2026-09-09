@@ -35,6 +35,7 @@ namespace fs = std::filesystem;
 #include "AudioCommon/Mixer.h"
 #include "AudioCommon/SoundStream.h"
 #include "Common/FramePhaseTiming.h"
+#include "Common/GameplaySceneSnapshot.h"
 #include "Core/Boot/Boot.h"
 #include "Core/Config/CheatSettings.h"
 #include "Core/Config/MainSettings.h"
@@ -471,6 +472,7 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
         }
         MeleePadLog(@"runtime frame mode=native 60 FPS source=GALE01");
 
+        Common::GameplayScene::Session sceneSession(static_cast<int>(_gameRevision));
         auto created = moderngekko::Runtime::Create(std::move(config));
         if (!created) {
             errorMessage = created.error->message;
@@ -1251,6 +1253,7 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
 
 - (NSString *)takeGameplayTimingSummary {
     const auto frames = Core::System::GetInstance().GetPerfMetrics().TakeFrameIntervalSummary();
+    const auto scene = Common::GameplayScene::recorder.Read();
     unsigned long long underruns = 0;
     if (SoundStream *stream = Core::System::GetInstance().GetSoundStream()) {
         if (Mixer *mixer = stream->GetMixer())
@@ -1261,10 +1264,15 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
     _lastReportedAudioUnderruns = underruns;
     return [NSString stringWithFormat:
         @"frameIntervals=%llu frameAvgMs=%.2f frameP95UpperMs=%.2f frameMaxMs=%.2f "
-         @"framesOver20ms=%llu framesOver33ms=%llu framesOver50ms=%llu audioUnderrunsDelta=%llu",
+         @"framesOver20ms=%llu framesOver33ms=%llu framesOver50ms=%llu audioUnderrunsDelta=%llu "
+         @"scene=%s sceneValid=%d sceneRevision=%d sceneRouting=%08x "
+         @"sceneSession=%llu sceneFrames=%llu sceneTransitions=%llu",
         (unsigned long long)frames.frames, frames.average_ms, frames.p95_upper_ms,
         frames.maximum_ms, (unsigned long long)frames.over_20_ms,
-        (unsigned long long)frames.over_33_ms, (unsigned long long)frames.over_50_ms, delta];
+        (unsigned long long)frames.over_33_ms, (unsigned long long)frames.over_50_ms, delta,
+        Common::GameplayScene::Label(scene), scene.valid, scene.revision, scene.routing,
+        (unsigned long long)scene.session, (unsigned long long)scene.frames,
+        (unsigned long long)scene.transitions];
 }
 
 - (NSString *)diagnosticSummary {
