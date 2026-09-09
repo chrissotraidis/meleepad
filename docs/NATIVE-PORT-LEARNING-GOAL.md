@@ -1,7 +1,7 @@
 # Learning from other Melee ports
 
-Started September 9, 2026. Blocked on physical-device connection after three
-consecutive goal-turn checks. Bounded investigation on
+Started September 9, 2026. Bounded investigation completed with the owner-requested
+Simulator comparison; candidate not promoted. Research branch:
 `codex/native-port-learning`. The prior session handoff remains historical.
 No new device install, release, or performance improvement is claimed here.
 
@@ -229,3 +229,77 @@ The final connection recheck still reports both device records disconnected.
 The goal is blocked, not complete or rejected. Resume with the existing candidate
 after the iPhone is connected and unlocked; no rebuild or host-test repeat is
 needed unless source or baseline state has changed.
+
+## Owner-authorized Simulator comparison
+
+The owner requested the next attempt on the Mac's iOS Simulator while physical
+devices are unavailable. This resumes testing on a different platform; it does
+not substitute Simulator results for iPhone acceptance. One dedicated MeleePad
+Revision QA simulator is booted on an Apple M3 Max. Build 22 uses the latest
+scene diagnostics, the same app executable for both arms, and separately linked
+iOS Simulator control/candidate modules. No physical device is changed.
+
+Existing Simulator regular files were backed up before fixture changes (named
+pipes excluded as ephemeral). A private progressed v1.02 save is restored for
+each arm. Both use 1x/4:3, the four-fighter Big Blue route, and detailed profiling
+off. Only the module selector changes. One initial control launch lacked the
+selector's required identity sidecar and never entered gameplay; it is retained
+as rejected setup evidence and excluded from results.
+
+Both valid arms completed their fixed runs through combat to a visible results
+screen. The pair is complete; results and limitations follow below.
+Private scripts, logs and app are under `ref/native-port-learning/simulator/`;
+compiled candidate is under `simulator-module/`.
+
+## Simulator result and final decision
+
+One valid 180-second control and one 180-second candidate run completed on the
+single QA simulator. Same build-22 app, v1.02 data, 1x/4:3 and progressed save
+fixture; resolved module hashes and the shared executable hash are recorded in
+`simulator/artifact-receipt.json`. `moduleBytes` in runtime logs measures the
+selector symlink length, so use the resolved hashes instead of that field.
+
+Analysis selects consecutive valid unchanged-session/transition `vs-combat`
+reports fully within scene-frame boundaries 3500–9000. Each arm contributed
+eight ten-second windows. The screenshot was taken after the timed run, outside
+these windows. Final images show the results screen with rendered fighters;
+there were no recorded runtime-error/exception/desync events in the valid logs.
+This is limited runtime smoke evidence, not exhaustive visual correctness.
+
+| Selected combat metric | Control | Candidate |
+|---|---:|---:|
+| Frame intervals | 4,795 | 4,787 |
+| Weighted mean frame time | 16.684 ms | 16.712 ms |
+| Frames over 20 ms | 1.48% | 2.97% |
+| Maximum frame time | 31.69 ms | 33.45 ms |
+| Audio underruns | 4 | 4 |
+| Mean sampled CPU-thread utilization | 88.15% | 88.89% |
+| Primitive range | 25,143–34,755 | 25,550–34,370 |
+| Reported thermal state | nominal | nominal |
+
+**Decision: do not promote.** The isolated helper improvement did not translate
+into a useful frame-time, CPU-utilization or audio improvement in this pair.
+The candidate's measured slow-frame fraction was higher. This is not a causal
+regression claim: the route uses wall time with detailed profiling off, scene
+frame boundaries differ slightly, shared-host scheduling/cache state can vary,
+and final screenshots show a costume difference. This is the same stage/roster
+scenario, not a bit-identical combat replay. Both are near the normal 60 FPS
+limit. Since the first pair is not promising, do not launch repeated sweeps.
+
+The original Simulator user/save/preferences/log data were restored: 2,467
+material regular files verified unchanged. Differences were confined to six
+OS snapshot/Metal cache files. The selector points back to the control module
+and the app is stopped. One QA simulator remains booted; no other simulator or
+physical device was used. The physical iPhone/iPad builds and data are untouched.
+
+The bounded learning goal is complete as research and a non-promoted experiment,
+not as an iPhone performance fix. The source comparisons, 120 FPS explanation,
+transfer rankings, 6,000 host differential cases, target builds, and requested
+Simulator comparison are recorded. No runtime change is enabled by default,
+no release is made, and the private candidate remains available for a future
+physical test only if new evidence justifies it.
+
+The next useful research direction would be measuring the cost of preserving
+and delivering graphics commands across the runtime boundary, or separately
+scoping a direct-source backend. Do not assume another tiny load rewrite or
+120 Hz rendering will resolve the iPhone's sustained CPU deficit.
