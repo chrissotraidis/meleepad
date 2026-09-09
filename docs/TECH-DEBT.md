@@ -23,11 +23,17 @@ A guarded local-floating-point-state prototype is faster in isolated host
 measurements and passes 79,000 full-module adversarial comparisons plus 300
 comparisons sampled during confirmed local Classic combat. Source-defined
 input guards admit over 99.99% of observed entries in the final local route.
-This uses Null graphics for correctness and coverage, not device speed. Physical
-acceptance is pending: the connected iPhone is locked, so the unchanged control
-could not launch. Private build 19 is staged, **not installed or released**.
-Do not describe its local timing reductions as a gameplay/FPS improvement.
-Preview 4/build 18 remains the stable baseline.
+This uses Null graphics for correctness and coverage, not device speed.
+A physical A–B–A–B comparison then found lower candidate tail frame times,
+but audio did not consistently improve, the repeated workload differed and
+native profiling failed. Build 19 is not promoted; build 18 is restored on the
+iPhone. No public release was made. See the linked loop for the complete table.
+
+Next: log source-defined scene transitions independently of menu input steps,
+identify the late jump to approximately 111,000 primitives per frame, and
+profile an identical scene window. Distinguish combat from results before
+claiming a four-fighter speedup. Preserve the reproducible matrix candidate
+for that focused comparison; do not repeat broad optimization sweeps.
 
 ## Current performance investigation — private build 17
 

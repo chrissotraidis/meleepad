@@ -10,13 +10,16 @@ The investigation produced a reproducible local-register optimization for three
 matrix routines and a verified native-to-decompiled-source attribution tool.
 The final private candidate passes 79,000 synthetic/adversarial comparisons and
 300 additional comparisons sampled during actual Classic combat. Its isolated
-host timings are promising. **Physical-iPhone performance is not established:**
-iOS rejected the unchanged control launch because the device is locked.
-Build 19 is staged locally; build 18 has not been replaced.
+host timings are promising. After the owner unlocked the iPhone, an A–B–A–B
+physical comparison produced lower late-window frame times for both candidate
+runs, but did not establish a sufficiently controlled gameplay benefit.
+**The candidate is not promoted to normal builds.** Build 18 is restored on
+the iPhone; build 19 and the reproducible experiment remain private research.
 
-The remaining retention gate is a comparable physical control/candidate pair,
-including warmed frame/audio tails. No public release or gameplay-speed claim
-follows from this research alone.
+The bounded pass is complete with an evidence-backed decision against shipping
+this candidate yet. No public release, merge, or general FPS claim follows.
+The next target is identifying and profiling the expensive late scene, with
+scene boundaries recorded independently of menu-input steps.
 
 ## Working loop
 
@@ -95,11 +98,11 @@ earlier [performance ledger](IPHONE-102-PERFORMANCE-GOAL-LOOP.md) remains author
   sample shares gives an optimistic ceiling around 5% of CPU-thread time.
   This assumes comparable device code generation and sufficient guard hits;
   it is neither measured iPhone savings nor an FPS prediction.
-- Private build 19 is staged and signature-verified. The host machine-code
+- Before the phone was unlocked, private build 19 was staged and signature-verified. The host machine-code
   section and v1.00 module are unchanged; only the v1.02 candidate and private
-  bundle version differ. It is **not installed**. The attempted physical
-  control launch was rejected because the iPhone is locked. Build 18 remains
-  installed; existing game data was backed up without resetting it.
+  bundle version differ. The initial physical control launch was rejected by
+  the lock screen. That earlier block was resolved by the owner unlocking
+  the phone; see the physical comparison below.
 - A separate, isolated local opening-sequence run observed approximately 99.997%
   concatenation, 95.8% inverse-transpose and 99.9998% scaled-add guard acceptance
   among calls entering through the module dispatcher. It compared 100 live
@@ -116,8 +119,8 @@ earlier [performance ledger](IPHONE-102-PERFORMANCE-GOAL-LOOP.md) remains author
   frame must not overlap the constant table. Otherwise a saved incoming FP
   register could overwrite the table after its entry check. Both modules
   rebuilt successfully; all 69,000 full-state, continuation and alias cases
-  pass again. The stricter private build 19 is staged and signature-verified,
-  still uninstalled.
+  pass again. That intermediate build remained uninstalled and was superseded
+  by the final arithmetic-input guard below.
 - Reading `HSD_MtxInverseTranspose` identified unnecessary checks on the
   previous destination and input translation slots. Its arithmetic uses only
   the input 3x3 block; the original copy/continuation paths remain intact.
@@ -214,11 +217,66 @@ flags and link against the unchanged other objects. In particular, preserve
 floating-point contraction/fast-math settings, ABI and revision checks. The
 generated output includes game-derived code and must stay private.
 
-## Pending retention gate
+## Physical comparison and retention decision
 
-Run the unchanged build-18 physical control, then the candidate with comparable
-starting thermal state and the same fixed four-fighter route. Compare the
-uninstrumented warmed frame-time/audio windows as well as the native profile;
-repeat only if that first pair is promising. Restore the stable module if the
-candidate regresses or the result remains inconclusive. A locked device does
-not turn a host microbenchmark into physical acceptance.
+The unlocked physical iPhone ran build 18, build 19, build 18, build 19 in that
+order on 2026-09-09. Each fixed four-player Big Blue route used v1.02, 1x,
+4:3, the normal CPU clock and disabled per-dispatch diagnostics. Every run
+started at nominal thermal state and ended at fair. The app was stopped
+between runs for approximately three minutes. No Simulator, QuickTime or
+computer-use screen observation was used.
+
+The final two ten-second reports of each run give:
+
+| Run | Build | Weighted frame interval | Reported FPS range | Audio underruns |
+| --- | --- | ---: | ---: | ---: |
+| Control A1 | 18 | 31.50 ms | 32.2–32.3 | 203 |
+| Candidate B1 | 19 | 29.22 ms | 34.6–34.7 | 187 |
+| Control A2 | 18 | 33.26 ms | 30.8–31.4 | 167 |
+| Candidate B2 | 19 | 30.25 ms | 33.0–33.4 | 187 |
+
+Both candidate tails were faster than both control tails. This is a useful
+signal, not a defensible general performance percentage: the runs are not
+exact guest-state replays, and baseline timing varies. The first three tails
+share the same projection fingerprint and 111,205 primitives; B2 shares the
+projection but has 111,189 primitives and different earlier graphics work.
+Audio-underrun counts do not consistently improve. Every tail remains far
+below 60 FPS with CPU and video threads near saturation.
+
+Apple Time Profiler reported the phone offline and timed out for all four
+captures, although CoreDevice could launch the app and wired AFC could read
+logs. Therefore there is **no new native CPU-cost or fast-path-hit measurement**.
+The table uses the app's existing lightweight frame/audio logs. Failed
+profiler attempts are disclosed; these were not clean profiler-free launches.
+Startup logs confirm the intended builds, revision and differing module sizes.
+
+The menu route verifies four slots and forces Big Blue, but existing logs stop
+reporting game state after stage selection. The late rendering work rises from
+roughly 34,000 to 111,000 primitives per frame. The decompiled VS mode table
+(`src/melee/gm/gmvsmode.c` at the pinned source revision) distinguishes combat,
+sudden death and results. The current evidence does not identify which late
+scene produced the slowdown; do not label these tail numbers four-fighter
+combat performance.
+
+**Decision:** reject promotion for this release and restore private build 18.
+Keep the candidate and source tooling for a focused follow-up. This rejects
+shipping on insufficient evidence; it does not prove the optimization has no
+benefit. Every installation was in place, with fresh before/after comparisons
+of 24 material files and unchanged ISO size and timestamps. Neither revision's
+saves/configuration nor the ISO was reset. The iPad was untouched.
+
+### Concrete next target
+
+Record scene transitions from the existing revision-aware benchmark state
+reader, independently of input-step changes, at a safe runtime boundary.
+Use the decompiled mode table to isolate combat from results, then establish
+an identical scene/input window. Restore native profiler connectivity before
+attributing the remaining CPU/video saturation. If the expensive tail is
+results, profile its character-model/skin matrix submission separately from
+combat. Only then retry the matrix experiment against a matched window;
+do not restart the rejected global FP, leaf-math or sleep-threshold searches.
+
+Private evidence is under `ref/revision-102/decomp-connected/`: four run folders,
+`physical-pair.json`, the signed candidate receipt and fresh preservation
+backups. Raw device logs, identifiers, game data and generated code remain
+excluded from the repository.

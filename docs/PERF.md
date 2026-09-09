@@ -3,8 +3,10 @@
 The 2026-09-09 [decompilation-informed investigation](DECOMP-PERFORMANCE-GOAL-LOOP.md)
 starts from Preview 4/build 18. Exact native-to-source attribution now identifies
 matrix work across generated chunks. A local-register prototype is promising
-in host tests but has no physical-iPhone acceptance yet; the device control
-launch was blocked by the lock screen. No new gameplay-speed claim is retained.
+in host tests. An unlocked physical A–B–A–B check showed lower candidate
+late-window frame times (29.22/30.25 ms versus 31.50/33.26 ms), but workload
+variation, inconsistent audio results and failed native profiling prevent
+promotion. Build 18 is restored; no new general gameplay-speed claim is retained.
 The source-attribution and pinned experiment-preparation scripts are reusable;
 neither enables an experimental module in ordinary builds.
 
