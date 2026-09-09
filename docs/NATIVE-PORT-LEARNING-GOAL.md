@@ -139,7 +139,8 @@ it. Do not repeat the earlier arithmetic matrix experiment or broad sleep sweeps
 
 Architecture and 120 FPS comparison complete. Metal submission candidate
 screened and deprioritized for sustained iPhone throughput. GX boundary
-specialization is the next active step; no speed patch has been installed.
+specialization passed the host screen; physical comparison remains pending.
+No speed patch has been installed.
 
 ## Candidate implementation in progress
 
@@ -194,7 +195,31 @@ Exact local compile/link commands and hashes are in the ignored `gx-build.json`;
 `test-gx.log` contains the differential and timing results.
 
 CoreDevice currently lists both attached-device records as **disconnected**.
-No device was launched, installed, or modified. The iOS module build is underway
-independently; physical validation remains pending connection. Continue from the
-existing build handle rather than restarting it. Do not claim device acceptance
+No device was launched, installed, or modified. The iOS module build completed successfully; physical validation remains
+pending connection. Do not rebuild the completed candidate without a change. Do not claim device acceptance
 from the host test or install automatically if the user is actively playing.
+
+## Completed iOS build and resume gate
+
+The existing linker finished successfully. `ios/gx-load-module.dylib` is an
+ARM64 iOS library with minimum OS 16.0 and SDK 26.5. The compile retained
+`-mtune=apple-a15`, `-ffp-contract=off`, `-fno-fast-math`, and the original
+optimization/LTO settings. Its generated candidate source matches the tested
+Mac source byte for byte. The original iOS control module's `__text` hash
+matches the retained build-20 game module, eliminating a stale-control concern.
+The candidate has a different `__text` hash, as expected. Receipts and hashes
+are in `ref/native-port-learning/ios/artifact-audit.json` and `gx-build.json`.
+
+Both CoreDevice device records were checked again and remain disconnected.
+No app packaging, signing, installation, or device launch occurred in this pass.
+Host validation is complete; physical runtime acceptance is incomplete. The
+next step requires reconnecting and unlocking the iPhone, then preserving its
+current data and checking whether the owner is actively playing before testing.
+Do not replace build 20 permanently unless the controlled comparison supports it.
+
+Once connected, use the existing scene-aware control protocol, same v1.02 image,
+1x/4:3, and matching thermal starts. Keep save/config snapshots and original
+build-20 package available for an in-place restoration. Compare combat-only
+frame timing and audio underruns, exclude results and mixed scene windows, and
+repeat only a promising first pair. A disconnected device is not a rejected
+optimization result. Do not turn this wait into unrelated research or new tests.
