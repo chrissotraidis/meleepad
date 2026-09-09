@@ -1,9 +1,12 @@
 # meleepad technical debt
 
-Last updated: 2026-09-09
+Last updated: 2026-09-10
 
-Session stopped for today; no active goal. Start with the
-[September 9 handoff](SESSION-HANDOFF-2026-09-09.md) when resuming.
+The [native Mac comparison](NATIVE-MACOS-COMPARISON-GOAL.md) is complete.
+MeleePad sustained 59.94 FPS in two short two-fighter trials; melee4mac’s
+120 FPS mode slowed simulation in the tested scene. Next: map sampled generated
+CPU hotspots to exact decompiled routines before selecting a change. See the
+[September 9 handoff](SESSION-HANDOFF-2026-09-09.md) for the mobile work.
 
 This is the short, ranked engineering queue for future work. It is
 not a substitute for `GOAL-LOOP.md` or evidence in `docs/artifacts/`.

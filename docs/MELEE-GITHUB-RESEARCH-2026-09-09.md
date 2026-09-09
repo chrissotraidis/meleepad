@@ -191,3 +191,33 @@ Reproduction files and logs are retained under
 `compact-repeat-*.txt`, `context-repeat-*.txt`, `context-confirm-*.txt`,
 `matrix-*.txt`, `slice-size.txt`, and `llvm22-macos-compat.patch`.
 No app, module pointer, Simulator, physical device, ISO or save was modified.
+
+## Rechecked the 120 FPS claim
+
+On the owner's follow-up, GitHub still reported melee4mac HEAD as
+`a276aeb70f9879204d891d967f1c9442523568e1`.
+[PR 12](https://github.com/t3dotgg/melee4mac/pull/12) explicitly describes
+60 Hz gameplay plus predicted visual updates for 120 Hz displays, and says
+physical 120 Hz output remains to be checked. The implementation computes
+`current + (current - previous) * 0.5` for eligible pose components, performs
+an extra geometry render, then restores saved transforms. This is a real extra
+render, not a duplicate framebuffer and not 120 Hz physics.
+
+Executed its focused high-refresh suite locally:
+`python3 -m unittest discover -s native/macos/tests -p test_high_refresh.py`;
+**6 tests passed**, including compiled pose prediction/restoration checks.
+This validates those contracts, not live display output or performance.
+The precise X posts were not supplied and could not be identified by search;
+do not attribute every online claim to this one implementation.
+
+Our preceding LLVM sample test did not test or disprove this rendering feature.
+The next fair comparison for that claim is each native macOS app on the same
+Mac, same v1.02 scene, resolution and settings, with simulation, rendering and
+presentation counted separately. An iOS Simulator comparison is useful for
+mobile integration but is not a like-for-like native macOS benchmark. If the
+60 Hz baseline has headroom, then measure the extra render cost and verify
+motion on an actual 120 Hz display before considering a high-refresh option.
+
+The [completed native Mac comparison](NATIVE-MACOS-COMPARISON-GOAL.md) now records
+actual same-Mac combat tests, the 120 FPS shortfall in Onett, and the next
+decompilation-guided profiling experiment.
