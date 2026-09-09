@@ -1,8 +1,11 @@
 # meleepad technical debt
 
-Last updated: 2026-09-08
+Last updated: 2026-09-09
 
-This is the short, ranked engineering queue behind the active goal loop. It is
+Session stopped for today; no active goal. Start with the
+[September 9 handoff](SESSION-HANDOFF-2026-09-09.md) when resuming.
+
+This is the short, ranked engineering queue for future work. It is
 not a substitute for `GOAL-LOOP.md` or evidence in `docs/artifacts/`.
 
 Performance evidence: [v1.02 iPhone performance goal](IPHONE-102-PERFORMANCE-GOAL-LOOP.md).
@@ -10,7 +13,61 @@ Preview 4/build 18 rolls up the merged build-17 increment and lightweight
 gameplay timing logs.
 Sustained performance and physical netplay limitations remain open.
 
-## Current performance investigation — private build 17
+## Completed scene-aware follow-up
+
+The [bounded scene-aware goal](IPHONE-SCENE-PERFORMANCE-GOAL.md) retains
+nonblocking CPU-frame diagnostics in private build 20, with both stable build 18
+game modules unchanged. Actual logs separate VS combat slowdown from the much
+heavier results screen. The older unclassified tails are not combat acceptance.
+
+A combat-only matrix pair improved its mean by 5.02%, but thermal/workload
+confounds and an invalid-temperature confirmation prevented promotion. The
+phone is returned to diagnostic build 20; the matrix candidate remains private.
+No proven general FPS gain or public release follows. Next establish a repeatable
+combat fixture with matching temperature, and measure useful video processing
+versus FIFO/status polling before choosing a larger engine change.
+
+## Earlier owner gameplay — build 18
+
+The [2026-09-09 manual iPhone log review](IPHONE-OWNER-RUN-2026-09-09.md)
+confirms 37.9–45.6 FPS dips and 340 DMA empty-queue events across the retained
+session. The latest slow cluster has CPU-thread utilization of 94–98% and
+serious thermal pressure, but earlier dips also occur at fair thermal state.
+Later 60 FPS reports while still serious prevent attributing everything to heat.
+
+The audio queue's ±2% correction cannot cover a sustained roughly 25% game-speed
+deficit. Do not treat a larger buffer as a performance fix. Next capture
+revision-aware scene snapshots at the CPU frame boundary; the convenient
+`RunOnCPUThread` helper pauses execution and is unsuitable for routine sampling.
+The report records the implementation boundary and remaining validation.
+No runtime patch or new build was installed during this owner-run inspection.
+
+## Earlier decompilation investigation — after Preview 4
+
+The [bounded decompilation loop](DECOMP-PERFORMANCE-GOAL-LOOP.md) now maps saved
+native samples to exact source functions, using a debug rebuild whose machine
+code matches the sampled module. Matrix concatenation and inverse-transpose
+account for roughly 4.8–4.9% and 3.9–4.1% of CPU-thread samples respectively.
+Splitting functions alone passed correctness checks but offered no useful
+timing improvement and was rejected.
+
+A guarded local-floating-point-state prototype is faster in isolated host
+measurements and passes 79,000 full-module adversarial comparisons plus 300
+comparisons sampled during confirmed local Classic combat. Source-defined
+input guards admit over 99.99% of observed entries in the final local route.
+This uses Null graphics for correctness and coverage, not device speed.
+A physical A–B–A–B comparison then found lower candidate tail frame times,
+but audio did not consistently improve, the repeated workload differed and
+native profiling failed. Build 19 is not promoted; build 18 is restored on the
+iPhone. No public release was made. See the linked loop for the complete table.
+
+Next: log source-defined scene transitions independently of menu input steps,
+identify the late jump to approximately 111,000 primitives per frame, and
+profile an identical scene window. Distinguish combat from results before
+claiming a four-fighter speedup. Preserve the reproducible matrix candidate
+for that focused comparison; do not repeat broad optimization sweeps.
+
+## Earlier performance investigation — private build 17
 
 Build 17 adds a modest host-loop optimization:
 normal execution compiles out disabled diagnostic branches, while timing,

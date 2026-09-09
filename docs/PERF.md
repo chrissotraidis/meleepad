@@ -1,5 +1,27 @@
 # meleepad performance ledger
 
+The [scene-aware follow-up](IPHONE-SCENE-PERFORMANCE-GOAL.md) retains private
+build 20 diagnostics with unchanged stable game modules. It confirms combat
+slowdown separately from the very expensive VS-results tail. The matrix retry
+is not promoted: its first pair's apparent 5.02% mean improvement did not obtain
+a valid matched-temperature confirmation. There is no new proven FPS gain.
+
+Fresh [owner gameplay logs](IPHONE-OWNER-RUN-2026-09-09.md) reproduce the iPhone
+problem on restored build 18: 37.9–45.6 FPS dips, CPU-thread saturation and
+340 DMA empty-queue events. Hardware/thermal constraints contribute, but scene
+workload remains unresolved. The report separates lifecycle stalls and audio
+queue limits from sustained gameplay and records the safe next diagnostic step.
+
+The 2026-09-09 [decompilation-informed investigation](DECOMP-PERFORMANCE-GOAL-LOOP.md)
+starts from Preview 4/build 18. Exact native-to-source attribution now identifies
+matrix work across generated chunks. A local-register prototype is promising
+in host tests. An unlocked physical A–B–A–B check showed lower candidate
+late-window frame times (29.22/30.25 ms versus 31.50/33.26 ms), but workload
+variation, inconsistent audio results and failed native profiling prevent
+promotion. Build 18 is restored; no new general gameplay-speed claim is retained.
+The source-attribution and pinned experiment-preparation scripts are reusable;
+neither enables an experimental module in ordinary builds.
+
 G5 is active. G4 passed with a clean controlled 1v1 on 2026-08-24.
 
 PERF-287 attributes and reverses a new ordinary 54.2 FPS / 54.3 VPS / 0.917
