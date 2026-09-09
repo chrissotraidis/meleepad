@@ -1,5 +1,16 @@
 # meleepad status
 
+## 2026-09-09 — performance session paused; documentation published
+
+The public release remains Preview 4/build 18. Private iPhone build 20 retains
+scene-aware diagnostics with the stable game modules; matrix candidate 21 was
+not promoted. This follow-up established no reliable gameplay speedup. Heavy
+iPhone 14 scenes and audio starvation remain open. The iPad was unchanged.
+
+The research branch is preserved separately from main. See the
+[resume handoff](SESSION-HANDOFF-2026-09-09.md) for exact commits, evidence,
+build state, and bounded next steps. No goal is active and no new IPA is released.
+
 ## 2026-09-05 — Preview 3 build 7 release
 
 Preview 3 packages the current experimental Private Room and Direct IP flows,
