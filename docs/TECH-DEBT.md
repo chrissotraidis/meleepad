@@ -1,6 +1,6 @@
 # meleepad technical debt
 
-Last updated: 2026-09-08
+Last updated: 2026-09-09
 
 This is the short, ranked engineering queue behind the active goal loop. It is
 not a substitute for `GOAL-LOOP.md` or evidence in `docs/artifacts/`.
@@ -9,6 +9,25 @@ Performance evidence: [v1.02 iPhone performance goal](IPHONE-102-PERFORMANCE-GOA
 Preview 4/build 18 rolls up the merged build-17 increment and lightweight
 gameplay timing logs.
 Sustained performance and physical netplay limitations remain open.
+
+## Active decompilation investigation — after Preview 4
+
+The [bounded decompilation loop](DECOMP-PERFORMANCE-GOAL-LOOP.md) now maps saved
+native samples to exact source functions, using a debug rebuild whose machine
+code matches the sampled module. Matrix concatenation and inverse-transpose
+account for roughly 4.8–4.9% and 3.9–4.1% of CPU-thread samples respectively.
+Splitting functions alone passed correctness checks but offered no useful
+timing improvement and was rejected.
+
+A guarded local-floating-point-state prototype is faster in isolated host
+measurements and passes 79,000 full-module adversarial comparisons plus 300
+comparisons sampled during confirmed local Classic combat. Source-defined
+input guards admit over 99.99% of observed entries in the final local route.
+This uses Null graphics for correctness and coverage, not device speed. Physical
+acceptance is pending: the connected iPhone is locked, so the unchanged control
+could not launch. Private build 19 is staged, **not installed or released**.
+Do not describe its local timing reductions as a gameplay/FPS improvement.
+Preview 4/build 18 remains the stable baseline.
 
 ## Current performance investigation — private build 17
 

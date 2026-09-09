@@ -1,5 +1,13 @@
 # meleepad performance ledger
 
+The 2026-09-09 [decompilation-informed investigation](DECOMP-PERFORMANCE-GOAL-LOOP.md)
+starts from Preview 4/build 18. Exact native-to-source attribution now identifies
+matrix work across generated chunks. A local-register prototype is promising
+in host tests but has no physical-iPhone acceptance yet; the device control
+launch was blocked by the lock screen. No new gameplay-speed claim is retained.
+The source-attribution and pinned experiment-preparation scripts are reusable;
+neither enables an experimental module in ordinary builds.
+
 G5 is active. G4 passed with a clean controlled 1v1 on 2026-08-24.
 
 PERF-287 attributes and reverses a new ordinary 54.2 FPS / 54.3 VPS / 0.917
