@@ -42,6 +42,17 @@ OVERLAY_FILES = (
     "Core/HLE/HLE_Misc.cpp",
 )
 
+# The overlay is generated/private, so its path can remain present while its
+# contents come from an older Direct-only build. Keep this contract limited to
+# non-sensitive source markers that define the currently accepted search modes.
+OVERLAY_CONTRACTS = {
+    "Core/HW/EXI/EXI_DeviceSlippi.cpp": (
+        "SlippiDirectProbe::AllowsSearch",
+        'This build permits Unranked or Direct with a valid connect code',
+        "SlippiDirectProbe::unranked_searches",
+    ),
+}
+
 
 def project_paths(project: Path) -> set[Path]:
     text = project.read_text()
@@ -82,24 +93,40 @@ def main() -> int:
     required.update(path for path in response_paths(response) if path.is_relative_to(repo))
 
     missing = sorted(path.relative_to(repo) for path in required if not path.exists())
+    invalid = []
+    for relative, markers in OVERLAY_CONTRACTS.items():
+        path = repo / OVERLAY / relative
+        if path.exists():
+            text = path.read_text()
+            absent = [marker for marker in markers if marker not in text]
+            if absent:
+                invalid.append({"path": str(OVERLAY / relative), "missing_markers": absent})
     result = {
-        "pass": not missing,
+        "pass": not missing and not invalid,
         "required_paths": len(required),
         "missing": [str(path) for path in missing],
+        "invalid": invalid,
         "scope": "private prepared iPhoneOS Slippi inputs; no game or account data",
     }
     if args.json:
         import json
 
         print(json.dumps(result, indent=2))
-    elif missing:
+    elif missing or invalid:
         print("missing iPhoneOS Slippi build inputs:")
         for path in missing:
             print(f"  {path}")
+        if invalid:
+            print("invalid iPhoneOS Slippi overlay contracts:")
+            for contract in invalid:
+                print(f"  {contract['path']}")
+                for marker in contract["missing_markers"]:
+                    print(f"    missing marker: {marker}")
         print(
-            "Prepare the ignored dependency tree and native archives before "
-            "running the iPhoneOS build. No game data or account file is "
-            "created by this check."
+            "Prepare the ignored dependency tree and native archives, or "
+            "regenerate the overlay from the accepted source, before running "
+            "the iPhoneOS build. No game data or account file is created by "
+            "this check."
         )
     else:
         print(f"iPhoneOS Slippi build inputs present ({len(required)} paths)")
