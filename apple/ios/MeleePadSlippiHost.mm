@@ -1,4 +1,5 @@
 #import "MeleePadSlippiHost.h"
+#import "MeleePadDiagnostics.h"
 
 #import <Security/Security.h>
 #import <TargetConditionals.h>
@@ -133,6 +134,7 @@ static NSString *MeleePadSlippiExitMessage(NSInteger code) {
 #else
     NSData *accountData = MeleePadSlippiReadAccount();
     if (accountData == nil) {
+        MeleePadLog(@"native Slippi start blocked reason=account-missing");
         if (onError != nil)
             onError(@"Import your own Slippi user.json before starting Slippi.");
         return;

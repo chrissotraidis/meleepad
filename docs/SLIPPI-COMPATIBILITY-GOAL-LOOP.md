@@ -44,11 +44,13 @@ input.
 The required three-group native Slippi subset now passes a fresh no-JIT boot
 (`boot-native-required-017`: 118 frames, zero memory/graphics errors, native
 EXI commands observed). The remaining offline code-set failure is narrower:
-adding **Normal Lag Reduction** selects a code group that is not present in the
-captured native GCT snapshot, so the runner exits after two frames; this must
-be solved by compiling/capturing that group or explicitly constraining the
-shipping code set. The earlier `rfi`/context-save trace is not the current
-root cause of this subset failure.
+adding **Normal Lag Reduction** still exits after two frames with 84 invalid
+memory reads. A private native module rebuilt with the two exact lag-reduction
+branch replacements baked into its DOL produced the same failure, so the
+problem is not just runtime replacement of those two instructions. The
+shipping app therefore remains explicitly constrained to the three proven
+required groups while full-code compatibility stays open. The earlier
+`rfi`/context-save trace is not the current root cause of this subset failure.
 
 The first app-integration pass is now in the main target: the home screen has
 separate Original Melee and Slippi Multiplayer cards; device builds link the
@@ -2064,3 +2066,38 @@ The lobby source contract test and full repository checks remain required after
 this source change. The next executable gate is an explicit user-owned
 `user.json` import, followed by a real arranged Direct match, rematch and clean
 disconnect against a distinct compatible Slippi peer.
+
+## Iteration 42: baked Normal Lag Reduction does not clear the native failure
+
+To isolate whether the two Normal Lag Reduction writes were failing because
+they were applied by the runtime Gecko handler, a private macOS native module
+was rebuilt from the captured v1.02 Slippi DOL with these exact guest-word
+replacements compiled into the native text:
+
+- `0x803761EC`: `4180001C` → `4800001C`
+- `0x80376238`: `41820018` → `48000018`
+
+The module linked successfully as arm64 macOS (`gGALE01_recomp.dylib`, 80 MiB)
+and was run through the existing no-JIT boot harness using the owner-supplied
+v1.02 image. The required subset still passed with 102 frames and zero memory
+or graphics errors. Both `required-normal` and `full` still stopped at frame 2
+with 84 invalid reads. This rules out those two branch replacements as the
+complete fix; no generated private module was copied into the app or staged
+for release.
+
+This iteration makes the production boundary intentional rather than
+accidental: `slippi-direct-probe.cpp` verifies that all six GameINI groups are
+present, then enables only **Required: General Codes**, **Required: Slippi
+Recording**, and **Required: Slippi Online**. It does not claim Normal Lag
+Reduction or full-code parity. The online gates are unchanged: the physical
+main app has selected the separate Slippi module, but still lacks the user's
+account import, an arranged standard peer, a real rollback match, rematch, and
+clean disconnect evidence.
+
+The source-only diagnostic log was then rebuilt into `/tmp/meleepad-xcodebuild-iter45`,
+signed with the existing development identity, and installed in place on the
+same iPad. A fresh `-MeleePadGameRevision 2 -meleepadSlippi` launch found the
+provisioned v1.02 root, ISO, and `gGALE01r2_slippi_recomp.dylib`, then logged
+`native Slippi start blocked reason=account-missing` before creating a runtime.
+The process was terminated intentionally after this bounded gate check. The
+MeleePad database UUID remained `979047F1-0409-46A6-9D7E-8A7042696DB0`.
