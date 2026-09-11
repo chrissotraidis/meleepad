@@ -2407,3 +2407,14 @@ creation are demonstrated on the physical iPad; a legitimate distinct peer,
 opponent connection, rollback gameplay, rematch and clean disconnect are not.
 The simulator can continue validating the original/fixed-delay surface, but
 it cannot validate this device-only native Slippi path.
+
+## Iteration 55: verify the simulator boundary explicitly
+
+The current Release target also built successfully for arm64 iOS Simulator
+and launched on the dedicated MeleePad Netplay iPad simulator. The captured
+home screen shows the two experience cards: Original Melee is installed, while
+Slippi Multiplayer is correctly setup-gated with `Import your own Slippi
+user.json`. This confirms the intended boundary in the runnable artifact:
+the simulator can validate the chooser and legacy/fixed-delay surface, but it
+does not claim to execute the native iPhoneOS Slippi runtime or prove online
+play.
