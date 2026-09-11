@@ -40,6 +40,31 @@
 		AA0000000000000000000125 /* MeleePadControllerMapping.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000236 /* MeleePadControllerMapping.mm */; };
 		AA0000000000000000000126 /* MeleePadOnlinePlayViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000238 /* MeleePadOnlinePlayViewController.mm */; };
 		AA0000000000000000000127 /* MeleePadPublicLobbyClient.m in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000240 /* MeleePadPublicLobbyClient.m */; };
+		AA0000000000000000000128 /* MeleePadSlippiHost.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000242 /* MeleePadSlippiHost.mm */; };
+		AA0000000000000000000129 /* slippi-direct-probe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000243 /* slippi-direct-probe.cpp */; settings = {COMPILER_FLAGS = "-iquote $(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay -I$(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay"; }; };
+		AA0000000000000000000130 /* SlippiDirectCodes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000244 /* SlippiDirectCodes.cpp */; settings = {COMPILER_FLAGS = "-iquote $(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay -I$(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay"; }; };
+		AA0000000000000000000131 /* SlippiGame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000245 /* SlippiGame.cpp */; settings = {COMPILER_FLAGS = "-iquote $(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay -I$(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay"; }; };
+		AA0000000000000000000132 /* SlippiGameFileLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000246 /* SlippiGameFileLoader.cpp */; settings = {COMPILER_FLAGS = "-iquote $(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay -I$(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay"; }; };
+		AA0000000000000000000133 /* SlippiMatchmaking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000247 /* SlippiMatchmaking.cpp */; settings = {COMPILER_FLAGS = "-iquote $(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay -I$(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay"; }; };
+		AA0000000000000000000134 /* SlippiNetplay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000248 /* SlippiNetplay.cpp */; settings = {COMPILER_FLAGS = "-iquote $(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay -I$(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay"; }; };
+		AA0000000000000000000135 /* SlippiPad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000249 /* SlippiPad.cpp */; settings = {COMPILER_FLAGS = "-iquote $(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay -I$(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay"; }; };
+		AA0000000000000000000136 /* SlippiPlayback.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000024A /* SlippiPlayback.cpp */; settings = {COMPILER_FLAGS = "-iquote $(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay -I$(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay"; }; };
+		AA0000000000000000000137 /* SlippiReplayComm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000024B /* SlippiReplayComm.cpp */; settings = {COMPILER_FLAGS = "-iquote $(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay -I$(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay"; }; };
+		AA0000000000000000000138 /* SlippiSavestate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000024C /* SlippiSavestate.cpp */; settings = {COMPILER_FLAGS = "-iquote $(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay -I$(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay"; }; };
+		AA0000000000000000000139 /* SlippiSpectate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000024D /* SlippiSpectate.cpp */; settings = {COMPILER_FLAGS = "-iquote $(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay -I$(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay"; }; };
+		AA000000000000000000013A /* SlippiStrings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000024E /* SlippiStrings.cpp */; settings = {COMPILER_FLAGS = "-iquote $(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay -I$(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay"; }; };
+		AA000000000000000000013B /* SlippiUser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000024F /* SlippiUser.cpp */; settings = {COMPILER_FLAGS = "-iquote $(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay -I$(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay"; }; };
+		AA000000000000000000013C /* EXI_DeviceSlippi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000250 /* EXI_DeviceSlippi.cpp */; settings = {COMPILER_FLAGS = "-iquote $(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay -I$(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay"; }; };
+		AA000000000000000000013D /* GeckoCode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000251 /* GeckoCode.cpp */; settings = {COMPILER_FLAGS = "-iquote $(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay -I$(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay"; }; };
+		AA000000000000000000013E /* State.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000252 /* State.cpp */; settings = {COMPILER_FLAGS = "-iquote $(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay -I$(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay"; }; };
+		AA000000000000000000013F /* DVDThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000253 /* DVDThread.cpp */; settings = {COMPILER_FLAGS = "-iquote $(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay -I$(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay"; }; };
+		AA0000000000000000000140 /* OnScreenDisplay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000254 /* OnScreenDisplay.cpp */; settings = {COMPILER_FLAGS = "-iquote $(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay -I$(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay"; }; };
+		AA0000000000000000000141 /* EXI_Device.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000255 /* EXI_Device.cpp */; settings = {COMPILER_FLAGS = "-iquote $(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay -I$(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay"; }; };
+		AA0000000000000000000142 /* JitCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000256 /* JitCache.cpp */; settings = {COMPILER_FLAGS = "-iquote $(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay -I$(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay"; }; };
+		AA0000000000000000000143 /* HLE_Misc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000257 /* HLE_Misc.cpp */; settings = {COMPILER_FLAGS = "-iquote $(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay -I$(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay"; }; };
+		AA0000000000000000000144 /* dolphin_runtime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000258 /* dolphin_runtime.cpp */; settings = {COMPILER_FLAGS = "-iquote $(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay -I$(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay"; }; };
+		AA0000000000000000000145 /* StaticRecompSettings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000259 /* StaticRecompSettings.cpp */; settings = {COMPILER_FLAGS = "-iquote $(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay -I$(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay"; }; };
+		AA0000000000000000000146 /* Interpreter_LoadStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000025A /* Interpreter_LoadStore.cpp */; settings = {COMPILER_FLAGS = "-iquote $(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay -I$(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay"; }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -91,6 +116,31 @@
 		AA0000000000000000000239 /* MeleePadOnlinePlayViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MeleePadOnlinePlayViewController.h; sourceTree = "<group>"; };
 		AA0000000000000000000240 /* MeleePadPublicLobbyClient.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MeleePadPublicLobbyClient.m; sourceTree = "<group>"; };
 		AA0000000000000000000241 /* MeleePadPublicLobbyClient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MeleePadPublicLobbyClient.h; sourceTree = "<group>"; };
+		AA0000000000000000000242 /* MeleePadSlippiHost.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = MeleePadSlippiHost.mm; sourceTree = "<group>"; };
+		AA0000000000000000000243 /* slippi-direct-probe.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ../../../../scripts/slippi-direct-probe.cpp; sourceTree = "<group>"; };
+		AA0000000000000000000244 /* SlippiDirectCodes.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Core/Slippi/SlippiDirectCodes.cpp; sourceTree = "<group>"; };
+		AA0000000000000000000245 /* SlippiGame.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Core/Slippi/SlippiGame.cpp; sourceTree = "<group>"; };
+		AA0000000000000000000246 /* SlippiGameFileLoader.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Core/Slippi/SlippiGameFileLoader.cpp; sourceTree = "<group>"; };
+		AA0000000000000000000247 /* SlippiMatchmaking.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Core/Slippi/SlippiMatchmaking.cpp; sourceTree = "<group>"; };
+		AA0000000000000000000248 /* SlippiNetplay.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Core/Slippi/SlippiNetplay.cpp; sourceTree = "<group>"; };
+		AA0000000000000000000249 /* SlippiPad.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Core/Slippi/SlippiPad.cpp; sourceTree = "<group>"; };
+		AA000000000000000000024A /* SlippiPlayback.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Core/Slippi/SlippiPlayback.cpp; sourceTree = "<group>"; };
+		AA000000000000000000024B /* SlippiReplayComm.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Core/Slippi/SlippiReplayComm.cpp; sourceTree = "<group>"; };
+		AA000000000000000000024C /* SlippiSavestate.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Core/Slippi/SlippiSavestate.cpp; sourceTree = "<group>"; };
+		AA000000000000000000024D /* SlippiSpectate.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Core/Slippi/SlippiSpectate.cpp; sourceTree = "<group>"; };
+		AA000000000000000000024E /* SlippiStrings.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Core/Slippi/SlippiStrings.cpp; sourceTree = "<group>"; };
+		AA000000000000000000024F /* SlippiUser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Core/Slippi/SlippiUser.cpp; sourceTree = "<group>"; };
+		AA0000000000000000000250 /* EXI_DeviceSlippi.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Core/HW/EXI/EXI_DeviceSlippi.cpp; sourceTree = "<group>"; };
+		AA0000000000000000000251 /* GeckoCode.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Core/Cheats/GeckoCode.cpp; sourceTree = "<group>"; };
+		AA0000000000000000000252 /* State.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Core/State.cpp; sourceTree = "<group>"; };
+		AA0000000000000000000253 /* DVDThread.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Core/HW/DVD/DVDThread.cpp; sourceTree = "<group>"; };
+		AA0000000000000000000254 /* OnScreenDisplay.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = VideoCommon/OnScreenDisplay.cpp; sourceTree = "<group>"; };
+		AA0000000000000000000255 /* EXI_Device.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Core/HW/EXI/EXI_Device.cpp; sourceTree = "<group>"; };
+		AA0000000000000000000256 /* JitCache.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Core/PowerPC/JitCommon/JitCache.cpp; sourceTree = "<group>"; };
+		AA0000000000000000000257 /* HLE_Misc.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Core/HLE/HLE_Misc.cpp; sourceTree = "<group>"; };
+		AA0000000000000000000258 /* dolphin_runtime.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ../../../ModernGekko/src/runtime/dolphin_runtime.cpp; sourceTree = "<group>"; };
+		AA0000000000000000000259 /* StaticRecompSettings.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ../../../ModernGekko/vendor/dolphin/Source/Core/Core/Config/StaticRecompSettings.cpp; sourceTree = "<group>"; };
+		AA000000000000000000025A /* Interpreter_LoadStore.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ../../local-online-guest-008/Interpreter_LoadStore.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -125,6 +175,7 @@
 			children = (
 				AA0000000000000000000402 /* apple */,
 				AA0000000000000000000230 /* Sys */,
+				AA0000000000000000000407 /* SlippiNative */,
 				AA0000000000000000000403 /* Frameworks */,
 				AA0000000000000000000404 /* Products */,
 			);
@@ -145,6 +196,7 @@
 				AA0000000000000000000201 /* MeleePadAppDelegate.mm */,
 				AA0000000000000000000218 /* MeleePadCoreHost.mm */,
 				AA0000000000000000000229 /* MeleePadCoreHost.h */,
+				AA0000000000000000000242 /* MeleePadSlippiHost.mm */,
 				AA000000000000000000022C /* MeleePadDiscExtractor.mm */,
 				AA000000000000000000022D /* MeleePadDiscExtractor.h */,
 				AA0000000000000000000202 /* MeleePadGameViewController.mm */,
@@ -213,6 +265,37 @@
 			);
 			name = Products;
 			sourceTree = "<group>";
+		};
+		AA0000000000000000000407 /* SlippiNative */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000243 /* slippi-direct-probe.cpp */,
+				AA0000000000000000000244 /* SlippiDirectCodes.cpp */,
+				AA0000000000000000000245 /* SlippiGame.cpp */,
+				AA0000000000000000000246 /* SlippiGameFileLoader.cpp */,
+				AA0000000000000000000247 /* SlippiMatchmaking.cpp */,
+				AA0000000000000000000248 /* SlippiNetplay.cpp */,
+				AA0000000000000000000249 /* SlippiPad.cpp */,
+				AA000000000000000000024A /* SlippiPlayback.cpp */,
+				AA000000000000000000024B /* SlippiReplayComm.cpp */,
+				AA000000000000000000024C /* SlippiSavestate.cpp */,
+				AA000000000000000000024D /* SlippiSpectate.cpp */,
+				AA000000000000000000024E /* SlippiStrings.cpp */,
+				AA000000000000000000024F /* SlippiUser.cpp */,
+				AA0000000000000000000250 /* EXI_DeviceSlippi.cpp */,
+				AA0000000000000000000251 /* GeckoCode.cpp */,
+				AA0000000000000000000252 /* State.cpp */,
+				AA0000000000000000000253 /* DVDThread.cpp */,
+				AA0000000000000000000254 /* OnScreenDisplay.cpp */,
+				AA0000000000000000000255 /* EXI_Device.cpp */,
+				AA0000000000000000000256 /* JitCache.cpp */,
+				AA0000000000000000000257 /* HLE_Misc.cpp */,
+				AA0000000000000000000258 /* dolphin_runtime.cpp */,
+				AA0000000000000000000259 /* StaticRecompSettings.cpp */,
+				AA000000000000000000025A /* Interpreter_LoadStore.cpp */,
+			);
+			path = ref/slippi-compatibility/ios-direct-005/overlay;
+			sourceTree = SOURCE_ROOT;
 		};
 /* End PBXGroup section */
 
@@ -298,6 +381,31 @@
 				AA0000000000000000000126 /* MeleePadOnlinePlayViewController.mm in Sources */,
 				AA0000000000000000000127 /* MeleePadPublicLobbyClient.m in Sources */,
 				AA0000000000000000000104 /* MeleePadSettings.mm in Sources */,
+				AA0000000000000000000128 /* MeleePadSlippiHost.mm in Sources */,
+				AA0000000000000000000129 /* slippi-direct-probe.cpp in Sources */,
+				AA0000000000000000000130 /* SlippiDirectCodes.cpp in Sources */,
+				AA0000000000000000000131 /* SlippiGame.cpp in Sources */,
+				AA0000000000000000000132 /* SlippiGameFileLoader.cpp in Sources */,
+				AA0000000000000000000133 /* SlippiMatchmaking.cpp in Sources */,
+				AA0000000000000000000134 /* SlippiNetplay.cpp in Sources */,
+				AA0000000000000000000135 /* SlippiPad.cpp in Sources */,
+				AA0000000000000000000136 /* SlippiPlayback.cpp in Sources */,
+				AA0000000000000000000137 /* SlippiReplayComm.cpp in Sources */,
+				AA0000000000000000000138 /* SlippiSavestate.cpp in Sources */,
+				AA0000000000000000000139 /* SlippiSpectate.cpp in Sources */,
+				AA000000000000000000013A /* SlippiStrings.cpp in Sources */,
+				AA000000000000000000013B /* SlippiUser.cpp in Sources */,
+				AA000000000000000000013C /* EXI_DeviceSlippi.cpp in Sources */,
+				AA000000000000000000013D /* GeckoCode.cpp in Sources */,
+				AA000000000000000000013E /* State.cpp in Sources */,
+				AA000000000000000000013F /* DVDThread.cpp in Sources */,
+				AA0000000000000000000140 /* OnScreenDisplay.cpp in Sources */,
+				AA0000000000000000000141 /* EXI_Device.cpp in Sources */,
+				AA0000000000000000000142 /* JitCache.cpp in Sources */,
+				AA0000000000000000000143 /* HLE_Misc.cpp in Sources */,
+				AA0000000000000000000144 /* dolphin_runtime.cpp in Sources */,
+				AA0000000000000000000145 /* StaticRecompSettings.cpp in Sources */,
+				AA0000000000000000000146 /* Interpreter_LoadStore.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -309,7 +417,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++2b";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++23";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -341,7 +449,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++2b";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++23";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -383,6 +491,15 @@
 					"$(SRCROOT)/ref/ModernGekko/build-ios-iphoneos-meleepad-static/vendor/dolphin/Source/Core",
 					"$(SRCROOT)/ref/ModernGekko/vendor/dolphin/Externals/fmt/fmt/include",
 					"$(SRCROOT)/ref/ModernGekko/vendor/dolphin/Externals/picojson",
+					"$(SRCROOT)/ref/ModernGekko/vendor/dolphin/Externals/enet/enet/include",
+					"$(SRCROOT)/ref/ModernGekko/vendor/dolphin/Externals/mbedtls/include",
+					"$(SRCROOT)/ref/ModernGekko/vendor/dolphin/Externals/imgui/imgui",
+					"$(SRCROOT)/ref/ModernGekko/vendor/dolphin/Externals/SFML/SFML/include",
+					"$(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay",
+					"$(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay/Core/Slippi",
+					"$(SRCROOT)/ref/slippi-compatibility/upstream/Externals",
+					"$(SRCROOT)/ref/slippi-compatibility/rust/ffi/includes",
+					"$(SRCROOT)/scripts",
 				);
 				INFOPLIST_FILE = apple/ios/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -396,7 +513,6 @@
 				MARKETING_VERSION = 0.1.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
-					"@$(SRCROOT)/apple/ios/Provisioned/$(PLATFORM_NAME)/libs/MeleePadCore.rsp",
 					"-lz",
 					"-lbz2",
 					"-liconv",
@@ -404,14 +520,63 @@
 					"-lcompression",
 					"-framework AVFAudio",
 				);
+				"OTHER_LDFLAGS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"@$(SRCROOT)/apple/ios/Provisioned/$(PLATFORM_NAME)/libs/MeleePadCore.rsp",
+				);
 				OTHER_CFLAGS = (
 					"$(inherited)",
 					"-ffile-prefix-map=$(SRCROOT)=.",
+				);
+				"EXCLUDED_SOURCE_FILE_NAMES[sdk=iphonesimulator*]" = (
+					"slippi-direct-probe.cpp",
+					"SlippiDirectCodes.cpp",
+					"SlippiGame.cpp",
+					"SlippiGameFileLoader.cpp",
+					"SlippiMatchmaking.cpp",
+					"SlippiNetplay.cpp",
+					"SlippiPad.cpp",
+					"SlippiPlayback.cpp",
+					"SlippiReplayComm.cpp",
+					"SlippiSavestate.cpp",
+					"SlippiSpectate.cpp",
+					"SlippiStrings.cpp",
+					"SlippiUser.cpp",
+					"EXI_DeviceSlippi.cpp",
+					"GeckoCode.cpp",
+					"State.cpp",
+					"DVDThread.cpp",
+					"OnScreenDisplay.cpp",
+					"EXI_Device.cpp",
+					"JitCache.cpp",
+					"HLE_Misc.cpp",
+					"dolphin_runtime.cpp",
+					"StaticRecompSettings.cpp",
+					"Interpreter_LoadStore.cpp",
+				);
+				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"@$(SRCROOT)/apple/ios/Provisioned/iphoneos/libs/MeleePadSlippiCore.rsp",
+					"-Wl,-force_load,$(SRCROOT)/ref/slippi-compatibility/exi-probe-001/vcdiff-ios/libvcdenc.a",
+					"-Wl,-force_load,$(SRCROOT)/ref/slippi-compatibility/exi-probe-001/vcdiff-ios/libvcddec.a",
+					"-Wl,-force_load,$(SRCROOT)/ref/slippi-compatibility/exi-probe-001/vcdiff-ios/libvcdcom.a",
+					"$(SRCROOT)/ref/slippi-compatibility/exi-probe-001/Semver200_comparator-ios.o",
+					"$(SRCROOT)/ref/slippi-compatibility/exi-probe-001/Semver200_modifier-ios.o",
+					"$(SRCROOT)/ref/slippi-compatibility/exi-probe-001/Semver200_parser-ios.o",
+					"$(SRCROOT)/ref/slippi-compatibility/rust-build-ios16/aarch64-apple-ios/release/libslippi_rust_extensions.a",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(inherited)",
 					"-D_ARCH_64=1",
 					"-D_M_ARM_64=1",
+					"-DSLIPPI=CORE",
+					"-DSLIPPI_ONLINE=CORE",
+					"-include",
+					"$(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay/Core/Slippi/SlippiCompat.h",
+					"-fno-exceptions",
+					"-U_LIBCPP_HARDENING_MODE",
+					"-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_NONE",
+					"-DJSON_NOEXCEPTION",
 					"-ffile-prefix-map=$(SRCROOT)=.",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.meleepad.MeleePad;
@@ -443,6 +608,15 @@
 					"$(SRCROOT)/ref/ModernGekko/build-ios-iphoneos-meleepad-static/vendor/dolphin/Source/Core",
 					"$(SRCROOT)/ref/ModernGekko/vendor/dolphin/Externals/fmt/fmt/include",
 					"$(SRCROOT)/ref/ModernGekko/vendor/dolphin/Externals/picojson",
+					"$(SRCROOT)/ref/ModernGekko/vendor/dolphin/Externals/enet/enet/include",
+					"$(SRCROOT)/ref/ModernGekko/vendor/dolphin/Externals/mbedtls/include",
+					"$(SRCROOT)/ref/ModernGekko/vendor/dolphin/Externals/imgui/imgui",
+					"$(SRCROOT)/ref/ModernGekko/vendor/dolphin/Externals/SFML/SFML/include",
+					"$(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay",
+					"$(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay/Core/Slippi",
+					"$(SRCROOT)/ref/slippi-compatibility/upstream/Externals",
+					"$(SRCROOT)/ref/slippi-compatibility/rust/ffi/includes",
+					"$(SRCROOT)/scripts",
 				);
 				INFOPLIST_FILE = apple/ios/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -456,7 +630,6 @@
 				MARKETING_VERSION = 0.1.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
-					"@$(SRCROOT)/apple/ios/Provisioned/$(PLATFORM_NAME)/libs/MeleePadCore.rsp",
 					"-lz",
 					"-lbz2",
 					"-liconv",
@@ -464,14 +637,63 @@
 					"-lcompression",
 					"-framework AVFAudio",
 				);
+				"OTHER_LDFLAGS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"@$(SRCROOT)/apple/ios/Provisioned/$(PLATFORM_NAME)/libs/MeleePadCore.rsp",
+				);
 				OTHER_CFLAGS = (
 					"$(inherited)",
 					"-ffile-prefix-map=$(SRCROOT)=.",
+				);
+				"EXCLUDED_SOURCE_FILE_NAMES[sdk=iphonesimulator*]" = (
+					"slippi-direct-probe.cpp",
+					"SlippiDirectCodes.cpp",
+					"SlippiGame.cpp",
+					"SlippiGameFileLoader.cpp",
+					"SlippiMatchmaking.cpp",
+					"SlippiNetplay.cpp",
+					"SlippiPad.cpp",
+					"SlippiPlayback.cpp",
+					"SlippiReplayComm.cpp",
+					"SlippiSavestate.cpp",
+					"SlippiSpectate.cpp",
+					"SlippiStrings.cpp",
+					"SlippiUser.cpp",
+					"EXI_DeviceSlippi.cpp",
+					"GeckoCode.cpp",
+					"State.cpp",
+					"DVDThread.cpp",
+					"OnScreenDisplay.cpp",
+					"EXI_Device.cpp",
+					"JitCache.cpp",
+					"HLE_Misc.cpp",
+					"dolphin_runtime.cpp",
+					"StaticRecompSettings.cpp",
+					"Interpreter_LoadStore.cpp",
+				);
+				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"@$(SRCROOT)/apple/ios/Provisioned/iphoneos/libs/MeleePadSlippiCore.rsp",
+					"-Wl,-force_load,$(SRCROOT)/ref/slippi-compatibility/exi-probe-001/vcdiff-ios/libvcdenc.a",
+					"-Wl,-force_load,$(SRCROOT)/ref/slippi-compatibility/exi-probe-001/vcdiff-ios/libvcddec.a",
+					"-Wl,-force_load,$(SRCROOT)/ref/slippi-compatibility/exi-probe-001/vcdiff-ios/libvcdcom.a",
+					"$(SRCROOT)/ref/slippi-compatibility/exi-probe-001/Semver200_comparator-ios.o",
+					"$(SRCROOT)/ref/slippi-compatibility/exi-probe-001/Semver200_modifier-ios.o",
+					"$(SRCROOT)/ref/slippi-compatibility/exi-probe-001/Semver200_parser-ios.o",
+					"$(SRCROOT)/ref/slippi-compatibility/rust-build-ios16/aarch64-apple-ios/release/libslippi_rust_extensions.a",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(inherited)",
 					"-D_ARCH_64=1",
 					"-D_M_ARM_64=1",
+					"-DSLIPPI=CORE",
+					"-DSLIPPI_ONLINE=CORE",
+					"-include",
+					"$(SRCROOT)/ref/slippi-compatibility/ios-direct-005/overlay/Core/Slippi/SlippiCompat.h",
+					"-fno-exceptions",
+					"-U_LIBCPP_HARDENING_MODE",
+					"-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_NONE",
+					"-DJSON_NOEXCEPTION",
 					"-ffile-prefix-map=$(SRCROOT)=.",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.meleepad.MeleePad;

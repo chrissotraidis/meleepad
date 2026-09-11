@@ -19,6 +19,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)gameOverlayRequestsControllerMapping:(MeleePadGameOverlay *)overlay;
 /* The user asked to open the native Online Play setup and lobby. */
 - (void)gameOverlayRequestsOnlinePlay:(MeleePadGameOverlay *)overlay;
+/* The user asked to stop the active runtime and return to the launcher. */
+- (void)gameOverlayRequestsExitToHome:(MeleePadGameOverlay *)overlay;
 /* Current privacy-safe app/runtime state for a user-generated problem report. */
 - (NSString *)gameOverlayDiagnosticContext:(MeleePadGameOverlay *)overlay;
 /* The performance profile actually selected at launch. */
