@@ -1134,7 +1134,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     if (slippiHost == nil)
         slippiHost = [[MeleePadSlippiHost alloc] initWithLayer:(CAMetalLayer *)_gameView.layer];
     NSString *slippiDetail = [slippiHost hasImportedAccount]
-        ? @"Native Direct · account ready · multiplayer"
+        ? @"Native Slippi · account ready · Unranked + Direct"
         : @"Import your own Slippi user.json to connect online.";
     [choices addArrangedSubview:(makeChoiceCard(
         @"Slippi Multiplayer", slippiDetail,
@@ -1451,8 +1451,8 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
             MeleePadGameViewController *strongSelf = weakSelf;
             if (strongSelf == nil)
                 return;
-            strongSelf->_bootStatusLabel.text = @"Slippi Direct · waiting for an arranged opponent…";
-            strongSelf->_bootStatusLabel.accessibilityLabel = @"Slippi Direct waiting for an arranged opponent";
+            strongSelf->_bootStatusLabel.text = @"Slippi waiting for an opponent";
+            strongSelf->_bootStatusLabel.accessibilityLabel = @"Slippi waiting for an opponent";
             [strongSelf->_bootActivityIndicator stopAnimating];
             MeleePadLog(@"native Slippi host started revision=%ld", (long)slippiRevision);
         }
