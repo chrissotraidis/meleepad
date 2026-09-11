@@ -2512,3 +2512,31 @@ legitimate distinct Slippi peer followed by opponent connection, rollback
 gameplay, a completed match, rematch and clean disconnect. The local desktop
 comparison remains diagnostic-only until its reference and native clients are
 driven from the same controlled roles and input timeline.
+
+## Iteration 62: reproduce and bound the desktop/native item divergence
+
+The private desktop reference lab was rerun with the correct macOS reference
+runtime and completed its synthetic local-fixture session. The reference
+client assigned the native client, reached a connected local session, and
+wrote a closed replay. The native runtime exited cleanly; this remains a
+private compatibility lab and did not use the public Slippi service.
+
+The replay was extracted and compared with the native trace from that run. The
+comparison covered 1,442 common finalized frames and 4,623 compared packets;
+rollback was observed with 18 rewind events and 83 changed predictions on the
+second client. There were 126 mismatching frames. Every mismatch was in a
+`0x3b` item payload: both sides had 297 item packets, so this is not a packet
+count or transport-loss problem. The 231 payload mismatches include a
+recurring one-ULP float difference (`41021f33` versus `41021f32`) plus
+discrete item-field differences at offsets `0x1b`, `0x28`, and `0x29`, first
+appearing around frame 222.
+
+This is now a deterministic diagnostic target, but it is not yet safe to patch
+the item arithmetic: the reference controller and native fixture currently
+use different menu/game input timelines, so the two simulations are not
+state-equivalent. No production arithmetic was changed. The next useful lab
+pass is to drive both roles from one controlled frame/input schedule, then
+retest whether the item divergence survives equivalent state. This evidence
+does not change the online acceptance boundary: a legitimate distinct peer,
+rollback gameplay, completed match, rematch and clean disconnect are still
+unverified.
