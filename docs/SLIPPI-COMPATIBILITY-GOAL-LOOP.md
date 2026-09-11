@@ -2254,3 +2254,17 @@ acceptance gate. The latest physical report still has zero searches and zero
 game bookends because no menu input was injected. A distinct legitimate peer,
 manual navigation, service response, rollback match, rematch, and clean
 disconnect remain necessary for a real online claim.
+
+## Iteration 48: align the native entry surface with the accepted modes
+
+The main app's Slippi card and native boot status previously described the
+account-ready path as Direct-only. They now identify the actual guarded
+capability as **Unranked + Direct** and use neutral opponent-waiting status
+text. This keeps the two-pane home surface and the native runtime's visible
+state consistent without implying that a service ticket or match has already
+been accepted.
+
+The iOS Online Play source-contract test passed and the unsigned iPhoneOS
+Release target rebuilt successfully at `/tmp/meleepad-xcodebuild-final`.
+The UI-only change is tracked in commit `86a60fc` (`Align Slippi status with
+supported modes`).
