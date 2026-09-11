@@ -2233,3 +2233,24 @@ the service accepted a ticket. A real account-backed Unranked or arranged
 Direct run still needs manual game-menu navigation, a compatible peer where
 applicable, and evidence of the service response, netplay connection,
 rollback, match end, and clean disconnect.
+
+## Iteration 47: prevent stale private overlays from regressing the search gate
+
+The iPhoneOS Slippi preflight previously verified only that the generated
+overlay paths existed. It now also checks three non-sensitive source markers
+in `Core/HW/EXI/EXI_DeviceSlippi.cpp`: the guarded search predicate, the
+Unranked/Direct rejection message, and the separate Unranked telemetry
+counter. An old Direct-only overlay therefore fails before Xcode compiles it,
+instead of producing a misleading app that appears to contain the new route.
+
+The updated preflight passed with 91 required paths and no invalid contracts.
+`bash scripts/check-repository.sh` passed, `git diff --check` passed, and a
+fresh unsigned iPhoneOS Release build completed successfully at
+`/tmp/meleepad-xcodebuild-preflight`. The change is tracked in commit
+`2869a78` (`Guard prepared Slippi overlay contract`).
+
+This improves build reproducibility only; it does not advance the online
+acceptance gate. The latest physical report still has zero searches and zero
+game bookends because no menu input was injected. A distinct legitimate peer,
+manual navigation, service response, rollback match, rematch, and clean
+disconnect remain necessary for a real online claim.
