@@ -2268,3 +2268,19 @@ The iOS Online Play source-contract test passed and the unsigned iPhoneOS
 Release target rebuilt successfully at `/tmp/meleepad-xcodebuild-final`.
 The UI-only change is tracked in commit `86a60fc` (`Align Slippi status with
 supported modes`).
+
+## Iteration 49: reproduce the private native candidate from pinned evidence
+
+The private candidate builder was rerun with the accepted iPhoneOS link
+evidence (`ios-link-002`), its referenced boot evidence (`game-delay-003`),
+the accepted iPad probe base (`ios-app-012`), and the current iPhoneOS static
+runtime. It compiled the native Slippi sources, iOS host, and packed-float
+adapter into a new ignored candidate at
+`ref/slippi-compatibility/ios-direct-007`.
+
+The candidate record reports `permitted_search_mode=Unranked/Direct`,
+`code_subset=required`, bundle identity audit pass, unchanged shared archives,
+and `signed=false`, `installed=false`, `executed=false`, and
+`service_authentication_tested=false`. This closes the private candidate
+rebuild/relink check, but it is not an online result and must not be packaged
+or distributed with game data or credentials.
