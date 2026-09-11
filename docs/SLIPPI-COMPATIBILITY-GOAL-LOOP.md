@@ -2357,8 +2357,9 @@ The physical iPad run used the retained private app and the explicitly signed
 `PrivateQA/gGALE01r2_slippi_recomp.dylib`. The explicit module signature is
 required because the nonstandard `PrivateQA` bundle path is not covered by
 `codesign --deep`; the app then passed its native module preflight and loaded
-the Slippi runtime. The latest run was
-`6D9501B1-62D4-4581-8A7C-BEFD9694EAA2` on iPad14,5 / iPadOS 26.6.1:
+the Slippi runtime. The latest exact-source run was
+`9A29C4A3-FBAC-4AFE-87C9-B703077C50FC` at 22:51:24 on iPad14,5 /
+iPadOS 26.6.1:
 `worker_finished=true`, `exit_code=0`, `boot_error=0`, `memory_errors=0`,
 `graphics_errors=0`, `account_file_loaded=1`, and `game_files_written=true`.
 Its search and matchmaking counters were all zero, with zero games and zero
