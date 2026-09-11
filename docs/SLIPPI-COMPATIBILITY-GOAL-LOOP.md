@@ -2540,3 +2540,31 @@ retest whether the item divergence survives equivalent state. This evidence
 does not change the online acceptance boundary: a legitimate distinct peer,
 rollback gameplay, completed match, rematch and clean disconnect are still
 unverified.
+
+## Iteration 63: compare with a shared in-game input schedule
+
+The private reference lab was rerun with dynamic menu navigation and the same
+native gameplay fixture applied to the reference client's local controller
+after it entered the game. Both clients connected through the loopback-only
+synthetic fixture; the reference wrote a closed replay, rollback was observed,
+and the native runtime exited with no memory or graphics errors. This was not
+a public-service or physical-device run.
+
+The comparison covered 1,642 common finalized frames and 5,287 complete
+packets. The RNG packets (`0x3a`) matched on every frame. Rollback remained
+observable with 18 rewind events and 84 changed predictions on the reference
+side, but player packets (`0x38`) differed on 84 frames and item payloads
+(`0x3b`) differed on 295 of 361 compared item packets. The first item payload
+divergence was at frame 21; there were no item packet-count mismatches. The
+shared schedule therefore rules out a simple RNG or packet-loss explanation,
+but it does not yet prove state equivalence because menu timing, role startup
+and the fixture's remote-player inputs are not captured as one frame-addressed
+timeline.
+
+For completeness, forcing both runtimes through the PowerPC interpreter did
+not reach the two-client match within the lab's 60-second native probe bound;
+the native interpreter advanced only 375 frames while the reference waited
+for its second ticket. That is a performance-bound diagnostic result, not a
+parity result. No production arithmetic was changed. The next compatibility
+pass must make the two roles frame-addressed and state-equivalent before any
+`0x38` or `0x3b` arithmetic change is considered.
