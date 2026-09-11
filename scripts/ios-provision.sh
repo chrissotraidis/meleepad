@@ -39,6 +39,10 @@ esac
 
 mkdir -p "$LIBS_DIR"
 
+if [[ "$PLATFORM" == "device" ]]; then
+  python3 "$ROOT/scripts/check-ios-slippi-build-inputs.py"
+fi
+
 if [[ ! -d "$IOS_BUILD" ]]; then
   echo "iOS core build missing: $IOS_BUILD" >&2
   exit 1

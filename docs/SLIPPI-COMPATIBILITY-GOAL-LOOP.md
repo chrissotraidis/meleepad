@@ -2101,3 +2101,31 @@ provisioned v1.02 root, ISO, and `gGALE01r2_slippi_recomp.dylib`, then logged
 `native Slippi start blocked reason=account-missing` before creating a runtime.
 The process was terminated intentionally after this bounded gate check. The
 MeleePad database UUID remained `979047F1-0409-46A6-9D7E-8A7042696DB0`.
+
+## Iteration 43: make the prepared iPhoneOS build boundary explicit
+
+The Xcode target consumes generated and private material under `ref/`, while
+those artifacts are intentionally ignored and are not a fresh-checkout source
+distribution. A new `scripts/check-ios-slippi-build-inputs.py` preflight now
+enumerates the target's literal generated paths, the required native Slippi
+overlay sources, the separate packed-float source, and every archive named by
+the iPhoneOS linker response. It reports the complete missing set without
+reading game or account data. In this prepared workspace it passed with **90
+required paths**; `scripts/ios-provision.sh device` runs the same check before
+writing the local linker/configuration files.
+
+The local machine also contains the owner's existing official Slippi account
+export at the expected desktop Dolphin location. Its contents were not added
+to Git, printed in diagnostics, or copied into the app bundle. A bounded
+read-only AFC connection to the paired iPad timed out because another
+long-lived session owns the device file service; that session was left running
+and no account or game data was changed. The main app therefore remains at the
+same physical gate: the native Slippi module is selected, but its device-only
+Keychain account is still absent.
+
+The preflight and device provisioning check pass, and the existing iPhoneOS
+Release build remains valid. This does not change online status: there is still
+no authenticated main-app Slippi runtime, arranged distinct peer, Direct
+match, rollback match, rematch, or clean reconnect evidence. Resume at account
+import when the device service is free; do not kill the unrelated AFC session
+or substitute a duplicate/synthetic account.
