@@ -2381,3 +2381,29 @@ the native runtime remains a private QA capability and the active goal stays
 open. The original Melee path remains separate and working; the current main
 app is a chooser with one active native runtime, not simultaneous left/right
 gameplay panes.
+
+## Iteration 54: reconcile the live iPad retry without overstating acceptance
+
+The focused native candidate was installed in place on the paired physical
+iPad and launched with the account-backed menu probe. The app loaded the
+bundled v1.02 disc, Slippi bootloader and private GALE01 resource pack,
+including `MxScn.dat`; the native worker finished cleanly with
+`boot_error=0`, `memory_errors=0`, `graphics_errors=0`,
+`account_file_loaded=1`, and `exit_code=0`. The retry's final screenshot was
+still the Slippi character-selection screen, so its search counters remained
+zero. This is a bounded menu-input retry result, not a completed online-match
+result and not a regression of the earlier search proof.
+
+The strongest current physical acceptance evidence remains the prior direct
+run: the iPad visibly reached `Searching for opponent`, and its structured
+report recorded `unranked_searches=1`, `matchmaking_initializing=1`, and
+`matchmaking_ticket_ready=1`, with `matchmaking_connected=0`, zero games and
+zero rollback packets. The live retry was terminated after report collection;
+an unrelated SlippiProbe process on the device was left untouched.
+
+The active goal therefore remains open at the same precise boundary: native
+Slippi boot, resource loading, account handoff, menu rendering and ticket
+creation are demonstrated on the physical iPad; a legitimate distinct peer,
+opponent connection, rollback gameplay, rematch and clean disconnect are not.
+The simulator can continue validating the original/fixed-delay surface, but
+it cannot validate this device-only native Slippi path.
