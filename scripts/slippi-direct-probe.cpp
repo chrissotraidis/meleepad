@@ -131,6 +131,7 @@ int SlippiDirectMain(const char* game, const char* iso, const char* module,
   std::ofstream report(config.user_directory/"direct-runtime.json");
   report << "{\"boot_error\":" << bool(result.error) << ",\"memory_errors\":" << memory_errors.load()
          << ",\"graphics_errors\":" << graphics_errors.load() << ",\"direct_searches\":" << SlippiDirectProbe::direct_searches.load()
+         << ",\"unranked_searches\":" << SlippiDirectProbe::unranked_searches.load()
          << ",\"denied_searches\":" << SlippiDirectProbe::denied_searches.load()
          << ",\"account_file_loaded\":" << SlippiDirectProbe::account_loaded.load()
          << ",\"game_starts\":" << SlippiDirectProbe::game_starts.load() << ",\"game_ends\":" << SlippiDirectProbe::game_ends.load()

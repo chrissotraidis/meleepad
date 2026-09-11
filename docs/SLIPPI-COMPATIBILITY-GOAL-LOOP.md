@@ -2207,3 +2207,29 @@ rollback match, rematch, clean disconnect, crossplay, or Unranked result has
 been observed. A second legitimate Slippi identity and an arranged compatible
 peer remain required for the online claim; do not manufacture one or enter a
 public queue merely to make the counters nonzero.
+
+## Iteration 46: expose the supported Unranked search path
+
+The native EXI adapter was still rejecting every matchmaking mode except
+Direct, even though the linked Slippi client contains the standard Unranked
+path. The guarded acceptance policy now permits Unranked with its required
+empty connect code and Direct only with a bounded, printable arranged-opponent
+code. Ranked, Teams, and Party remain rejected until their separate service and
+gameplay lifecycles are accepted. Telemetry now distinguishes Direct and
+Unranked search attempts.
+
+The gate test passed with 15 checks. The main iPhoneOS Release target rebuilt
+successfully after the change. A newly signed private QA bundle was installed
+in place on the same iPad and retained database UUID
+`979047F1-0409-46A6-9D7E-8A7042696DB0`. Its bounded native Slippi account boot
+recorded `boot_error=0`, zero captured memory/graphics errors,
+`account_file_loaded=1`, JIT disabled, and clean worker completion; the
+temporary account cache and runtime `User/Slippi/user.json` were absent after
+teardown. No input was injected, so search and game counters correctly stayed
+zero.
+
+This enables the intended Unranked route in the client but does not claim that
+the service accepted a ticket. A real account-backed Unranked or arranged
+Direct run still needs manual game-menu navigation, a compatible peer where
+applicable, and evidence of the service response, netplay connection,
+rollback, match end, and clean disconnect.
