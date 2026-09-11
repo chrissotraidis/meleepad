@@ -1,6 +1,6 @@
 # Slippi compatibility implementation loop
 
-Started: 2026-09-10. Current phase: native main-app online acceptance. S1 passed; the required native offline subset passes; the iPhoneOS app target now links and has launched on the physical iPad. Native v1.02 boot/render and the separate Slippi module-selection gate are proven on the iPad; account import, Direct matchmaking, full-code parity and crossplay remain open. The active goal tool objective owns this loop; this log records the evidence checkpoint.
+Started: 2026-09-10. Current phase: native main-app online acceptance. S1 passed; the required native offline subset passes; the iPhoneOS app target now links and has launched on the physical iPad. Native v1.02 boot/render, Slippi module selection, and the private account-to-runtime handoff are proven on the iPad; service matchmaking, full-code parity, rollback gameplay, rematch/disconnect, and crossplay remain open. The active goal tool objective owns this loop; this log records the evidence checkpoint.
 
 ## Objective and priority
 
@@ -57,11 +57,11 @@ separate Original Melee and Slippi Multiplayer cards; device builds link the
 native Slippi sources; the device-only host imports a normalized account into
 Keychain, starts Slippi on the app's existing Metal layer, and forwards the
 merged controller state. Simulator retains the old fixed-delay route only as a
-regression stub. A signed Release build has now launched on the physical iPad
-and visibly rendered both cards. The native host has not yet been started there
-because this new app container has no imported game data or account. Standard
-desktop Direct, complete match/rematch and public service acceptance remain
-required.
+regression stub. A signed Release build has now launched on the physical iPad,
+visibly rendered both cards, selected the separate Slippi module, and completed
+the private account-to-runtime handoff with the temporary plaintext copies
+removed. Standard desktop Direct, complete match/rematch and public service
+acceptance remain required.
 
 ## Pinned starting point
 
@@ -84,8 +84,8 @@ the exact limits of existing compiler and snapshot evidence.
 | S1: host components | Reproducible build of required Slippi components against the current runtime; execute snapshot and local peer-input transport tests | Passed at component scope: full C++ Slippi EXI device and dependencies compile for macOS/iOS, link and execute on macOS; snapshot, peer input and resource probes pass |
 | S2: game integration | Actual Slippi boot, resources and EXI commands; full required injected-code dispatch with no JIT; account-free local game setup | Required groups run an offline match through Metal, including movement, attacks and Slippi frame/item events. Compiled patched text and GCT execute with strict fallback. Full default codes still fail; not all code paths or a complete match/rematch are accepted. Actual game restoration and controlled delayed-input resimulation now pass |
 | S3: rollback correctness | Same initial match and authoritative inputs, injected 1/3/7-frame input delays; finalized state agrees with on-time baseline at canonical game boundaries; no suppressed mismatch | Partial pass: offline game, 1/3/7-frame wrong predictions corrected from one captured state; 717 exact player/RNG/item packet comparisons on macOS and 786 on iPad, zero mismatches. Actual local online rollback now corrects changed predictions with up to 3- and 7-frame rewinds under 120/200 ms PAD delays; 4,985/4,994 finalized player/RNG/item packets agree between clients. The physical LAN pair also agrees on 4,875 packets with changed predictions and up to six-frame iPad rewinds. Same-input online on-time baseline and desktop agreement remain open |
-| S4: desktop compatibility | Arranged Direct game against a standard pinned desktop Slippi build, full match/results/rematches, clean disconnect/reconnect | Partial diagnostic: source-built, isolated Ishiiruka reference pairs and plays against native no-JIT runtime. Player/RNG packets match through observed desktop rollback; item packet state diverges. Main iOS target now links the Direct host, but no signed-app runtime or standard service Direct match is accepted |
-| S5: iPad acceptance | Repeat S3/S4 on physical iPad with sustained simulation/frame timing, rollback cost, audio and thermal measurements | Separate Slippi probe evidence covers physical offline/local online corrections and a longer CoreAudio run matching 11,217 packets at 59.74 game frames/s with zero measured-window DMA underruns. The main MeleePad app now passes signed install and physical home launch, but its native host has not yet run because this new container has no game data/account. Audible quality, pause/rule behavior, sustained full matches/rematches and standard desktop crossplay remain open |
+| S4: desktop compatibility | Arranged Direct game against a standard pinned desktop Slippi build, full match/results/rematches, clean disconnect/reconnect | Partial diagnostic: source-built, isolated Ishiiruka reference pairs and plays against native no-JIT runtime. Player/RNG packets match through observed desktop rollback; item packet state diverges. Main iOS target now links the native host and has passed signed physical boot/account handoff, but no standard service Direct match is accepted |
+| S5: iPad acceptance | Repeat S3/S4 on physical iPad with sustained simulation/frame timing, rollback cost, audio and thermal measurements | Separate Slippi probe evidence covers physical offline/local online corrections and a longer CoreAudio run matching 11,217 packets at 59.74 game frames/s with zero measured-window DMA underruns. The main MeleePad app now passes signed install, physical module selection, account handoff, and clean bounded native shutdown; no menu-driven match has run. Audible quality, pause/rule behavior, sustained full matches/rematches and standard desktop crossplay remain open |
 | S6: existing player discovery | Normal account integration and an actual Unranked game after Direct is stable | Not tested |
 
 S1 and S2 may advance by independently testable components. S3 must exercise
