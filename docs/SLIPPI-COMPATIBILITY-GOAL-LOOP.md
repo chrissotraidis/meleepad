@@ -2553,13 +2553,14 @@ a public-service or physical-device run.
 The comparison covered 1,642 common finalized frames and 5,287 complete
 packets. The RNG packets (`0x3a`) matched on every frame. Rollback remained
 observable with 18 rewind events and 84 changed predictions on the reference
-side, but player packets (`0x38`) differed on 84 frames and item payloads
-(`0x3b`) differed on 295 of 361 compared item packets. The first item payload
-divergence was at frame 21; there were no item packet-count mismatches. The
-shared schedule therefore rules out a simple RNG or packet-loss explanation,
-but it does not yet prove state equivalence because menu timing, role startup
-and the fixture's remote-player inputs are not captured as one frame-addressed
-timeline.
+side. After selecting the latest finalized packet for each rollback frame,
+all 3,284 player packets (`0x38`) and all 1,642 RNG packets matched exactly.
+The genuine divergence is in item payloads (`0x3b`): 295 of 361 compared item
+packets differ, first at frame 21, with no item packet-count mismatches. The
+shared schedule therefore rules out a simple RNG, player-state or packet-loss
+explanation, but it does not yet prove state equivalence for item creation
+because menu timing, role startup and the fixture's remote-player inputs are
+not captured as one frame-addressed timeline.
 
 For completeness, forcing both runtimes through the PowerPC interpreter did
 not reach the two-client match within the lab's 60-second native probe bound;
@@ -2568,3 +2569,13 @@ for its second ticket. That is a performance-bound diagnostic result, not a
 parity result. No production arithmetic was changed. The next compatibility
 pass must make the two roles frame-addressed and state-equivalent before any
 `0x38` or `0x3b` arithmetic change is considered.
+
+A follow-up run corrected the private controller's analog-coordinate conversion
+from the native fixture's `[-1, 1]` convention to libmelee's `[0, 1]` API. On
+1,647 common finalized frames, the latest-finalized `0x38` player packets and
+all `0x3a` RNG packets still matched exactly. Item payloads diverged on 240
+frames, or 392 of 458 compared item packets, beginning at frame 39. The
+corrected-input result confirms that the earlier harness bug affected the
+trajectory, but it still does not identify a safe native arithmetic fix. The
+controller change remains diagnostic-only and the online acceptance boundary
+is unchanged.
