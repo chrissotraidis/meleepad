@@ -258,6 +258,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 - (void)reconcileControllersForReason:(NSString *)reason;
 - (NSString *)resolvedImportTestPath:(NSString *)requestedPath;
 - (void)startAutomatedNetplayIfRequested;
+- (BOOL)importSlippiAccountFromPath:(NSString *)path error:(NSString **)error;
 - (void)showGameDataSetupState;
 - (NSString *)meleePadSupportRoot;
 - (void)startPublicGameplayHeartbeat;
@@ -420,6 +421,19 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
         [self importGameDataFromURL:[NSURL fileURLWithPath:imagePath]];
         return;
     }
+    NSUInteger accountImportIndex =
+        [arguments indexOfObject:@"-meleepadSlippiAccountImportTest"];
+    if (accountImportIndex != NSNotFound && accountImportIndex + 1 < arguments.count) {
+        NSString *accountPath = [self resolvedImportTestPath:arguments[accountImportIndex + 1]];
+        NSString *error = nil;
+        if (![self importSlippiAccountFromPath:accountPath error:&error]) {
+            [self presentBootError:error ?: @"The private Slippi account import failed."];
+            return;
+        }
+        _slippiRequested = YES;
+        _playRequested = YES;
+        MeleePadLog(@"private Slippi account import completed source=app-sandbox");
+    }
     [self startGameIfProvisioned];
     [self startInputConsumer];
     [self observeControllers];
@@ -498,6 +512,11 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 - (NSString *)resolvedImportTestPath:(NSString *)requestedPath {
     if ([[NSFileManager defaultManager] fileExistsAtPath:requestedPath])
         return requestedPath;
+    if (![requestedPath hasPrefix:@"/"]) {
+        NSString *sandboxPath = [NSHomeDirectory() stringByAppendingPathComponent:requestedPath];
+        if ([[NSFileManager defaultManager] fileExistsAtPath:sandboxPath])
+            return sandboxPath;
+    }
     NSString *prefix = @"/tmp/";
     if ([requestedPath hasPrefix:prefix]) {
         NSString *relativePath = [requestedPath substringFromIndex:prefix.length];
@@ -506,6 +525,46 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
             return sandboxPath;
     }
     return requestedPath;
+}
+
+- (BOOL)importSlippiAccountFromPath:(NSString *)path error:(NSString **)error {
+#if TARGET_OS_SIMULATOR
+    if (error != nullptr)
+        *error = @"Native Slippi account import is available in the iPhoneOS build, not the simulator build.";
+    return NO;
+#else
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSDictionary *attributes = [fileManager attributesOfItemAtPath:path error:nil];
+    unsigned long long size = [attributes[NSFileSize] unsignedLongLongValue];
+    if (size == 0 || size > 16 * 1024) {
+        if (error != nullptr)
+            *error = @"The private Slippi account file is missing or too large.";
+        return NO;
+    }
+    NSData *data = [NSData dataWithContentsOfFile:path];
+    if (data.length == 0 || data.length != size) {
+        if (error != nullptr)
+            *error = @"The private Slippi account file could not be read.";
+        return NO;
+    }
+    if (_slippiHost == nil)
+        _slippiHost = [[MeleePadSlippiHost alloc]
+            initWithLayer:(CAMetalLayer *)_gameView.layer];
+    NSString *storeError = nil;
+    if (![_slippiHost storeAccountData:data error:&storeError]) {
+        if (error != nullptr)
+            *error = storeError ?: @"The private Slippi account file was rejected.";
+        return NO;
+    }
+    NSError *removeError = nil;
+    if (![fileManager removeItemAtPath:path error:&removeError]) {
+        [_slippiHost removeImportedAccount];
+        if (error != nullptr)
+            *error = @"MeleePad stored no account because the private import file could not be removed.";
+        return NO;
+    }
+    return YES;
+#endif
 }
 
 - (NSString *)modulePathFromConfiguration:(NSDictionary *)configuration

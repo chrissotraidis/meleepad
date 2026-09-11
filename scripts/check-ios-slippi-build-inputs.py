@@ -15,6 +15,9 @@ from pathlib import Path
 
 
 OVERLAY = Path("ref/slippi-compatibility/ios-direct-005/overlay")
+SLIPPI_GAME_SETTINGS = Path(
+    "ref/slippi-compatibility/upstream/Data/Sys/GameSettings/GALE01r2.ini"
+)
 OVERLAY_FILES = (
     "Core/Slippi/SlippiCompat.h",
     "Core/Slippi/SlippiDirectCodes.cpp",
@@ -72,6 +75,7 @@ def main() -> int:
 
     required = {repo / OVERLAY}
     required.update(repo / OVERLAY / path for path in OVERLAY_FILES)
+    required.add(repo / SLIPPI_GAME_SETTINGS)
     required.add(repo / "ref/slippi-compatibility/local-online-guest-008/Interpreter_LoadStore.cpp")
     required.add(response)
     required.update(repo / path for path in project_paths(project) if path != OVERLAY)

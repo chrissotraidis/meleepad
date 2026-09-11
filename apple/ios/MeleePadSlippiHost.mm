@@ -162,7 +162,8 @@ static NSString *MeleePadSlippiExitMessage(NSInteger code) {
     std::string account((const char *)accountData.bytes, accountData.length);
     *_starting = true;
     SlippiDirectProbe::stop.store(false, std::memory_order_release);
-    SlippiDirectProbe::account_boot_check = false;
+    SlippiDirectProbe::account_boot_check =
+        [NSProcessInfo.processInfo.arguments containsObject:@"-meleepadSlippiAccountBootCheck"];
 
     if (onStart != nil)
         dispatch_async(dispatch_get_main_queue(), onStart);

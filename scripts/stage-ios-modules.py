@@ -10,6 +10,12 @@ import shutil
 import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
+SLIPPI_GAME_SETTINGS = ROOT / "ref/slippi-compatibility/upstream/Data/Sys/GameSettings/GALE01r2.ini"
+REQUIRED_SLIPPI_CODES = (
+    "$Required: General Codes",
+    "$Required: Slippi Recording",
+    "$Required: Slippi Online",
+)
 
 
 def main():
@@ -56,6 +62,11 @@ def main():
         if not any(line.strip() == "platform IOS" for line in platform.splitlines()):
             parser.error("native Slippi module belongs to a different Apple platform")
         staged.append((module, identity, "gGALE01r2_slippi_recomp.dylib"))
+        if not SLIPPI_GAME_SETTINGS.is_file():
+            parser.error("pinned Slippi GALE01r2.ini is missing")
+        settings_text = SLIPPI_GAME_SETTINGS.read_text()
+        if any(code not in settings_text for code in REQUIRED_SLIPPI_CODES):
+            parser.error("pinned Slippi GALE01r2.ini is missing a required code group")
     if not staged:
         parser.error("No matching locally built modules are available")
     # Validate every source before modifying the destination.
@@ -63,6 +74,12 @@ def main():
         shutil.copy2(module, args.app / name)
         shutil.copy2(identity, args.app / (name + ".dol-sha256"))
         print(f"Staged {name}; sign the module and app before device installation")
+    if args.slippi_module:
+        settings_destination = args.app / "Sys/GameSettings/GALE01r2.ini"
+        if not settings_destination.parent.is_dir():
+            parser.error("built app is missing its Sys/GameSettings resource directory")
+        shutil.copy2(SLIPPI_GAME_SETTINGS, settings_destination)
+        print("Staged pinned Slippi GALE01r2.ini; sign the app before device installation")
 
 
 if __name__ == "__main__":

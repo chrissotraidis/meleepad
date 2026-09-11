@@ -2129,3 +2129,51 @@ no authenticated main-app Slippi runtime, arranged distinct peer, Direct
 match, rollback match, rematch, or clean reconnect evidence. Resume at account
 import when the device service is free; do not kill the unrelated AFC session
 or substitute a duplicate/synthetic account.
+
+## Iteration 44: verify the private account-to-native-runtime handoff on iPad
+
+The private device acceptance path now supports a bounded QA-only
+`-meleepadSlippiAccountImportTest` argument. It reads an injected account file
+from the app sandbox, sends it through the same normalization and device-only
+Keychain store as the document picker, and deletes the inbound plaintext file
+before starting Slippi. The desktop account export remains outside Git and
+outside the app bundle. The latest prepared-input preflight passed with **91
+required paths**, including the pinned Slippi `GALE01r2.ini` used when the
+native module is staged.
+
+The iPhoneOS Release target rebuilt successfully at
+`/tmp/meleepad-xcodebuild-account-telemetry`. A private QA bundle containing
+the locally prepared v1.02 game root, retained disc image, and separate
+`gGALE01r2_slippi_recomp.dylib` was manually signed with the existing
+development identity. It was installed in place on the paired iPad, retaining
+database UUID `979047F1-0409-46A6-9D7E-8A7042696DB0`.
+
+The fresh physical launch on iPad14,5 / iPadOS 26.6.1 found the provisioned
+game root and ISO, selected the Slippi module, initialized CoreAudio, loaded
+the native module, and reached clean worker shutdown (`native Slippi host
+finished exit=0`). The bounded report recorded:
+
+- `account_file_loaded=1`, `boot_error=0`, JIT disabled;
+- zero captured memory or graphics errors;
+- zero Direct searches and denied searches;
+- `code_subset=required`, with only General Codes, Slippi Recording, and
+  Slippi Online enabled after verifying all six pinned groups are present;
+- no game-start, game-end, or frame-bookend events because this acceptance run
+  stopped at the native menu and did not navigate into a match;
+- `crossplay_accepted=false`.
+
+The report's account flag means the local Keychain-to-runtime handoff happened;
+it is not a Slippi service-authentication result. The raw inbound cache file
+and the runtime's temporary `User/Slippi/user.json` were both absent after
+teardown. Repeated SMC chunk-mismatch diagnostics (23 failed chunks) remain a
+known warning from executing the patched guest code; they did not increment
+the captured memory/graphics error counters, but full-code and Normal Lag
+Reduction compatibility remain unverified.
+
+This closes the physical native Slippi boot and private account handoff gates.
+It does **not** close online gameplay: no Service Direct ticket, authenticated
+server response, distinct arranged peer, rollback match, rematch, clean
+disconnect, crossplay, or Unranked evidence exists. A real arranged peer and
+manual device navigation are still required before claiming that Slippi works
+online. Do not enter a public queue or duplicate the same account across two
+peers merely to manufacture a pass.

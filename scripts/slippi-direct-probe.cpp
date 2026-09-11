@@ -29,6 +29,9 @@ int SlippiDirectMain(const char* game, const char* iso, const char* module,
   // runtime objects have shut down. Keychain remains the account source.
   SlippiProbeAccount::RuntimeCopy credentials;
   if (!credentials.InstallSerialized(account, user)) return 20;
+  // This records the local Keychain-to-runtime handoff. It deliberately does
+  // not mean that Slippi's service accepted the play key.
+  SlippiDirectProbe::account_loaded.store(true, std::memory_order_release);
   setenv("STATICRECOMP_NO_FALLBACK_JIT", "1", 1);
   moderngekko::RuntimeConfig config;
   config.game_root = game;
