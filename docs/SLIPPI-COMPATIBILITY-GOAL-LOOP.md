@@ -2004,3 +2004,28 @@ peer negotiated, and no rollback match/rematch/disconnect evidence exists.
 The next gate is the user's explicit `user.json` import followed by a real
 arranged Direct session against a distinct compatible Slippi peer. The private
 QA bundle and game data remain outside Git and are not a public release.
+
+## Iteration 40: repeat physical native boot and close the platform-fix loop
+
+The corrected iPhoneOS Release target was rebuilt again at
+`/tmp/meleepad-xcodebuild-iter40`. The final executable contains both
+`Platform::CreateIOSPlatform()` and `Platform::CreateHeadlessPlatform()`, and
+the private QA bundle passed `codesign --verify --deep --strict`. It was
+installed in place on the same iPad with the same MeleePad container database
+UUID, `979047F1-0409-46A6-9D7E-8A7042696DB0`.
+
+A fresh CoreDevice console launch on iPad14,5 / iPadOS 26.6.1 reached
+`runtime created`, loaded `gGALE01r2_recomp.dylib`, initialized CoreAudio, and
+reported `fps=59.9`, `vps=59.9`, `speedRatio=1.000`, zero frames over 20 ms,
+zero audio DMA underruns, and the Apple M2 GPU. The optional
+`Failed to allocate memory space: 0x3` diagnostic remains, but the process
+continued rendering until it was intentionally terminated. An attempted
+wrapper-level override for that optional 64-GiB map caused a SIGSEGV before
+runtime creation and was fully reverted; it is not part of the accepted fix.
+
+The repository-wide regression suite passed after the revert. This repeats
+and closes the physical native v1.02 boot/render gate, but does not change the
+online status: no account was imported, no standard peer negotiated, and no
+rollback match/rematch/disconnect evidence exists. The next gate remains an
+explicit user-owned account import followed by an arranged Direct session with
+a distinct compatible Slippi peer.
