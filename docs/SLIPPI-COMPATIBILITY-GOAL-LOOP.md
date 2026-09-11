@@ -1970,3 +1970,37 @@ game boot, account-authenticated Direct session, rollback match, rematch, or
 Unranked proof. Resume at Provision gate 1 when the device file service is
 available; do not repeat the same stalled transfer or claim the game is online
 until gates 2–4 produce their stated evidence.
+
+## Iteration 39: iOS runtime factory reaches the physical device
+
+The first physical QA launch exposed a build-graph defect rather than a data
+or Slippi defect: Xcode compiled the app target's replacement
+`dolphin_runtime.cpp` without `MODERNGEKKO_HAVE_IOS=1`. Its `Runtime::Create`
+therefore had no iOS platform branch, and the device reported
+`the requested Dolphin host platform is unavailable`. The per-file Xcode
+compiler flags now define the iOS branch explicitly; the existing CMake-built
+archive already contains `PlatformIOS.mm`.
+
+Release iPhoneOS build `/tmp/meleepad-xcodebuild-iter40` passed with signing
+disabled. Its runtime object references both `Platform::CreateIOSPlatform()`
+and `Platform::CreateHeadlessPlatform()`, and the final app contains both
+factories. The matching private QA bundle was signed with the existing Apple
+Development identity; `codesign --verify --deep --strict` passed.
+
+That bundle was installed in place on the paired iPad Pro 12.9-inch (6th
+generation), retaining MeleePad's container database UUID
+`979047F1-0409-46A6-9D7E-8A7042696DB0`. The device console then proved the
+actual v1.02 path: provisioned root, `GALE01-r2.iso`, and
+`gGALE01r2_recomp.dylib` were found; `runtime created` was logged; the module
+loaded; and the native Metal runtime reported `fps=59.9`, `vps=59.9`,
+`graphics frames=1189`, and an Apple M2 GPU. A single optional memory-map
+allocation logged `Failed to allocate memory space: 0x3`, but the runtime
+continued rendering; this is recorded as a follow-up diagnostic rather than
+silently treated as a clean zero-error run.
+
+This closes physical native boot/rendering for the private v1.02 build. It
+does **not** close Slippi online: no user account was imported, no standard
+peer negotiated, and no rollback match/rematch/disconnect evidence exists.
+The next gate is the user's explicit `user.json` import followed by a real
+arranged Direct session against a distinct compatible Slippi peer. The private
+QA bundle and game data remain outside Git and are not a public release.

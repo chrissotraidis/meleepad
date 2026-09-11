@@ -25,7 +25,7 @@ for text in (
 if startup.index("if (!gameRootReadable)") > startup.index("_coreHost ="):
     raise SystemExit("game-data guard must run before runtime creation")
 for text in ('importConfiguration.title = @"Import Game Data"',
-             'initWithString:@"Game data required\\n"',
+             '@"Bring your own USA v1.02 or v1.00 disc image."',
              'MeleePadRevisions()',
              'importedRevision[@"dol_sha256"]',
              '@"files/GmRegEnd.dat"',

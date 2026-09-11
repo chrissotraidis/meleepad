@@ -29,7 +29,7 @@ done
 
 for contract in \
   'gameOverlayRequestsOnlinePlay:' \
-  'actionWithTitle:@"Experimental Multiplayer…"' \
+  'actionWithTitle:@"Slippi Multiplayer…"' \
   'systemImageNamed:@"person.2.wave.2"'; do
   grep -Fq "$contract" "$OVERLAY" "$OVERLAY_HEADER"
 done
@@ -164,6 +164,10 @@ grep -Fq 'MeleePadOnlinePlayViewController.mm in Sources' "$PROJECT"
 grep -Fq 'MeleePadOnlinePlayViewController.h' "$PROJECT"
 grep -Fq 'MeleePadPublicLobbyClient.m in Sources' "$PROJECT"
 grep -Fq 'MeleePadPublicLobbyClient.h' "$PROJECT"
+if ! rg -q 'dolphin_runtime\.cpp.*COMPILER_FLAGS.*MODERNGEKKO_HAVE_IOS=1' "$PROJECT"; then
+  echo "iOS runtime source is missing MODERNGEKKO_HAVE_IOS=1" >&2
+  exit 1
+fi
 
 for contract in \
   'moderngekko-netplay-10' \
