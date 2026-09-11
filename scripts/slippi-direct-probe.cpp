@@ -5,6 +5,7 @@
 #include "slippi-direct-trace.hpp"
 #include "slippi-frame-profiler.hpp"
 #include "moderngekko/runtime.hpp"
+#include "moderngekko/module.h"
 #include "Core/Slippi/SlippiCompat.h"
 #include "Core/Cheats/GeckoCode.h"
 #include "Core/Cheats/GeckoCodeConfig.h"
@@ -19,16 +20,118 @@
 #include "Common/IniFile.h"
 #include "VideoCommon/VideoConfig.h"
 #include <chrono>
+#include <cstdlib>
+#include <dlfcn.h>
+#include <filesystem>
 #include <thread>
 #include <fstream>
 
+namespace {
+const char* BoolText(bool value) { return value ? "true" : "false"; }
+
+const char* RuntimeErrorCodeText(moderngekko::RuntimeErrorCode code) {
+  switch (code) {
+    case moderngekko::RuntimeErrorCode::AlreadyActive:
+      return "already_active";
+    case moderngekko::RuntimeErrorCode::InvalidGame:
+      return "invalid_game";
+    case moderngekko::RuntimeErrorCode::ModuleRequired:
+      return "module_required";
+    case moderngekko::RuntimeErrorCode::ModuleRejected:
+      return "module_rejected";
+    case moderngekko::RuntimeErrorCode::PlatformUnavailable:
+      return "platform_unavailable";
+    case moderngekko::RuntimeErrorCode::InitializationFailed:
+      return "initialization_failed";
+    case moderngekko::RuntimeErrorCode::BootFailed:
+      return "boot_failed";
+    case moderngekko::RuntimeErrorCode::InvalidState:
+      return "invalid_state";
+  }
+  return "unknown";
+}
+
+const char* ModuleStatusText(ModernGekkoModuleStatus status) {
+  switch (status) {
+    case MODERNGEKKO_MODULE_OK: return "ok";
+    case MODERNGEKKO_MODULE_NULL_DESCRIPTOR: return "null_descriptor";
+    case MODERNGEKKO_MODULE_ABI_MISMATCH: return "abi_mismatch";
+    case MODERNGEKKO_MODULE_CPU_ABI_MISMATCH: return "cpu_abi_mismatch";
+    case MODERNGEKKO_MODULE_CPU_STATE_SIZE_MISMATCH: return "cpu_state_size_mismatch";
+    case MODERNGEKKO_MODULE_INVALID_GAME_ID: return "invalid_game_id";
+    case MODERNGEKKO_MODULE_GAME_ID_MISMATCH: return "game_id_mismatch";
+    case MODERNGEKKO_MODULE_MISSING_DISPATCH: return "missing_dispatch";
+    case MODERNGEKKO_MODULE_INVALID_CODE_RANGES: return "invalid_code_ranges";
+    case MODERNGEKKO_MODULE_INVALID_SMC_RANGES: return "invalid_smc_ranges";
+    case MODERNGEKKO_MODULE_INVALID_CHUNKS: return "invalid_chunks";
+    case MODERNGEKKO_MODULE_ENTRY_POINT_UNCOVERED: return "entry_point_uncovered";
+    case MODERNGEKKO_MODULE_INVALID_REL_MODULES: return "invalid_rel_modules";
+  }
+  return "unknown";
+}
+
+bool WriteCheckpoint(const std::filesystem::path& root, const char* phase,
+                     const char* reason, bool complete, bool runtime_error = false,
+                     const char* runtime_error_code = nullptr) {
+  std::error_code error;
+  std::filesystem::create_directories(root, error);
+  if (error) return false;
+  const auto target = root / "direct-checkpoint.json";
+  const auto temporary = root / "direct-checkpoint.json.tmp";
+  std::ofstream output(temporary, std::ios::trunc);
+  if (!output) return false;
+  output << "{\"phase\":\"" << phase << "\",\"reason\":\"" << reason
+         << "\",\"complete\":" << BoolText(complete)
+         << ",\"runtime_error\":" << BoolText(runtime_error)
+         << (runtime_error_code ? std::string(",\"runtime_error_code\":\"") +
+                                   runtime_error_code + "\"" : "")
+         << ",\"direct_searches\":" << SlippiDirectProbe::direct_searches.load()
+         << ",\"unranked_searches\":" << SlippiDirectProbe::unranked_searches.load()
+         << ",\"denied_searches\":" << SlippiDirectProbe::denied_searches.load()
+         << ",\"matchmaking_initializing\":"
+         << SlippiDirectProbe::matchmaking_initializing.load()
+         << ",\"matchmaking_ticket_ready\":"
+         << SlippiDirectProbe::matchmaking_ticket_ready.load()
+         << ",\"matchmaking_opponent_connecting\":"
+         << SlippiDirectProbe::matchmaking_opponent_connecting.load()
+         << ",\"matchmaking_connected\":"
+         << SlippiDirectProbe::matchmaking_connected.load()
+         << ",\"matchmaking_errors\":"
+         << SlippiDirectProbe::matchmaking_errors.load() << "}\n";
+  output.flush();
+  if (!output) {
+    output.close();
+    std::filesystem::remove(temporary, error);
+    return false;
+  }
+  output.close();
+  std::filesystem::rename(temporary, target, error);
+  if (error) {
+    std::filesystem::remove(temporary, error);
+    return false;
+  }
+  return true;
+}
+}
+
 int SlippiDirectMain(const char* game, const char* iso, const char* module,
-                    const char* user, const std::string& account, void* surface) {
-  if (std::filesystem::exists(user)) return 2;
+                    const char* user, const std::string& account, void* surface,
+                    const std::function<void()>& on_runtime_ready) {
+  const auto runtime_user = std::filesystem::path(user);
+  const auto run_root = runtime_user.parent_path();
+  WriteCheckpoint(run_root, "starting", "none", false);
+  if (std::filesystem::exists(user)) {
+    WriteCheckpoint(run_root, "failed", "stale_user_directory", false);
+    return 2;
+  }
   // Declared before the runtime: delete its plaintext copy only after all
   // runtime objects have shut down. Keychain remains the account source.
   SlippiProbeAccount::RuntimeCopy credentials;
-  if (!credentials.InstallSerialized(account, user)) return 20;
+  if (!credentials.InstallSerialized(account, user)) {
+    WriteCheckpoint(run_root, "failed", "account_stage", false);
+    return 20;
+  }
+  WriteCheckpoint(run_root, "account_staged", "none", false);
   // This records the local Keychain-to-runtime handoff. It deliberately does
   // not mean that Slippi's service accepted the play key.
   SlippiDirectProbe::account_loaded.store(true, std::memory_order_release);
@@ -56,10 +159,62 @@ int SlippiDirectMain(const char* game, const char* iso, const char* module,
     // Never persist arbitrary upstream logs: they may contain addresses,
     // player names, server payloads or credentials. Record counters only.
   };
+  // The bounded QA launch performs the same module checks as Runtime::Create
+  // first, but records which class failed. This keeps a native loader failure
+  // distinguishable from a descriptor-compatibility failure without storing
+  // dlerror text or any account/server data.
+  if (SlippiDirectProbe::account_boot_check &&
+      config.module.kind == moderngekko::ModuleSource::Kind::DynamicPath) {
+    WriteCheckpoint(run_root, "module_preflight", "starting", false);
+    auto inspected = moderngekko::InspectGame(config.game_root);
+    void* handle = dlopen(config.module.path.c_str(), RTLD_NOW | RTLD_LOCAL);
+    if (!handle) {
+      const char* loader_error = dlerror();
+      std::fprintf(stderr, "[MeleePad] native Slippi module loader error=%s\n",
+                   loader_error ? loader_error : "unknown");
+      std::ofstream loader_report(run_root / "module-loader-error.txt",
+                                  std::ios::trunc);
+      if (loader_report)
+        loader_report << (loader_error ? loader_error : "unknown") << '\n';
+      WriteCheckpoint(run_root, "failed", "module_dlopen", false, false,
+                      "library_open_failed");
+      return 3;
+    }
+    auto get_module = reinterpret_cast<ModernGekkoGetModuleFn>(
+        dlsym(handle, MODERNGEKKO_GET_MODULE_SYMBOL));
+    if (!get_module) {
+      dlclose(handle);
+      WriteCheckpoint(run_root, "failed", "module_dlopen", false, false,
+                      "entry_point_missing");
+      return 3;
+    }
+    ModernGekkoModuleRequirements requirements{
+        MODERNGEKKO_CPU_ABI_VERSION, static_cast<std::uint32_t>(sizeof(CPUState)),
+        inspected ? inspected.metadata->disc_id.c_str() : nullptr};
+    const ModernGekkoModuleStatus status = moderngekko_validate_module(
+        get_module(), &requirements);
+    dlclose(handle);
+    if (status != MODERNGEKKO_MODULE_OK) {
+      std::string code = "module_";
+      code += ModuleStatusText(status);
+      WriteCheckpoint(run_root, "failed", "module_validation", false, false,
+                      code.c_str());
+      return 3;
+    }
+    WriteCheckpoint(run_root, "module_preflight", "ok", false);
+  }
   auto created = moderngekko::Runtime::Create(config);
-  if (!created) return 3;
+  if (!created) {
+    WriteCheckpoint(run_root, "failed", "runtime_create", false, false,
+                    created.error ? RuntimeErrorCodeText(created.error->code)
+                                  : "unknown");
+    return 3;
+  }
   auto& runtime = *created.runtime;
-  if (runtime.GetGameMetadata().disc_id != "GALE01" || runtime.GetGameMetadata().revision != 2) return 4;
+  if (runtime.GetGameMetadata().disc_id != "GALE01" || runtime.GetGameMetadata().revision != 2) {
+    WriteCheckpoint(run_root, "failed", "revision", false);
+    return 4;
+  }
   Config::SetCurrent(Config::GetInfoForSIDevice(0), SerialInterface::SIDEVICE_GC_CONTROLLER);
   for (int i=1; i<4; ++i) Config::SetCurrent(Config::GetInfoForSIDevice(i), SerialInterface::SIDEVICE_NONE);
   Pad::GetConfig()->GetController(0)->SetInputOverrideFunction(
@@ -95,9 +250,15 @@ int SlippiDirectMain(const char* game, const char* iso, const char* module,
   Config::SetCurrent(Config::MAIN_STATICRECOMP_CALLER_IDLE_PC, 0x800195D0u);
   Config::SetCurrent(Config::MAIN_STATICRECOMP_CALLER_IDLE_LR, 0x801A4DACu);
   Common::IniFile ini, empty;
-  if (!ini.Load(File::GetSysDirectory()+"GameSettings/GALE01r2.ini")) return 5;
+  if (!ini.Load(File::GetSysDirectory()+"GameSettings/GALE01r2.ini")) {
+    WriteCheckpoint(run_root, "failed", "game_ini", false);
+    return 5;
+  }
   auto codes = Gecko::LoadCodes(ini, empty);
-  if (std::count_if(codes.begin(), codes.end(), [](const auto& c){return c.enabled;}) != 6) return 6;
+  if (std::count_if(codes.begin(), codes.end(), [](const auto& c){return c.enabled;}) != 6) {
+    WriteCheckpoint(run_root, "failed", "code_set", false);
+    return 6;
+  }
   // Retain the explicitly documented required-code diagnostic subset for the
   // first comparison. This does not establish full default-code compatibility.
   for (auto& c : codes) c.enabled = c.enabled && (c.name == "Required: General Codes" ||
@@ -113,19 +274,66 @@ int SlippiDirectMain(const char* game, const char* iso, const char* module,
     trace->Observe(command,packet,size); timing->Observe(command,packet,size,4); audio->Observe(command,packet,size);
   };
   std::atomic<bool> finished{false};
+  WriteCheckpoint(run_root, "running", "none", false);
+  std::thread menu_input;
+  if (SlippiDirectProbe::menu_probe) {
+    menu_input = std::thread([] {
+      struct Event { int second; double x; double y; unsigned buttons; int milliseconds; };
+      // This is a QA-only reproduction of ordinary controller input. It is
+      // disabled for normal launches and never invents an account or peer.
+      const Event events[] = {
+        {33, 0.0, 0.0, 1u, 120},
+        {36, 0.0, 0.0, 2u, 80}, {37, 0.0, 0.0, 2u, 80},
+        {38, 0.0, -1.0, 0u, 80}, {39, 0.0, 0.0, 1u, 80},
+        {40, 0.0, 0.0, 1u, 80}, {42, 0.0, 0.0, 1u, 80},
+        {42, 0.0, 0.0, 1u, 80}, {43, 0.0, 1.0, 0u, 120},
+        {43, 0.0, 1.0, 0u, 120}, {45, 0.0, 0.0, 1u, 80},
+        {45, 0.0, 0.0, 1u, 80}, {47, 0.0, 0.0, 32u, 80},
+        {49, 0.0, 0.5, 0u, 100}, {50, 0.0, 0.0, 1u, 80},
+        {58, 0.0, 0.0, 1u, 120}, {60, 0.0, 0.0, 1u, 120},
+        {63, 0.0, 0.0, 32u, 120}, {66, 0.0, 0.0, 1u, 120},
+      };
+      const auto started = std::chrono::steady_clock::now();
+      for (const auto& event : events) {
+        if (SlippiDirectProbe::stop.load(std::memory_order_acquire))
+          break;
+        std::this_thread::sleep_until(started + std::chrono::seconds(event.second));
+        {
+          std::lock_guard lock(SlippiDirectProbe::pad_mutex);
+          SlippiDirectProbe::pad = {event.x, event.y, 0, 0, 0, 0, event.buttons};
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(event.milliseconds));
+        std::lock_guard lock(SlippiDirectProbe::pad_mutex);
+        SlippiDirectProbe::pad = {};
+      }
+    });
+  }
   std::thread watchdog([&] {
     // The bounded account-boot probe needs a finite deadline, but a normal
     // app session must remain under the user's control. The old 900-second
     // limit could terminate an active match or rematch unexpectedly.
     const auto deadline = SlippiDirectProbe::account_boot_check
-        ? std::chrono::steady_clock::now() + std::chrono::seconds(45)
+        ? std::chrono::steady_clock::now() +
+            std::chrono::seconds(SlippiDirectProbe::menu_probe ? 90 : 45)
         : std::chrono::steady_clock::time_point::max();
     while (!finished && !SlippiDirectProbe::stop && std::chrono::steady_clock::now()<deadline &&
            memory_errors==0 && graphics_errors==0) std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    if (!finished) runtime.RequestStop();
+    if (!finished) {
+      const char* reason = memory_errors || graphics_errors ? "runtime_error"
+                             : std::chrono::steady_clock::now() >= deadline ? "deadline"
+                             : "requested";
+      WriteCheckpoint(run_root, "stop_requested", reason, false,
+                      memory_errors || graphics_errors);
+      runtime.RequestStop();
+    }
   });
+  if (on_runtime_ready)
+    on_runtime_ready();
   auto result = runtime.Run();
   finished=true; watchdog.join();
+  if (menu_input.joinable()) menu_input.join();
+  WriteCheckpoint(run_root, "run_returned", result.error ? "runtime_error" : "none",
+                  false, result.error.has_value());
   SlippiCompat::game_frame_observer={};
   const bool trace_written=trace->Write(user); timing->Write(); audio->Write(user);
   std::ofstream report(config.user_directory/"direct-runtime.json");
@@ -133,9 +341,17 @@ int SlippiDirectMain(const char* game, const char* iso, const char* module,
          << ",\"graphics_errors\":" << graphics_errors.load() << ",\"direct_searches\":" << SlippiDirectProbe::direct_searches.load()
          << ",\"unranked_searches\":" << SlippiDirectProbe::unranked_searches.load()
          << ",\"denied_searches\":" << SlippiDirectProbe::denied_searches.load()
+         << ",\"matchmaking_initializing\":" << SlippiDirectProbe::matchmaking_initializing.load()
+         << ",\"matchmaking_ticket_ready\":" << SlippiDirectProbe::matchmaking_ticket_ready.load()
+         << ",\"matchmaking_opponent_connecting\":" << SlippiDirectProbe::matchmaking_opponent_connecting.load()
+         << ",\"matchmaking_connected\":" << SlippiDirectProbe::matchmaking_connected.load()
+         << ",\"matchmaking_errors\":" << SlippiDirectProbe::matchmaking_errors.load()
          << ",\"account_file_loaded\":" << SlippiDirectProbe::account_loaded.load()
          << ",\"game_starts\":" << SlippiDirectProbe::game_starts.load() << ",\"game_ends\":" << SlippiDirectProbe::game_ends.load()
          << ",\"game_bookends\":" << SlippiDirectProbe::game_frames.load()
          << ",\"code_subset\":\"required\",\"jit_enabled\":false,\"crossplay_accepted\":false}\n";
+  report.flush();
+  WriteCheckpoint(run_root, "diagnostics_written", result.error ? "runtime_error" : "none",
+                  false, result.error.has_value());
   return result.error ? 7 : (memory_errors || graphics_errors ? 8 : (!trace_written ? 21 : 0));
 }

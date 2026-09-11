@@ -1451,13 +1451,14 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
             MeleePadGameViewController *strongSelf = weakSelf;
             if (strongSelf == nil)
                 return;
-            strongSelf->_bootStatusLabel.text = @"Slippi waiting for an opponent";
-            strongSelf->_bootStatusLabel.accessibilityLabel = @"Slippi waiting for an opponent";
+            strongSelf->_bootStatusLabel.text = @"Slippi runtime active";
+            strongSelf->_bootStatusLabel.accessibilityLabel = @"Slippi runtime active";
             [strongSelf->_bootActivityIndicator stopAnimating];
-            MeleePadLog(@"native Slippi host started revision=%ld", (long)slippiRevision);
+            MeleePadLog(@"native Slippi runtime ready revision=%ld", (long)slippiRevision);
         }
                               onError:^(NSString *message) {
             MeleePadGameViewController *strongSelf = weakSelf;
+            MeleePadLog(@"native Slippi error=%@", message);
             if (strongSelf != nil)
                 [strongSelf presentBootError:message];
         }

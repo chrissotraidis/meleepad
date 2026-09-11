@@ -48,6 +48,7 @@ OVERLAY_FILES = (
 OVERLAY_CONTRACTS = {
     "Core/HW/EXI/EXI_DeviceSlippi.cpp": (
         "SlippiDirectProbe::AllowsSearch",
+        "SlippiDirectProbe::ObserveMatchmakingState",
         'This build permits Unranked or Direct with a valid connect code',
         "SlippiDirectProbe::unranked_searches",
     ),

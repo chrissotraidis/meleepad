@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <atomic>
 #include <filesystem>
+#include <fstream>
 #include <mutex>
 #include <string>
 #include <thread>
@@ -56,6 +57,31 @@ static NSString *MeleePadSlippiExitMessage(NSInteger code) {
     std::atomic<bool> *_starting;
     std::atomic<bool> *_running;
     std::mutex *_accountMutex;
+}
+
+static void MeleePadSlippiWriteWorkerFinished(const std::filesystem::path &runRoot,
+                                              NSInteger exitCode) {
+    std::error_code error;
+    std::filesystem::create_directories(runRoot, error);
+    if (error)
+        return;
+    const auto temporary = runRoot / "worker-finished.json.tmp";
+    const auto target = runRoot / "worker-finished.json";
+    std::ofstream output(temporary, std::ios::trunc);
+    if (!output)
+        return;
+    output << "{\"complete\":true,\"worker_finished\":true,\"exit_code\":"
+           << exitCode << "}\n";
+    output.flush();
+    if (!output) {
+        output.close();
+        std::filesystem::remove(temporary, error);
+        return;
+    }
+    output.close();
+    std::filesystem::rename(temporary, target, error);
+    if (error)
+        std::filesystem::remove(temporary, error);
 }
 
 - (instancetype)initWithLayer:(CAMetalLayer *)layer {
@@ -160,28 +186,34 @@ static NSString *MeleePadSlippiExitMessage(NSInteger code) {
     std::string module = modulePath.UTF8String ?: "";
     std::string user = runtimeUser.UTF8String ?: "";
     std::string account((const char *)accountData.bytes, accountData.length);
+    if (_thread->joinable())
+        _thread->join();
+    SlippiDirectProbe::ResetTelemetry();
     *_starting = true;
     SlippiDirectProbe::stop.store(false, std::memory_order_release);
     SlippiDirectProbe::account_boot_check =
         [NSProcessInfo.processInfo.arguments containsObject:@"-meleepadSlippiAccountBootCheck"];
+    SlippiDirectProbe::menu_probe =
+        [NSProcessInfo.processInfo.arguments containsObject:@"-meleepadSlippiMenuProbe"];
 
-    if (onStart != nil)
-        dispatch_async(dispatch_get_main_queue(), onStart);
-
-    if (_thread->joinable())
-        _thread->join();
+    void (^startBlock)(void) = [onStart copy];
     void (^errorBlock)(NSString *) = [onError copy];
     void (^finishedBlock)(NSInteger) = [onFinished copy];
     _thread->operator=(std::thread([self, game = std::move(game), iso = std::move(iso),
                                       module = std::move(module), user = std::move(user),
                                       account = std::move(account),
-                                      errorBlock, finishedBlock] {
+                                      startBlock, errorBlock, finishedBlock] {
         @autoreleasepool {
             *self->_starting = false;
             *self->_running = true;
             NSInteger exitCode = SlippiDirectMain(
                 game.c_str(), iso.c_str(), module.c_str(), user.c_str(), account,
-                (__bridge void *)self->_layer);
+                (__bridge void *)self->_layer, [startBlock] {
+                    if (startBlock != nil)
+                        dispatch_async(dispatch_get_main_queue(), startBlock);
+                });
+            MeleePadSlippiWriteWorkerFinished(
+                std::filesystem::path(user).parent_path(), exitCode);
             *self->_running = false;
             dispatch_async(dispatch_get_main_queue(), ^{
                 if (exitCode != 0 && errorBlock != nil)

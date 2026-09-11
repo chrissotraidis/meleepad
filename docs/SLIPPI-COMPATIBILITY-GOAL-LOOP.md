@@ -2343,3 +2343,40 @@ manual controller navigation into Unranked or an arranged Direct search,
 followed by a legitimate distinct peer for match, rollback, rematch and clean
 disconnect evidence. No second identity is available locally, so no online
 gameplay claim is made and no synthetic account is substituted.
+
+## Iteration 53: close the native lifecycle and physical-run evidence loop
+
+The private native candidate was rebuilt as `ios-direct-008` and the main
+iPhoneOS target was rebuilt from this working tree at
+`/private/tmp/meleepad-xcodebuild-final2`; the unsigned Release build completed
+with `** BUILD SUCCEEDED **`. Focused probe, Python compilation, 91-path input
+audit, iOS Online Play source contract, repository checks and `git diff --check`
+also passed.
+
+The physical iPad run used the retained private app and the explicitly signed
+`PrivateQA/gGALE01r2_slippi_recomp.dylib`. The explicit module signature is
+required because the nonstandard `PrivateQA` bundle path is not covered by
+`codesign --deep`; the app then passed its native module preflight and loaded
+the Slippi runtime. The latest run was
+`6D9501B1-62D4-4581-8A7C-BEFD9694EAA2` on iPad14,5 / iPadOS 26.6.1:
+`worker_finished=true`, `exit_code=0`, `boot_error=0`, `memory_errors=0`,
+`graphics_errors=0`, `account_file_loaded=1`, and `game_files_written=true`.
+Its search and matchmaking counters were all zero, with zero games and zero
+trace packets. The installed app database UUID remained
+`979047F1-0409-46A6-9D7E-8A7042696DB0`.
+
+The direct probe now resets its process-global counters between launches and
+reports runtime readiness only after the native runtime has been created; the
+main app no longer labels a pre-runtime launch as “waiting for an opponent”.
+These changes make repeated-run evidence and visible status trustworthy, but
+they do not create a service ticket or peer. The current result is therefore
+native Slippi boot plus account handoff on physical iPad, not online gameplay.
+
+The next and still-blocking acceptance step is an account-backed Unranked or
+arranged Direct search that records a legitimate service response, distinct
+peer connection, rollback match, result/rematch and clean disconnect. Until a
+second legitimate identity/opponent and that service boundary are available,
+the native runtime remains a private QA capability and the active goal stays
+open. The original Melee path remains separate and working; the current main
+app is a chooser with one active native runtime, not simultaneous left/right
+gameplay panes.
