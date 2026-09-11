@@ -2491,3 +2491,24 @@ profile, signature, credential, `/Users/` path, or `/tmp/meleepad` path. This
 is release-shell validation only: the resulting IPA remains intentionally
 module-free and not playable until a recipient supplies private game data,
 module, signing, and account import.
+
+## Iteration 61: reproduce the native simulator boot from the final rebuild
+
+The exact rebuilt arm64 Simulator Release app was installed on the dedicated
+software iPad and launched with a fresh private dummy QA account import and the
+bounded account-boot check. The app imported the account through its
+simulator-only app-sandbox path, verified the v1.02 game revision, found the
+provisioned disc, Slippi module, bootloader and `MxScn.dat`, and logged
+`native Slippi runtime ready revision=2`. The worker then finished with exit 0;
+the structured report recorded `boot_error=0`, `memory_errors=0`,
+`graphics_errors=0`, `account_file_loaded=1`, `active_code_groups=3`, and
+`frames=302`. The trace recorded `game_files_written=true` with zero games and
+zero packets.
+
+This is a fresh reproduction of the native simulator boot boundary, not online
+acceptance. The run intentionally stopped before the menu probe and therefore
+did not enter a public queue. The remaining acceptance gate is still a
+legitimate distinct Slippi peer followed by opponent connection, rollback
+gameplay, a completed match, rematch and clean disconnect. The local desktop
+comparison remains diagnostic-only until its reference and native clients are
+driven from the same controlled roles and input timeline.
