@@ -2177,3 +2177,33 @@ disconnect, crossplay, or Unranked evidence exists. A real arranged peer and
 manual device navigation are still required before claiming that Slippi works
 online. Do not enter a public queue or duplicate the same account across two
 peers merely to manufacture a pass.
+
+## Iteration 45: close the public IPA host-path packaging gate
+
+The first public-package attempt correctly rejected the fresh iPhoneOS app
+because the linked Slippi Rust archive contained the local Cargo registry path
+from `ring` and precompiled `compiler_builtins` objects. This was build metadata,
+not game data or an account credential, but it still violated the public bundle
+boundary. Rebuilding the pinned Rust workspace with the installed Rust 1.88
+toolchain, remapping project and registry paths, compiling the `ring` C/assembly
+objects with prefix maps, and stripping only object debug sections removed the
+private strings while retaining all 806 archive members.
+
+The sanitized archive was used only in a throwaway link. The unsigned iPhoneOS
+Release app rebuilt successfully, the original ignored private archive was
+restored byte-for-byte, and `scripts/package-public-ios-ipa.sh` produced and
+ZIP-tested `/tmp/meleepad-public-sanitized.ipa`. The package identity audit
+passed with no findings; the packaged app contained no module, ISO, save,
+profile, signature, `/Users/` path, or `/tmp/meleepad` path in the packager's
+Mach-O string scan. This is public-shell evidence only; the IPA remains
+intentionally module-free and not playable.
+
+The runtime gate is unchanged. The physical iPad run proves native Slippi
+module load, CoreAudio initialization, account handoff into the device-only
+Keychain/runtime path, zero captured memory/graphics errors, and clean native
+worker shutdown. It still has zero game starts/bookends and zero Direct
+searches. No service ticket, authenticated server response, distinct peer,
+rollback match, rematch, clean disconnect, crossplay, or Unranked result has
+been observed. A second legitimate Slippi identity and an arranged compatible
+peer remain required for the online claim; do not manufacture one or enter a
+public queue merely to make the counters nonzero.
