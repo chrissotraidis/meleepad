@@ -16,6 +16,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("app", type=Path)
     parser.add_argument("--platform", choices=["device", "simulator"], required=True)
+    parser.add_argument(
+        "--slippi-module",
+        type=Path,
+        help="optional private iPhoneOS native Slippi v1.02 module to stage",
+    )
     args = parser.parse_args()
     if not (args.app / "Info.plist").is_file():
         parser.error("Expected a locally built iOS .app directory")
@@ -37,6 +42,20 @@ def main():
             parser.error("Module belongs to a different Apple platform")
         name = "gGALE01r2_recomp.dylib" if number == 2 else "gGALE01_recomp.dylib"
         staged.append((module, identity, name))
+    if args.slippi_module:
+        if args.platform != "device":
+            parser.error("native Slippi modules are only supported for device apps")
+        revision = next((row for row in catalog if row["revision"] == 2), None)
+        module = args.slippi_module.resolve()
+        identity = Path(str(module) + ".dol-sha256")
+        if revision is None or not module.is_file():
+            parser.error("native Slippi v1.02 module is missing")
+        if not identity.is_file() or identity.read_text().strip() != revision["dol_sha256"]:
+            parser.error("native Slippi v1.02 module identity is missing or mismatched")
+        platform = subprocess.check_output(["vtool", "-show-build", str(module)], text=True)
+        if not any(line.strip() == "platform IOS" for line in platform.splitlines()):
+            parser.error("native Slippi module belongs to a different Apple platform")
+        staged.append((module, identity, "gGALE01r2_slippi_recomp.dylib"))
     if not staged:
         parser.error("No matching locally built modules are available")
     # Validate every source before modifying the destination.

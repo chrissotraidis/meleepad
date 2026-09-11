@@ -245,7 +245,8 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 - (void)configureController:(GCController *)controller playerSlot:(NSInteger)slot;
 - (nullable GCController *)controllerForPlayerSlot:(NSInteger)slot;
 - (NSArray<NSURL *> *)gameImagesInDocumentsDirectory;
-- (NSString *)modulePathFromConfiguration:(NSDictionary *)configuration;
+- (NSString *)modulePathFromConfiguration:(NSDictionary *)configuration
+                              forSlippi:(BOOL)forSlippi;
 - (void)presentGameDataImport;
 - (void)presentGameDataFolderImport;
 - (void)playSlippiFromHome;
@@ -404,6 +405,12 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
                                                object:nil];
     // DEBUG hook: -meleepadImportTest <iso path> runs the full import flow.
     NSArray<NSString *> *arguments = NSProcessInfo.processInfo.arguments;
+    if ([arguments containsObject:@"-meleepadSlippi"]) {
+        // Keep device acceptance deterministic without bypassing the normal
+        // account, game-data, module, or Keychain gates.
+        _slippiRequested = YES;
+        _playRequested = YES;
+    }
     NSUInteger importIndex = [arguments indexOfObject:@"-meleepadImportTest"];
     if (importIndex != NSNotFound && importIndex + 1 < arguments.count) {
         NSString *imagePath = [self resolvedImportTestPath:arguments[importIndex + 1]];
@@ -501,22 +508,34 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     return requestedPath;
 }
 
-- (NSString *)modulePathFromConfiguration:(NSDictionary *)configuration {
+- (NSString *)modulePathFromConfiguration:(NSDictionary *)configuration
+                              forSlippi:(BOOL)forSlippi {
     NSInteger revision = [MeleePadSettings sharedSettings].gameRevision;
     NSString *key = [NSString stringWithFormat:@"r%ld", (long)revision];
-    NSString *hostPath = configuration[@"DevModulesByRevision"][key];
+    NSString *moduleMapKey = forSlippi ? @"DevSlippiModulesByRevision" :
+        @"DevModulesByRevision";
+    NSString *hostPath = configuration[moduleMapKey][key];
     if (hostPath.length == 0 && revision == 0)
-        hostPath = configuration[@"DevModulePath"];
+        hostPath = configuration[forSlippi ? @"DevSlippiModulePath" : @"DevModulePath"];
     if (hostPath.length > 0 && [[NSFileManager defaultManager] fileExistsAtPath:hostPath])
         return hostPath;
 
-    NSString *deviceRelativePath = revision == 2 ? @"gGALE01r2_recomp.dylib" :
-        configuration[@"DeviceModuleRelativePath"];
+    NSString *deviceRelativePath = nil;
+    if (forSlippi) {
+        deviceRelativePath = configuration[@"DeviceBundledSlippiModuleRelativePath"];
+        if (deviceRelativePath.length == 0 && revision == 2)
+            deviceRelativePath = @"gGALE01r2_slippi_recomp.dylib";
+        if (deviceRelativePath.length == 0)
+            deviceRelativePath = configuration[@"DeviceSlippiModuleRelativePath"];
+    } else {
+        deviceRelativePath = revision == 2 ? @"gGALE01r2_recomp.dylib" :
+            configuration[@"DeviceModuleRelativePath"];
+    }
 #if !TARGET_OS_SIMULATOR
     // Simulator and device provisioning share a generated development plist.
     // A Simulator build may therefore leave DevModulePath pointing at the Mac.
     // Device installs always use this stable, sandbox-relative module name.
-    if (deviceRelativePath.length == 0)
+    if (deviceRelativePath.length == 0 && !forSlippi)
         deviceRelativePath = @"gGALE01_recomp.dylib";
 #endif
     if (deviceRelativePath.length > 0) {
@@ -1233,10 +1252,13 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
         [self presentBootError:@"The selected version does not match its game data. Import that version again."];
         return;
     }
-    NSString *modulePath = [self modulePathFromConfiguration:config];
+    BOOL slippiModule = _slippiRequested;
+    NSString *modulePath = [self modulePathFromConfiguration:config
+                                                    forSlippi:slippiModule];
     if (modulePath.length == 0 || ![fileManager fileExistsAtPath:modulePath]) {
         [self showGameDataSetupState];
-        _homeStatusLabel.text = [NSString stringWithFormat:@"%@ is installed. This build still needs its matching game module before it can play.", MeleePadRevisionLabel(actualRevision)];
+        NSString *moduleKind = slippiModule ? @"native Slippi module" : @"matching game module";
+        _homeStatusLabel.text = [NSString stringWithFormat:@"%@ is installed. This build still needs its %@ before it can play.", MeleePadRevisionLabel(actualRevision), moduleKind];
         return;
     }
     if (actualRevision == 2) {
@@ -1340,6 +1362,8 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     MeleePadLog(@"boot requested gameRootExists=%d discImage=%d moduleExists=%d drawable=%@",
               [fileManager fileExistsAtPath:gameRoot], discImagePath.length > 0,
               [fileManager fileExistsAtPath:modulePath], NSStringFromCGSize(layer.drawableSize));
+    MeleePadLog(@"boot module kind=%@ file=%@", slippiModule ? @"slippi" : @"original",
+              modulePath.lastPathComponent);
 
     if (_slippiRequested) {
         if (_slippiHost == nil)

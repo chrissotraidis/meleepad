@@ -56,6 +56,11 @@ images, v1.01, other regions, and unlisted CISO encodings are rejected.
    `python3 scripts/stage-ios-modules.py /path/to/MeleePad.app --platform device`,
    then sign the staged modules and the app with the matching development
    identity before installation. Preserve both `.dol-sha256` identity files.
+   To enable the native Slippi card, add
+   `--slippi-module /path/to/gGALE01_recomp.dylib` for the separately built
+   iPhoneOS Slippi v1.02 module; it is staged as
+   `gGALE01r2_slippi_recomp.dylib` and is never a substitute for the ordinary
+   game module.
 
 Importing a disc cannot create native executable code on an iPhone or iPad.
 If its matching module is absent, the app retains the import and explains what

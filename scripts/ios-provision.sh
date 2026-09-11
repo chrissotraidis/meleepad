@@ -22,12 +22,14 @@ case "$PLATFORM" in
     LIBS_DIR="$OUT/iphonesimulator/libs"
     MODULE="/tmp/meleepad-module-ios-simulator/gGALE01_recomp.dylib"
     DEVICE_MODULE_ENTRY=""
+    DEVICE_SLIPPI_MODULE_ENTRY=""
     ;;
   device)
     IOS_BUILD="$MG/build-ios-iphoneos-meleepad-static"
     LIBS_DIR="$OUT/iphoneos/libs"
     MODULE="/tmp/meleepad-module-ios-device/gGALE01_recomp.dylib"
     DEVICE_MODULE_ENTRY=$'\t<key>DeviceModuleRelativePath</key>\n\t<string>gGALE01_recomp.dylib</string>'
+    DEVICE_SLIPPI_MODULE_ENTRY=$'\t<key>DeviceBundledSlippiModuleRelativePath</key>\n\t<string>gGALE01r2_slippi_recomp.dylib</string>'
     ;;
   *)
     echo "usage: $0 [simulator|device]" >&2
@@ -119,6 +121,7 @@ cat > "$OUT/dev-config.plist" <<PLIST
 	<key>DevModulePath</key>
 	<string>$MODULE</string>
 $DEVICE_MODULE_ENTRY
+$DEVICE_SLIPPI_MODULE_ENTRY
 </dict>
 </plist>
 PLIST

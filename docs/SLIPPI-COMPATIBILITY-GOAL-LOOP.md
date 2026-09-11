@@ -1,6 +1,6 @@
 # Slippi compatibility implementation loop
 
-Started: 2026-09-10. Current phase: native main-app online acceptance. S1 passed; the required native offline subset passes; the iPhoneOS app target now links and has launched on the physical iPad. Actual game-data boot, account import, Direct matchmaking, full-code parity and crossplay remain open. The active goal tool objective owns this loop; this log records the evidence checkpoint.
+Started: 2026-09-10. Current phase: native main-app online acceptance. S1 passed; the required native offline subset passes; the iPhoneOS app target now links and has launched on the physical iPad. Native v1.02 boot/render and the separate Slippi module-selection gate are proven on the iPad; account import, Direct matchmaking, full-code parity and crossplay remain open. The active goal tool objective owns this loop; this log records the evidence checkpoint.
 
 ## Objective and priority
 
@@ -34,8 +34,9 @@ the native Slippi host are one integration gate.
 
 ## Current priority: native runtime plus main-app integration
 
-The fresh validation in this iteration is Mac/Simulator-only; no new device
-install was performed. The isolated, source-built desktop Ishiiruka reference
+Earlier validation in this checkpoint was Mac/Simulator-only; the latest
+iteration also installed the final private QA bundle on the physical iPad. The
+isolated, source-built desktop Ishiiruka reference
 now pairs with the native no-JIT runtime through a synthetic loopback fixture.
 An automated frame-driven controller reaches gameplay without manual menu
 input.
@@ -2029,3 +2030,37 @@ online status: no account was imported, no standard peer negotiated, and no
 rollback match/rematch/disconnect evidence exists. The next gate remains an
 explicit user-owned account import followed by an arranged Direct session with
 a distinct compatible Slippi peer.
+
+## Iteration 41: separate the native Slippi module path and remove the session watchdog
+
+The main app no longer resolves the ordinary recompiled game module for both
+cards. `MeleePadGameViewController` now selects ordinary modules and native
+Slippi modules through separate revision maps and bundle-relative paths. On a
+device Slippi v1.02 therefore requires `gGALE01r2_slippi_recomp.dylib` (or an
+explicit `DeviceBundledSlippiModuleRelativePath`) plus its matching original
+DOL identity sidecar. A missing Slippi module is reported as such instead of
+silently falling back to the ordinary module.
+
+The deterministic `-meleepadSlippi` launch argument was added for device
+acceptance. It sets the same Slippi request flags as the home-card action but
+still enforces game-data, module, account and Keychain gates. The shared native
+probe's old unconditional 900-second watchdog was removed for normal app
+sessions; the bounded account-boot probe retains its 45-second deadline, so an
+active match or rematch is no longer terminated by an arbitrary timer.
+
+Release iPhoneOS build `/tmp/meleepad-xcodebuild-iter44` passed with signing
+disabled and still contains both iOS and headless runtime factories. A private
+QA bundle was signed with the existing development identity, installed in place
+on the iPad, and retained database UUID
+`979047F1-0409-46A6-9D7E-8A7042696DB0`. The device console then logged:
+`boot module kind=slippi file=gGALE01r2_slippi_recomp.dylib` after finding the
+provisioned v1.02 root and disc. This proves the main app reaches the intended
+Slippi module-selection/account gate on physical hardware; it is not gameplay
+or online proof because no user-owned account was imported and no peer was
+negotiated. The accepted separate iPhoneOS module was generated from captured
+Slippi patched text/GCT and has not yet completed a full main-app iPad run.
+
+The lobby source contract test and full repository checks remain required after
+this source change. The next executable gate is an explicit user-owned
+`user.json` import, followed by a real arranged Direct match, rematch and clean
+disconnect against a distinct compatible Slippi peer.
