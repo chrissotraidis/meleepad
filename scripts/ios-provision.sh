@@ -156,7 +156,10 @@ else
   LINKER_RESPONSE="$LIBS_DIR/MeleePadSlippiCore.rsp"
   : > "$LINKER_RESPONSE"
   for lib in "${LIBS[@]}"; do
-    printf '%s\n' "-Wl,-force_load,$lib" >> "$LINKER_RESPONSE"
+    # Device builds also compile the replacement Slippi objects into the app;
+    # ordinary archives avoid duplicate symbols while the project supplies
+    # the explicitly required Slippi dependencies below.
+    printf '%s\n' "$lib" >> "$LINKER_RESPONSE"
   done
 fi
 echo "linker response: $LINKER_RESPONSE"

@@ -2446,7 +2446,8 @@ source unit for arm64 iOS Simulator and linking simulator-built VCDIFF,
 SemVer, and Rust inputs. The simulator linker response uses ordinary base
 archives plus force-loaded codec archives so the replacement Slippi objects
 compiled into the app do not produce duplicate symbols. Device linking remains
-on the existing iPhoneOS response file and force-load policy.
+on the same ordinary base-archive strategy; the project supplies the required
+iPhoneOS codec, SemVer, and Rust inputs explicitly.
 
 A fresh Release simulator build was staged with the private v1.02 Slippi
 module, pinned GameINI, bootloader, and GALE01 resource pack. Because an
@@ -2471,3 +2472,22 @@ clean disconnect: the automated probe intentionally stopped at the menu and
 recorded zero games and zero packets. Physical iPad evidence remains the
 authoritative device path, and a second legitimate peer is still required for
 the online acceptance gate.
+
+## Iteration 60: revalidate the public shell after native-link changes
+
+The first public-shell attempt against the newly linked device app correctly
+rejected local Cargo source paths embedded by the private Rust archive. The
+archive was rebuilt in a throwaway target with Rust and ring C/C++ prefix
+remapping, then used for a fresh unsigned iPhoneOS Release link. The device
+provisioning script was regenerated first, so the build also exercised the
+ordinary-archive `MeleePadSlippiCore.rsp` path rather than a stale response
+file; the duplicate-symbol failure from the earlier force-loaded response was
+gone.
+
+The public packager then passed its account/history audit, produced and
+ZIP-tested `/private/tmp/meleepad-public-final-0912k.ipa`, and wrote its
+checksum. The package contained no native game module, game image, save,
+profile, signature, credential, `/Users/` path, or `/tmp/meleepad` path. This
+is release-shell validation only: the resulting IPA remains intentionally
+module-free and not playable until a recipient supplies private game data,
+module, signing, and account import.
