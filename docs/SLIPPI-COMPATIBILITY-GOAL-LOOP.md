@@ -2284,3 +2284,62 @@ and `signed=false`, `installed=false`, `executed=false`, and
 `service_authentication_tested=false`. This closes the private candidate
 rebuild/relink check, but it is not an online result and must not be packaged
 or distributed with game data or credentials.
+
+## Iteration 50: reproduce the Normal Lag Reduction failure on the locked chain
+
+The next native diagnostic reran `required-normal` from a fresh ignored output
+directory using the same accepted component probe, v1.02 ISO, native module,
+Rust archive and no-JIT runner as `boot-native-required-017`. The result is
+unchanged: exit 8 after two frames, 84 invalid memory accesses, zero graphics
+errors, no late frame progress, one Slippi EXI device, and
+`jit_enabled=false`. The module hash is
+`024ecbd65d39751b66831b0556d887c4af562bf5e18c7fc248f008dbec7ee1a6`.
+
+The first invalid writes are at guest PC `0x80343680`, followed by invalid
+reads through the same null-object path (`0x803436d0`, `0x803881a4`,
+`0x8034370c`, and related PCs). This is a fresh reproduction of the earlier
+Normal Lag Reduction failure, not a new fix. No guessed branch replacement or
+verification bypass was added. The shipping native subset therefore remains
+General Codes + Slippi Recording + Slippi Online; Normal Lag Reduction and the
+full six-group configuration remain open.
+
+## Iteration 51: verify the current main-app candidate on the physical iPad
+
+The current iPhoneOS Release target rebuilt successfully at
+`/tmp/meleepad-xcodebuild-resume`, with the Slippi input preflight reporting 91
+required paths. A throwaway APFS clone of the existing private QA app was
+staged with the pinned Slippi GameINI and the newly linked iPhoneOS module from
+`ios-direct-007`, then signed with the existing development identity. It was
+installed in place on iPad14,5 / iPadOS 26.6.1 while retaining database UUID
+`979047F1-0409-46A6-9D7E-8A7042696DB0`.
+
+The main app launch resolved the module from its actual device-configured
+`PrivateQA/gGALE01r2_slippi_recomp.dylib` path, found the retained v1.02 ISO
+and game root, initialized CoreAudio at 48 kHz, and logged
+`native Slippi host started revision=2` with the imported account present.
+The newer candidate module was the one staged at that resolved path. The
+bounded QA process was then terminated intentionally because the CoreDevice
+console wrapper does not end a resident UIKit app. Its temporary plaintext
+`User/Slippi/user.json` was removed and verified absent afterward.
+
+This is current-main-app native boot/account evidence, not online acceptance:
+the run supplied no menu input, so it produced no search, game, rollback,
+rematch, disconnect, or crossplay result. The first staging attempt also
+caught and corrected a normal (non-Slippi) GameINI being copied into the
+throwaway bundle; the corrected rerun passed the native six-group guard.
+
+## Iteration 52: verify ordinary input reaches the native Slippi menu
+
+A small opt-in diagnostic fixture, `scripts/fixtures/slippi-login-menu-input.txt`,
+sends one ordinary A press to the native Online Play menu at second eight. A
+fresh required-group Metal run completed 102 frames with zero memory or
+graphics errors and one observed menu command. The screenshot remains on the
+native `1-P Mode > Online Play > Log-in` screen, confirming that the menu path
+is rendered and stable under input; the account-free probe intentionally does
+not attempt service authentication.
+
+The remaining executable gate is therefore a real account-backed menu session:
+manual controller navigation into Unranked or an arranged Direct search,
+followed by a legitimate distinct peer for match, rollback, rematch and clean
+disconnect evidence. No second identity is available locally, so no online
+gameplay claim is made and no synthetic account is substituted.
