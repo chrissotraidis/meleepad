@@ -2418,3 +2418,12 @@ user.json`. This confirms the intended boundary in the runnable artifact:
 the simulator can validate the chooser and legacy/fixed-delay surface, but it
 does not claim to execute the native iPhoneOS Slippi runtime or prove online
 play.
+
+## Iteration 57: verify the normal physical entry point
+
+The installed private candidate was launched on the paired physical iPad with
+no QA arguments. `devicectl` returned `outcome=success` and a process ID for
+the installed `com.meleepad.MeleePad` bundle, confirming that the ordinary
+product entry point launches independently of the scripted native probe. The
+newly launched process was terminated after verification; pre-existing
+processes from other device work were not touched.
