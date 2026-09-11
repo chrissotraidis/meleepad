@@ -2579,3 +2579,35 @@ corrected-input result confirms that the earlier harness bug affected the
 trajectory, but it still does not identify a safe native arithmetic fix. The
 controller change remains diagnostic-only and the online acceptance boundary
 is unchanged.
+
+## Iteration 64: rerun the installed native Slippi route on the software iPad
+
+The exact arm64 Simulator Release app from the current branch was installed on
+the dedicated MeleePad software iPad after restoring the private retained USA
+v1.02 disc image to that simulator's app data. The already-imported QA account
+was consumed through the normal simulator-only app-sandbox account path; no
+owner credential was copied, printed or committed. The app was launched with
+the native Slippi route and its bounded menu probe, then left undisturbed until
+the worker completed.
+
+This is an app-level native boot/menu result, not a probe-only result. The app
+log recorded the v1.02 game root, disc and Slippi module, followed by
+`native Slippi runtime ready revision=2`. The worker completed with exit code 0
+after 2,098 frames. The structured runtime report recorded
+`account_file_loaded=1`, `boot_error=0`, `memory_errors=0`,
+`graphics_errors=0`, `jit_enabled=false`, three active required code groups,
+and `game_files_written=true`. The screenshot showed the native Slippi Online
+menu with Unranked highlighted and the MeleePad `Slippi runtime active`
+overlay. The report is preserved at
+`docs/artifacts/slippi-feasibility-2026-09-10/simulator-native-menu-0912m.json`.
+
+The eight QA menu events were emitted, but this bounded run recorded zero
+Unranked searches, zero connected opponents, zero games and zero packets. The
+private QA identity is not a legitimate online peer, so this result is not
+service authentication or online-play acceptance. The remaining gate still
+requires a second legitimate identity, an arranged compatible peer, a real
+match with rollback, completed results, rematch and clean disconnect. The
+two-pane simultaneous Original/Slippi surface remains a separate architecture
+task because the current app has one Metal surface and one shared Dolphin
+runtime; the current safe surface remains two launch choices with one active
+runtime.
