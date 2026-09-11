@@ -2427,3 +2427,14 @@ the installed `com.meleepad.MeleePad` bundle, confirming that the ordinary
 product entry point launches independently of the scripted native probe. The
 newly launched process was terminated after verification; pre-existing
 processes from other device work were not touched.
+
+## Iteration 58: exercise the native route on the simulator
+
+The current Release simulator app was launched with the native-Slippi route
+argument on the dedicated software iPad. It reached the normal setup surface
+and displayed `Melee v1.00 is installed. This build still needs its native
+Slippi module before it can play.` The simulator bundle contains no native
+Slippi module, and the source deliberately keeps the native runtime device-only.
+This is an expected, visible capability boundary: the simulator remains useful
+for chooser and legacy/fixed-delay checks, but it cannot substitute for a
+physical native Slippi run or a real online peer.
