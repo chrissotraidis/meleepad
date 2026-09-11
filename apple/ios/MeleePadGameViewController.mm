@@ -587,8 +587,11 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
         if (deviceRelativePath.length == 0)
             deviceRelativePath = configuration[@"DeviceSlippiModuleRelativePath"];
     } else {
-        deviceRelativePath = revision == 2 ? @"gGALE01r2_recomp.dylib" :
-            configuration[@"DeviceModuleRelativePath"];
+        if ([configuration[@"DeviceBundledGameRevision"] integerValue] == revision)
+            deviceRelativePath = configuration[@"DeviceBundledOriginalModuleRelativePath"];
+        if (deviceRelativePath.length == 0)
+            deviceRelativePath = revision == 2 ? @"gGALE01r2_recomp.dylib" :
+                configuration[@"DeviceModuleRelativePath"];
     }
 #if !TARGET_OS_SIMULATOR
     // Simulator and device provisioning share a generated development plist.
@@ -1213,11 +1216,36 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     NSDictionary *config = configPath ? [NSDictionary dictionaryWithContentsOfFile:configPath] : @{};
     MeleePadSettings *settings = [MeleePadSettings sharedSettings];
     [_overlay refreshMenuButton];
-    NSFileManager *fileManager = [NSFileManager defaultManager];
     // App updates can relocate the data-container UUID. On physical devices,
     // derive imported data from the current sandbox instead of trusting an
     // absolute path persisted by a previous installation.
     NSString *supportRoot = [self meleePadSupportRoot];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+#if !TARGET_OS_SIMULATOR
+    // Private self-contained QA bundles declare the revision of their bundled
+    // game root. If an older install still has the v1.00 default selected,
+    // adopt that bundled revision only when the selected sandbox root is
+    // absent. Public builds omit this manifest key and keep import selection
+    // unchanged.
+    NSNumber *bundledRevisionValue = config[@"DeviceBundledGameRevision"];
+    NSString *bundledRootRelativePath = config[@"DeviceBundledGameRootRelativePath"];
+    NSInteger bundledRevision = bundledRevisionValue != nil
+        ? bundledRevisionValue.integerValue : -1;
+    NSString *selectedRoot = [supportRoot stringByAppendingPathComponent:
+        settings.gameRevision == 2 ? @"GameData-r2/GALE01" : @"GameData/GALE01"];
+    NSString *bundledRoot = bundledRootRelativePath.length > 0
+        ? [bundle.bundlePath stringByAppendingPathComponent:bundledRootRelativePath] : nil;
+    if (bundledRevision >= 0 && ![fileManager fileExistsAtPath:selectedRoot] &&
+        bundledRoot.length > 0 && [fileManager fileExistsAtPath:bundledRoot] &&
+        MeleePadRevisionAtRoot(bundledRoot) == bundledRevision &&
+        (bundledRevision == 0 || bundledRevision == 2)) {
+        NSInteger previousRevision = settings.gameRevision;
+        settings.gameRevision = bundledRevision;
+        [settings synchronize];
+        MeleePadLog(@"boot revision fallback source=bundle previous=%ld selected=%ld",
+                  (long)previousRevision, (long)bundledRevision);
+    }
+#endif
     NSString *gameDataDirectory = [supportRoot stringByAppendingPathComponent:
         settings.gameRevision == 2 ? @"GameData-r2" : @"GameData"];
 
@@ -2441,10 +2469,10 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 }
 
 - (NSString *)meleePadSupportRoot {
+    NSFileManager *fileManager = [NSFileManager defaultManager];
     NSString *applicationSupportRoot =
         [NSHomeDirectory() stringByAppendingPathComponent:@"Library/Application Support"];
     NSString *currentRoot = [applicationSupportRoot stringByAppendingPathComponent:@"MeleePad"];
-    NSFileManager *fileManager = [NSFileManager defaultManager];
     NSString *currentImage =
         [currentRoot stringByAppendingPathComponent:@"GameData/GALE01.iso"];
     NSString *currentExecutable =

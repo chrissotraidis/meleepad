@@ -23,6 +23,10 @@ case "$PLATFORM" in
     MODULE="/tmp/meleepad-module-ios-simulator/gGALE01_recomp.dylib"
     DEVICE_MODULE_ENTRY=""
     DEVICE_SLIPPI_MODULE_ENTRY=""
+    DEVICE_BUNDLED_REVISION_ENTRY=""
+    DEVICE_BUNDLED_ROOT_ENTRY=""
+    DEVICE_BUNDLED_DISC_ENTRY=""
+    DEVICE_BUNDLED_ORIGINAL_MODULE_ENTRY=""
     ;;
   device)
     IOS_BUILD="$MG/build-ios-iphoneos-meleepad-static"
@@ -30,6 +34,10 @@ case "$PLATFORM" in
     MODULE="/tmp/meleepad-module-ios-device/gGALE01_recomp.dylib"
     DEVICE_MODULE_ENTRY=$'\t<key>DeviceModuleRelativePath</key>\n\t<string>gGALE01_recomp.dylib</string>'
     DEVICE_SLIPPI_MODULE_ENTRY=$'\t<key>DeviceBundledSlippiModuleRelativePath</key>\n\t<string>gGALE01r2_slippi_recomp.dylib</string>'
+    DEVICE_BUNDLED_REVISION_ENTRY=$'\t<key>DeviceBundledGameRevision</key>\n\t<integer>2</integer>'
+    DEVICE_BUNDLED_ROOT_ENTRY=$'\t<key>DeviceBundledGameRootRelativePath</key>\n\t<string>PrivateQA/GameData-r2/GALE01</string>'
+    DEVICE_BUNDLED_DISC_ENTRY=$'\t<key>DeviceBundledDiscImageRelativePath</key>\n\t<string>PrivateQA/GALE01-r2.iso</string>'
+    DEVICE_BUNDLED_ORIGINAL_MODULE_ENTRY=$'\t<key>DeviceBundledOriginalModuleRelativePath</key>\n\t<string>gGALE01r2_recomp.dylib</string>'
     ;;
   *)
     echo "usage: $0 [simulator|device]" >&2
@@ -126,6 +134,10 @@ cat > "$OUT/dev-config.plist" <<PLIST
 	<string>$MODULE</string>
 $DEVICE_MODULE_ENTRY
 $DEVICE_SLIPPI_MODULE_ENTRY
+$DEVICE_BUNDLED_REVISION_ENTRY
+$DEVICE_BUNDLED_ROOT_ENTRY
+$DEVICE_BUNDLED_DISC_ENTRY
+$DEVICE_BUNDLED_ORIGINAL_MODULE_ENTRY
 </dict>
 </plist>
 PLIST

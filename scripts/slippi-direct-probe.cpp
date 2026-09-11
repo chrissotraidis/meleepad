@@ -13,6 +13,7 @@
 #include "Core/Config/SessionSettings.h"
 #include "Core/Config/StaticRecompSettings.h"
 #include "Core/Config/GraphicsSettings.h"
+#include "Core/Core.h"
 #include "Core/HW/GCPad.h"
 #include "Core/HW/GCPadEmu.h"
 #include "Core/HW/SI/SI_Device.h"
@@ -221,6 +222,9 @@ int SlippiDirectMain(const char* game, const char* iso, const char* module,
     [](std::string_view group, std::string_view control, ControlState) -> std::optional<ControlState> {
       std::lock_guard lock(SlippiDirectProbe::pad_mutex);
       const auto& p = SlippiDirectProbe::pad;
+      ++SlippiDirectProbe::input_override_reads;
+      if (p.x != 0 || p.y != 0 || p.cx != 0 || p.cy != 0 || p.l != 0 || p.r != 0 || p.buttons != 0)
+        ++SlippiDirectProbe::input_active_reads;
       if (group == GCPad::MAIN_STICK_GROUP) return control == "X" ? p.x : control == "Y" ? p.y : 0.0;
       if (group == GCPad::C_STICK_GROUP) return control == "X" ? p.cx : control == "Y" ? p.cy : 0.0;
       if (group == GCPad::TRIGGERS_GROUP) {
@@ -231,7 +235,11 @@ int SlippiDirectMain(const char* game, const char* iso, const char* module,
       }
       if (group == GCPad::BUTTONS_GROUP) {
         const char* names[] = {"A", "B", "X", "Y", "Z", "Start"};
-        for (unsigned i=0; i<6; ++i) if (control == names[i]) return (p.buttons & (1u<<i)) ? 1.0 : 0.0;
+        for (unsigned i=0; i<6; ++i) if (control == names[i]) {
+          if (p.buttons & (1u << i))
+            ++SlippiDirectProbe::input_button_reads[i];
+          return (p.buttons & (1u << i)) ? 1.0 : 0.0;
+        }
       }
       return 0.0;
     });
@@ -244,6 +252,13 @@ int SlippiDirectMain(const char* game, const char* iso, const char* module,
   Config::SetCurrent(Config::SLIPPI_SAVE_REPLAYS, false);
   Config::SetCurrent(Config::MAIN_ENABLE_CHEATS, true);
   Config::SetCurrent(Config::SESSION_CODE_SYNC_OVERRIDE, true);
+  // The main-app host starts the runtime from a UIKit worker rather than the
+  // normal Dolphin game-properties flow. Pin these two run settings in the
+  // base layer as well, then install the synchronized set immediately. This
+  // keeps the Slippi menu hooks active even if a later config reload replaces
+  // the current-run layer before the first Gecko handler tick.
+  Config::SetBase(Config::MAIN_ENABLE_CHEATS, true);
+  Config::SetBase(Config::SESSION_CODE_SYNC_OVERRIDE, true);
   Config::SetCurrent(Config::GFX_VERTEX_LOADER_TYPE, VertexLoaderType::Software);
   Config::SetCurrent(Config::MAIN_STATICRECOMP_IDLE_PC, 0u);
   Config::SetCurrent(Config::MAIN_STATICRECOMP_SECONDARY_IDLE_PC, 0x8034B164u);
@@ -264,6 +279,8 @@ int SlippiDirectMain(const char* game, const char* iso, const char* module,
   for (auto& c : codes) c.enabled = c.enabled && (c.name == "Required: General Codes" ||
     c.name == "Required: Slippi Recording" || c.name == "Required: Slippi Online");
   Gecko::UpdateSyncedCodes(codes);
+  Gecko::SetSyncedCodesAsActive();
+  const auto active_code_groups = Gecko::CountEnabledCodes();
   auto trace = std::make_shared<SlippiDirectTrace>();
   auto timing = std::make_shared<SlippiFrameProfiler>(config.user_directory);
   auto audio = std::make_shared<SlippiAudioProbe>();
@@ -274,25 +291,38 @@ int SlippiDirectMain(const char* game, const char* iso, const char* module,
     trace->Observe(command,packet,size); timing->Observe(command,packet,size,4); audio->Observe(command,packet,size);
   };
   std::atomic<bool> finished{false};
+  std::atomic<bool> runtime_started{false};
   WriteCheckpoint(run_root, "running", "none", false);
   std::thread menu_input;
   if (SlippiDirectProbe::menu_probe) {
-    menu_input = std::thread([] {
+    menu_input = std::thread([&runtime_started] {
       struct Event { int second; double x; double y; unsigned buttons; int milliseconds; };
       // This is a QA-only reproduction of ordinary controller input. It is
       // disabled for normal launches and never invents an account or peer.
+      // Times are relative to Runtime::Run(), not process start: iOS can spend
+      // about a minute creating the Metal surface and booting the disc. The
+      // first event is deliberately after the observed memory-card dialog.
       const Event events[] = {
-        {33, 0.0, 0.0, 1u, 120},
-        {36, 0.0, 0.0, 2u, 80}, {37, 0.0, 0.0, 2u, 80},
-        {38, 0.0, -1.0, 0u, 80}, {39, 0.0, 0.0, 1u, 80},
-        {40, 0.0, 0.0, 1u, 80}, {42, 0.0, 0.0, 1u, 80},
-        {42, 0.0, 0.0, 1u, 80}, {43, 0.0, 1.0, 0u, 120},
-        {43, 0.0, 1.0, 0u, 120}, {45, 0.0, 0.0, 1u, 80},
-        {45, 0.0, 0.0, 1u, 80}, {47, 0.0, 0.0, 32u, 80},
-        {49, 0.0, 0.5, 0u, 100}, {50, 0.0, 0.0, 1u, 80},
-        {58, 0.0, 0.0, 1u, 120}, {60, 0.0, 0.0, 1u, 120},
-        {63, 0.0, 0.0, 32u, 120}, {66, 0.0, 0.0, 1u, 120},
+        // Acknowledge both boot prompts before allowing any menu navigation.
+        // The second press is the save-data prompt. The third lands on the
+        // observed title screen after the long native intro sequence.
+        {60, 0.0, 0.0, 1u, 120},
+        {62, 0.0, 0.0, 1u, 120},
+        {175, 0.0, 0.0, 32u, 120},
+        // The title Start press reaches the normal Main Menu. A then opens
+        // the Slippi-modified 1-P Mode submenu. Its third entry is rendered
+        // as Stadium but its patched handler switches to Online Play.
+        {185, 0.0, 0.0, 1u, 120},
+        {195, 0.0, 1.0, 0u, 120}, // select the second 1-P Mode entry
+        {198, 0.0, 1.0, 0u, 120}, // select the third 1-P Mode entry
+        {205, 0.0, 0.0, 1u, 120}, // confirm the selected character
+        {215, 0.0, 0.0, 32u, 120}, // press START to search in Unranked Mode
       };
+      while (!runtime_started.load(std::memory_order_acquire) &&
+             !SlippiDirectProbe::stop.load(std::memory_order_acquire))
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+      if (SlippiDirectProbe::stop.load(std::memory_order_acquire))
+        return;
       const auto started = std::chrono::steady_clock::now();
       for (const auto& event : events) {
         if (SlippiDirectProbe::stop.load(std::memory_order_acquire))
@@ -302,9 +332,33 @@ int SlippiDirectMain(const char* game, const char* iso, const char* module,
           std::lock_guard lock(SlippiDirectProbe::pad_mutex);
           SlippiDirectProbe::pad = {event.x, event.y, 0, 0, 0, 0, event.buttons};
         }
+        ++SlippiDirectProbe::menu_events_emitted;
         std::this_thread::sleep_for(std::chrono::milliseconds(event.milliseconds));
         std::lock_guard lock(SlippiDirectProbe::pad_mutex);
         SlippiDirectProbe::pad = {};
+      }
+    });
+  }
+  std::thread screenshot_monitor;
+  if (SlippiDirectProbe::menu_probe) {
+    screenshot_monitor = std::thread([&finished, &runtime] {
+      // Retain visual checkpoints around the only scripted action. This uses
+      // the same renderer screenshot path as the accepted desktop menu probe
+      // and avoids reading a guessed guest address from the host thread.
+      for (int second = 1; second <= 280 &&
+                           !finished.load(std::memory_order_acquire) &&
+                           !SlippiDirectProbe::stop.load(std::memory_order_acquire); ++second) {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        if (second != 59 && second != 61 && second != 63 && second != 70 &&
+            second != 76 && second != 80 && second != 90 && second != 100 && second != 110 &&
+            second != 130 && second != 150 && second != 170 && second != 175 &&
+            second != 180 && second != 185 && second != 190 && second != 195 &&
+            second != 198 && second != 200 && second != 205 && second != 210 &&
+            second != 215 && second != 220 &&
+            second != 230 && second != 250 && second != 270)
+          continue;
+        if (Core::GetState(Core::System::GetInstance()) == Core::State::Running)
+          Core::SaveScreenShot("meleepad-direct-menu-" + std::to_string(second));
       }
     });
   }
@@ -314,7 +368,7 @@ int SlippiDirectMain(const char* game, const char* iso, const char* module,
     // limit could terminate an active match or rematch unexpectedly.
     const auto deadline = SlippiDirectProbe::account_boot_check
         ? std::chrono::steady_clock::now() +
-            std::chrono::seconds(SlippiDirectProbe::menu_probe ? 90 : 45)
+            std::chrono::seconds(SlippiDirectProbe::menu_probe ? 300 : 45)
         : std::chrono::steady_clock::time_point::max();
     while (!finished && !SlippiDirectProbe::stop && std::chrono::steady_clock::now()<deadline &&
            memory_errors==0 && graphics_errors==0) std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -327,11 +381,13 @@ int SlippiDirectMain(const char* game, const char* iso, const char* module,
       runtime.RequestStop();
     }
   });
+  runtime_started.store(true, std::memory_order_release);
   if (on_runtime_ready)
     on_runtime_ready();
   auto result = runtime.Run();
   finished=true; watchdog.join();
   if (menu_input.joinable()) menu_input.join();
+  if (screenshot_monitor.joinable()) screenshot_monitor.join();
   WriteCheckpoint(run_root, "run_returned", result.error ? "runtime_error" : "none",
                   false, result.error.has_value());
   SlippiCompat::game_frame_observer={};
@@ -347,6 +403,14 @@ int SlippiDirectMain(const char* game, const char* iso, const char* module,
          << ",\"matchmaking_connected\":" << SlippiDirectProbe::matchmaking_connected.load()
          << ",\"matchmaking_errors\":" << SlippiDirectProbe::matchmaking_errors.load()
          << ",\"account_file_loaded\":" << SlippiDirectProbe::account_loaded.load()
+         << ",\"menu_events_emitted\":" << SlippiDirectProbe::menu_events_emitted.load()
+         << ",\"input_override_reads\":" << SlippiDirectProbe::input_override_reads.load()
+         << ",\"input_active_reads\":" << SlippiDirectProbe::input_active_reads.load()
+         << ",\"input_a_reads\":" << SlippiDirectProbe::input_button_reads[0].load()
+         << ",\"input_b_reads\":" << SlippiDirectProbe::input_button_reads[1].load()
+         << ",\"input_start_reads\":" << SlippiDirectProbe::input_button_reads[5].load()
+         << ",\"active_code_groups\":" << active_code_groups
+         << ",\"frames\":" << runtime.GetDiagnosticsSnapshot().frame_count
          << ",\"game_starts\":" << SlippiDirectProbe::game_starts.load() << ",\"game_ends\":" << SlippiDirectProbe::game_ends.load()
          << ",\"game_bookends\":" << SlippiDirectProbe::game_frames.load()
          << ",\"code_subset\":\"required\",\"jit_enabled\":false,\"crossplay_accepted\":false}\n";

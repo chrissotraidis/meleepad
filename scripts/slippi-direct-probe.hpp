@@ -1,5 +1,6 @@
 #pragma once
 // Private acceptance target only. Shared between the UIKit host and CPU thread.
+#include <array>
 #include <atomic>
 #include <functional>
 #include <mutex>
@@ -18,6 +19,8 @@ inline bool account_boot_check=false;
 inline bool menu_probe=false;
 inline std::atomic<bool> account_loaded{false};
 inline std::atomic<unsigned long long> game_starts{0}, game_ends{0}, game_frames{0};
+inline std::atomic<unsigned long long> menu_events_emitted{0}, input_override_reads{0}, input_active_reads{0};
+inline std::array<std::atomic<unsigned long long>, 6> input_button_reads{};
 
 inline void ResetTelemetry() {
   std::lock_guard lock(pad_mutex);
@@ -35,6 +38,11 @@ inline void ResetTelemetry() {
   game_starts.store(0, std::memory_order_relaxed);
   game_ends.store(0, std::memory_order_relaxed);
   game_frames.store(0, std::memory_order_relaxed);
+  menu_events_emitted.store(0, std::memory_order_relaxed);
+  input_override_reads.store(0, std::memory_order_relaxed);
+  input_active_reads.store(0, std::memory_order_relaxed);
+  for (auto& count : input_button_reads)
+    count.store(0, std::memory_order_relaxed);
 }
 // Called before any code history write or matchmaking request. Never silently
 // changes a requested mode or bypasses the service's account/version checks.

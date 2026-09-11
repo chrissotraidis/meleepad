@@ -11,6 +11,8 @@ import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
 SLIPPI_GAME_SETTINGS = ROOT / "ref/slippi-compatibility/upstream/Data/Sys/GameSettings/GALE01r2.ini"
+SLIPPI_BOOTLOADER = ROOT / "ref/slippi-compatibility/ios-direct-005/SlippiProbe.app/Sys/bootloader.gct"
+SLIPPI_GAME_FILES = ROOT / "ref/slippi-compatibility/ios-direct-005/SlippiProbe.app/Sys/GameFiles/GALE01"
 REQUIRED_SLIPPI_CODES = (
     "$Required: General Codes",
     "$Required: Slippi Recording",
@@ -67,6 +69,10 @@ def main():
         settings_text = SLIPPI_GAME_SETTINGS.read_text()
         if any(code not in settings_text for code in REQUIRED_SLIPPI_CODES):
             parser.error("pinned Slippi GALE01r2.ini is missing a required code group")
+        if not SLIPPI_BOOTLOADER.is_file():
+            parser.error("pinned Slippi bootloader.gct is missing")
+        if not (SLIPPI_GAME_FILES / "MxScn.dat").is_file():
+            parser.error("pinned Slippi GALE01 resource pack is missing MxScn.dat")
     if not staged:
         parser.error("No matching locally built modules are available")
     # Validate every source before modifying the destination.
@@ -80,6 +86,15 @@ def main():
             parser.error("built app is missing its Sys/GameSettings resource directory")
         shutil.copy2(SLIPPI_GAME_SETTINGS, settings_destination)
         print("Staged pinned Slippi GALE01r2.ini; sign the app before device installation")
+        bootloader_destination = args.app / "Sys/bootloader.gct"
+        if not bootloader_destination.parent.is_dir():
+            parser.error("built app is missing its Sys resource directory")
+        shutil.copy2(SLIPPI_BOOTLOADER, bootloader_destination)
+        print("Staged pinned Slippi bootloader.gct; sign the app before device installation")
+        game_files_destination = args.app / "Sys/GameFiles/GALE01"
+        game_files_destination.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(SLIPPI_GAME_FILES, game_files_destination, dirs_exist_ok=True)
+        print("Staged pinned Slippi GALE01 resource pack; sign the app before device installation")
 
 
 if __name__ == "__main__":
