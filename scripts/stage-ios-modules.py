@@ -27,7 +27,7 @@ def main():
     parser.add_argument(
         "--slippi-module",
         type=Path,
-        help="optional private iPhoneOS native Slippi v1.02 module to stage",
+        help="optional private native Slippi v1.02 module to stage",
     )
     args = parser.parse_args()
     if not (args.app / "Info.plist").is_file():
@@ -51,8 +51,6 @@ def main():
         name = "gGALE01r2_recomp.dylib" if number == 2 else "gGALE01_recomp.dylib"
         staged.append((module, identity, name))
     if args.slippi_module:
-        if args.platform != "device":
-            parser.error("native Slippi modules are only supported for device apps")
         revision = next((row for row in catalog if row["revision"] == 2), None)
         module = args.slippi_module.resolve()
         identity = Path(str(module) + ".dol-sha256")
@@ -61,7 +59,8 @@ def main():
         if not identity.is_file() or identity.read_text().strip() != revision["dol_sha256"]:
             parser.error("native Slippi v1.02 module identity is missing or mismatched")
         platform = subprocess.check_output(["vtool", "-show-build", str(module)], text=True)
-        if not any(line.strip() == "platform IOS" for line in platform.splitlines()):
+        expected = "IOSSIMULATOR" if args.platform == "simulator" else "IOS"
+        if not any(line.strip() == f"platform {expected}" for line in platform.splitlines()):
             parser.error("native Slippi module belongs to a different Apple platform")
         staged.append((module, identity, "gGALE01r2_slippi_recomp.dylib"))
         if not SLIPPI_GAME_SETTINGS.is_file():

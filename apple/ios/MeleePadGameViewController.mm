@@ -427,6 +427,8 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
         NSString *accountPath = [self resolvedImportTestPath:arguments[accountImportIndex + 1]];
         NSString *error = nil;
         if (![self importSlippiAccountFromPath:accountPath error:&error]) {
+            MeleePadLog(@"private Slippi account import failed path=%@ error=%@",
+                      accountPath, error ?: @"unknown");
             [self presentBootError:error ?: @"The private Slippi account import failed."];
             return;
         }
@@ -528,11 +530,6 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 }
 
 - (BOOL)importSlippiAccountFromPath:(NSString *)path error:(NSString **)error {
-#if TARGET_OS_SIMULATOR
-    if (error != nullptr)
-        *error = @"Native Slippi account import is available in the iPhoneOS build, not the simulator build.";
-    return NO;
-#else
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSDictionary *attributes = [fileManager attributesOfItemAtPath:path error:nil];
     unsigned long long size = [attributes[NSFileSize] unsignedLongLongValue];
@@ -564,7 +561,6 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
         return NO;
     }
     return YES;
-#endif
 }
 
 - (NSString *)modulePathFromConfiguration:(NSDictionary *)configuration
@@ -1216,6 +1212,16 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     NSDictionary *config = configPath ? [NSDictionary dictionaryWithContentsOfFile:configPath] : @{};
     MeleePadSettings *settings = [MeleePadSettings sharedSettings];
     [_overlay refreshMenuButton];
+#if TARGET_OS_SIMULATOR
+    // Native Slippi is pinned to USA Melee v1.02. Keep the simulator route
+    // aligned with the matching extracted tree when a prior standalone run
+    // left v1.00 selected.
+    if (_slippiRequested && settings.gameRevision != 2) {
+        settings.gameRevision = 2;
+        [settings synchronize];
+        MeleePadLog(@"Slippi route selected supported game revision=2");
+    }
+#endif
     // App updates can relocate the data-container UUID. On physical devices,
     // derive imported data from the current sandbox instead of trusting an
     // absolute path persisted by a previous installation.

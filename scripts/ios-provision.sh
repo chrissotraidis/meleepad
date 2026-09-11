@@ -21,6 +21,13 @@ case "$PLATFORM" in
     IOS_BUILD="$MG/build-ios-iphonesimulator-meleepad-static"
     LIBS_DIR="$OUT/iphonesimulator/libs"
     MODULE="/tmp/meleepad-module-ios-simulator/gGALE01_recomp.dylib"
+    SLIPPI_VCDIFF_DIR="$ROOT/ref/slippi-compatibility/exi-probe-001/vcdiff-simulator"
+    SLIPPI_RUST_ARCHIVE="$ROOT/ref/slippi-compatibility/rust-build-ios16/aarch64-apple-ios-sim/release/libslippi_rust_extensions.a"
+    SLIPPI_SEMVER_OBJECTS=(
+      "$ROOT/ref/slippi-compatibility/exi-probe-001/Semver200_comparator-simulator.o"
+      "$ROOT/ref/slippi-compatibility/exi-probe-001/Semver200_modifier-simulator.o"
+      "$ROOT/ref/slippi-compatibility/exi-probe-001/Semver200_parser-simulator.o"
+    )
     DEVICE_MODULE_ENTRY=""
     DEVICE_SLIPPI_MODULE_ENTRY=""
     DEVICE_BUNDLED_REVISION_ENTRY=""
@@ -38,6 +45,9 @@ case "$PLATFORM" in
     DEVICE_BUNDLED_ROOT_ENTRY=$'\t<key>DeviceBundledGameRootRelativePath</key>\n\t<string>PrivateQA/GameData-r2/GALE01</string>'
     DEVICE_BUNDLED_DISC_ENTRY=$'\t<key>DeviceBundledDiscImageRelativePath</key>\n\t<string>PrivateQA/GALE01-r2.iso</string>'
     DEVICE_BUNDLED_ORIGINAL_MODULE_ENTRY=$'\t<key>DeviceBundledOriginalModuleRelativePath</key>\n\t<string>gGALE01r2_recomp.dylib</string>'
+    SLIPPI_VCDIFF_DIR=""
+    SLIPPI_RUST_ARCHIVE=""
+    SLIPPI_SEMVER_OBJECTS=()
     ;;
   *)
     echo "usage: $0 [simulator|device]" >&2
@@ -112,11 +122,43 @@ if (( ${#MISSING[@]} )); then
   exit 1
 fi
 
-LINKER_RESPONSE="$LIBS_DIR/MeleePadCore.rsp"
-: > "$LINKER_RESPONSE"
-for lib in "${LIBS[@]}"; do
-  printf '%s\n' "-Wl,-force_load,$lib" >> "$LINKER_RESPONSE"
-done
+if [[ "$PLATFORM" == "simulator" ]]; then
+  SLIPPI_INPUTS=(
+    "$SLIPPI_VCDIFF_DIR/libvcdenc.a"
+    "$SLIPPI_VCDIFF_DIR/libvcddec.a"
+    "$SLIPPI_VCDIFF_DIR/libvcdcom.a"
+    "${SLIPPI_SEMVER_OBJECTS[@]}"
+    "$SLIPPI_RUST_ARCHIVE"
+  )
+  MISSING_SLIPPI=()
+  for input in "${SLIPPI_INPUTS[@]}"; do
+    if [[ ! -f "$input" ]]; then
+      MISSING_SLIPPI+=("$input")
+    fi
+  done
+  if (( ${#MISSING_SLIPPI[@]} )); then
+    printf 'missing simulator Slippi link inputs:\n'
+    printf '  %s\n' "${MISSING_SLIPPI[@]}"
+    exit 1
+  fi
+  LINKER_RESPONSE="$LIBS_DIR/MeleePadSlippiCore.rsp"
+  : > "$LINKER_RESPONSE"
+  # Replacement Slippi objects are compiled into the app. Ordinary archives
+  # let the linker prefer those objects without duplicate symbols.
+  for lib in "${LIBS[@]}"; do
+    printf '%s\n' "$lib" >> "$LINKER_RESPONSE"
+  done
+  for lib in "$SLIPPI_VCDIFF_DIR/libvcdenc.a" "$SLIPPI_VCDIFF_DIR/libvcddec.a" "$SLIPPI_VCDIFF_DIR/libvcdcom.a"; do
+    printf '%s\n' "-Wl,-force_load,$lib" >> "$LINKER_RESPONSE"
+  done
+  printf '%s\n' "${SLIPPI_SEMVER_OBJECTS[@]}" "$SLIPPI_RUST_ARCHIVE" >> "$LINKER_RESPONSE"
+else
+  LINKER_RESPONSE="$LIBS_DIR/MeleePadSlippiCore.rsp"
+  : > "$LINKER_RESPONSE"
+  for lib in "${LIBS[@]}"; do
+    printf '%s\n' "-Wl,-force_load,$lib" >> "$LINKER_RESPONSE"
+  done
+fi
 echo "linker response: $LINKER_RESPONSE"
 
 # Dev provisioning manifest (host paths; the iOS Simulator can read the host
@@ -148,6 +190,7 @@ import pathlib, plistlib, sys
 path, template, platform = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2]), sys.argv[3]
 config = plistlib.loads(path.read_bytes())
 config["DevModulesByRevision"] = {}
+config["DevSlippiModulesByRevision"] = {}
 config["DevGameRootsByRevision"] = {}
 for revision in (0, 2):
     suffix = "-r2" if revision == 2 else ""
@@ -156,5 +199,7 @@ for revision in (0, 2):
     if module.is_file() and root.is_dir():
         config["DevModulesByRevision"][f"r{revision}"] = str(module)
         config["DevGameRootsByRevision"][f"r{revision}"] = str(root)
+        if platform == "simulator" and revision == 2:
+            config["DevSlippiModulesByRevision"][f"r{revision}"] = str(module)
 path.write_bytes(plistlib.dumps(config))
 PYCONFIG

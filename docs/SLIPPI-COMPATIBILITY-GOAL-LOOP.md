@@ -2438,3 +2438,36 @@ Slippi module, and the source deliberately keeps the native runtime device-only.
 This is an expected, visible capability boundary: the simulator remains useful
 for chooser and legacy/fixed-delay checks, but it cannot substitute for a
 physical native Slippi run or a real online peer.
+
+## Iteration 59: boot the native Slippi runtime on the simulator
+
+The simulator-only boundary was removed after compiling every native Slippi
+source unit for arm64 iOS Simulator and linking simulator-built VCDIFF,
+SemVer, and Rust inputs. The simulator linker response uses ordinary base
+archives plus force-loaded codec archives so the replacement Slippi objects
+compiled into the app do not produce duplicate symbols. Device linking remains
+on the existing iPhoneOS response file and force-load policy.
+
+A fresh Release simulator build was staged with the private v1.02 Slippi
+module, pinned GameINI, bootloader, and GALE01 resource pack. Because an
+unsigned simulator app receives `errSecMissingEntitlement` from Keychain, the
+simulator-only account-import path stores normalized QA data at the app-private
+Application Support location; physical-device imports still use the device-only
+Keychain item. A dummy QA account was used for this run; no owner credential was
+copied or committed.
+
+The run then completed with `worker_finished=true`, `exit_code=0`,
+`boot_error=0`, `memory_errors=0`, `graphics_errors=0`,
+`account_file_loaded=1`, `active_code_groups=3`, `frames=2041`, and
+`game_files_written=true`. Console evidence showed the v1.02 root, disc,
+Slippi module, bootloader and `MxScn.dat` being found, followed by
+`native Slippi runtime ready revision=2`. The captured simulator frame showed
+the native Slippi `1-P Mode > Online Play` menu with `Unranked` highlighted
+and the `Slippi runtime active` status overlay.
+
+This closes the local simulator native-boot/menu blocker. It does not prove
+service authentication, opponent connection, rollback gameplay, rematch or
+clean disconnect: the automated probe intentionally stopped at the menu and
+recorded zero games and zero packets. Physical iPad evidence remains the
+authoritative device path, and a second legitimate peer is still required for
+the online acceptance gate.

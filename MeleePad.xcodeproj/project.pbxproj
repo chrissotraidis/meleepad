@@ -522,37 +522,11 @@
 				);
 				"OTHER_LDFLAGS[sdk=iphonesimulator*]" = (
 					"$(inherited)",
-					"@$(SRCROOT)/apple/ios/Provisioned/$(PLATFORM_NAME)/libs/MeleePadCore.rsp",
+					"@$(SRCROOT)/apple/ios/Provisioned/$(PLATFORM_NAME)/libs/MeleePadSlippiCore.rsp",
 				);
 				OTHER_CFLAGS = (
 					"$(inherited)",
 					"-ffile-prefix-map=$(SRCROOT)=.",
-				);
-				"EXCLUDED_SOURCE_FILE_NAMES[sdk=iphonesimulator*]" = (
-					"slippi-direct-probe.cpp",
-					"SlippiDirectCodes.cpp",
-					"SlippiGame.cpp",
-					"SlippiGameFileLoader.cpp",
-					"SlippiMatchmaking.cpp",
-					"SlippiNetplay.cpp",
-					"SlippiPad.cpp",
-					"SlippiPlayback.cpp",
-					"SlippiReplayComm.cpp",
-					"SlippiSavestate.cpp",
-					"SlippiSpectate.cpp",
-					"SlippiStrings.cpp",
-					"SlippiUser.cpp",
-					"EXI_DeviceSlippi.cpp",
-					"GeckoCode.cpp",
-					"State.cpp",
-					"DVDThread.cpp",
-					"OnScreenDisplay.cpp",
-					"EXI_Device.cpp",
-					"JitCache.cpp",
-					"HLE_Misc.cpp",
-					"dolphin_runtime.cpp",
-					"StaticRecompSettings.cpp",
-					"Interpreter_LoadStore.cpp",
 				);
 				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
 					"$(inherited)",
@@ -639,37 +613,11 @@
 				);
 				"OTHER_LDFLAGS[sdk=iphonesimulator*]" = (
 					"$(inherited)",
-					"@$(SRCROOT)/apple/ios/Provisioned/$(PLATFORM_NAME)/libs/MeleePadCore.rsp",
+					"@$(SRCROOT)/apple/ios/Provisioned/$(PLATFORM_NAME)/libs/MeleePadSlippiCore.rsp",
 				);
 				OTHER_CFLAGS = (
 					"$(inherited)",
 					"-ffile-prefix-map=$(SRCROOT)=.",
-				);
-				"EXCLUDED_SOURCE_FILE_NAMES[sdk=iphonesimulator*]" = (
-					"slippi-direct-probe.cpp",
-					"SlippiDirectCodes.cpp",
-					"SlippiGame.cpp",
-					"SlippiGameFileLoader.cpp",
-					"SlippiMatchmaking.cpp",
-					"SlippiNetplay.cpp",
-					"SlippiPad.cpp",
-					"SlippiPlayback.cpp",
-					"SlippiReplayComm.cpp",
-					"SlippiSavestate.cpp",
-					"SlippiSpectate.cpp",
-					"SlippiStrings.cpp",
-					"SlippiUser.cpp",
-					"EXI_DeviceSlippi.cpp",
-					"GeckoCode.cpp",
-					"State.cpp",
-					"DVDThread.cpp",
-					"OnScreenDisplay.cpp",
-					"EXI_Device.cpp",
-					"JitCache.cpp",
-					"HLE_Misc.cpp",
-					"dolphin_runtime.cpp",
-					"StaticRecompSettings.cpp",
-					"Interpreter_LoadStore.cpp",
 				);
 				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
 					"$(inherited)",
