@@ -7,6 +7,21 @@ MeleePad turns a supported copy of Melee into a native Apple app you build
 yourself. It uses touch controls, physical controllers, Metal rendering, and a
 Dolphin-derived compatibility runtime—without requiring JIT on iPhone or iPad.
 
+Built with [ModernGekko](https://github.com/ExpansionPak/ModernGekko), by Hyperway,
+ExpansionPak and contributors, and [DolRecomp](https://github.com/ExpansionPak/DolRecomp),
+on the [RecompCore](https://github.com/ExpansionPak/RecompCore) /
+[Dolphin](https://github.com/dolphin-emu/dolphin) runtime. The Apple integration
+builds on [SunPad](https://github.com/chrissotraidis/sunpad). MeleePad's contribution
+is the Apple app, controls, integration, and game-specific fixes; the underlying
+compiler and runtime remain the work of their upstream authors.
+
+See [full credits](CREDITS.md) and [dependency provenance](docs/DEPENDENCIES.md).
+The maintainer also maintains [ModernGekko](https://github.com/chrissotraidis/ModernGekko),
+[RecompCore](https://github.com/chrissotraidis/RecompCore), and
+[DolRecomp](https://github.com/chrissotraidis/DolRecomp) forks used by GalaxyPad.
+**MeleePad currently builds pinned upstream revisions plus its own patch series;
+it has not migrated to those fork commits.**
+
 <p align="center">
   <img alt="Requires iOS or iPadOS 16 or later" src="https://img.shields.io/badge/iOS%20%2F%20iPadOS-16%2B-0A84FF?logo=apple">
   <img alt="Requires macOS 14 or later" src="https://img.shields.io/badge/macOS-14%2B-0A84FF?logo=apple">
@@ -36,6 +51,10 @@ universal performance guarantee.*
 > image. Performance and rendering still vary by scene and device.
 >
 > Preview 4 is build 18. Both players must use the same build.
+>
+> Development has used AI assistance. The maintainer is responsible for reviewing
+> and validating accepted changes; upstream authors are not responsible for
+> MeleePad-specific modifications.
 
 ### At a glance
 
@@ -380,6 +399,18 @@ must still review the recording and every phase.
 See the [product requirements](docs/PRD.md), [engineering journal](docs/JOURNAL.md),
 and [current status](docs/STATUS.md) for the acceptance contract, chronology,
 and detailed evidence.
+
+## Credits, licensing, and contributing
+
+See [Credits](CREDITS.md), [third-party notices](THIRD-PARTY-NOTICES.md), and
+[contribution guidelines](CONTRIBUTING.md). MeleePad-owned integration code is
+licensed under [GPL-3.0-or-later](LICENSE); upstream files retain their original
+licenses, notices, and authorship. This does not grant rights to Nintendo's game,
+generated game code, artwork, or trademarks.
+
+Runtime and compiler changes should retain upstream history and be reviewed in
+the relevant dependency fork. The [dependency guide](docs/DEPENDENCIES.md)
+distinguishes MeleePad's current patch-based inputs from GalaxyPad's fork setup.
 
 ## Legal
 

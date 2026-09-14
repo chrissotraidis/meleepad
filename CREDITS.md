@@ -1,0 +1,39 @@
+# Credits and provenance
+
+MeleePad is an Apple integration project built on the work below. It does not
+claim authorship of the recompilation tools, compatibility runtime, or game.
+
+| Project | Contribution |
+| --- | --- |
+| [ModernGekko — Hyperway, ExpansionPak and contributors](https://github.com/ExpansionPak/ModernGekko) | Runtime integration, game-port tooling, and native execution framework |
+| [DolRecomp — ExpansionPak and contributors](https://github.com/ExpansionPak/DolRecomp) | Ahead-of-time PowerPC code generation |
+| [RecompCore — ExpansionPak and contributors](https://github.com/ExpansionPak/RecompCore) | Dolphin-derived static-recompilation runtime, including GXRuntime |
+| [Dolphin Emulator contributors](https://github.com/dolphin-emu/dolphin) | GameCube hardware, graphics, audio, memory, timing, and input implementation |
+| [ModernGekko-Template](https://github.com/ExpansionPak/ModernGekko-Template) | Recompilation pipeline and game-port reference |
+| [SunPad](https://github.com/chrissotraidis/sunpad) | Apple integration and touch-control foundation |
+| [Melee decompilation community](https://github.com/doldecomp/melee) | Revision-aware source, symbols, and research references |
+| [m-ex / Akaneia contributors](https://github.com/akaneia/m-ex) | Melee modding and expansion reference |
+| [Project Slippi and contributors](https://github.com/project-slippi) | Slippi game modifications, protocol, and networking work used in experimental integration research |
+
+ModernGekko's [upstream credits](https://github.com/ExpansionPak/ModernGekko#credits)
+recognize SpecialK / aharonahdoot for RecompCore, the Dolphin team for its
+foundation, and Literally God / MrPoloGit for the recompilation template and
+macOS support. Its Hall of Fame also credits Literally God / MrPoloGit for Melee.
+Original contributor histories and per-file notices remain authoritative.
+
+MeleePad's own work includes UIKit and macOS integration, touch and controller
+handling, import/version selection, diagnostics, packaging, and game-specific
+runtime integration. A MeleePad bug or modification is not an upstream endorsement.
+Experimental Slippi work is not a claim of official support or release readiness.
+
+See [dependency provenance](docs/DEPENDENCIES.md) for upstream bases, local patch
+locations, and the distinction between the app repository and dependency forks.
+[Third-party notices](THIRD-PARTY-NOTICES.md) supplement, rather than replace,
+original license texts and attribution.
+
+## AI assistance
+
+Development has used AI assistance. The maintainer remains responsible for
+understanding, reviewing, and validating accepted changes. AI assistance does not
+transfer credit from upstream authors or imply their involvement in this port.
+Nintendo's game, characters, and trademarks belong to their respective owners.
