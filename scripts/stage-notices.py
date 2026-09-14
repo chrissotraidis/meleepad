@@ -40,6 +40,18 @@ def stage(destination):
     credits = (ROOT / 'CREDITS.md').read_text()
     credits = re.sub(r'\[([^]]+)\]\(([^)]+)\)', r'\1 (\2)', credits)
     credits = re.sub(r'^#+\s*', '', credits, flags=re.MULTILINE)
+    lines = []
+    for line in credits.splitlines():
+        if line.startswith('|'):
+            columns = [part.strip() for part in line.strip('|').split('|')]
+            if columns == ['Project', 'Contribution'] or all(set(part) <= {'-', ':', ' '} for part in columns):
+                continue
+            lines.append('\n'.join(columns) + '\n')
+        else:
+            lines.append(line)
+    credits = '\n'.join(lines)
+    credits = re.sub(r'\((docs/[^)]+|THIRD-PARTY-NOTICES.md)\)',
+                     r'(https://github.com/chrissotraidis/meleepad/blob/main/\1)', credits)
     (destination / 'Credits.txt').write_text(credits)
     (destination / 'manifest.json').write_text(json.dumps({'schemaVersion': 1, 'files': records}, indent=2) + '\n')
     print(f'Bundled credits, source pins and {count} upstream license/notice texts')

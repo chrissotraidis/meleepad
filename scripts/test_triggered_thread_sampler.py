@@ -136,8 +136,13 @@ def main() -> None:
                   pthread_setname_np("sampler-target");
                   const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(10);
                   volatile unsigned long value = 0;
-                  while (std::chrono::steady_clock::now() < deadline)
-                    ++value;
+                  // Spend the sampling window in this owned Mach-O image.
+                  // Polling the system clock on every increment can put every
+                  // sample inside an unmapped shared-cache clock routine.
+                  while (std::chrono::steady_clock::now() < deadline) {
+                    for (unsigned i = 0; i < 1000000; ++i)
+                      ++value;
+                  }
                   return value == 0;
                 }
                 """

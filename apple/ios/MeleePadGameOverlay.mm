@@ -824,8 +824,8 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
     [NSLayoutConstraint activateConstraints:@[
         [text.topAnchor constraintEqualToAnchor:page.view.safeAreaLayoutGuide.topAnchor],
         [text.bottomAnchor constraintEqualToAnchor:page.view.safeAreaLayoutGuide.bottomAnchor],
-        [text.leadingAnchor constraintEqualToAnchor:page.view.leadingAnchor],
-        [text.trailingAnchor constraintEqualToAnchor:page.view.trailingAnchor],
+        [text.leadingAnchor constraintEqualToAnchor:page.view.safeAreaLayoutGuide.leadingAnchor],
+        [text.trailingAnchor constraintEqualToAnchor:page.view.safeAreaLayoutGuide.trailingAnchor],
     ]];
     page.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]
         initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(dismissCredits)];
