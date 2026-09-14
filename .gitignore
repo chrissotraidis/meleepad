@@ -1,7 +1,8 @@
 .DS_Store
 
 # All local references, retail media, generated game code, and build products.
-ref/
+ref/*
+!ref/ModernGekko/
 build*/
 /artifacts/
 apple/ios/Provisioned/

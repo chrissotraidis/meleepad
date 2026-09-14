@@ -48,7 +48,7 @@ if [[ "$image_format" == ciso ]]; then
   EXPECTED_SHA256=$(shasum -a 256 "$ISO" | awk '{print $1}')
 fi
 
-"$ROOT/scripts/bootstrap-dependencies.sh"
+"$ROOT/scripts/bootstrap-dependencies.sh" --references
 
 MG="$ROOT/ref/ModernGekko"
 TPL="$ROOT/ref/ModernGekko-Template"

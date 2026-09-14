@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Builds the ModernGekko core and GALE01 module for a physical arm64 iOS device.
 set -euo pipefail
+CORE_ONLY=false
+case "${1:-}" in --core-only) CORE_ONLY=true ;; "") ;; *) echo "usage: $0 [--core-only]" >&2; exit 2 ;; esac
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 MG="$ROOT/ref/ModernGekko"
@@ -45,6 +47,11 @@ cmake -S "$MG" -B "$BUILD" -G Ninja "${CMAKE_COMMON[@]}"
 
 echo "==> Building core libraries"
 ninja -C "$BUILD" libmoderngekko.a libmoderngekko_netplay_session.a -j8
+
+if [[ "$CORE_ONLY" == true ]]; then
+  echo "Runtime libraries built without game data or generated modules."
+  exit 0
+fi
 
 echo "==> Building GALE01 recompiled module for iOS device"
 ACTIVE_MODULE_FILE="$MODULES/GALE01/active-module.txt"

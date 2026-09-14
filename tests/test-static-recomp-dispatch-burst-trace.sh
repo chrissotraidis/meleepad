@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
+# Dependency selection is verified by dependency-lock.py; bootstrap no longer replays patches.
 CORE="$ROOT/ref/ModernGekko/vendor/dolphin/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.cpp"
 HEADER="$ROOT/ref/ModernGekko/vendor/dolphin/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore.h"
 RUN="$ROOT/ref/ModernGekko/vendor/dolphin/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp"
@@ -19,6 +20,5 @@ grep -Fq 'STATICRECOMP_DISPATCH_BURST_LOG' "$TIMING"
 grep -Fq 'STATICRECOMP_DISPATCH_BURST_LOG' "$PATCH"
 grep -Fq 'm_dispatch_burst_log_path.clear();' "$PATCH"
 grep -Fq 'm_dispatch_burst_samples.clear();' "$PATCH"
-grep -Fq 'static_recomp_dispatch_burst_patch=' "$ROOT/scripts/bootstrap-dependencies.sh"
 
 echo "Static-recomp dispatch burst trace source checks passed"

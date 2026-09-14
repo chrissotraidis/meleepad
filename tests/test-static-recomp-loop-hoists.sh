@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
+# Dependency selection is verified by dependency-lock.py; bootstrap no longer replays patches.
 RUN="$ROOT/ref/ModernGekko/vendor/dolphin/Source/Core/Core/PowerPC/StaticRecomp/StaticRecompCore_Run.cpp"
 
 for contract in \
@@ -27,6 +28,5 @@ done
 PATCH="$ROOT/patches/moderngekko-dolphin/0030-static-recomp-loop-hoists.patch"
 grep -Fq 'STATICRECOMP_DISPATCH_SAMPLE' "$PATCH"
 grep -Fq 'STATICRECOMP_FREEZE_TRACE' "$PATCH"
-grep -Fq 'static_recomp_loop_hoists_patch=' "$ROOT/scripts/bootstrap-dependencies.sh"
 
 echo "Static-recomp loop-hoist source checks passed"

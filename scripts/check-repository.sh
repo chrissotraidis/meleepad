@@ -5,6 +5,9 @@ ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 cd "$ROOT"
 
 git diff --check
+python3 scripts/dependency-lock.py
+python3 tests/test-dependency-lock.py
+python3 scripts/test_slippi_enet_startup.py
 for script in scripts/*.sh; do
   bash -n "$script"
 done
@@ -63,7 +66,7 @@ tests/test-ios-simulator-savestate-signals.sh
 tests/test-capture-projection-trigger.sh
 tests/test-g8-human-acceptance-harness.sh
 
-prohibited=$(git ls-files | grep -E \
+prohibited=$(git ls-files | grep -vx 'ref/ModernGekko' | grep -E \
   '(^|/)(ref|DerivedData|Provisioned|build[^/]*)/|\.(iso|gcm|ciso|rvz|wia|wbfs|gcz|dylib|ipa|xcarchive|mobileprovision|p12|pem|key|gci|sav|raw|profraw|profdata)$' || true)
 if [[ -n "$prohibited" ]]; then
   echo "prohibited tracked material:" >&2

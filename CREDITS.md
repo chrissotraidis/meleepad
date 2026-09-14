@@ -13,6 +13,7 @@ claim authorship of the recompilation tools, compatibility runtime, or game.
 | [SunPad](https://github.com/chrissotraidis/sunpad) | Apple integration and touch-control foundation |
 | [Melee decompilation community](https://github.com/doldecomp/melee) | Revision-aware source, symbols, and research references |
 | [m-ex / Akaneia contributors](https://github.com/akaneia/m-ex) | Melee modding and expansion reference |
+| [ENet — Lee Salzman and contributors](https://github.com/lsalzman/enet) | Peer transport; MeleePad retains a reviewed startup RTT adjustment |
 | [Project Slippi and contributors](https://github.com/project-slippi) | Slippi game modifications, protocol, and networking work used in experimental integration research |
 
 ModernGekko's [upstream credits](https://github.com/ExpansionPak/ModernGekko#credits)
@@ -25,6 +26,12 @@ MeleePad's own work includes UIKit and macOS integration, touch and controller
 handling, import/version selection, diagnostics, packaging, and game-specific
 runtime integration. A MeleePad bug or modification is not an upstream endorsement.
 Experimental Slippi work is not a claim of official support or release readiness.
+
+The retained ARM64 static-recompilation fallback repair was authored by Douglas
+Whittingham; see [RecompCore PR #6](https://github.com/ExpansionPak/RecompCore/pull/6).
+
+Dependency verification and migration tooling also reuse work from
+[GalaxyPad](https://github.com/chrissotraidis/galaxypad), under its original license.
 
 See [dependency provenance](docs/DEPENDENCIES.md) for upstream bases, local patch
 locations, and the distinction between the app repository and dependency forks.

@@ -33,6 +33,8 @@ mkdir -p "$STAGING/Payload"
 ditto "$SOURCE_APP" "$STAGING/Payload/MeleePad.app"
 APP="$STAGING/Payload/MeleePad.app"
 
+python3 "$ROOT/scripts/stage-notices.py" "$APP/Notices"
+
 # Development manifests can contain local absolute paths even when the files
 # they name are not bundled. They have no purpose in the public shell.
 rm -f "$APP/dev-config.plist" "$APP/embedded.mobileprovision"

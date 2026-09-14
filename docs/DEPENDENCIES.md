@@ -1,66 +1,67 @@
 # Dependency provenance and forks
 
-MeleePad is the Apple app repository. It was created as a separate integration
-repository, not a GitHub fork of a single compiler or runtime. Its dependency
-history still belongs to the upstream projects listed in [Credits](../CREDITS.md).
+MeleePad is the Apple app repository. It consumes maintained forks of the runtime,
+compiler, and transport; each fork retains upstream history and license notices.
+The app repository itself is not a GitHub fork of one of these dependencies.
 
-## Current build inputs
+## Maintained source graph
 
-The [bootstrap script](../scripts/bootstrap-dependencies.sh) is authoritative for
-these upstream base revisions and the ordered patch application. `ref/` is ignored;
-local generated code, game data, and build outputs are not public source inputs.
-A base commit alone is not the complete source identity of a patched dependency.
+```text
+MeleePad
+└── ref/ModernGekko
+    └── vendor/dolphin (RecompCore)
+        ├── DolRecomp
+        └── Externals/enet/enet
+```
 
-| Component | Upstream base commit | Local checkout |
+| Component | MeleePad fork commit | Upstream base |
 | --- | --- | --- |
-| [ModernGekko](https://github.com/ExpansionPak/ModernGekko) | [`048c426ba3db0369e40826d22ad3adcce7fe7c58`](https://github.com/ExpansionPak/ModernGekko/commit/048c426ba3db0369e40826d22ad3adcce7fe7c58) | `ref/ModernGekko` |
-| [RecompCore runtime](https://github.com/ExpansionPak/RecompCore) | [`e13ab348f13cd67879f6db6e9d7185410f8f62c6`](https://github.com/ExpansionPak/RecompCore/commit/e13ab348f13cd67879f6db6e9d7185410f8f62c6) | `ref/ModernGekko/vendor/dolphin` |
-| [DolRecomp compiler](https://github.com/ExpansionPak/DolRecomp) | [`93b881c8f73df1d64a88491f2aa50c7c9ed2384d`](https://github.com/ExpansionPak/DolRecomp/commit/93b881c8f73df1d64a88491f2aa50c7c9ed2384d) | `ref/ModernGekko/vendor/dolphin/DolRecomp` |
-| [ModernGekko-Template](https://github.com/ExpansionPak/ModernGekko-Template) | [`1ee85bb5e09c38f493a09f5fa6e9dc8228b23e42`](https://github.com/ExpansionPak/ModernGekko-Template/commit/1ee85bb5e09c38f493a09f5fa6e9dc8228b23e42) | `ref/ModernGekko-Template` |
-| [RecompCore reference](https://github.com/ExpansionPak/RecompCore) | [`af7a1a4854ee243b92926875e5a6b66663b0fda0`](https://github.com/ExpansionPak/RecompCore/commit/af7a1a4854ee243b92926875e5a6b66663b0fda0) | `ref/RecompCore` |
-| [SunPad](https://github.com/chrissotraidis/sunpad) | [`e43f0ea6b797e5110787171957c9dc3c6213269c`](https://github.com/chrissotraidis/sunpad/commit/e43f0ea6b797e5110787171957c9dc3c6213269c) | `ref/sunpad` |
-| [Melee reference](https://github.com/doldecomp/melee) | [`8b5e380f412dc6bad8cc0557fa8fd95fee6815ed`](https://github.com/doldecomp/melee/commit/8b5e380f412dc6bad8cc0557fa8fd95fee6815ed) | `ref/melee` |
-| [Completed Melee reference](https://github.com/doldecomp/melee) | [`ae5898ee0dfda41b34fdf846f7d680a33e14779d`](https://github.com/doldecomp/melee/commit/ae5898ee0dfda41b34fdf846f7d680a33e14779d) | `ref/melee-complete` |
-| [m-ex reference](https://github.com/akaneia/m-ex) | [`c9f25da0e59e8c387895371934e98eb5046796b3`](https://github.com/akaneia/m-ex/commit/c9f25da0e59e8c387895371934e98eb5046796b3) | `ref/m-ex` |
+| modernGekko | [`052e56e2f74af12e52900eb54c20b407113537a9`](https://github.com/chrissotraidis/ModernGekko/commit/052e56e2f74af12e52900eb54c20b407113537a9) | [`048c426ba3db0369e40826d22ad3adcce7fe7c58`](https://github.com/ExpansionPak/ModernGekko/commit/048c426ba3db0369e40826d22ad3adcce7fe7c58) |
+| recompCore | [`2d352bed0a722a6aae145160c6b837909dfde2d1`](https://github.com/chrissotraidis/RecompCore/commit/2d352bed0a722a6aae145160c6b837909dfde2d1) | [`e13ab348f13cd67879f6db6e9d7185410f8f62c6`](https://github.com/ExpansionPak/RecompCore/commit/e13ab348f13cd67879f6db6e9d7185410f8f62c6) |
+| dolRecomp | [`7a18425130a98596364d6063a49562d0f731230b`](https://github.com/chrissotraidis/DolRecomp/commit/7a18425130a98596364d6063a49562d0f731230b) | [`93b881c8f73df1d64a88491f2aa50c7c9ed2384d`](https://github.com/ExpansionPak/DolRecomp/commit/93b881c8f73df1d64a88491f2aa50c7c9ed2384d) |
+| enet | [`7471be40939f41ff071e07ce73c012fdccb84734`](https://github.com/chrissotraidis/enet/commit/7471be40939f41ff071e07ce73c012fdccb84734) | [`2662c0de09e36f2a2030ccc2c528a3e4c9e8138a`](https://github.com/lsalzman/enet/commit/2662c0de09e36f2a2030ccc2c528a3e4c9e8138a) |
 
-MeleePad integration patches live in [patches](../patches/), including
-`moderngekko/`, `moderngekko-dolphin/`, and `dolrecomp/`. Additional Apple foundation
-patches are selected by bootstrap from the pinned SunPad checkout. Follow the
-script's order; do not infer a complete build from a directory listing or apply
-all research patches indiscriminately. Original upstream license files, git
-histories, and author notices must be preserved.
+The [dependency lock](../config/dependencies.lock.json), parent gitlinks, nested
+`.gitmodules`, and checked-out sources must agree. Run:
 
-## Maintained forks and migration boundary
+```sh
+bash scripts/bootstrap-dependencies.sh --sources-only
+python3 scripts/dependency-lock.py
+```
 
-The maintainer maintains these actual GitHub forks for GalaxyPad:
+Normal bootstrap initializes the Apple build dependencies; `--references` also
+prepares the pinned SunPad, template, Melee, and m-ex references used by developer
+tools. No game data is downloaded. Dirty checkouts are preserved and rejected.
+Use a fresh worktree to migrate an older patched dependency installation.
 
-| Maintained fork | Upstream parent |
-| --- | --- |
-| [chrissotraidis/ModernGekko](https://github.com/chrissotraidis/ModernGekko) | [ExpansionPak/ModernGekko](https://github.com/ExpansionPak/ModernGekko) |
-| [chrissotraidis/RecompCore](https://github.com/chrissotraidis/RecompCore) | [ExpansionPak/RecompCore](https://github.com/ExpansionPak/RecompCore) |
-| [chrissotraidis/DolRecomp](https://github.com/chrissotraidis/DolRecomp) | [ExpansionPak/DolRecomp](https://github.com/ExpansionPak/DolRecomp) |
+MeleePad-specific branches coexist with GalaxyPad's branches; neither app follows
+a floating default branch. Updating one app's pin does not update the other.
+Original author names and per-file license notices remain authoritative.
 
-[GalaxyPad's source guide](https://github.com/chrissotraidis/galaxypad/blob/main/docs/DEPENDENCIES.md)
-records its pinned nested fork graph. **Those commits are not MeleePad's selected
-build inputs.** Linking these forks does not migrate MeleePad, validate their
-Melee compatibility, or replace its existing patch series.
+## Migration evidence and limits
 
-A MeleePad migration needs separate reviewed commits preserving its runtime,
-compiler, revision, netplay, and platform changes. Compare the final source tree
-against the retained working inputs, pin nested dependencies, and validate builds
-and gameplay before switching bootstrap. Do not rewrite upstream history or move
-existing GalaxyPad pins to accommodate MeleePad.
+The earlier public bootstrap failed replaying `0011-ios-shader-workers.patch` on
+its declared inputs. Rather than continue relying on patch-order checks, the
+migration recorded the inspected working dependency source as ordinary commits.
+The [migration record](../config/dependency-migration.json) hashes each carried
+source file. The nested Git URLs/pins changed to the maintained fork graph; source
+files were compared byte-for-byte with the captured working tree. ENet's startup
+RTT smoothing has a regression exercising its actual ACK handler.
 
-## Release records
+The snapshot includes the existing opt-in runtime diagnostics; it does not prove
+every historical optimization or experiment beneficial. Subsequent changes require
+separate review and measured evidence. The old [patch archive](../patches/README.md)
+remains for provenance and legacy tests, but bootstrap no longer applies it.
+Some legacy source-contract tests inspect archived patches; those are distinct
+from compiled behavioral tests and the current pinned-source/iOS build checks.
 
-For a new release, record the app commit, all dependency bases plus patches or
-fork commits, nested dependency commits, toolchain and flags, private module
-identity, and final artifact hashes. Retain original license texts and the source
-corresponding to the distributed components. Research checkouts and local private
-Slippi builds may contain additional inputs absent from the public bootstrap;
-they must be inventoried separately before claiming reproducibility or shipping.
+The ARM64 fallback repair from [RecompCore PR #6](https://github.com/ExpansionPak/RecompCore/pull/6)
+is present in the captured source: its complete two-file diff passes a reverse
+application check, including block-link suppression, the dispatcher yield call,
+and PC writeback before returning. The upstream merge is not an ancestor of this
+older vendor branch, so ancestry alone would give the wrong answer. This is source
+verification, not a benchmark or a claim about every historical Mac binary.
 
-This document clarifies attribution and source ownership. It does not certify
-historical packages, Slippi interoperability, or compliance of an unreviewed
-binary. See [third-party notices](../THIRD-PARTY-NOTICES.md) and
-[contribution guidelines](../CONTRIBUTING.md).
+The private Slippi host/overlay and game module are separate release inputs. This
+fork migration does not make the private Slippi build reproducible or publicly
+available. See [Slippi release readiness](SLIPPI-RELEASE-READINESS.md).
