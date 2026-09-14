@@ -15,12 +15,13 @@ builds on [SunPad](https://github.com/chrissotraidis/sunpad). MeleePad's contrib
 is the Apple app, controls, integration, and game-specific fixes; the underlying
 compiler and runtime remain the work of their upstream authors.
 
-See [full credits](CREDITS.md) and [dependency provenance](docs/DEPENDENCIES.md).
-The maintainer also maintains [ModernGekko](https://github.com/chrissotraidis/ModernGekko),
-[RecompCore](https://github.com/chrissotraidis/RecompCore), and
-[DolRecomp](https://github.com/chrissotraidis/DolRecomp) forks used by GalaxyPad.
-**MeleePad currently builds pinned upstream revisions plus its own patch series;
-it has not migrated to those fork commits.**
+**Maintained dependency forks:** [ModernGekko](https://github.com/chrissotraidis/ModernGekko/tree/codex/meleepad-integration-20260914),
+[RecompCore](https://github.com/chrissotraidis/RecompCore/tree/codex/meleepad-integration-20260914),
+[DolRecomp](https://github.com/chrissotraidis/DolRecomp/tree/codex/meleepad-integration-20260914), and
+[ENet](https://github.com/chrissotraidis/enet/tree/codex/meleepad-integration-20260914).
+MeleePad is the Apple app repository; its runtime/compiler changes live in these
+forks and are selected through pinned submodules. See [full credits](CREDITS.md)
+and the [source graph](docs/DEPENDENCIES.md).
 
 <p align="center">
   <img alt="Requires iOS or iPadOS 16 or later" src="https://img.shields.io/badge/iOS%20%2F%20iPadOS-16%2B-0A84FF?logo=apple">
@@ -321,6 +322,18 @@ Launching the macOS app replaces only MeleePad's internal automation pipe
 profile with this interactive keyboard profile. Existing custom keyboard and
 physical-controller profiles are preserved.
 
+## Slippi development status
+
+**The public Preview 4 does not include Slippi support.** Native Slippi integration
+has been exercised in private development builds, including Internet matchmaking
+and a game with substantial stalls. The private host, overlay, resources, and
+native game module still need a reproducible release source record, sustained
+physical match/audio checks, and interoperability/rematch/recovery acceptance.
+
+The runtime fork migration and About/credit changes do not make that separate
+integration a released feature. See the [Slippi release audit](docs/SLIPPI-RELEASE-READINESS.md)
+for completed work, blockers, and wording suitable for progress updates.
+
 ## Experimental multiplayer
 
 Private Room and Direct IP are available for controlled tests with people you
@@ -410,7 +423,7 @@ generated game code, artwork, or trademarks.
 
 Runtime and compiler changes should retain upstream history and be reviewed in
 the relevant dependency fork. The [dependency guide](docs/DEPENDENCIES.md)
-distinguishes MeleePad's current patch-based inputs from GalaxyPad's fork setup.
+records the exact fork commits and upstream bases used by this app.
 
 ## Legal
 

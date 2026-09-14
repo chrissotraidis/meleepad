@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
+# Dependency selection is verified by dependency-lock.py; bootstrap no longer replays patches.
 TIMING="$ROOT/ref/ModernGekko/vendor/dolphin/Source/Core/Common/FramePhaseTiming.h"
 PRESENT="$ROOT/ref/ModernGekko/vendor/dolphin/Source/Core/VideoCommon/Present.cpp"
 TEXTURE_CACHE="$ROOT/ref/ModernGekko/vendor/dolphin/Source/Core/VideoCommon/TextureCacheBase.cpp"
@@ -32,7 +33,6 @@ grep -Fq 'Common::FramePhaseTiming::AddFramebufferCreate' "$TEXTURE_CACHE"
 grep -Fq 'm_recently_expired_texture_configs' "$TEXTURE_CACHE_HEADER"
 grep -Fq 'std::filesystem::path(File::GetUserPath(D_LOGS_IDX))' "$PRESENT"
 grep -Fq 'texture_pool_hits,texture_pool_empty_misses,texture_pool_same_frame_misses,texture_pool_expirations,texture_pool_recent_expiry_misses,texture_create_calls,texture_create_ms,framebuffer_create_calls,framebuffer_create_ms' "$PRESENT"
-grep -Fq 'texture_pool_attribution_patch=' "$ROOT/scripts/bootstrap-dependencies.sh"
 
 "${CXX:-c++}" -std=c++20 -O2 \
   -I"$ROOT/ref/ModernGekko/vendor/dolphin/Source/Core" \

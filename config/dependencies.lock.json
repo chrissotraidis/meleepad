@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "selectedTrack": "meleepad-maintained-forks",
+  "repositories": {
+    "enet": {
+      "url": "https://github.com/chrissotraidis/enet.git",
+      "revision": "7471be40939f41ff071e07ce73c012fdccb84734",
+      "upstreamRevision": "2662c0de09e36f2a2030ccc2c528a3e4c9e8138a",
+      "upstreamUrl": "https://github.com/lsalzman/enet.git"
+    },
+    "dolRecomp": {
+      "url": "https://github.com/chrissotraidis/DolRecomp.git",
+      "revision": "7a18425130a98596364d6063a49562d0f731230b",
+      "upstreamRevision": "93b881c8f73df1d64a88491f2aa50c7c9ed2384d",
+      "upstreamUrl": "https://github.com/ExpansionPak/DolRecomp.git"
+    },
+    "recompCore": {
+      "url": "https://github.com/chrissotraidis/RecompCore.git",
+      "revision": "2d352bed0a722a6aae145160c6b837909dfde2d1",
+      "upstreamRevision": "e13ab348f13cd67879f6db6e9d7185410f8f62c6",
+      "upstreamUrl": "https://github.com/ExpansionPak/RecompCore.git"
+    },
+    "modernGekko": {
+      "url": "https://github.com/chrissotraidis/ModernGekko.git",
+      "revision": "052e56e2f74af12e52900eb54c20b407113537a9",
+      "upstreamRevision": "048c426ba3db0369e40826d22ad3adcce7fe7c58",
+      "upstreamUrl": "https://github.com/ExpansionPak/ModernGekko.git"
+    }
+  },
+  "vendorRevisions": {
+    "modernGekkoRecompCoreDolphin": "2d352bed0a722a6aae145160c6b837909dfde2d1"
+  },
+  "references": {
+    "sunpad": {
+      "url": "https://github.com/chrissotraidis/sunpad.git",
+      "revision": "e43f0ea6b797e5110787171957c9dc3c6213269c"
+    },
+    "ModernGekko-Template": {
+      "url": "https://github.com/ExpansionPak/ModernGekko-Template.git",
+      "revision": "1ee85bb5e09c38f493a09f5fa6e9dc8228b23e42"
+    },
+    "RecompCore": {
+      "url": "https://github.com/ExpansionPak/RecompCore.git",
+      "revision": "af7a1a4854ee243b92926875e5a6b66663b0fda0"
+    },
+    "melee": {
+      "url": "https://github.com/doldecomp/melee.git",
+      "revision": "8b5e380f412dc6bad8cc0557fa8fd95fee6815ed"
+    },
+    "melee-complete": {
+      "url": "https://github.com/doldecomp/melee.git",
+      "revision": "ae5898ee0dfda41b34fdf846f7d680a33e14779d"
+    },
+    "m-ex": {
+      "url": "https://github.com/akaneia/m-ex.git",
+      "revision": "c9f25da0e59e8c387895371934e98eb5046796b3"
+    }
+  }
+}

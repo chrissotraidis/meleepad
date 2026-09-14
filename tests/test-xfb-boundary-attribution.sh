@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
+# Dependency selection is verified by dependency-lock.py; bootstrap no longer replays patches.
 TIMING="$ROOT/ref/ModernGekko/vendor/dolphin/Source/Core/Common/FramePhaseTiming.h"
 BACKEND="$ROOT/ref/ModernGekko/vendor/dolphin/Source/Core/VideoCommon/VideoBackendBase.cpp"
 PRESENT="$ROOT/ref/ModernGekko/vendor/dolphin/Source/Core/VideoCommon/Present.cpp"
@@ -24,6 +25,5 @@ grep -Fq 'AddXfbDuplicate' "$PRESENT"
 grep -Fq 'AddXfbPresent' "$PRESENT"
 grep -Fq '"efb_ram_shader_ms,efb_ram_pipeline_ms,xfb_output_requests,"' "$PRESENT"
 grep -Fq '"xfb_swap_queued,xfb_swap_executed,xfb_duplicates,xfb_presents\n"' "$PRESENT"
-grep -Fq 'xfb_boundary_attribution_patch=' "$ROOT/scripts/bootstrap-dependencies.sh"
 
 echo "XFB boundary attribution source checks passed"

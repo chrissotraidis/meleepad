@@ -7,6 +7,8 @@
 # JIT (the static-recomp fallback uses the interpreter). The game module is recompiled for
 # the simulator from the user's locally generated DolRecomp output.
 set -euo pipefail
+CORE_ONLY=false
+case "${1:-}" in --core-only) CORE_ONLY=true ;; "") ;; *) echo "usage: $0 [--core-only]" >&2; exit 2 ;; esac
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 MG="$ROOT/ref/ModernGekko"
@@ -46,6 +48,11 @@ cmake -S "$MG" -B "$BUILD" -G Ninja "${CMAKE_COMMON[@]}"
 
 echo "==> Building core libraries"
 ninja -C "$BUILD" libmoderngekko.a libmoderngekko_netplay_session.a -j8
+
+if [[ "$CORE_ONLY" == true ]]; then
+  echo "Runtime libraries built without game data or generated modules."
+  exit 0
+fi
 
 echo "==> Building GALE01 recompiled module for iOS Simulator"
 # The promoted macOS PGO dylib intentionally has no adjacent private source

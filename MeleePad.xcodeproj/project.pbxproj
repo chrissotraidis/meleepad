@@ -40,6 +40,7 @@
 		AA0000000000000000000125 /* MeleePadControllerMapping.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000236 /* MeleePadControllerMapping.mm */; };
 		AA0000000000000000000126 /* MeleePadOnlinePlayViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000238 /* MeleePadOnlinePlayViewController.mm */; };
 		AA0000000000000000000127 /* MeleePadPublicLobbyClient.m in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000240 /* MeleePadPublicLobbyClient.m */; };
+		AC0000000000000000000001 /* Notices in Resources */ = {isa = PBXBuildFile; fileRef = AC0000000000000000000002 /* Notices */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -91,6 +92,7 @@
 		AA0000000000000000000239 /* MeleePadOnlinePlayViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MeleePadOnlinePlayViewController.h; sourceTree = "<group>"; };
 		AA0000000000000000000240 /* MeleePadPublicLobbyClient.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MeleePadPublicLobbyClient.m; sourceTree = "<group>"; };
 		AA0000000000000000000241 /* MeleePadPublicLobbyClient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MeleePadPublicLobbyClient.h; sourceTree = "<group>"; };
+		AC0000000000000000000002 /* Notices */ = {isa = PBXFileReference; lastKnownFileType = folder; path = apple/ios/Provisioned/Notices; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -272,6 +274,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA0000000000000000000121 /* Sys in Resources */,
+				AC0000000000000000000001 /* Notices in Resources */,
 				AA0000000000000000000114 /* dev-config.plist in Resources */,
 				AA0000000000000000000105 /* Assets.xcassets in Resources */,
 				AA0000000000000000000124 /* PrivacyInfo.xcprivacy in Resources */,

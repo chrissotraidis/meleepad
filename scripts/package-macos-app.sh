@@ -105,6 +105,8 @@ cp "$source_icon" "$OUTPUT/Contents/Resources/AppIcon.png"
 
 "$ROOT/scripts/test-macos-package-layout.sh" "$OUTPUT"
 
+python3 "$ROOT/scripts/stage-notices.py" "$OUTPUT/Contents/Resources/Notices"
+
 codesign --force --deep --sign - "$OUTPUT"
 codesign --verify --deep --strict "$OUTPUT"
 echo "$OUTPUT"

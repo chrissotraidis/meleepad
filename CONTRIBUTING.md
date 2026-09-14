@@ -13,12 +13,15 @@ Runtime and compiler changes belong with ModernGekko, RecompCore, or DolRecomp;
 retain their project names, licenses, author history, and notices. Follow the
 receiving project's contribution policy before proposing a change upstream.
 
-MeleePad currently consumes pinned upstream revisions plus a patch series. The
-maintainer's GalaxyPad dependency forks exist, but are not yet MeleePad build
-inputs. See [dependency provenance](docs/DEPENDENCIES.md). Do not point MeleePad at
-another game's fork tip without reviewing compatibility. A migration must retain
-all required fixes as reviewable commits and verify the resulting source tree,
-nested dependencies, build, and game behavior before replacing the patch pipeline.
+MeleePad consumes exact maintained ModernGekko, RecompCore, DolRecomp and ENet
+fork commits through nested submodules. See [dependency provenance](docs/DEPENDENCIES.md).
+Commit runtime/compiler changes in the relevant fork, then update the app's lock
+and gitlink together. Do not add automatic bootstrap patches or follow a floating
+branch. Preserve GalaxyPad's separate selected commits.
+
+`main` requires a pull request and current passing `source-checks` and `ios-build`
+checks, including for administrators. Source checks and iOS compilation do not
+substitute for code review or physical gameplay/audio acceptance.
 
 Use focused pull requests with the concrete problem, resulting behavior, and
 validation. Keep controls and appearance consistent. Preserve existing user data
@@ -31,7 +34,8 @@ Run focused checks for the change and the repository suite:
 ./scripts/check-repository.sh
 ```
 
-Some existing checks need prepared local dependencies or private evidence. Report
+Prepare sources with `bash scripts/bootstrap-dependencies.sh --sources-only`.
+Keep private game-derived experiments outside the default suite and report
 missing inputs and failed checks explicitly; do not count unavailable checks as
 passing. Never download game data to satisfy a test.
 

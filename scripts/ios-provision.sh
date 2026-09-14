@@ -139,3 +139,5 @@ for revision in (0, 2):
         config["DevGameRootsByRevision"][f"r{revision}"] = str(root)
 path.write_bytes(plistlib.dumps(config))
 PYCONFIG
+
+python3 "$ROOT/scripts/stage-notices.py" "$OUT/Notices"

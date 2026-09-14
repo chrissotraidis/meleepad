@@ -12,6 +12,9 @@ COPYING, LICENSES directory, and per-file SPDX notices. Dependencies within thes
 projects retain their own licenses; this page is not an exhaustive inventory of a
 particular binary's linked components.
 
+ENet retains Lee Salzman's MIT license and copyright notice. MeleePad's maintained
+fork adjusts startup RTT smoothing; that does not change ENet's license.
+
 The Apple integration builds on SunPad. Melee decompilation, m-ex, and Slippi
 sources retain their original notices and attribution. Their presence as research
 references does not imply that every reference is linked into a public build.

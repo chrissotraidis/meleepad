@@ -761,6 +761,12 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
         cheatsMenu,
         dataMenu,
         reportProblemAction,
+        [UIAction actionWithTitle:@"About & Credits…"
+                            image:[UIImage systemImageNamed:@"info.circle"]
+                       identifier:nil handler:^(__kindof UIAction *action) {
+            (void)action;
+            [weakSelf presentCredits];
+        }],
     ]];
 }
 
@@ -795,6 +801,40 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
     warning.preferredAction = warning.actions.lastObject;
     [self.window.rootViewController presentViewController:warning
                                                   animated:YES completion:nil];
+}
+
+- (void)presentCredits {
+    UIViewController *page = [[UIViewController alloc] init];
+    page.title = @"About MeleePad";
+    page.view.backgroundColor = UIColor.systemBackgroundColor;
+    UITextView *text = [[UITextView alloc] init];
+    text.translatesAutoresizingMaskIntoConstraints = NO;
+    text.editable = NO;
+    text.dataDetectorTypes = UIDataDetectorTypeLink;
+    text.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
+    text.adjustsFontForContentSizeCategory = YES;
+    text.textContainerInset = UIEdgeInsetsMake(16, 16, 16, 16);
+    NSString *path = [NSBundle.mainBundle pathForResource:@"Credits" ofType:@"txt" inDirectory:@"Notices"];
+    NSString *credits = path ? [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil] : nil;
+    text.text = [NSString stringWithFormat:@"MeleePad %@ (%@)\n\n%@\n\nSoftware license: GPL-3.0-or-later. Upstream files retain their own licenses.\nhttps://github.com/chrissotraidis/meleepad/blob/main/THIRD-PARTY-NOTICES.md",
+                 [NSBundle.mainBundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"],
+                 [NSBundle.mainBundle objectForInfoDictionaryKey:@"CFBundleVersion"],
+                 credits ?: @"Built with ModernGekko, DolRecomp, RecompCore/Dolphin, and SunPad.\nhttps://github.com/chrissotraidis/meleepad/blob/main/CREDITS.md"];
+    [page.view addSubview:text];
+    [NSLayoutConstraint activateConstraints:@[
+        [text.topAnchor constraintEqualToAnchor:page.view.safeAreaLayoutGuide.topAnchor],
+        [text.bottomAnchor constraintEqualToAnchor:page.view.safeAreaLayoutGuide.bottomAnchor],
+        [text.leadingAnchor constraintEqualToAnchor:page.view.leadingAnchor],
+        [text.trailingAnchor constraintEqualToAnchor:page.view.trailingAnchor],
+    ]];
+    page.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]
+        initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(dismissCredits)];
+    UINavigationController *navigation = [[UINavigationController alloc] initWithRootViewController:page];
+    [self.window.rootViewController presentViewController:navigation animated:YES completion:nil];
+}
+
+- (void)dismissCredits {
+    [self.window.rootViewController dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)reportProblem {

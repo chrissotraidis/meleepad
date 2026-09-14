@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
+# Dependency selection is verified by dependency-lock.py; bootstrap no longer replays patches.
 TIMING="$ROOT/ref/ModernGekko/vendor/dolphin/Source/Core/Common/FramePhaseTiming.h"
 PRESENT="$ROOT/ref/ModernGekko/vendor/dolphin/Source/Core/VideoCommon/Present.cpp"
 METAL="$ROOT/ref/ModernGekko/vendor/dolphin/Source/Core/VideoBackends/Metal/MTLObjectCache.mm"
@@ -29,6 +30,5 @@ grep -Fq 'm_dispatch_frame_samples.size() >= 16384' "$STATIC_RUN"
 PATCH="$ROOT/patches/moderngekko-dolphin/0031-frame-workload-attribution.patch"
 grep -Fq 's_metal_pipeline_creates' "$PATCH"
 grep -Fq 'FlushDispatchFrameSamples' "$PATCH"
-grep -Fq 'frame_workload_attribution_patch=' "$ROOT/scripts/bootstrap-dependencies.sh"
 
 echo "Frame workload attribution source checks passed"
