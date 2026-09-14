@@ -27,7 +27,7 @@ fi
 git -C "$root" submodule sync --recursive
 git -C "$root" submodule update --init --no-recommend-shallow -- ref/ModernGekko
 git -C "$runtime" submodule update --init --no-recommend-shallow -- vendor/dolphin
-git -C "$runtime/vendor/dolphin" submodule update --init --no-recommend-shallow -- DolRecomp Externals/enet/enet
+git -C "$runtime/vendor/dolphin" submodule update --init --no-recommend-shallow -- DolRecomp Externals/enet/enet Externals/fmt/fmt
 if [[ "$sources_only" == false ]]; then
   # Apple builds do not use the Qt/FFmpeg binary bundles or Windows dependencies.
   git -C "$runtime/vendor/dolphin" submodule update --init -- \
