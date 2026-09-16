@@ -1,0 +1,191 @@
+{
+  "assessment": "Second audit: no qualified speed improvement",
+  "melee_pc_commit": "a64b6ad96c48f72eb26a41ef172581a7b1c2d262",
+  "retained_physical_profiles": [
+    {
+      "input": "ref/revision-102/performance-loop/loop-specialization/control-samples-retry.xml",
+      "sha256": "af2a89ac559e09991e10e70c39d38848a69b57a6a06cbd1c108209473ec07bc5",
+      "threads": [
+        {
+          "name": "CPU thread",
+          "sampled_ms": 18515.0,
+          "inclusive_categories_ms": {
+            "generated_game": 15427.0
+          }
+        },
+        {
+          "name": "Video thread",
+          "sampled_ms": 11774.0,
+          "inclusive_categories_ms": {
+            "fifo_loop_inclusive": 5653.0,
+            "fifo_status": 2409.0,
+            "vertex_decode": 931.0,
+            "vertex_pipeline_inclusive": 33.0,
+            "texture_decode": 10.0
+          },
+          "decoder_percent_of_thread_samples": 7.907253269916766
+        },
+        {
+          "name": "AURemoteIO::IOThread",
+          "sampled_ms": 1354.0,
+          "inclusive_categories_ms": {}
+        },
+        {
+          "name": "MeleePad",
+          "sampled_ms": 521.0,
+          "inclusive_categories_ms": {}
+        },
+        {
+          "name": "AsyncShaderCompiler Worker",
+          "sampled_ms": 469.0,
+          "inclusive_categories_ms": {
+            "shader_compile": 4.0
+          }
+        }
+      ]
+    },
+    {
+      "input": "ref/revision-102/performance-loop/scalar-candidate/reconnected-clean-samples-retry.xml",
+      "sha256": "886128b714af6b055078b34dcec127880c0c63d3b20821239e2ded34c32bf711",
+      "threads": [
+        {
+          "name": "CPU thread",
+          "sampled_ms": 25079.0,
+          "inclusive_categories_ms": {
+            "generated_game": 21050.0
+          }
+        },
+        {
+          "name": "Video thread",
+          "sampled_ms": 18682.0,
+          "inclusive_categories_ms": {
+            "fifo_loop_inclusive": 9450.0,
+            "fifo_status": 3992.0,
+            "vertex_decode": 1257.0,
+            "vertex_pipeline_inclusive": 53.0,
+            "texture_decode": 5.0
+          },
+          "decoder_percent_of_thread_samples": 6.728401670056739
+        },
+        {
+          "name": "AURemoteIO::IOThread",
+          "sampled_ms": 1466.0,
+          "inclusive_categories_ms": {}
+        },
+        {
+          "name": "MeleePad",
+          "sampled_ms": 695.0,
+          "inclusive_categories_ms": {}
+        },
+        {
+          "name": "Main Thread",
+          "sampled_ms": 175.0,
+          "inclusive_categories_ms": {}
+        }
+      ]
+    }
+  ],
+  "fresh_mac_attribution": [
+    {
+      "mode": "native2",
+      "thread_samples": 6074,
+      "categories": {
+        "generated_game": {
+          "samples": 4479,
+          "percent_thread_samples": 73.74053342113928
+        },
+        "software_decode": {
+          "samples": 0,
+          "percent_thread_samples": 0.0
+        },
+        "vertex_manager": {
+          "samples": 14,
+          "percent_thread_samples": 0.23049061573921634
+        },
+        "metal_submission": {
+          "samples": 184,
+          "percent_thread_samples": 3.0293052354297005
+        },
+        "fifo_status": {
+          "samples": 1,
+          "percent_thread_samples": 0.016463615409944024
+        },
+        "throttle": {
+          "samples": 1,
+          "percent_thread_samples": 0.016463615409944024
+        }
+      },
+      "frame_rows_during_profile": 647,
+      "emulated_frame_min": 41406,
+      "emulated_frame_max": 42052,
+      "primitive_min": 0,
+      "primitive_max": 33042,
+      "mean_profiled_cpu_ms": 15.396056673879444,
+      "caution": "Profiled runs, wall-time load windows, not frame-matched A/B performance results",
+      "runner_sha256": "d2626855b8b09761460215e97d587d769e60f246296b6d5533a6a54dff88352e",
+      "module_sha256": "6eda112765d2726701d3439c0f5dfb289cc48c2d3af8c316aebff7c2ff8ee09a",
+      "state_sha256": "ee1648dd39eb25c51c91ebec98d7822d484d5ac1b43c12db713bb0ded8f86e3e"
+    },
+    {
+      "mode": "software",
+      "thread_samples": 6361,
+      "categories": {
+        "generated_game": {
+          "samples": 3681,
+          "percent_thread_samples": 57.86825970759315
+        },
+        "software_decode": {
+          "samples": 221,
+          "percent_thread_samples": 3.4742964942619086
+        },
+        "vertex_manager": {
+          "samples": 5,
+          "percent_thread_samples": 0.07860399308284861
+        },
+        "metal_submission": {
+          "samples": 152,
+          "percent_thread_samples": 2.389561389718598
+        },
+        "fifo_status": {
+          "samples": 1,
+          "percent_thread_samples": 0.015720798616569723
+        },
+        "throttle": {
+          "samples": 1159,
+          "percent_thread_samples": 18.22040559660431
+        }
+      },
+      "frame_rows_during_profile": 519,
+      "emulated_frame_min": 41509,
+      "emulated_frame_max": 42027,
+      "primitive_min": 0,
+      "primitive_max": 33042,
+      "mean_profiled_cpu_ms": 12.485181462427745,
+      "caution": "Profiled runs, wall-time load windows, not frame-matched A/B performance results",
+      "runner_sha256": "d2626855b8b09761460215e97d587d769e60f246296b6d5533a6a54dff88352e",
+      "module_sha256": "6eda112765d2726701d3439c0f5dfb289cc48c2d3af8c316aebff7c2ff8ee09a",
+      "state_sha256": "ee1648dd39eb25c51c91ebec98d7822d484d5ac1b43c12db713bb0ded8f86e3e"
+    }
+  ],
+  "synthetic_math": {
+    "cases": 100000,
+    "different": 10636,
+    "first_difference": {
+      "input": [
+        7.9234466552734375,
+        -0.41714411973953247,
+        -9.39091968536377
+      ],
+      "existing_result_bytes_le": "f6241743",
+      "melee_pc_result_bytes_le": "f7241743"
+    },
+    "scope": "Finite synthetic vectors; exact-bit comparison of PSVECSquareMag. No PPC oracle, speed measurement, or gameplay equivalence claim."
+  },
+  "limits": [
+    "Historical iPhone profiles, not current installed-build measurements",
+    "Mac binary retained from September 10; source checkout not rebuilt",
+    "Mac runs have mismatched frame windows and diagnostic overhead; not speed A/B",
+    "No full melee-pc game execution or candidate gameplay benchmark",
+    "Math comparison has no PPC oracle and is not speed evidence"
+  ]
+}
