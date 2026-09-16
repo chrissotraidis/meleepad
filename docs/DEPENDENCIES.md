@@ -38,6 +38,24 @@ MeleePad-specific branches coexist with GalaxyPad's branches; neither app follow
 a floating default branch. Updating one app's pin does not update the other.
 Original author names and per-file license notices remain authoritative.
 
+## Updating dependency source
+
+1. Make and review ordinary source commits in the maintained component fork.
+   Do not add a bootstrap patch or edit a dependency during the build.
+2. Update gitlinks from the changed component outward through its parents,
+   then update MeleePad's `ref/ModernGekko` gitlink and
+   `config/dependencies.lock.json` to the reviewed commits. Keep URLs, notices
+   and provenance documentation consistent with the selected source.
+3. In a clean worktree, run `bash scripts/bootstrap-dependencies.sh --sources-only`
+   and `bash scripts/check-repository.sh`. The lock checker rejects mismatched
+   revisions and tracked or nonignored untracked dependency changes.
+4. Require the `source-checks` and `ios-build` CI checks before merging.
+   Source/build success does not establish gameplay or performance acceptance.
+
+The historical `patches/` directory is not an update mechanism. Existing patched
+local checkouts should be preserved and replaced by a fresh worktree for normal
+builds, rather than reset or silently rewritten by bootstrap.
+
 ## Migration evidence and limits
 
 The earlier public bootstrap failed replaying `0011-ios-shader-workers.patch` on

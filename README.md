@@ -126,9 +126,13 @@ source-code port and not a stock Dolphin frontend.
 The iPhone and iPad app imports a user-supplied game image from Files. The macOS
 app provides a native launcher, Metal rendering, keyboard and controller input,
 local settings, and developer-facing netplay controls. This repository contains
-the Apple integration, source patches, tests, and reproducible build tooling.
+the Apple integration, maintained dependency pins, tests, and reproducible build tooling.
+Normal builds consume committed fork sources; old patches remain only as an archive.
 It does **not** contain Melee, a disc image, extracted Nintendo assets, saves,
 signing material, or a generated game module.
+
+See the [melee-pc research assessment](docs/MELEE-PC-RESEARCH-2026-09-16.md) for
+the audited reuse candidates and the limits of the performance evidence.
 
 ## FAQ
 

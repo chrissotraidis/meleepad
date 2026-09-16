@@ -1,0 +1,26 @@
+{
+  "upstream_commit": "a64b6ad96c48f72eb26a41ef172581a7b1c2d262",
+  "meleepad_commit": "5d498004c71923af9f989a751448ed302cf777e2",
+  "meleepad_worktree": "pre-existing uncommitted changes; inspected in place",
+  "compiler": "AppleClang 21.0.0.21000101",
+  "platform": "macOS arm64",
+  "checks": {
+    "configure": {
+      "exit_code": 1,
+      "output": "CMakeLists.txt:12: melee-pc requires GCC as the C compiler (got AppleClang)"
+    },
+    "endian": {
+      "exit_code": 1,
+      "output": "actual=78563412 expected=12345678\n"
+    },
+    "matrix": {
+      "exit_code": 0,
+      "output": "PASS: native ARM64 matrix identity and both exact-alias cases (not PPC equivalence)\n"
+    },
+    "cache": {
+      "exit_code": 0,
+      "output": "budget=1048576 usage=2097152\n"
+    }
+  },
+  "scope": "Source assessment and small host probes; no full game build, gameplay benchmark, or iOS runtime test."
+}
