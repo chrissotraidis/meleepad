@@ -15,10 +15,10 @@ builds on [SunPad](https://github.com/chrissotraidis/sunpad). MeleePad's contrib
 is the Apple app, controls, integration, and game-specific fixes; the underlying
 compiler and runtime remain the work of their upstream authors.
 
-**Maintained dependency forks:** [ModernGekko](https://github.com/chrissotraidis/ModernGekko/tree/codex/meleepad-integration-20260914),
-[RecompCore](https://github.com/chrissotraidis/RecompCore/tree/codex/meleepad-integration-20260914),
+**Maintained dependency forks:** [ModernGekko](https://github.com/chrissotraidis/ModernGekko/tree/codex/meleepad-slippi-preview5),
+[RecompCore](https://github.com/chrissotraidis/RecompCore/tree/codex/meleepad-slippi-preview5),
 [DolRecomp](https://github.com/chrissotraidis/DolRecomp/tree/codex/meleepad-integration-20260914), and
-[ENet](https://github.com/chrissotraidis/enet/tree/codex/meleepad-integration-20260914).
+[ENet](https://github.com/chrissotraidis/enet/tree/codex/meleepad-slippi-preview5).
 MeleePad is the Apple app repository; its runtime/compiler changes live in these
 forks and are selected through pinned submodules. See [full credits](CREDITS.md)
 and the [source graph](docs/DEPENDENCIES.md).
@@ -42,16 +42,15 @@ universal performance guarantee.*
 [Online play](#experimental-multiplayer) · [Get help](#reporting-issues)**
 
 > [!IMPORTANT]
-> MeleePad v0.1.0 Preview 4 makes experimental private Internet rooms and Direct
-> IP available with temporary peer chat, compatibility checks, and the
-> development public-lobby UI. It is not an
-> online-play beta: there is no deployed public game browser, relay, automatic
-> matchmaking, ranked play, or Slippi rollback. The downloadable IPA is an
-> unsigned, module-free app shell and is **not playable as downloaded**. A
-> playable build must be generated locally from your own exact supported game
-> image. Performance and rendering still vary by scene and device.
+> MeleePad v0.1.0 Preview 5 (build 26) adds officially supported Slippi integration
+> in MeleePad for iOS/iPadOS. Completed Unranked matches have been verified on the
+> maintainer's iPad. Ranked uses Slippi's normal subscription/free-day eligibility;
+> Direct, Teams and Party have less hardware testing. Connection and performance
+> problems remain under investigation, with local diagnostics enabled.
 >
-> Preview 4 is build 18. Both players must use the same build.
+> The downloadable IPA is unsigned and module-free: **not playable as downloaded**.
+> A playable build requires compatible native modules generated from your own
+> supported game image and local signing. ISO import alone is insufficient.
 >
 > Development has used AI assistance. The maintainer is responsible for reviewing
 > and validating accepted changes; upstream authors are not responsible for
@@ -65,8 +64,23 @@ universal performance guarantee.*
 | **Game input** | Verified USA v1.02 recommended; v1.00 retained, each requiring its matching local module |
 | **Distribution** | Source plus an unsigned, non-playable IPA shell; playable builds are generated and signed locally |
 | **Controls** | Touch, supported physical controllers, and keyboard on Mac |
-| **Online play** | Experimental MeleePad-to-MeleePad private rooms and Direct IP, with temporary peer chat in Preview 4; not yet a public beta |
+| **Online play** | Slippi integration on iOS/iPadOS; complete Unranked matches verified on the maintainer’s iPad. Other modes have limited acceptance. |
 | **Not included** | Melee, game assets, saves, signing material, or a generated game module |
+
+## What's new in Preview 5
+
+- **Slippi online play.** Account login, matchmaking and rollback integrated into
+  the native iOS/iPadOS build, with completed real Unranked matches on iPad.
+- **More modes available.** Ranked follows the Slippi service's access policy.
+  Direct, Teams and Party are enabled; full matches in these modes remain unverified.
+- **Persistent diagnostics.** Replay recording, disconnect classification and
+  timing/packet counters help investigate connection quality and local slowdowns.
+- **Maintained source builds.** The adapter and Rust FFI use pinned source commits;
+  bootstrap does not replay source patches.
+
+See [Preview 5 release notes](docs/releases/v0.1.0-preview.5.md) and
+[Slippi build instructions](docs/SLIPPI-BUILD.md). MeleePad maintains this
+integration independently; Project Slippi has not endorsed this port.
 
 ## What's new in Preview 4
 
@@ -173,8 +187,8 @@ contains setup instructions, verified results, and remaining acceptance gates.
 | macOS | Native Apple Silicon launcher and runner, Metal rendering, keyboard and controller profiles, matches, saves, and settings | Final display and worst-frame acceptance work remains |
 | iPhone and iPad | Native app shell, Metal gameplay, touch controls, controller mapping, More menu, exact-image import, persistent saves and settings, and diagnostic export | Serious water, reflection, and shadow rendering defects remain; the full visual, audio, controller, and lifecycle matrix has not passed |
 | Performance | A physical iPad can hold 59.9–60.0 FPS/VPS at 2x resolution during observed solo play | Latest iPhone 14 logs include 37.9–45.6 FPS dips and audio starvation; sustained heavy-scene performance remains unresolved |
-| Experimental multiplayer | Preview 4 fixed-delay Private Room and Direct IP transport, eight-character room codes, temporary peer chat, native Host/Join lobby, compatibility fingerprinting, and synchronized Mac/iPad Simulator runs in both host directions | No public matchmaking endpoint, physical-device/outside-network/full-match beta evidence, relay, or Slippi rollback |
-| Distribution | Preview 4 source plus an unsigned, module-free IPA shell; locally generated, locally signed playable apps | Public IPA is not playable as downloaded; no App Store or TestFlight build; the locally generated game module is not distributed |
+| Experimental multiplayer | Preview 4 fixed-delay Private Room and Direct IP transport, eight-character room codes, temporary peer chat, native Host/Join lobby, compatibility fingerprinting, and synchronized Mac/iPad Simulator runs in both host directions | These custom rooms are separate from Slippi; no public room browser or relay |
+| Distribution | Preview 5 source plus an unsigned, module-free IPA shell; locally generated, locally signed playable apps | Public IPA is not playable as downloaded; no App Store or TestFlight build; the locally generated game module is not distributed |
 
 The combat-only right-stick mapping has passed a hands-on physical-iPad retest,
 including the required menu/gameplay behavior. The current evidence, remaining
@@ -326,24 +340,27 @@ Launching the macOS app replaces only MeleePad's internal automation pipe
 profile with this interactive keyboard profile. Existing custom keyboard and
 physical-controller profiles are preserved.
 
-## Slippi development status
+## Slippi support
 
-**The public Preview 4 does not include Slippi support.** Native Slippi integration
-has been exercised in private development builds, including Internet matchmaking
-and a game with substantial stalls. The private host, overlay, resources, and
-native game module still need a reproducible release source record, sustained
-physical match/audio checks, and interoperability/rematch/recovery acceptance.
+**MeleePad officially supports its Slippi integration starting with Preview 5.**
+The maintainer completed real Unranked matches on a physical iPad, corroborated
+by normal game-end logs. This does not establish universal connection stability:
+earlier disconnects and a later degraded match remain relevant.
 
-The runtime fork migration and About/credit changes do not make that separate
-integration a released feature. See the [Slippi release audit](docs/SLIPPI-RELEASE-READINESS.md)
-for completed work, blockers, and wording suitable for progress updates.
+Ranked requires the normal Slippi subscription or free ranked-day eligibility.
+A service message asking for a subscription is an access gate, not an app failure.
+Direct, Teams and Party are enabled but lack equivalent completed-match testing.
+macOS Slippi interoperability has not received the same hardware acceptance.
+
+Use your own Slippi account. Replay and diagnostic files stay local unless you
+choose to share them. See [setup and build requirements](docs/SLIPPI-BUILD.md).
 
 ## Experimental multiplayer
 
 Private Room and Direct IP are available for controlled tests with people you
 trust. Both peers need the **same app build, game revision, matching modules and
-game data, and compatible gameplay settings**. For the published Preview 4,
-that means build 18 on both ends; USA v1.02 is recommended. v1.00 can only play
+game data, and compatible gameplay settings**. For Preview 5,
+that means build 26 on both ends; USA v1.02 is recommended. v1.00 can only play
 with a compatible v1.00 peer. Private diagnostic builds are not the release.
 
 | Option | Current boundary |
@@ -353,10 +370,9 @@ with a compatible v1.00 peer. Private diagnostic builds are not the release.
 | Public Games | Development UI only; no production public browser |
 | Room Chat | Temporary plaintext peer chat in Private Room and Direct IP |
 
-Retained tests include synchronized Mac/iPad Simulator runs. A completed
-physical iPhone/iPad Internet match has **not** passed acceptance. There is no
-Slippi rollback, ranked matchmaking, encrypted gameplay, or verified four-player
-online release.
+Retained tests include synchronized Mac/iPad Simulator runs. These custom rooms have not passed a complete physical-device Internet match
+acceptance run. They are separate from the Slippi integration above; encrypted
+gameplay and four-player online acceptance are not established.
 
 For setup, troubleshooting, privacy, and the full test history, see the
 [Online Play guide](docs/ONLINE-PLAY.md). Use the

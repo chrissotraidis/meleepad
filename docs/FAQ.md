@@ -302,8 +302,18 @@ MeleePad supports v1.02 and v1.00 in Preview 4 and uses its own
 fixed-delay protocol. Sharing the v1.02 target does not make it Slippi-compatible.
 Slippi supports Melee v1.02 and expects Slippi's game modifications and network
 protocol. The two systems are not compatible, so MeleePad users cannot join the
-normal Slippi player pool. Supporting that would require a major separate port
-and cooperation from Project Slippi; it is not planned for MeleePad.
+normal Slippi player pool. Supporting that would require a separate compatibility
+port and resolution of Slippi service integration. The
+[Slippi feasibility research](SLIPPI-FEASIBILITY-2026-09-10.md) describes a bounded
+offline prototype and the evidence needed before testing against desktop Slippi
+players. The [implementation loop](SLIPPI-COMPATIBILITY-GOAL-LOOP.md) now has an
+isolated no-JIT prototype running Slippi's required game modifications on
+macOS and a physical iPad. Controlled offline corrections pass; the physical
+LAN pair also matches 11,217 finalized state packets with delayed-input rollback
+and measures 59.74 game frames/s over a 54.8-second CoreAudio-enabled window.
+Audible quality, pause behavior, sustained full matches, standard desktop
+crossplay and public service access
+remain unproven. Slippi is not an available app feature or a release commitment.
 
 </details>
 

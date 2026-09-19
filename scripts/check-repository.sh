@@ -15,6 +15,11 @@ for script in tests/*.sh; do
   bash -n "$script"
 done
 python3 tests/test-revisions.py
+python3 tests/test-ios-slippi-build-inputs.py
+python3 tests/test-slippi-rust-source.py
+python3 scripts/test_slippi_incident_log.py
+python3 scripts/test_slippi_network_diagnostics.py
+python3 scripts/test_slippi_enet_disconnect.py
 python3 scripts/test_frame_interval_summary.py
 python3 scripts/test_classify_g5_intervals.py
 python3 scripts/test_analyze_triggered_native_pcs.py

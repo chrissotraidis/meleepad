@@ -4,7 +4,7 @@
   "repositories": {
     "enet": {
       "url": "https://github.com/chrissotraidis/enet.git",
-      "revision": "7471be40939f41ff071e07ce73c012fdccb84734",
+      "revision": "c8827b136c5681d0b12d30a0746492527d7cfced",
       "upstreamRevision": "2662c0de09e36f2a2030ccc2c528a3e4c9e8138a",
       "upstreamUrl": "https://github.com/lsalzman/enet.git"
     },
@@ -16,19 +16,19 @@
     },
     "recompCore": {
       "url": "https://github.com/chrissotraidis/RecompCore.git",
-      "revision": "2d352bed0a722a6aae145160c6b837909dfde2d1",
+      "revision": "a697cb8f5e85aa488c9afb722f14ff37d0d76a0e",
       "upstreamRevision": "e13ab348f13cd67879f6db6e9d7185410f8f62c6",
       "upstreamUrl": "https://github.com/ExpansionPak/RecompCore.git"
     },
     "modernGekko": {
       "url": "https://github.com/chrissotraidis/ModernGekko.git",
-      "revision": "052e56e2f74af12e52900eb54c20b407113537a9",
+      "revision": "caa300853745b21ef4fa68e4137a0830c8d9b5a8",
       "upstreamRevision": "048c426ba3db0369e40826d22ad3adcce7fe7c58",
       "upstreamUrl": "https://github.com/ExpansionPak/ModernGekko.git"
     }
   },
   "vendorRevisions": {
-    "modernGekkoRecompCoreDolphin": "2d352bed0a722a6aae145160c6b837909dfde2d1"
+    "modernGekkoRecompCoreDolphin": "a697cb8f5e85aa488c9afb722f14ff37d0d76a0e"
   },
   "references": {
     "sunpad": {

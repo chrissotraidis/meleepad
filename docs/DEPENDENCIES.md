@@ -11,15 +11,22 @@ MeleePad
 └── ref/ModernGekko
     └── vendor/dolphin (RecompCore)
         ├── DolRecomp
-        └── Externals/enet/enet
+        ├── Externals/enet/enet
+        └── SlippiAdapter/rust (slippi-rust-extensions)
 ```
 
 | Component | MeleePad fork commit | Upstream base |
 | --- | --- | --- |
-| modernGekko | [`052e56e2f74af12e52900eb54c20b407113537a9`](https://github.com/chrissotraidis/ModernGekko/commit/052e56e2f74af12e52900eb54c20b407113537a9) | [`048c426ba3db0369e40826d22ad3adcce7fe7c58`](https://github.com/ExpansionPak/ModernGekko/commit/048c426ba3db0369e40826d22ad3adcce7fe7c58) |
-| recompCore | [`2d352bed0a722a6aae145160c6b837909dfde2d1`](https://github.com/chrissotraidis/RecompCore/commit/2d352bed0a722a6aae145160c6b837909dfde2d1) | [`e13ab348f13cd67879f6db6e9d7185410f8f62c6`](https://github.com/ExpansionPak/RecompCore/commit/e13ab348f13cd67879f6db6e9d7185410f8f62c6) |
+| modernGekko | [`caa300853745b21ef4fa68e4137a0830c8d9b5a8`](https://github.com/chrissotraidis/ModernGekko/commit/caa300853745b21ef4fa68e4137a0830c8d9b5a8) | [`048c426ba3db0369e40826d22ad3adcce7fe7c58`](https://github.com/ExpansionPak/ModernGekko/commit/048c426ba3db0369e40826d22ad3adcce7fe7c58) |
+| recompCore | [`a697cb8f5e85aa488c9afb722f14ff37d0d76a0e`](https://github.com/chrissotraidis/RecompCore/commit/a697cb8f5e85aa488c9afb722f14ff37d0d76a0e) | [`e13ab348f13cd67879f6db6e9d7185410f8f62c6`](https://github.com/ExpansionPak/RecompCore/commit/e13ab348f13cd67879f6db6e9d7185410f8f62c6) |
 | dolRecomp | [`7a18425130a98596364d6063a49562d0f731230b`](https://github.com/chrissotraidis/DolRecomp/commit/7a18425130a98596364d6063a49562d0f731230b) | [`93b881c8f73df1d64a88491f2aa50c7c9ed2384d`](https://github.com/ExpansionPak/DolRecomp/commit/93b881c8f73df1d64a88491f2aa50c7c9ed2384d) |
-| enet | [`7471be40939f41ff071e07ce73c012fdccb84734`](https://github.com/chrissotraidis/enet/commit/7471be40939f41ff071e07ce73c012fdccb84734) | [`2662c0de09e36f2a2030ccc2c528a3e4c9e8138a`](https://github.com/lsalzman/enet/commit/2662c0de09e36f2a2030ccc2c528a3e4c9e8138a) |
+| enet | [`c8827b136c5681d0b12d30a0746492527d7cfced`](https://github.com/chrissotraidis/enet/commit/c8827b136c5681d0b12d30a0746492527d7cfced) | [`2662c0de09e36f2a2030ccc2c528a3e4c9e8138a`](https://github.com/lsalzman/enet/commit/2662c0de09e36f2a2030ccc2c528a3e4c9e8138a) |
+
+Slippi Rust is pinned by the RecompCore gitlink to
+[`4ad5ab440f3d277cfea82accbadfdcdc9510f2f9`](https://github.com/chrissotraidis/slippi-rust-extensions/commit/4ad5ab440f3d277cfea82accbadfdcdc9510f2f9).
+The adapter records its Slippi Dolphin donor commit and retains the original
+notices. Rust dependencies are selected by its committed Cargo.lock and built
+with Rust 1.88.0. See [Slippi builds](SLIPPI-BUILD.md).
 
 The [dependency lock](../config/dependencies.lock.json), parent gitlinks, nested
 `.gitmodules`, and checked-out sources must agree. Run:

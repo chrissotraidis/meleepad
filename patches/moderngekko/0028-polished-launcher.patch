@@ -1,0 +1,228 @@
+--- a/tools/moderngekko_launcher.cpp
++++ b/tools/moderngekko_launcher.cpp
+@@ -669,7 +669,7 @@
+     return 1;
+ 
+   const float scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
+-  SDL_Window* window = SDL_CreateWindow(MODERNGEKKO_FRONTEND_NAME, static_cast<int>(820 * scale),
++  SDL_Window* window = SDL_CreateWindow(MODERNGEKKO_FRONTEND_NAME, static_cast<int>(980 * scale),
+                                         static_cast<int>(700 * scale),
+                                         SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
+   if (!window)
+@@ -688,6 +688,7 @@
+     SDL_Quit();
+     return 1;
+   }
++  SDL_SetWindowMinimumSize(window, static_cast<int>(860 * scale), static_cast<int>(620 * scale));
+   SDL_SetRenderVSync(renderer, 1);
+ 
+   IMGUI_CHECKVERSION();
+@@ -696,6 +697,25 @@
+   io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+   io.IniFilename = nullptr;
+   ImGui::StyleColorsDark();
++  auto& style = ImGui::GetStyle();
++  style.WindowPadding = ImVec2(24, 24);
++  style.FramePadding = ImVec2(14, 10);
++  style.ItemSpacing = ImVec2(12, 14);
++  style.FrameRounding = 8;
++  style.ChildRounding = 14;
++  style.WindowBorderSize = 0;
++  style.Colors[ImGuiCol_WindowBg] = ImVec4(.055f, .063f, .085f, 1);
++  style.Colors[ImGuiCol_ChildBg] = ImVec4(.085f, .098f, .125f, 1);
++  style.Colors[ImGuiCol_Text] = ImVec4(.94f, .95f, .98f, 1);
++  style.Colors[ImGuiCol_TextDisabled] = ImVec4(.63f, .68f, .76f, 1);
++  style.Colors[ImGuiCol_Button] = ImVec4(.15f, .19f, .26f, 1);
++  style.Colors[ImGuiCol_ButtonHovered] = ImVec4(.22f, .29f, .39f, 1);
++  style.Colors[ImGuiCol_ButtonActive] = ImVec4(.22f, .38f, .57f, 1);
++  style.Colors[ImGuiCol_FrameBg] = ImVec4(.12f, .15f, .20f, 1);
++#ifdef __APPLE__
++  if (fs::is_regular_file("/System/Library/Fonts/SFNS.ttf"))
++    io.Fonts->AddFontFromFileTTF("/System/Library/Fonts/SFNS.ttf", 18);
++#endif
+   ImGui::GetStyle().ScaleAllSizes(scale);
+   ImGui::GetStyle().FontScaleDpi = scale;
+   ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
+@@ -837,6 +857,7 @@
+     Host,
+     Join,
+   };
++  int page = 0;
+   bool done = false;
+   LaunchMode launch_mode = LaunchMode::None;
+   while (!done)
+@@ -891,9 +912,27 @@
+     ImGui::Begin(MODERNGEKKO_FRONTEND_NAME " Launcher", nullptr,
+                  ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove |
+                      ImGuiWindowFlags_NoSavedSettings);
++    ImGui::BeginChild("Navigation", ImVec2(190 * scale, 0), ImGuiChildFlags_None);
++    ImGui::PushFont(nullptr, 27 * scale);
+     ImGui::TextUnformatted(MODERNGEKKO_FRONTEND_NAME);
+-    ImGui::Separator();
+-
++    ImGui::PopFont();
++    ImGui::TextDisabled("Melee on your Mac");
++    ImGui::Dummy(ImVec2(0, 24 * scale));
++    const char* pages[] = {"Play", "Display", "Controllers", "Online Play", "Game Data", "Diagnostics"};
++    for (int i = 0; i < 6; ++i) {
++      const bool selected = page == i;
++      if (selected) ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(.19f, .34f, .54f, 1));
++      if (ImGui::Button(pages[i], ImVec2(-1, 46 * scale))) page = i;
++      if (selected) ImGui::PopStyleColor();
++    }
++    ImGui::EndChild();
++    ImGui::SameLine();
++    ImGui::BeginChild("Content", ImVec2(0, 0), ImGuiChildFlags_Borders);
++    ImGui::PushFont(nullptr, 30 * scale);
++    ImGui::TextUnformatted(page == 0 ? "Ready when you are." : pages[page]);
++    ImGui::PopFont();
++    ImGui::Spacing();
++    if (page == 4) {
+ #ifdef MODERNGEKKO_REQUIRED_DISC_ID
+     if (std::string(MODERNGEKKO_REQUIRED_DISC_ID) == "GALE01") {
+       ImGui::TextWrapped("Melee USA v1.02 is recommended for new setups and future improvements. "
+@@ -917,13 +956,20 @@
+       }
+     }
+ #endif
++    }
+     if (current_metadata)
+     {
++      if (page == 0 || page == 3 || page == 4) {
+       if (const char* revision = MeleeRevisionLabel(*current_metadata.metadata))
+         ImGui::TextUnformatted(revision);
+-      ImGui::Text("Ready: %s [%s]", current_metadata.metadata->game_name.c_str(),
+-                  current_metadata.metadata->disc_id.c_str());
+-      if (ImGui::Button("Play", ImVec2(180 * scale, 42 * scale)))
++      ImGui::TextWrapped("%s", current_metadata.metadata->game_name.c_str());
++      ImGui::Spacing();
++      }
++      if (page == 0) {
++      ImGui::TextDisabled("Your game is installed and ready to launch.");
++      ImGui::Dummy(ImVec2(0, 24 * scale));
++      ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(.20f, .43f, .73f, 1));
++      if (ImGui::Button("Play Melee", ImVec2(-1, 64 * scale)))
+       {
+         if (ensure_controller())
+         {
+@@ -931,7 +977,17 @@
+           done = true;
+         }
+       }
+-      ImGui::SameLine();
++      ImGui::PopStyleColor();
++      ImGui::Dummy(ImVec2(0, 20 * scale));
++      ImGui::SeparatorText("Session settings");
++      ImGui::Text("Resolution: %s", resolutions[resolution_index].text);
++      ImGui::TextWrapped("Controller: %s", selected_controller == "Quartz/0/Keyboard & Mouse"
++          ? "Keyboard & Mouse" : selected_controller.c_str());
++      ImGui::TextDisabled("Adjust your setup from the sidebar.");
++      }
++      if (page == 3) {
++      ImGui::TextWrapped("Experimental peer-to-peer play. Everyone needs the same Melee version and compatible builds. Slippi matchmaking is not supported.");
++      ImGui::Spacing();
+       if (ImGui::Button("Host Netplay", ImVec2(180 * scale, 42 * scale)))
+       {
+         if (ensure_controller())
+@@ -987,12 +1043,17 @@
+           }
+         }
+       }
+-    }
+-    else
+-    {
+-      ImGui::TextUnformatted("No extracted game is configured yet.");
+-    }
+-
++      }
++    }
++    else if (page == 0)
++    {
++      ImGui::TextWrapped("Bring your copy of Melee. Import a USA v1.02 or v1.00 disc image to get started.");
++      ImGui::Spacing();
++      if (ImGui::Button("Import Game Data", ImVec2(-1, 60 * scale))) page = 4;
++    }
++
++    if (page == 1) {
++    ImGui::TextWrapped("Choose how Melee looks on your display. Higher resolutions require more graphics power.");
+     ImGui::Spacing();
+     ImGui::TextUnformatted("Graphics backend");
+     if (ImGui::BeginCombo("##graphics_backend",
+@@ -1043,7 +1104,7 @@
+       }
+     }
+     ImGui::Spacing();
+-    ImGui::TextUnformatted("Internal resolution (Dolphin EFB upscale)");
++    ImGui::TextUnformatted("Render resolution");
+     if (ImGui::BeginCombo("##resolution", resolutions[resolution_index].text))
+     {
+       for (std::size_t i = 0; i < resolutions.size(); ++i)
+@@ -1084,7 +1145,10 @@
+       }
+     }
+     ImGui::Spacing();
+-    ImGui::TextUnformatted("Controller profile");
++    }
++    if (page == 2) {
++    ImGui::TextWrapped("Use your existing controller mapping, or choose a connected gamepad below.");
++    ImGui::TextUnformatted("Controller");
+     const char* controller_preview = controller_index >= 0
+                                          ? controllers[controller_index].label.c_str()
+                                      : selected_controller.empty() ? "No SDL gamepad detected"
+@@ -1115,12 +1179,15 @@
+       select_controller(controller_index);
+     ImGui::EndDisabled();
+     ImGui::Spacing();
+-    ImGui::TextUnformatted("Netplay");
++    ImGui::TextWrapped("%s", controller_status.c_str());
++    }
++    if (page == 3) {
++    ImGui::SeparatorText("Connection");
+     ImGui::SetNextItemWidth(220 * scale);
+     ImGui::InputText("Nickname", netplay_nickname.data(), netplay_nickname.size());
+     ImGui::SetNextItemWidth(220 * scale);
+     ImGui::InputText("Host / IP", netplay_address.data(), netplay_address.size());
+-    ImGui::SetNextItemWidth(120 * scale);
++    ImGui::SetNextItemWidth(190 * scale);
+     ImGui::InputInt("UDP port", &netplay_port);
+     netplay_port = std::clamp(netplay_port, 1, 65535);
+     ImGui::Checkbox("Automatic input buffer", &automatic_buffer);
+@@ -1130,7 +1197,9 @@
+       ImGui::SliderInt("Buffer frames", &manual_buffer, 1, 20);
+     }
+     ImGui::Spacing();
+-    ImGui::TextUnformatted("Game disc image");
++    }
++    if (page == 4) {
++    ImGui::SeparatorText("Import a disc image");
+     if (selected_image)
+       ImGui::TextWrapped("%s", selected_image->string().c_str());
+     else
+@@ -1179,6 +1248,7 @@
+       ImGui::ProgressBar(progress, ImVec2(-1, 0));
+     }
+ 
++    }
+     {
+       std::lock_guard lock(extraction.mutex);
+       if (!extraction.status.empty())
+@@ -1193,7 +1263,8 @@
+     }
+     ImGui::Spacing();
+     ImGui::Separator();
+-    ImGui::TextUnformatted("Diagnostics");
++    if (page == 5) {
++    ImGui::TextWrapped("Export a report after a slow session or an unexpected issue. The report helps us understand what happened while you played.");
+     if (ImGui::Button("Export Diagnostics"))
+     {
+       fs::path report_path;
+@@ -1212,7 +1283,8 @@
+       ImGui::TextWrapped("%s", diagnostic_status.c_str());
+     ImGui::Spacing();
+     ImGui::Separator();
+-    ImGui::TextWrapped("Controller: %s", controller_status.c_str());
++    }
++    ImGui::EndChild();
+     ImGui::End();
+ 
+     ImGui::Render();

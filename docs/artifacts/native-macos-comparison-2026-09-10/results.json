@@ -1,0 +1,221 @@
+{
+  "host": {
+    "chip": "Apple M3 Max",
+    "memory_gib": 128,
+    "os": "macOS 26.6.2",
+    "display_nominal_hz": 120,
+    "display_maximum_fps": 120
+  },
+  "fixture": {
+    "game": "GALE01 revision 2",
+    "stage": "Onett",
+    "players": "Mario human versus Kirby CPU level 1",
+    "state_sha256": "ee1648dd39eb25c51c91ebec98d7822d484d5ac1b43c12db713bb0ded8f86e3e"
+  },
+  "meleepad": [
+    {
+      "frames": 1798,
+      "seconds": 29.978048792,
+      "fps": 59.94386133895249,
+      "total_ms": {
+        "median": 16.683395500000003,
+        "p95": 17.458542,
+        "max": 19.270708
+      },
+      "cpu_thread_ms": {
+        "median": 10.469583499999999,
+        "p95": 12.300316,
+        "max": 14.816288
+      },
+      "video_build_ms": {
+        "median": 0.069833,
+        "p95": 0.113792,
+        "max": 0.225834
+      },
+      "present_ms": {
+        "median": 0.016917,
+        "p95": 0.029416,
+        "max": 0.071083
+      },
+      "cpu_throttle_sleep_ms": {
+        "median": 6.0484375,
+        "p95": 7.637708,
+        "max": 8.626417
+      },
+      "intervals_over_20_ms": 0
+    },
+    {
+      "frames": 1798,
+      "seconds": 29.979182458,
+      "fps": 59.9415945554068,
+      "total_ms": {
+        "median": 16.6959795,
+        "p95": 17.397958,
+        "max": 23.319959
+      },
+      "cpu_thread_ms": {
+        "median": 10.360206,
+        "p95": 12.205039,
+        "max": 15.344756
+      },
+      "cpu_throttle_sleep_ms": {
+        "median": 6.120479,
+        "p95": 7.755875,
+        "max": 8.917585
+      },
+      "intervals_over_20_ms": 1
+    }
+  ],
+  "melee4mac": {
+    "other-60-state-compat": {
+      "presentation_callbacks": 1807,
+      "seconds": 30.099755415983964,
+      "presentation_fps": 60.00048754685078,
+      "presentation_interval_ms": {
+        "p50": 16.666540992446244,
+        "p95": 16.670739743858576,
+        "p99": 24.99979198910296,
+        "max": 108.3325000363402
+      },
+      "submit_to_presentation_ms": {
+        "p50": 23.141707992181182,
+        "p95": 24.61707490729168,
+        "p99": 25.206367482896894,
+        "max": 33.633042010478675
+      },
+      "gpu_busy_ms": {
+        "p50": 0.693333,
+        "p95": 1.6526001000000003,
+        "p99": 2.080110500000003,
+        "max": 2.834375
+      },
+      "intervals_over_12_5_ms": 1750,
+      "intervals_over_20_ms": 46,
+      "same_presentation_timestamp": 0,
+      "frames_without_display_callback": 0,
+      "settings": {
+        "fps": 60,
+        "scale": 1,
+        "vsync": true,
+        "original_queues": false,
+        "metal_drawables_override": null
+      },
+      "runtime_fps_median": 59.9812,
+      "simulation_hz_estimate": 60.01681118966613
+    },
+    "other-60-original": {
+      "presentation_callbacks": 1803,
+      "seconds": 30.033094041980803,
+      "presentation_fps": 60.0004780553456,
+      "presentation_interval_ms": {
+        "p50": 16.66654198197648,
+        "p95": 16.670582990627736,
+        "p99": 16.67099999031052,
+        "max": 24.999874993227422
+      },
+      "submit_to_presentation_ms": {
+        "p50": 22.8216249961406,
+        "p95": 23.573212191695347,
+        "p99": 23.866153185954317,
+        "max": 31.908500008285046
+      },
+      "gpu_busy_ms": {
+        "p50": 0.598625,
+        "p95": 1.9034211,
+        "p99": 2.04824416,
+        "max": 2.407125
+      },
+      "intervals_over_12_5_ms": 1798,
+      "intervals_over_20_ms": 4,
+      "same_presentation_timestamp": 0,
+      "frames_without_display_callback": 0,
+      "settings": {
+        "fps": 60,
+        "scale": 1,
+        "vsync": true,
+        "original_queues": true,
+        "metal_drawables_override": null
+      },
+      "runtime_fps_median": 59.9906,
+      "simulation_hz_estimate": 59.93315981664235
+    },
+    "other-120-vsync": {
+      "presentation_callbacks": 2933,
+      "seconds": 30.066423333017156,
+      "presentation_fps": 97.5174189335734,
+      "presentation_interval_ms": {
+        "p50": 8.333917008712888,
+        "p95": 16.669143445324153,
+        "p99": 16.670666034915484,
+        "max": 24.99979198910296
+      },
+      "submit_to_presentation_ms": {
+        "p50": 21.193207998294383,
+        "p95": 25.026508199516684,
+        "p99": 25.401156453881413,
+        "max": 33.47891598241404
+      },
+      "gpu_busy_ms": {
+        "p50": 0.682417,
+        "p95": 1.1381998,
+        "p99": 1.8337629999999983,
+        "max": 2.279958
+      },
+      "intervals_over_12_5_ms": 674,
+      "intervals_over_20_ms": 2,
+      "same_presentation_timestamp": 0,
+      "frames_without_display_callback": 0,
+      "settings": {
+        "fps": 120,
+        "scale": 1,
+        "vsync": true,
+        "original_queues": false,
+        "metal_drawables_override": null
+      },
+      "runtime_fps_median": 96.8352,
+      "simulation_hz_estimate": 48.787566615073644
+    },
+    "other-120-nosync": {
+      "presentation_callbacks": 2876,
+      "seconds": 30.04142291599419,
+      "presentation_fps": 95.7011925846341,
+      "presentation_interval_ms": {
+        "p50": 8.334500016644597,
+        "p95": 16.66930429637432,
+        "p99": 16.670458232983947,
+        "max": 24.9984169495292
+      },
+      "submit_to_presentation_ms": {
+        "p50": 19.9726874998305,
+        "p95": 23.98599721782375,
+        "p99": 24.442802153062075,
+        "max": 28.750166995450854
+      },
+      "gpu_busy_ms": {
+        "p50": 0.64125,
+        "p95": 1.0479938,
+        "p99": 1.82574425,
+        "max": 2.556708
+      },
+      "intervals_over_12_5_ms": 728,
+      "intervals_over_20_ms": 2,
+      "same_presentation_timestamp": 2,
+      "frames_without_display_callback": 3,
+      "settings": {
+        "fps": 120,
+        "scale": 1,
+        "vsync": false,
+        "original_queues": false,
+        "metal_drawables_override": null
+      },
+      "runtime_fps_median": 94.5977,
+      "simulation_hz_estimate": 47.91551189092714
+    }
+  },
+  "limitations": [
+    "Same state admitted in both runtimes, not a deterministic cross-runtime replay",
+    "MeleePad host frame intervals and melee4mac presentation callback intervals are different metrics",
+    "Short two-fighter trials; no iPhone or four-player acceptance",
+    "120 FPS profiling run excluded from timing table"
+  ]
+}

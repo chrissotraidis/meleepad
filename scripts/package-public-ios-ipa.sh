@@ -6,7 +6,7 @@ set -euo pipefail
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 SOURCE_APP=${1:-}
-OUTPUT=${2:-"$ROOT/artifacts/MeleePad-v0.1.0-preview.4-module-free-unsigned.ipa"}
+OUTPUT=${2:-"$ROOT/artifacts/MeleePad-v0.1.0-preview.5-module-free-unsigned.ipa"}
 
 if [[ -z "$SOURCE_APP" || ! -d "$SOURCE_APP" ]]; then
   echo "usage: $0 /path/to/MeleePad.app [output.ipa]" >&2
@@ -26,6 +26,10 @@ if [[ -n "$source_prohibited" ]]; then
   echo "refusing to package an app containing a game module, game/save data, or provisioning profile" >&2
   exit 1
 fi
+
+# Every recipient must bring their own Slippi account. Never ship an operator's
+# user.json, opponent history, or credential-bearing JSON/plist configuration.
+python3 "$ROOT/scripts/audit-slippi-bundle-identity.py" "$SOURCE_APP"
 
 STAGING="$(mktemp -d "${TMPDIR:-/tmp}/meleepad-public-ipa.XXXXXX")"
 trap 'rm -rf "$STAGING"' EXIT
@@ -47,7 +51,7 @@ executable="$(plutil -extract CFBundleExecutable raw -o - "$APP/Info.plist")"
 
 [[ "$identifier" == com.meleepad.MeleePad ]]
 [[ "$version" == 0.1.0 ]]
-[[ "$build" == 18 ]]
+[[ "$build" == 26 ]]
 [[ "$(lipo -archs "$APP/$executable")" == arm64 ]]
 
 if codesign -d "$APP" >/dev/null 2>&1; then

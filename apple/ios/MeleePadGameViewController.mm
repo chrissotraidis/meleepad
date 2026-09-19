@@ -11,6 +11,7 @@
 #import "MeleePadPublicLobbyClient.h"
 #import "MeleePadSettings.h"
 #import "MeleePadRevision.h"
+#import "MeleePadSlippiHost.h"
 
 #import <CommonCrypto/CommonDigest.h>
 #import <GameController/GameController.h>
@@ -244,14 +245,20 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 - (void)configureController:(GCController *)controller playerSlot:(NSInteger)slot;
 - (nullable GCController *)controllerForPlayerSlot:(NSInteger)slot;
 - (NSArray<NSURL *> *)gameImagesInDocumentsDirectory;
-- (NSString *)modulePathFromConfiguration:(NSDictionary *)configuration;
+- (NSString *)modulePathFromConfiguration:(NSDictionary *)configuration
+                              forSlippi:(BOOL)forSlippi;
 - (void)presentGameDataImport;
 - (void)presentGameDataFolderImport;
+- (void)playSlippiFromHome;
+- (void)presentSlippiAccountImport;
+- (void)startSlippiFromCurrentGame;
+- (void)gameOverlayRequestsExitToHome:(MeleePadGameOverlay *)overlay;
 - (void)publishInputFromController:(GCController *)controller
                            gamepad:(GCExtendedGamepad *)gamepad;
 - (void)reconcileControllersForReason:(NSString *)reason;
 - (NSString *)resolvedImportTestPath:(NSString *)requestedPath;
 - (void)startAutomatedNetplayIfRequested;
+- (BOOL)importSlippiAccountFromPath:(NSString *)path error:(NSString **)error;
 - (void)showGameDataSetupState;
 - (NSString *)meleePadSupportRoot;
 - (void)startPublicGameplayHeartbeat;
@@ -261,12 +268,19 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 @implementation MeleePadGameViewController {
     MeleePadMetalSurfaceView *_gameView;
     MeleePadCoreHost *_coreHost;
+    MeleePadSlippiHost *_slippiHost;
     MeleePadGameOverlay *_overlay;
     dispatch_source_t _controllerTimer;
     UILabel *_fpsLabel;
     UILabel *_bootStatusLabel;
     UIActivityIndicatorView *_bootActivityIndicator;
     UIButton *_gameDataImportButton;
+    UIView *_homeView;
+    UILabel *_homeStatusLabel;
+    UIButton *_homeSettingsButton;
+    BOOL _playRequested;
+    BOOL _slippiRequested;
+    BOOL _slippiAccountImportPending;
     MeleePadControllerSlots _controllerSlots;
     NSMutableDictionary<NSNumber *, GCController *> *_configuredControllers;
     CGSize _lastLoggedDrawableSize;
@@ -275,6 +289,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     NSTimeInterval _lastPerformanceUptime;
     BOOL _hasPerformanceUsageBaseline;
     NSString *_lastPerformanceSummary;
+    NSString *_pendingBootError;
     NSDate *_lastScreenshotMarker;
     MeleePadOnlinePlayViewController *_onlinePlayController;
     dispatch_source_t _onlinePlayPollTimer;
@@ -392,6 +407,12 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
                                                object:nil];
     // DEBUG hook: -meleepadImportTest <iso path> runs the full import flow.
     NSArray<NSString *> *arguments = NSProcessInfo.processInfo.arguments;
+    if ([arguments containsObject:@"-meleepadSlippi"]) {
+        // Keep device acceptance deterministic without bypassing the normal
+        // account, game-data, module, or Keychain gates.
+        _slippiRequested = YES;
+        _playRequested = YES;
+    }
     NSUInteger importIndex = [arguments indexOfObject:@"-meleepadImportTest"];
     if (importIndex != NSNotFound && importIndex + 1 < arguments.count) {
         NSString *imagePath = [self resolvedImportTestPath:arguments[importIndex + 1]];
@@ -400,6 +421,21 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
         [self observeControllers];
         [self importGameDataFromURL:[NSURL fileURLWithPath:imagePath]];
         return;
+    }
+    NSUInteger accountImportIndex =
+        [arguments indexOfObject:@"-meleepadSlippiAccountImportTest"];
+    if (accountImportIndex != NSNotFound && accountImportIndex + 1 < arguments.count) {
+        NSString *accountPath = [self resolvedImportTestPath:arguments[accountImportIndex + 1]];
+        NSString *error = nil;
+        if (![self importSlippiAccountFromPath:accountPath error:&error]) {
+            MeleePadLog(@"private Slippi account import failed path=%@ error=%@",
+                      accountPath, error ?: @"unknown");
+            [self presentBootError:error ?: @"The private Slippi account import failed."];
+            return;
+        }
+        _slippiRequested = YES;
+        _playRequested = YES;
+        MeleePadLog(@"private Slippi account import completed source=app-sandbox");
     }
     [self startGameIfProvisioned];
     [self startInputConsumer];
@@ -479,6 +515,11 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 - (NSString *)resolvedImportTestPath:(NSString *)requestedPath {
     if ([[NSFileManager defaultManager] fileExistsAtPath:requestedPath])
         return requestedPath;
+    if (![requestedPath hasPrefix:@"/"]) {
+        NSString *sandboxPath = [NSHomeDirectory() stringByAppendingPathComponent:requestedPath];
+        if ([[NSFileManager defaultManager] fileExistsAtPath:sandboxPath])
+            return sandboxPath;
+    }
     NSString *prefix = @"/tmp/";
     if ([requestedPath hasPrefix:prefix]) {
         NSString *relativePath = [requestedPath substringFromIndex:prefix.length];
@@ -489,22 +530,70 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     return requestedPath;
 }
 
-- (NSString *)modulePathFromConfiguration:(NSDictionary *)configuration {
+- (BOOL)importSlippiAccountFromPath:(NSString *)path error:(NSString **)error {
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSDictionary *attributes = [fileManager attributesOfItemAtPath:path error:nil];
+    unsigned long long size = [attributes[NSFileSize] unsignedLongLongValue];
+    if (size == 0 || size > 16 * 1024) {
+        if (error != nullptr)
+            *error = @"The private Slippi account file is missing or too large.";
+        return NO;
+    }
+    NSData *data = [NSData dataWithContentsOfFile:path];
+    if (data.length == 0 || data.length != size) {
+        if (error != nullptr)
+            *error = @"The private Slippi account file could not be read.";
+        return NO;
+    }
+    if (_slippiHost == nil)
+        _slippiHost = [[MeleePadSlippiHost alloc]
+            initWithLayer:(CAMetalLayer *)_gameView.layer];
+    NSString *storeError = nil;
+    if (![_slippiHost storeAccountData:data error:&storeError]) {
+        if (error != nullptr)
+            *error = storeError ?: @"The private Slippi account file was rejected.";
+        return NO;
+    }
+    NSError *removeError = nil;
+    if (![fileManager removeItemAtPath:path error:&removeError]) {
+        [_slippiHost removeImportedAccount];
+        if (error != nullptr)
+            *error = @"MeleePad stored no account because the private import file could not be removed.";
+        return NO;
+    }
+    return YES;
+}
+
+- (NSString *)modulePathFromConfiguration:(NSDictionary *)configuration
+                              forSlippi:(BOOL)forSlippi {
     NSInteger revision = [MeleePadSettings sharedSettings].gameRevision;
     NSString *key = [NSString stringWithFormat:@"r%ld", (long)revision];
-    NSString *hostPath = configuration[@"DevModulesByRevision"][key];
+    NSString *moduleMapKey = forSlippi ? @"DevSlippiModulesByRevision" :
+        @"DevModulesByRevision";
+    NSString *hostPath = configuration[moduleMapKey][key];
     if (hostPath.length == 0 && revision == 0)
-        hostPath = configuration[@"DevModulePath"];
+        hostPath = configuration[forSlippi ? @"DevSlippiModulePath" : @"DevModulePath"];
     if (hostPath.length > 0 && [[NSFileManager defaultManager] fileExistsAtPath:hostPath])
         return hostPath;
 
-    NSString *deviceRelativePath = revision == 2 ? @"gGALE01r2_recomp.dylib" :
-        configuration[@"DeviceModuleRelativePath"];
+    NSString *deviceRelativePath = nil;
+    if (forSlippi) {
+        deviceRelativePath = configuration[@"DeviceBundledSlippiModuleRelativePath"];
+        if (deviceRelativePath.length == 0 && revision == 2)
+            deviceRelativePath = @"gGALE01r2_slippi_recomp.dylib";
+        if (deviceRelativePath.length == 0)
+            deviceRelativePath = configuration[@"DeviceSlippiModuleRelativePath"];
+    } else {
+        if ([configuration[@"DeviceBundledGameRevision"] integerValue] == revision)
+            deviceRelativePath = configuration[@"DeviceBundledOriginalModuleRelativePath"];
+        if (deviceRelativePath.length == 0)
+            deviceRelativePath = revision == 2 ? @"gGALE01r2_recomp.dylib" :
+                configuration[@"DeviceModuleRelativePath"];
+    }
 #if !TARGET_OS_SIMULATOR
-    // Simulator and device provisioning share a generated development plist.
-    // A Simulator build may therefore leave DevModulePath pointing at the Mac.
+    // Legacy provisioning files may contain Simulator-only host paths.
     // Device installs always use this stable, sandbox-relative module name.
-    if (deviceRelativePath.length == 0)
+    if (deviceRelativePath.length == 0 && !forSlippi)
         deviceRelativePath = @"gGALE01_recomp.dylib";
 #endif
     if (deviceRelativePath.length > 0) {
@@ -800,10 +889,18 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 }
 
 - (void)settingsChanged:(NSNotification *)notification {
+    // NSUserDefaults notifications can originate on system background threads.
+    if (![NSThread isMainThread]) {
+        dispatch_async(dispatch_get_main_queue(), ^{ [self settingsChanged:notification]; });
+        return;
+    }
+    if (_homeView != nil) _homeSettingsButton.menu = [_overlay startupMenu];
     (void)notification;
     MeleePadSettings *settings = [MeleePadSettings sharedSettings];
     [_coreHost setRenderScale:settings.renderScale];
     [_coreHost setAspectRatioMode:settings.aspectRatioMode];
+    [_slippiHost setRenderScale:settings.renderScale];
+    [_slippiHost setAspectRatioMode:settings.aspectRatioMode];
     [_coreHost setModernCStickHorizontal:settings.modernCStickHorizontal];
     [self updateFPSLabel];
 }
@@ -851,9 +948,278 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
               screen.scale, screen.nativeScale, (long)screen.maximumFramesPerSecond);
 }
 
-- (void)startGameIfProvisioned {
-    if (_coreHost != nil)
+- (void)playFromHome {
+    _slippiRequested = NO;
+    _playRequested = YES;
+    [_homeView removeFromSuperview];
+    _homeView = nil;
+    _overlay.hidden = NO;
+    [self startGameIfProvisioned];
+}
+
+- (void)playSlippiFromHome {
+    if (_slippiHost == nil)
+        _slippiHost = [[MeleePadSlippiHost alloc]
+            initWithLayer:(CAMetalLayer *)_gameView.layer];
+    if (![_slippiHost hasImportedAccount]) {
+        [self presentSlippiAccountImport];
         return;
+    }
+    [self startSlippiFromCurrentGame];
+}
+
+- (void)startSlippiFromCurrentGame {
+    if (_slippiHost.isRunning) {
+        UIAlertController *status = [UIAlertController
+            alertControllerWithTitle:@"Slippi Multiplayer"
+            message:[NSString stringWithFormat:@"Status when opened:\n%@\n\nRanked, Unranked, Direct, Teams, and Party are enabled for testing. Account eligibility and mode availability are determined by Slippi.",
+                     [_slippiHost matchmakingStatusSummary]]
+            preferredStyle:UIAlertControllerStyleAlert];
+        [status addAction:[UIAlertAction actionWithTitle:@"Return to Game"
+            style:UIAlertActionStyleCancel handler:nil]];
+        [self presentViewController:status animated:YES completion:nil];
+        return;
+    }
+    if (_slippiHost == nil)
+        _slippiHost = [[MeleePadSlippiHost alloc]
+            initWithLayer:(CAMetalLayer *)_gameView.layer];
+    if (![_slippiHost hasImportedAccount]) {
+        [self presentSlippiAccountImport];
+        return;
+    }
+    _slippiRequested = YES;
+    _playRequested = YES;
+    if (_coreHost != nil) {
+        [_coreHost stop];
+        _coreHost = nil;
+    }
+    [self startGameIfProvisioned];
+}
+
+- (void)showHomeForRevision:(NSInteger)revision {
+    [_homeView removeFromSuperview];
+    [_bootActivityIndicator stopAnimating];
+    _bootStatusLabel.hidden = YES;
+    _overlay.hidden = YES;
+    BOOL ready = revision >= 0;
+    BOOL compact = CGRectGetHeight(self.view.bounds) < 500;
+    UIColor *amber = [UIColor colorWithRed:1 green:0.69 blue:0.20 alpha:1];
+    UIColor *muted = [UIColor colorWithRed:0.66 green:0.72 blue:0.86 alpha:1];
+    _homeView = [UIView new];
+    _homeView.backgroundColor = [UIColor colorWithRed:0.025 green:0.035 blue:0.085 alpha:1];
+    _homeView.frame = self.view.bounds;
+    _homeView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    [self.view addSubview:_homeView];
+
+    UIStackView *layout = [UIStackView new];
+    layout.axis = UILayoutConstraintAxisHorizontal;
+    layout.spacing = compact ? 24 : 48;
+    layout.alignment = UIStackViewAlignmentCenter;
+    layout.translatesAutoresizingMaskIntoConstraints = NO;
+    [_homeView addSubview:layout];
+
+    UIStackView *identity = [UIStackView new];
+    identity.axis = UILayoutConstraintAxisVertical;
+    identity.spacing = compact ? 6 : 14;
+    identity.alignment = UIStackViewAlignmentCenter;
+    [layout addArrangedSubview:identity];
+    UIImageView *emblem = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"HomeEmblem"]];
+    emblem.contentMode = UIViewContentModeScaleAspectFit;
+    emblem.isAccessibilityElement = NO;
+    [identity addArrangedSubview:emblem];
+    [emblem.widthAnchor constraintEqualToAnchor:identity.widthAnchor].active = YES;
+    [emblem.heightAnchor constraintEqualToAnchor:emblem.widthAnchor].active = YES;
+    UILabel *brand = [UILabel new];
+    brand.text = @"MELEEPAD";
+    UIFontDescriptor *heavy = [[UIFont systemFontOfSize:compact ? 30 : 48 weight:UIFontWeightBlack]
+        .fontDescriptor fontDescriptorWithSymbolicTraits:UIFontDescriptorTraitItalic];
+    brand.font = [UIFont fontWithDescriptor:heavy size:0];
+    brand.textColor = UIColor.whiteColor;
+    brand.adjustsFontSizeToFitWidth = YES;
+    brand.minimumScaleFactor = 0.7;
+    [identity addArrangedSubview:brand];
+    UILabel *edition = [UILabel new];
+    edition.text = @"THE GAMECUBE CLASSIC. ON YOUR TERMS.";
+    edition.font = [UIFont systemFontOfSize:compact ? 9 : 11 weight:UIFontWeightBold];
+    edition.textColor = amber;
+    edition.adjustsFontSizeToFitWidth = YES;
+    [identity addArrangedSubview:edition];
+
+    UIView *panel = [UIView new];
+    panel.backgroundColor = [UIColor colorWithRed:0.075 green:0.095 blue:0.20 alpha:1];
+    panel.layer.cornerRadius = compact ? 20 : 28;
+    panel.layer.borderWidth = 1;
+    panel.layer.borderColor = [UIColor colorWithRed:0.23 green:0.29 blue:0.48 alpha:1].CGColor;
+    [layout addArrangedSubview:panel];
+    UIStackView *content = [UIStackView new];
+    content.axis = UILayoutConstraintAxisVertical;
+    content.spacing = compact ? 10 : 20;
+    content.translatesAutoresizingMaskIntoConstraints = NO;
+    [panel addSubview:content];
+    UILabel *eyebrow = [UILabel new];
+    eyebrow.text = ready ? @"CHOOSE YOUR EXPERIENCE" : @"BUILD YOUR SETUP";
+    eyebrow.font = [UIFont systemFontOfSize:11 weight:UIFontWeightHeavy];
+    eyebrow.textColor = amber;
+    [content addArrangedSubview:eyebrow];
+    UILabel *title = [UILabel new];
+    title.text = @"MeleePad";
+    title.font = [UIFont systemFontOfSize:compact ? 27 : 38 weight:UIFontWeightBold];
+    title.textColor = UIColor.whiteColor;
+    [content addArrangedSubview:title];
+    _homeStatusLabel = [UILabel new];
+    _homeStatusLabel.text = ready
+        ? [NSString stringWithFormat:@"%@  ·  Installed", MeleePadRevisionLabel(revision)]
+        : @"Bring your own USA v1.02 or v1.00 disc image.";
+    _homeStatusLabel.font = [UIFont systemFontOfSize:compact ? 13 : 15 weight:UIFontWeightMedium];
+    _homeStatusLabel.textColor = ready ? [UIColor colorWithRed:0.42 green:0.89 blue:0.75 alpha:1] : muted;
+    _homeStatusLabel.numberOfLines = 0;
+    [content addArrangedSubview:_homeStatusLabel];
+
+    UIStackView *choices = [UIStackView new];
+    choices.axis = compact ? UILayoutConstraintAxisVertical : UILayoutConstraintAxisHorizontal;
+    choices.spacing = 12;
+    choices.alignment = UIStackViewAlignmentFill;
+    choices.distribution = UIStackViewDistributionFillEqually;
+    [content addArrangedSubview:choices];
+
+    UIView *(^makeChoiceCard)(NSString *, NSString *, NSString *, UIImage *, UIColor *, SEL, NSString *) =
+        ^UIView *(NSString *cardTitle, NSString *cardSubtitle, NSString *buttonTitle,
+                  UIImage *buttonImage, UIColor *buttonColor, SEL action, NSString *identifier) {
+        UIView *card = [UIView new];
+        card.backgroundColor = [UIColor colorWithWhite:1.0 alpha:0.045];
+        card.layer.cornerRadius = compact ? 16 : 20;
+        card.layer.borderWidth = 1;
+        card.layer.borderColor = [UIColor colorWithWhite:1.0 alpha:0.10].CGColor;
+
+        UIStackView *cardContent = [UIStackView new];
+        cardContent.axis = UILayoutConstraintAxisVertical;
+        cardContent.spacing = compact ? 7 : 10;
+        cardContent.translatesAutoresizingMaskIntoConstraints = NO;
+        [card addSubview:cardContent];
+
+        UILabel *heading = [UILabel new];
+        heading.text = cardTitle;
+        heading.font = [UIFont systemFontOfSize:compact ? 18 : 21 weight:UIFontWeightBold];
+        heading.textColor = UIColor.whiteColor;
+        [cardContent addArrangedSubview:heading];
+
+        UILabel *detail = [UILabel new];
+        detail.text = cardSubtitle;
+        detail.font = [UIFont systemFontOfSize:compact ? 12 : 13 weight:UIFontWeightMedium];
+        detail.textColor = muted;
+        detail.numberOfLines = 0;
+        [cardContent addArrangedSubview:detail];
+
+        UIButton *button = [UIButton buttonWithType:UIButtonTypeSystem];
+        UIButtonConfiguration *buttonConfiguration =
+            [UIButtonConfiguration filledButtonConfiguration];
+        buttonConfiguration.title = buttonTitle;
+        buttonConfiguration.image = buttonImage;
+        buttonConfiguration.imagePadding = 8;
+        buttonConfiguration.baseBackgroundColor = buttonColor;
+        buttonConfiguration.baseForegroundColor = [UIColor colorWithRed:0.10 green:0.07 blue:0.02 alpha:1];
+        buttonConfiguration.contentInsets = NSDirectionalEdgeInsetsMake(compact ? 12 : 14, 10,
+                                                                          compact ? 12 : 14, 10);
+        buttonConfiguration.cornerStyle = UIButtonConfigurationCornerStyleMedium;
+        button.configuration = buttonConfiguration;
+        button.accessibilityIdentifier = identifier;
+        [button addTarget:self action:action forControlEvents:UIControlEventTouchUpInside];
+        [cardContent addArrangedSubview:button];
+
+        [NSLayoutConstraint activateConstraints:@[
+            [cardContent.leadingAnchor constraintEqualToAnchor:card.leadingAnchor constant:compact ? 14 : 18],
+            [cardContent.trailingAnchor constraintEqualToAnchor:card.trailingAnchor constant:compact ? -14 : -18],
+            [cardContent.topAnchor constraintEqualToAnchor:card.topAnchor constant:compact ? 14 : 18],
+            [cardContent.bottomAnchor constraintEqualToAnchor:card.bottomAnchor constant:compact ? -14 : -18],
+            [button.heightAnchor constraintGreaterThanOrEqualToConstant:compact ? 44 : 48],
+            [card.heightAnchor constraintGreaterThanOrEqualToConstant:compact ? 142 : 168],
+        ]];
+        return card;
+    };
+
+    [choices addArrangedSubview:(makeChoiceCard(
+        @"Original Melee",
+        ready ? [NSString stringWithFormat:@"%@ installed · standalone play", MeleePadRevisionLabel(revision)]
+              : @"Play the original game locally with your imported disc image.",
+        ready ? @"PLAY MELEE" : @"IMPORT GAME DATA",
+        [UIImage systemImageNamed:ready ? @"play.fill" : @"square.and.arrow.down"],
+        amber,
+        ready ? @selector(playFromHome) : @selector(presentGameDataImport),
+        ready ? @"home.play" : @"home.import"))];
+
+    MeleePadSlippiHost *slippiHost = _slippiHost;
+    if (slippiHost == nil)
+        slippiHost = [[MeleePadSlippiHost alloc] initWithLayer:(CAMetalLayer *)_gameView.layer];
+    NSString *slippiDetail = [slippiHost hasImportedAccount]
+        ? @"Native Slippi · account ready · all online modes"
+        : @"Import your own Slippi user.json to connect online.";
+    [choices addArrangedSubview:(makeChoiceCard(
+        @"Slippi Multiplayer", slippiDetail,
+        [slippiHost hasImportedAccount] ? @"PLAY SLIPPI" : @"SET UP SLIPPI",
+        [UIImage systemImageNamed:@"person.2.wave.2"],
+        [UIColor colorWithRed:0.40 green:0.82 blue:0.95 alpha:1],
+        @selector(playSlippiFromHome), @"home.slippi"))];
+
+    UIStackView *actions = [UIStackView new];
+    actions.spacing = 10;
+    actions.distribution = UIStackViewDistributionFillEqually;
+    UIButtonConfiguration *configuration = nil;
+    [content addArrangedSubview:actions];
+    if (ready) {
+        UIButton *data = [UIButton buttonWithType:UIButtonTypeSystem];
+        configuration = [UIButtonConfiguration filledButtonConfiguration];
+        configuration.title = @"Game Data";
+        configuration.image = [UIImage systemImageNamed:@"opticaldisc"];
+        configuration.imagePadding = 7;
+        configuration.baseBackgroundColor = [UIColor colorWithRed:0.16 green:0.20 blue:0.35 alpha:1];
+        configuration.baseForegroundColor = UIColor.whiteColor;
+        configuration.contentInsets = NSDirectionalEdgeInsetsMake(12, 8, 12, 8);
+        data.configuration = configuration;
+        [data addTarget:self action:@selector(presentGameDataImport) forControlEvents:UIControlEventTouchUpInside];
+        [actions addArrangedSubview:data];
+    }
+    _homeSettingsButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    configuration = [UIButtonConfiguration filledButtonConfiguration];
+    configuration.title = @"Settings";
+    configuration.image = [UIImage systemImageNamed:@"slider.horizontal.3"];
+    configuration.imagePadding = 7;
+    configuration.baseBackgroundColor = [UIColor colorWithRed:0.16 green:0.20 blue:0.35 alpha:1];
+    configuration.baseForegroundColor = UIColor.whiteColor;
+    configuration.contentInsets = NSDirectionalEdgeInsetsMake(12, 8, 12, 8);
+    _homeSettingsButton.configuration = configuration;
+    _homeSettingsButton.showsMenuAsPrimaryAction = YES;
+    _homeSettingsButton.menu = [_overlay startupMenu];
+    [actions addArrangedSubview:_homeSettingsButton];
+    UILabel *footer = [UILabel new];
+    footer.text = [NSString stringWithFormat:@"MELEEPAD  /  BUILD %@", [NSBundle.mainBundle objectForInfoDictionaryKey:@"CFBundleVersion"]];
+    footer.font = [UIFont monospacedSystemFontOfSize:10 weight:UIFontWeightMedium];
+    footer.textColor = muted;
+    [content addArrangedSubview:footer];
+
+    CGFloat padding = compact ? 20 : 32;
+    [NSLayoutConstraint activateConstraints:@[
+        [content.leadingAnchor constraintEqualToAnchor:panel.leadingAnchor constant:padding],
+        [content.trailingAnchor constraintEqualToAnchor:panel.trailingAnchor constant:-padding],
+        [content.topAnchor constraintEqualToAnchor:panel.topAnchor constant:padding],
+        [content.bottomAnchor constraintEqualToAnchor:panel.bottomAnchor constant:-padding],
+        [identity.widthAnchor constraintEqualToAnchor:layout.widthAnchor multiplier:0.38],
+        [layout.centerXAnchor constraintEqualToAnchor:_homeView.safeAreaLayoutGuide.centerXAnchor],
+        [layout.centerYAnchor constraintEqualToAnchor:_homeView.safeAreaLayoutGuide.centerYAnchor],
+        [layout.leadingAnchor constraintGreaterThanOrEqualToAnchor:_homeView.safeAreaLayoutGuide.leadingAnchor constant:24],
+        [layout.trailingAnchor constraintLessThanOrEqualToAnchor:_homeView.safeAreaLayoutGuide.trailingAnchor constant:-24],
+        [layout.widthAnchor constraintLessThanOrEqualToConstant:1080],
+    ]];
+    NSLayoutConstraint *preferredWidth = [layout.widthAnchor constraintEqualToAnchor:_homeView.safeAreaLayoutGuide.widthAnchor constant:-64];
+    preferredWidth.priority = UILayoutPriorityDefaultHigh;
+    preferredWidth.active = YES;
+}
+
+- (void)startGameIfProvisioned {
+    if (_coreHost != nil || _slippiHost.isRunning)
+        return;
+    [_homeView removeFromSuperview];
+    _homeView = nil;
+    _overlay.hidden = NO;
     _gameDataImportButton.hidden = YES;
     _bootStatusLabel.hidden = NO;
     _bootStatusLabel.text = @"Preparing runtime…";
@@ -864,11 +1230,46 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     NSDictionary *config = configPath ? [NSDictionary dictionaryWithContentsOfFile:configPath] : @{};
     MeleePadSettings *settings = [MeleePadSettings sharedSettings];
     [_overlay refreshMenuButton];
-    NSFileManager *fileManager = [NSFileManager defaultManager];
+#if TARGET_OS_SIMULATOR
+    // Native Slippi is pinned to USA Melee v1.02. Keep the simulator route
+    // aligned with the matching extracted tree when a prior standalone run
+    // left v1.00 selected.
+    if (_slippiRequested && settings.gameRevision != 2) {
+        settings.gameRevision = 2;
+        [settings synchronize];
+        MeleePadLog(@"Slippi route selected supported game revision=2");
+    }
+#endif
     // App updates can relocate the data-container UUID. On physical devices,
     // derive imported data from the current sandbox instead of trusting an
     // absolute path persisted by a previous installation.
     NSString *supportRoot = [self meleePadSupportRoot];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+#if !TARGET_OS_SIMULATOR
+    // Private self-contained QA bundles declare the revision of their bundled
+    // game root. If an older install still has the v1.00 default selected,
+    // adopt that bundled revision only when the selected sandbox root is
+    // absent. Public builds omit this manifest key and keep import selection
+    // unchanged.
+    NSNumber *bundledRevisionValue = config[@"DeviceBundledGameRevision"];
+    NSString *bundledRootRelativePath = config[@"DeviceBundledGameRootRelativePath"];
+    NSInteger bundledRevision = bundledRevisionValue != nil
+        ? bundledRevisionValue.integerValue : -1;
+    NSString *selectedRoot = [supportRoot stringByAppendingPathComponent:
+        settings.gameRevision == 2 ? @"GameData-r2/GALE01" : @"GameData/GALE01"];
+    NSString *bundledRoot = bundledRootRelativePath.length > 0
+        ? [bundle.bundlePath stringByAppendingPathComponent:bundledRootRelativePath] : nil;
+    if (bundledRevision >= 0 && ![fileManager fileExistsAtPath:selectedRoot] &&
+        bundledRoot.length > 0 && [fileManager fileExistsAtPath:bundledRoot] &&
+        MeleePadRevisionAtRoot(bundledRoot) == bundledRevision &&
+        (bundledRevision == 0 || bundledRevision == 2)) {
+        NSInteger previousRevision = settings.gameRevision;
+        settings.gameRevision = bundledRevision;
+        [settings synchronize];
+        MeleePadLog(@"boot revision fallback source=bundle previous=%ld selected=%ld",
+                  (long)previousRevision, (long)bundledRevision);
+    }
+#endif
     NSString *gameDataDirectory = [supportRoot stringByAppendingPathComponent:
         settings.gameRevision == 2 ? @"GameData-r2" : @"GameData"];
 
@@ -962,11 +1363,13 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
         [self presentBootError:@"The selected version does not match its game data. Import that version again."];
         return;
     }
-    NSString *modulePath = [self modulePathFromConfiguration:config];
+    BOOL slippiModule = _slippiRequested;
+    NSString *modulePath = [self modulePathFromConfiguration:config
+                                                    forSlippi:slippiModule];
     if (modulePath.length == 0 || ![fileManager fileExistsAtPath:modulePath]) {
         [self showGameDataSetupState];
-        _bootStatusLabel.text = [NSString stringWithFormat:@"%@ game data is available. This build needs its matching locally compiled game module before it can play.", MeleePadRevisionLabel(actualRevision)];
-        _bootStatusLabel.accessibilityLabel = _bootStatusLabel.text;
+        NSString *moduleKind = slippiModule ? @"native Slippi module" : @"matching game module";
+        _homeStatusLabel.text = [NSString stringWithFormat:@"%@ is installed. This build still needs its %@ before it can play.", MeleePadRevisionLabel(actualRevision), moduleKind];
         return;
     }
     if (actualRevision == 2) {
@@ -983,6 +1386,19 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
         _bootStatusLabel.text = @"MeleePad could not find its local game data.";
         _bootStatusLabel.accessibilityLabel = _bootStatusLabel.text;
         [_bootActivityIndicator stopAnimating];
+        return;
+    }
+
+    // Test routes retain direct boot; ordinary launches wait for an explicit Play.
+    NSArray<NSString *> *launchArguments = NSProcessInfo.processInfo.arguments;
+    NSDictionary<NSString *, NSString *> *launchEnvironment = NSProcessInfo.processInfo.environment;
+    BOOL automatedLaunch = launchEnvironment[@"MELEEPAD_BENCHMARK_ROUTE"].length > 0 ||
+        launchEnvironment[@"MELEEPAD_NETPLAY_AUTO_ROLE"].length > 0 ||
+        [launchEnvironment[@"MELEEPAD_EXTERNAL_PIPE_INPUT"] boolValue];
+    for (NSString *argument in launchArguments)
+        if ([argument hasPrefix:@"-meleepad"]) automatedLaunch = YES;
+    if (!_playRequested && !automatedLaunch) {
+        [self showHomeForRevision:actualRevision];
         return;
     }
 
@@ -1057,7 +1473,69 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     MeleePadLog(@"boot requested gameRootExists=%d discImage=%d moduleExists=%d drawable=%@",
               [fileManager fileExistsAtPath:gameRoot], discImagePath.length > 0,
               [fileManager fileExistsAtPath:modulePath], NSStringFromCGSize(layer.drawableSize));
+    MeleePadLog(@"boot module kind=%@ file=%@", slippiModule ? @"slippi" : @"original",
+              modulePath.lastPathComponent);
+
+    if (_slippiRequested) {
+        if (_slippiHost == nil)
+            _slippiHost = [[MeleePadSlippiHost alloc] initWithLayer:layer];
+        if (discImagePath.length == 0) {
+            _slippiRequested = NO;
+            _playRequested = NO;
+            [self presentBootError:@"Slippi requires the retained Melee disc image in addition to the extracted game files."];
+            return;
+        }
+        // Slippi still needs the same touch/controller surface as solo Melee.
+        // Keep the overlay visible so a device can navigate the native game
+        // and leave the run without relying on an external controller.
+        _overlay.hidden = NO;
+        [self startInputConsumer];
+        _bootStatusLabel.text = @"Starting Slippi…";
+        _bootStatusLabel.accessibilityLabel = @"Starting Slippi";
+        [_bootActivityIndicator startAnimating];
+        __weak MeleePadGameViewController *weakSelf = self;
+        NSInteger slippiRevision = actualRevision;
+        [_slippiHost startWithGameRoot:gameRoot
+                         discImagePath:discImagePath
+                            modulePath:modulePath
+                         userDirectory:userDirectory
+                               onStart:^ {
+            MeleePadGameViewController *strongSelf = weakSelf;
+            if (strongSelf == nil)
+                return;
+            strongSelf->_bootStatusLabel.text = @"Slippi runtime active";
+            MeleePadSettings *settings = [MeleePadSettings sharedSettings];
+            [strongSelf->_slippiHost setRenderScale:settings.renderScale];
+            [strongSelf->_slippiHost setAspectRatioMode:settings.aspectRatioMode];
+            strongSelf->_bootStatusLabel.accessibilityLabel = @"Slippi runtime active";
+            // Runtime readiness is useful in the diagnostic log, but this
+            // startup label must not remain over the actual game surface.
+            strongSelf->_bootStatusLabel.hidden = YES;
+            [strongSelf->_bootActivityIndicator stopAnimating];
+            MeleePadLog(@"native Slippi runtime ready revision=%ld", (long)slippiRevision);
+        }
+                              onError:^(NSString *message) {
+            MeleePadGameViewController *strongSelf = weakSelf;
+            MeleePadLog(@"native Slippi error=%@", message);
+            if (strongSelf != nil)
+                [strongSelf presentBootError:message];
+        }
+                           onFinished:^(NSInteger exitCode) {
+            MeleePadGameViewController *strongSelf = weakSelf;
+            if (strongSelf == nil)
+                return;
+            [strongSelf->_bootActivityIndicator stopAnimating];
+            strongSelf->_overlay.hidden = YES;
+            strongSelf->_slippiRequested = NO;
+            strongSelf->_playRequested = NO;
+            MeleePadLog(@"native Slippi host finished exit=%ld", (long)exitCode);
+            [strongSelf showHomeForRevision:slippiRevision];
+        }];
+        return;
+    }
+
     _coreHost = [[MeleePadCoreHost alloc] initWithLayer:layer];
+    [self startInputConsumer];
     __weak MeleePadGameViewController *weakSelf = self;
     _bootStatusLabel.text = @"Starting game…";
     _bootStatusLabel.accessibilityLabel = @"Starting game";
@@ -1071,38 +1549,29 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 }
 
 - (void)showGameDataSetupState {
-    [_bootActivityIndicator stopAnimating];
-    _bootStatusLabel.hidden = NO;
+    _gameDataImportButton.hidden = YES;
+    [self showHomeForRevision:-1];
+}
 
-    NSMutableParagraphStyle *paragraph = [NSMutableParagraphStyle new];
-    paragraph.alignment = NSTextAlignmentCenter;
-    paragraph.paragraphSpacing = 8.0;
-    NSDictionary *titleAttributes = @{
-        NSFontAttributeName: [UIFont systemFontOfSize:24.0 weight:UIFontWeightBold],
-        NSForegroundColorAttributeName: UIColor.whiteColor,
-        NSParagraphStyleAttributeName: paragraph,
-    };
-    NSDictionary *bodyAttributes = @{
-        NSFontAttributeName: [UIFont systemFontOfSize:16.0 weight:UIFontWeightRegular],
-        NSForegroundColorAttributeName: [UIColor colorWithWhite:1.0 alpha:0.82],
-        NSParagraphStyleAttributeName: paragraph,
-    };
-    NSMutableAttributedString *message = [[NSMutableAttributedString alloc]
-        initWithString:@"Game data required\n" attributes:titleAttributes];
-    [message appendAttributedString:[[NSAttributedString alloc]
-        initWithString:@"Import your own Melee USA disc image. v1.02 is recommended; v1.00 remains supported. Choose Import to compare versions."
-             attributes:bodyAttributes]];
-    _bootStatusLabel.attributedText = message;
-    _bootStatusLabel.accessibilityLabel =
-        _bootStatusLabel.text;
-    _gameDataImportButton.hidden = NO;
-    [self.view setNeedsLayout];
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    if (_pendingBootError != nil) {
+        NSString *message = _pendingBootError;
+        _pendingBootError = nil;
+        [self presentBootError:message];
+    }
 }
 
 - (void)presentBootError:(NSString *)message {
     _bootStatusLabel.text = @"MeleePad could not start.";
     _bootStatusLabel.accessibilityLabel = _bootStatusLabel.text;
     [_bootActivityIndicator stopAnimating];
+    // A startup prerequisite can fail during viewDidLoad. UIKit drops alerts
+    // presented before this controller enters the window hierarchy.
+    if (self.view.window == nil) {
+        _pendingBootError = [message copy];
+        return;
+    }
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"MeleePad could not start"
                                                                    message:message
                                                             preferredStyle:UIAlertControllerStyleAlert];
@@ -1111,6 +1580,8 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 }
 
 - (void)startInputConsumer {
+    if (_homeView != nil)
+        return;
     // Feed the game thread the merged touch+controller snapshot at 60 Hz.
     // Private automation can own the same FIFO directly. Without this guard,
     // the normal publisher overwrites a scripted stick position with its
@@ -1147,7 +1618,10 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     merged = MeleePadApplyRightStickSmashMode(
         merged, settings.rightStickSmashAttacks, gameplayScene,
         settings.modernCStickHorizontal);
-    [_coreHost publishInput:merged];
+    if (_coreHost != nil)
+        [_coreHost publishInput:merged];
+    if (_slippiHost.isRunning)
+        [_slippiHost publishInput:merged];
 }
 
 - (void)pauseRuntimeForApplicationLifecycle {
@@ -1189,7 +1663,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 }
 
 - (void)gameOverlayRequestsGameDataRemoval:(MeleePadGameOverlay *)overlay {
-    if (_onlinePlaySessionRequested) {
+    if (_onlinePlaySessionRequested || _slippiHost.isRunning) {
         [self presentBootError:@"Leave Online Play before changing game data or versions."];
         return;
     }
@@ -1223,10 +1697,37 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     [self presentControllerMapping];
 }
 
+- (void)gameOverlayRequestsExitToHome:(MeleePadGameOverlay *)overlay {
+    (void)overlay;
+    if (_onlinePlayPollTimer != nil) {
+        dispatch_source_cancel(_onlinePlayPollTimer);
+        _onlinePlayPollTimer = nil;
+    }
+    _onlinePlaySessionRequested = NO;
+    [self stopPublicGameplayHeartbeatReturningToLobby:NO];
+    if (_slippiHost.isRunning) {
+        [_slippiHost stop];
+        _slippiHost = nil;
+    }
+    if (_coreHost != nil) {
+        [_coreHost stop];
+        _coreHost = nil;
+    }
+    _slippiRequested = NO;
+    _playRequested = NO;
+    _overlay.hidden = YES;
+    [self showHomeForRevision:MeleePadRevisionAtRoot([MeleePadSettings sharedSettings].extractedGameRoot)];
+}
+
 - (void)gameOverlayRequestsOnlinePlay:(MeleePadGameOverlay *)overlay {
+    if (_slippiRequested || _slippiHost.isRunning) {
+        [self startSlippiFromCurrentGame];
+        return;
+    }
     (void)overlay;
     [[MeleePadInputMixer sharedMixer] clearInputFromTouch:YES];
     [[MeleePadInputMixer sharedMixer] clearInputFromTouch:NO];
+#if TARGET_OS_SIMULATOR
     if (_publicLobbyClient == nil)
         _publicLobbyClient = [MeleePadPublicLobbyClient new];
     MeleePadOnlinePlayViewController *onlinePlay =
@@ -1265,6 +1766,12 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
         if (self->_onlinePlaySessionRequested)
             [self startOnlinePlayPolling];
     }];
+#else
+    /* The device route is native Slippi Direct. The older MeleePad lobby is
+     * retained only for simulator automation and does not claim Slippi
+     * compatibility or crossplay. */
+    [self startSlippiFromCurrentGame];
+#endif
 }
 
 - (void)startPublicGameplayHeartbeat {
@@ -1632,6 +2139,40 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     [self presentViewController:alert animated:YES completion:nil];
 }
 
+- (void)presentSlippiAccountImport {
+    if (_slippiHost == nil)
+        _slippiHost = [[MeleePadSlippiHost alloc]
+            initWithLayer:(CAMetalLayer *)_gameView.layer];
+    BOOL replacing = [_slippiHost hasImportedAccount];
+    UIAlertController *choice =
+        [UIAlertController alertControllerWithTitle:@"Slippi Multiplayer"
+                                            message:replacing
+            ? @"Replace the private Slippi account used by this device? The account stays in this device's Keychain and is never bundled with game data."
+            : @"Import your own Slippi user.json export. It is normalized and stored only in this device's Keychain before native Slippi starts."
+                                     preferredStyle:UIAlertControllerStyleAlert];
+    __weak MeleePadGameViewController *weakSelf = self;
+    [choice addAction:[UIAlertAction actionWithTitle:replacing ? @"Replace Account" : @"Import Account"
+                                                  style:UIAlertActionStyleDefault
+                                                handler:^(__kindof UIAlertAction *action) {
+        (void)action;
+        MeleePadGameViewController *strongSelf = weakSelf;
+        if (strongSelf == nil)
+            return;
+        strongSelf->_slippiAccountImportPending = YES;
+        UIDocumentPickerViewController *picker =
+            [[UIDocumentPickerViewController alloc] initForOpeningContentTypes:@[UTTypeJSON]
+                                                                           asCopy:NO];
+        picker.delegate = strongSelf;
+        picker.allowsMultipleSelection = NO;
+        picker.shouldShowFileExtensions = YES;
+        [strongSelf presentViewController:picker animated:YES completion:nil];
+    }]];
+    [choice addAction:[UIAlertAction actionWithTitle:@"Cancel"
+                                                  style:UIAlertActionStyleCancel
+                                                handler:nil]];
+    [self presentViewController:choice animated:YES completion:nil];
+}
+
 - (void)presentGameDataImport {
     if (_onlinePlaySessionRequested) {
         [self presentBootError:@"Leave Online Play before changing game data or versions."];
@@ -1746,7 +2287,36 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     NSURL *url = urls.firstObject;
     if (url == nil)
         return;
+    if (_slippiAccountImportPending) {
+        _slippiAccountImportPending = NO;
+        BOOL securityScoped = [url startAccessingSecurityScopedResource];
+        NSNumber *isRegular = nil;
+        NSNumber *fileSize = nil;
+        [url getResourceValue:&isRegular forKey:NSURLIsRegularFileKey error:nil];
+        [url getResourceValue:&fileSize forKey:NSURLFileSizeKey error:nil];
+        NSData *data = isRegular.boolValue && fileSize.unsignedLongLongValue > 0 &&
+            fileSize.unsignedLongLongValue <= 16 * 1024
+            ? [NSData dataWithContentsOfURL:url] : nil;
+        if (securityScoped)
+            [url stopAccessingSecurityScopedResource];
+        if (_slippiHost == nil)
+            _slippiHost = [[MeleePadSlippiHost alloc]
+                initWithLayer:(CAMetalLayer *)_gameView.layer];
+        NSString *error = nil;
+        if (![_slippiHost storeAccountData:data error:&error]) {
+            [self presentBootError:error ?: @"The Slippi account file could not be imported."];
+            return;
+        }
+        MeleePadLog(@"Slippi account imported into device-only Keychain");
+        [self playSlippiFromHome];
+        return;
+    }
     [self importGameDataFromURL:url];
+}
+
+- (void)documentPickerWasCancelled:(UIDocumentPickerViewController *)controller {
+    (void)controller;
+    _slippiAccountImportPending = NO;
 }
 
 - (void)importGameDataFromURL:(NSURL *)url {
@@ -1948,10 +2518,10 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 }
 
 - (NSString *)meleePadSupportRoot {
+    NSFileManager *fileManager = [NSFileManager defaultManager];
     NSString *applicationSupportRoot =
         [NSHomeDirectory() stringByAppendingPathComponent:@"Library/Application Support"];
     NSString *currentRoot = [applicationSupportRoot stringByAppendingPathComponent:@"MeleePad"];
-    NSFileManager *fileManager = [NSFileManager defaultManager];
     NSString *currentImage =
         [currentRoot stringByAppendingPathComponent:@"GameData/GALE01.iso"];
     NSString *currentExecutable =

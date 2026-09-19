@@ -51,6 +51,9 @@ jobs:
           MELEEPAD_CI: "1"
         run: |
           bash scripts/ios-build-core-device.sh --core-only
+          rustup toolchain install 1.88.0 --profile minimal
+          rustup target add --toolchain 1.88.0 aarch64-apple-ios
+          python3 scripts/build-slippi-dependencies.py
           bash scripts/ios-provision.sh device
           xcodebuild -project MeleePad.xcodeproj -scheme MeleePad -configuration Release -destination 'generic/platform=iOS' -derivedDataPath build-ci CODE_SIGNING_ALLOWED=NO build
       - name: Verify build left dependency sources unchanged

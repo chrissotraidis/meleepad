@@ -1,9 +1,12 @@
 # meleepad technical debt
 
-Last updated: 2026-09-09
+Last updated: 2026-09-10
 
-Session stopped for today; no active goal. Start with the
-[September 9 handoff](SESSION-HANDOFF-2026-09-09.md) when resuming.
+The [native Mac comparison](NATIVE-MACOS-COMPARISON-GOAL.md) is complete.
+MeleePad sustained 59.94 FPS in two short two-fighter trials; melee4mac’s
+120 FPS mode slowed simulation in the tested scene. Next: map sampled generated
+CPU hotspots to exact decompiled routines before selecting a change. See the
+[September 9 handoff](SESSION-HANDOFF-2026-09-09.md) for the mobile work.
 
 This is the short, ranked engineering queue for future work. It is
 not a substitute for `GOAL-LOOP.md` or evidence in `docs/artifacts/`.
@@ -12,6 +15,15 @@ Performance evidence: [v1.02 iPhone performance goal](IPHONE-102-PERFORMANCE-GOA
 Preview 4/build 18 rolls up the merged build-17 increment and lightweight
 gameplay timing logs.
 Sustained performance and physical netplay limitations remain open.
+
+## Additional upstream research
+
+The [September 9 GitHub survey](MELEE-GITHUB-RESEARCH-2026-09-09.md) identifies
+September 5 DolRecomp state-transfer changes, now tested on Apple ARM64.
+The bounded trial found no repeatable speed gain, roughly 6.17x sample code
+size, and FP-exception cycle-accounting differences; no upgrade is accepted.
+Replay-driven control repetition must precede another app A/B. Additional Melee
+ports are mostly early or share already-reviewed code.
 
 ## Completed scene-aware follow-up
 
