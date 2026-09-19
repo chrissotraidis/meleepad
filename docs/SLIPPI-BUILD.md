@@ -45,6 +45,12 @@ compiler and SDK versions for each test build. Verify the app's readiness messag
 before entering online play. Update existing devices in place with the same
 bundle identifier and signing team to preserve user data.
 
+## Import your Slippi profile
+
+Follow the [README account-import steps](../README.md#import-your-slippi-profile-on-iphone-or-ipad): download your own `user.json`, save it in Files, then choose
+**Slippi Multiplayer → SET UP SLIPPI → Import Account**. The account import
+is separate from preparing the game and native module.
+
 ## Modes and support boundary
 
 Completed Unranked games have been tested on the maintainer's physical iPad.

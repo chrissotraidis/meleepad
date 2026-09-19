@@ -39,6 +39,7 @@ universal performance guarantee.*
 
 **[How it works](#how-meleepad-works) · [Current status](#current-status) ·
 [FAQ](#faq) · [Build it](#build-from-source) ·
+[Slippi profile setup](#import-your-slippi-profile-on-iphone-or-ipad) ·
 [Online play](#experimental-multiplayer) · [Get help](#reporting-issues)**
 
 > [!IMPORTANT]
@@ -354,6 +355,43 @@ macOS Slippi interoperability has not received the same hardware acceptance.
 
 Use your own Slippi account. Replay and diagnostic files stay local unless you
 choose to share them. See [setup and build requirements](docs/SLIPPI-BUILD.md).
+
+### Import your Slippi profile on iPhone or iPad
+
+MeleePad imports your Slippi **account file, `user.json`**. A replay (`.slp`),
+controller profile or public profile link will not work. You need your own
+Slippi account; MeleePad does not include a shared account.
+
+1. In Safari, open [Slippi's account export page](https://slippi.gg/online/enable).
+   Sign in to your Slippi account and download your `user.json` file. If you
+   download it on your Mac instead, AirDrop it to your iPhone/iPad and save it
+   in **Files**.
+2. Make sure `user.json` is available in **Files → Downloads** (under iCloud Drive
+   or On My iPhone/iPad, depending on your Safari download setting).
+3. Open MeleePad. On the home screen, find **Slippi Multiplayer** and tap
+   **SET UP SLIPPI**.
+4. Tap **Import Account**, then select your `user.json` in the Files picker.
+5. After import, MeleePad attempts to start Slippi. On subsequent launches, the
+   home card shows **PLAY SLIPPI** and “account ready.” Start with **Unranked**;
+   Ranked follows Slippi's subscription/free-day eligibility.
+
+**Account import does not install the game or native module.** The downloadable
+unsigned IPA is a module-free shell. You still need a locally signed playable
+build with your own USA v1.02 game data and matching native Slippi module;
+see [Slippi build requirements](docs/SLIPPI-BUILD.md). Importing `user.json` or
+an ISO by itself cannot make the public shell playable.
+
+The imported account is saved in this device's Keychain; Slippi receives a
+restricted temporary runtime copy while running. Keep the downloaded file
+private—it contains your login key. Do not attach it to Discord posts or bug
+reports. After a successful import, you can delete the downloaded copy from
+Files if you do not need it elsewhere.
+
+If the picker cannot select the file, confirm that you downloaded the actual
+`.json` export, not an HTML page, ZIP or replay. If MeleePad says “Select your
+own Slippi user.json export,” download a fresh export and try again; do not edit
+or invent its account fields. “Native Slippi code set is incomplete” or a missing
+module/game-data message refers to the playable build setup, not your profile.
 
 ## Experimental multiplayer
 
