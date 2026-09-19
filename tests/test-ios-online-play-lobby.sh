@@ -12,12 +12,16 @@ PUBLIC_CLIENT_HEADER="$ROOT/apple/ios/MeleePadPublicLobbyClient.h"
 PROJECT="$ROOT/MeleePad.xcodeproj/project.pbxproj"
 CORE="$ROOT/apple/ios/MeleePadCoreHost.mm"
 CORE_HEADER="$ROOT/apple/ios/MeleePadCoreHost.h"
+SLIPPI_HOST="$ROOT/apple/ios/MeleePadSlippiHost.mm"
+SLIPPI_PROBE="$ROOT/scripts/slippi-direct-probe.cpp"
 NETPLAY_CLIENT="$ROOT/ref/ModernGekko/vendor/dolphin/Source/Core/Core/NetPlay/NetPlayClient.cpp"
 PEER_CHAT_PATCH="$ROOT/patches/moderngekko/0021-netplay-peer-chat.patch"
 CHAT_LOG_PATCH="$ROOT/patches/moderngekko-dolphin/0047-redact-netplay-chat-logs.patch"
 BOOTSTRAP="$ROOT/scripts/bootstrap-dependencies.sh"
 BUILD_CORE="$ROOT/scripts/ios-build-core.sh"
 PROVISION="$ROOT/scripts/ios-provision.sh"
+STAGE_MODULES="$ROOT/scripts/stage-ios-modules.py"
+PREFLIGHT="$ROOT/scripts/check-ios-slippi-build-inputs.py"
 INFO="$ROOT/apple/ios/Info.plist"
 
 for file in "$LOBBY" "$LOBBY_HEADER" "$PUBLIC_CLIENT" "$PUBLIC_CLIENT_HEADER"; do
@@ -29,7 +33,7 @@ done
 
 for contract in \
   'gameOverlayRequestsOnlinePlay:' \
-  'actionWithTitle:@"Experimental Multiplayer…"' \
+  'actionWithTitle:@"Slippi Multiplayer…"' \
   'systemImageNamed:@"person.2.wave.2"'; do
   grep -Fq "$contract" "$OVERLAY" "$OVERLAY_HEADER"
 done
@@ -164,6 +168,10 @@ grep -Fq 'MeleePadOnlinePlayViewController.mm in Sources' "$PROJECT"
 grep -Fq 'MeleePadOnlinePlayViewController.h' "$PROJECT"
 grep -Fq 'MeleePadPublicLobbyClient.m in Sources' "$PROJECT"
 grep -Fq 'MeleePadPublicLobbyClient.h' "$PROJECT"
+if ! rg -q 'dolphin_runtime\.cpp.*COMPILER_FLAGS.*MODERNGEKKO_HAVE_IOS=1' "$PROJECT"; then
+  echo "iOS runtime source is missing MODERNGEKKO_HAVE_IOS=1" >&2
+  exit 1
+fi
 
 for contract in \
   'moderngekko-netplay-10' \
@@ -223,6 +231,37 @@ done
 
 grep -Fq 'libmoderngekko_netplay_session.a' "$BUILD_CORE" "$PROVISION"
 grep -Fq 'MODERNGEKKO_GAMECUBE_CONTROLLERS=ON' "$BUILD_CORE"
+grep -Fq -- '--slippi-module' "$STAGE_MODULES"
+grep -Fq 'SLIPPI_GAME_SETTINGS' "$STAGE_MODULES"
+grep -Fq 'SLIPPI_BOOTLOADER' "$STAGE_MODULES"
+grep -Fq 'bootloader.gct' "$STAGE_MODULES"
+grep -Fq 'SLIPPI_GAME_FILES' "$STAGE_MODULES"
+grep -Fq 'MxScn.dat' "$STAGE_MODULES"
+grep -Fq 'Required: Slippi Online' "$STAGE_MODULES"
+grep -Fq 'DeviceBundledSlippiModuleRelativePath' "$PROVISION"
+grep -Fq 'DeviceBundledGameRevision' "$PROVISION"
+grep -Fq 'DeviceBundledGameRootRelativePath' "$PROVISION"
+grep -Fq 'DeviceBundledDiscImageRelativePath' "$PROVISION"
+grep -Fq 'DeviceBundledOriginalModuleRelativePath' "$PROVISION"
+grep -Fq 'pinned iPhoneOS Slippi adapter inputs' "$PREFLIGHT"
+grep -Fq 'DevSlippiModulesByRevision' "$CONTROLLER"
+grep -Fq 'DeviceBundledSlippiModuleRelativePath' "$CONTROLLER"
+grep -Fq 'forSlippi:slippiModule' "$CONTROLLER"
+grep -Fq 'DeviceBundledOriginalModuleRelativePath' "$CONTROLLER"
+grep -Fq 'containsObject:@"-meleepadSlippi"' "$CONTROLLER"
+grep -Fq 'indexOfObject:@"-meleepadSlippiAccountImportTest"' "$CONTROLLER"
+grep -Fq 'importSlippiAccountFromPath:' "$CONTROLLER"
+grep -Fq 'dataWithContentsOfFile:path' "$CONTROLLER"
+grep -Fq 'removeItemAtPath:path' "$CONTROLLER"
+grep -Fq 'boot module kind=' "$CONTROLLER"
+grep -Fq 'account_boot_check' "$SLIPPI_HOST"
+grep -Fq 'containsObject:@"-meleepadSlippiAccountBootCheck"' "$SLIPPI_HOST"
+grep -Fq 'account_loaded.store(true' "$SLIPPI_PROBE"
+grep -Fq 'steady_clock::time_point::max()' "$SLIPPI_PROBE"
+if grep -Fq 'seconds(900)' "$SLIPPI_PROBE"; then
+  echo "Native Slippi host still has the unconditional 900-second deadline" >&2
+  exit 1
+fi
 grep -Fq 'bool NetplaySession::SendChatMessage(std::string message)' \
   "$PEER_CHAT_PATCH" "$BOOTSTRAP"
 grep -Fq 'Received a chat message from player' \

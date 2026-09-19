@@ -1,7 +1,11 @@
-# Experimental Online Play
+# Experimental MeleePad Rooms and Direct IP
 
 [Back to MeleePad](../README.md) · [FAQ](FAQ.md)
 
+
+This guide describes MeleePad's separate custom room protocol and its Preview 4
+acceptance history. For Slippi in Preview 5, use the
+[Slippi support and profile-import guide](../README.md#slippi-support).
 
 > [!WARNING]
 > **Online play is not ready for general use.** Preview 4 contains experimental

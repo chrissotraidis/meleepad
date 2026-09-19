@@ -632,6 +632,14 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
 }
 
 - (UIMenu *)buildMenu {
+    return [self buildMenuForStartup:NO];
+}
+
+- (UIMenu *)startupMenu {
+    return [self buildMenuForStartup:YES];
+}
+
+- (UIMenu *)buildMenuForStartup:(BOOL)startup {
     __weak MeleePadGameOverlay *weakSelf = self;
     MeleePadSettings *settings = [MeleePadSettings sharedSettings];
 
@@ -745,16 +753,31 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
     ]];
 
     UIAction *onlinePlayAction =
-        [UIAction actionWithTitle:@"Experimental Multiplayer…"
+        [UIAction actionWithTitle:@"Slippi Multiplayer…"
                             image:[UIImage systemImageNamed:@"person.2.wave.2"]
                        identifier:nil handler:^(__kindof UIAction *action) {
         (void)action;
         [weakSelf.delegate gameOverlayRequestsOnlinePlay:weakSelf];
     }];
 
+    UIAction *exitToHomeAction =
+        [UIAction actionWithTitle:@"Exit to Home"
+                            image:[UIImage systemImageNamed:@"rectangle.portrait.and.arrow.right"]
+                       identifier:nil handler:^(__kindof UIAction *action) {
+        (void)action;
+        [weakSelf.delegate gameOverlayRequestsExitToHome:weakSelf];
+    }];
+
+    if (startup) {
+        return [UIMenu menuWithTitle:@"MeleePad Settings" children:@[
+            displayMenu, dataMenu, reportProblemAction,
+        ]];
+    }
+
     return [UIMenu menuWithTitle:[NSString stringWithFormat:@"MeleePad · %@",
         MeleePadRevisionLabel(MeleePadRevisionAtRoot(settings.extractedGameRoot))] children:@[
         onlinePlayAction,
+        exitToHomeAction,
         displayMenu,
         fpsAction,
         controlsMenu,

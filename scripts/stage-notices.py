@@ -37,6 +37,24 @@ def stage(destination):
                 count += 1
     if not count or not (destination / 'upstream/LICENSE').is_file():
         raise ValueError('Pinned dependency license texts are missing; bootstrap first')
+    rust = runtime / 'vendor/dolphin/SlippiAdapter/rust'
+    metadata = json.loads(subprocess.check_output(
+        ['rustup', 'run', '1.88.0', 'cargo', 'metadata', '--locked', '--format-version', '1',
+         '--filter-platform', 'aarch64-apple-ios'], cwd=rust, text=True))
+    packages = []
+    for package in metadata['packages']:
+        base = Path(package['manifest_path']).parent
+        label = package['name'] + '-' + package['version']
+        packages.append({'name': package['name'], 'version': package['version'],
+                         'license': package.get('license'), 'source': package.get('source')})
+        for notice in sorted(base.rglob('*')):
+            if notice.is_file() and re.fullmatch(r'(license|copying|copyright|notice)([.-].*)?', notice.name.lower()):
+                try:
+                    notice.read_text()
+                except (UnicodeError, OSError):
+                    continue
+                copy(notice, Path('rust') / label / notice.relative_to(base))
+    (destination / 'rust-packages.json').write_text(json.dumps(packages, indent=2) + '\n')
     credits = (ROOT / 'CREDITS.md').read_text()
     credits = re.sub(r'\[([^]]+)\]\(([^)]+)\)', r'\1 (\2)', credits)
     credits = re.sub(r'^#+\s*', '', credits, flags=re.MULTILINE)

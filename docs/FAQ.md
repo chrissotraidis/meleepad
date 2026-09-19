@@ -292,18 +292,21 @@ working. Treat four-seat rooms as development UI until that gate passes.
 </details>
 
 <details>
-<summary>Why doesn't Slippi work with MeleePad?</summary>
+<summary>Does MeleePad support Slippi, and how do I import my profile?</summary>
 
-Slippi is not a service that MeleePad can simply turn on. It combines
-extensive injected game code, a customized Dolphin
-runtime, rollback networking, accounts, and private matchmaking services.
+Yes. Preview 5 adds MeleePad-supported Slippi integration for iOS/iPadOS, with
+completed Unranked matches verified on the maintainer's physical iPad. Download
+your own `user.json` from [Slippi](https://slippi.gg/online/enable), save it in
+Files, then select **Slippi Multiplayer → SET UP SLIPPI → Import Account**.
+See the [step-by-step README guide](../README.md#import-your-slippi-profile-on-iphone-or-ipad).
 
-MeleePad supports v1.02 and v1.00 in Preview 4 and uses its own
-fixed-delay protocol. Sharing the v1.02 target does not make it Slippi-compatible.
-Slippi supports Melee v1.02 and expects Slippi's game modifications and network
-protocol. The two systems are not compatible, so MeleePad users cannot join the
-normal Slippi player pool. Supporting that would require a major separate port
-and cooperation from Project Slippi; it is not planned for MeleePad.
+The public IPA is still an unsigned, module-free shell. Profile import alone
+does not supply your game data or the matching native Slippi module; see
+[build requirements](SLIPPI-BUILD.md). Ranked follows Slippi's subscription and
+free-day rules. Direct, Teams and Party are enabled but lack equivalent
+full-match hardware acceptance. Connection quality and local slowdowns are
+still under investigation. MeleePad's custom private-room protocol is separate
+from this integration. Project Slippi has not endorsed the port.
 
 </details>
 
@@ -317,8 +320,8 @@ resolution; another later run sustained 46–57 FPS under serious thermal
 pressure after an extended in-game pause.
 
 Known water, reflection, and shadow rendering defects remain, and the full
-device acceptance matrix is still in progress. Physical-device online play has
-not passed its release gates. Latest iPhone 14 logs include 37.9–45.6 FPS
+device acceptance matrix is still in progress. Preview 5 has completed Slippi
+Unranked matches on the maintainer's iPad; broader mode/device acceptance is incomplete. Latest iPhone 14 logs include 37.9–45.6 FPS
 slowdowns and audio starvation. The September 9 follow-up retained diagnostics,
 not a proven speed fix; see the [resume handoff](SESSION-HANDOFF-2026-09-09.md).
 

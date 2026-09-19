@@ -15,6 +15,11 @@ particular binary's linked components.
 ENet retains Lee Salzman's MIT license and copyright notice. MeleePad's maintained
 fork adjusts startup RTT smoothing; that does not change ENet's license.
 
+The Slippi adapter in the pinned RecompCore fork includes Project Slippi Dolphin
+code, open-vcdiff and semver, with original notices. Its Rust FFI is a pinned
+submodule of the maintained slippi-rust-extensions fork. These are build inputs
+for Preview 5, and their license texts are bundled in Notices.
+
 The Apple integration builds on SunPad. Melee decompilation, m-ex, and Slippi
 sources retain their original notices and attribution. Their presence as research
 references does not imply that every reference is linked into a public build.
