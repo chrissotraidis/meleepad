@@ -1,46 +1,34 @@
 # MeleePad
 
-**Super Smash Bros. Melee on iPhone, iPad, and Apple Silicon Mac through
-ahead-of-time recompilation and Metal.**
-
-MeleePad turns a supported copy of Melee into a native Apple app you build
-yourself. It uses touch controls, physical controllers, Metal rendering, and a
-Dolphin-derived compatibility runtime—without requiring JIT on iPhone or iPad.
-
-Built with [ModernGekko](https://github.com/ExpansionPak/ModernGekko), by Hyperway,
-ExpansionPak and contributors, and [DolRecomp](https://github.com/ExpansionPak/DolRecomp),
-on the [RecompCore](https://github.com/ExpansionPak/RecompCore) /
-[Dolphin](https://github.com/dolphin-emu/dolphin) runtime. The Apple integration
-builds on [SunPad](https://github.com/chrissotraidis/sunpad). MeleePad's contribution
-is the Apple app, controls, integration, and game-specific fixes; the underlying
-compiler and runtime remain the work of their upstream authors.
-
-**Maintained dependency forks:** [ModernGekko](https://github.com/chrissotraidis/ModernGekko/tree/codex/meleepad-slippi-preview5),
-[RecompCore](https://github.com/chrissotraidis/RecompCore/tree/codex/meleepad-slippi-preview5),
-[DolRecomp](https://github.com/chrissotraidis/DolRecomp/tree/codex/meleepad-integration-20260914), and
-[ENet](https://github.com/chrissotraidis/enet/tree/codex/meleepad-slippi-preview5).
-MeleePad is the Apple app repository; its runtime/compiler changes live in these
-forks and are selected through pinned submodules. See [full credits](CREDITS.md)
-and the [source graph](docs/DEPENDENCIES.md).
-
-<p align="center">
+<p>
   <img alt="Requires iOS or iPadOS 16 or later" src="https://img.shields.io/badge/iOS%20%2F%20iPadOS-16%2B-0A84FF?logo=apple">
   <img alt="Requires macOS 14 or later" src="https://img.shields.io/badge/macOS-14%2B-0A84FF?logo=apple">
-  <img alt="Uses the Metal renderer" src="https://img.shields.io/badge/renderer-Metal-5E5CE6">
-  <img alt="Uses ahead-of-time PowerPC recompilation" src="https://img.shields.io/badge/PowerPC-ahead--of--time-FF9F0A">
   <img alt="Game data is not included" src="https://img.shields.io/badge/game%20data-not%20included-FF453A">
+  <a href="https://discord.gg/xwHfUD2bxW"><img alt="Join the community on Discord" src="https://img.shields.io/badge/Discord-Join%20the%20community-5865F2?logo=discord&amp;logoColor=white"></a>
 </p>
+
+**Super Smash Bros. Melee on iPhone, iPad, and Apple Silicon Mac.**
+
+Build a native Apple app from your own supported copy of Melee, with touch
+controls, physical-controller support, Metal rendering, and Slippi online play
+on iPhone and iPad. Game code is compiled ahead of time, so no JIT is required
+on iOS or iPadOS.
+
+Built with [ModernGekko](https://github.com/ExpansionPak/ModernGekko),
+[DolRecomp](https://github.com/ExpansionPak/DolRecomp), and the
+[RecompCore](https://github.com/ExpansionPak/RecompCore) / [Dolphin](https://github.com/dolphin-emu/dolphin)
+runtime, with Apple integration based on [SunPad](https://github.com/chrissotraidis/sunpad).
+See [credits and maintained sources](#credits-licensing-and-contributing).
+
+**[Build and setup](#build-from-source) ·
+[Slippi profile setup](#import-your-slippi-profile-on-iphone-or-ipad) ·
+[FAQ](#faq) · [Discord](https://discord.gg/xwHfUD2bxW)**
 
 ![MeleePad running a four-player match on an iPad at 59.9 frames per second, with translucent touch controls and the More menu button visible](docs/images/meleepad-ipad-gameplay.png)
 
 *A physical-iPad development build running at 2x resolution. Performance varies
 by scene and device; this image is evidence from one observed match, not a
 universal performance guarantee.*
-
-**[How it works](#how-meleepad-works) · [Current status](#current-status) ·
-[FAQ](#faq) · [Build it](#build-from-source) ·
-[Slippi profile setup](#import-your-slippi-profile-on-iphone-or-ipad) ·
-[Online play](#experimental-multiplayer) · [Get help](#reporting-issues)**
 
 > [!IMPORTANT]
 > MeleePad v0.1.0 Preview 5 (build 26) adds officially supported Slippi integration
@@ -418,6 +406,9 @@ For setup, troubleshooting, privacy, and the full test history, see the
 
 ## Reporting issues
 
+Join the [Discord community](https://discord.gg/xwHfUD2bxW) for discussion and
+setup help. Report reproducible bugs through GitHub using the steps below.
+
 Use **More (•••) → Report a Problem…** to review and share a diagnostic package.
 Gameplay timing summaries are collected automatically; note the approximate time
 and scene when a slowdown happens. No profiler switch is required. Then
@@ -472,6 +463,22 @@ and [current status](docs/STATUS.md) for the acceptance contract, chronology,
 and detailed evidence.
 
 ## Credits, licensing, and contributing
+
+Built with [ModernGekko](https://github.com/ExpansionPak/ModernGekko), by Hyperway,
+ExpansionPak and contributors, and [DolRecomp](https://github.com/ExpansionPak/DolRecomp),
+on the [RecompCore](https://github.com/ExpansionPak/RecompCore) /
+[Dolphin](https://github.com/dolphin-emu/dolphin) runtime. The Apple integration
+builds on [SunPad](https://github.com/chrissotraidis/sunpad). MeleePad's contribution
+is the Apple app, controls, integration, and game-specific fixes; the underlying
+compiler and runtime remain the work of their upstream authors.
+
+**Maintained dependency forks:** [ModernGekko](https://github.com/chrissotraidis/ModernGekko/tree/codex/meleepad-slippi-preview5),
+[RecompCore](https://github.com/chrissotraidis/RecompCore/tree/codex/meleepad-slippi-preview5),
+[DolRecomp](https://github.com/chrissotraidis/DolRecomp/tree/codex/meleepad-integration-20260914), and
+[ENet](https://github.com/chrissotraidis/enet/tree/codex/meleepad-slippi-preview5).
+MeleePad is the Apple app repository; its runtime/compiler changes live in these
+forks and are selected through pinned submodules. See [full credits](CREDITS.md)
+and the [source graph](docs/DEPENDENCIES.md).
 
 See [Credits](CREDITS.md), [third-party notices](THIRD-PARTY-NOTICES.md), and
 [contribution guidelines](CONTRIBUTING.md). MeleePad-owned integration code is
