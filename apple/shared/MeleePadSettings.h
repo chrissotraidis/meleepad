@@ -53,6 +53,9 @@ typedef NS_ENUM(NSInteger, MeleePadAspectRatioMode) {
 /* Selected supported disc revision. Existing installs remain on revision 0. */
 @property(nonatomic, assign) NSInteger gameRevision;
 
+/* Native Slippi's local input delay, captured when an online session starts. */
+@property(nonatomic, assign) NSInteger slippiInputDelayFrames; // 1..4, default 2
+
 /* Extracted game tree (sys/ + files/) produced from the retained image. */
 @property(nonatomic, copy, nullable) NSString *extractedGameRoot;
 

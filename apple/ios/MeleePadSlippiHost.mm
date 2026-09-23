@@ -272,6 +272,8 @@ static void MeleePadSlippiWriteWorkerFinished(const std::filesystem::path &runRo
     std::string module = modulePath.UTF8String ?: "";
     std::string user = runtimeUser.UTF8String ?: "";
     std::string account((const char *)accountData.bytes, accountData.length);
+    const int inputDelayFrames = static_cast<int>(
+        [MeleePadSettings sharedSettings].slippiInputDelayFrames);
     if (_thread->joinable())
         _thread->join();
     SlippiDirectProbe::ResetTelemetry();
@@ -287,7 +289,7 @@ static void MeleePadSlippiWriteWorkerFinished(const std::filesystem::path &runRo
     void (^finishedBlock)(NSInteger) = [onFinished copy];
     _thread->operator=(std::thread([self, game = std::move(game), iso = std::move(iso),
                                       module = std::move(module), user = std::move(user),
-                                      account = std::move(account),
+                                      account = std::move(account), inputDelayFrames,
                                       startBlock, errorBlock, finishedBlock] {
         @autoreleasepool {
             // Hash the exact resolved file, rather than a different bundled copy.
@@ -312,7 +314,7 @@ static void MeleePadSlippiWriteWorkerFinished(const std::filesystem::path &runRo
             *self->_running = true;
             NSInteger exitCode = SlippiDirectMain(
                 game.c_str(), iso.c_str(), module.c_str(), user.c_str(), account,
-                (__bridge void *)self->_layer, [startBlock] {
+                (__bridge void *)self->_layer, inputDelayFrames, [startBlock] {
                     if (startBlock != nil)
                         dispatch_async(dispatch_get_main_queue(), startBlock);
                 });

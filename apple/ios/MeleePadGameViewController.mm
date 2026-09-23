@@ -1005,15 +1005,15 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 }
 
 - (BOOL)hasSlippiModuleForRevision:(NSInteger)revision {
-    if (revision < 0)
+    // The native Slippi host accepts only USA v1.02, even if an older
+    // standalone module is present for the selected v1.00 installation.
+    if (revision != 2)
         return NO;
     NSString *configPath = [NSBundle.mainBundle pathForResource:@"dev-config" ofType:@"plist"];
     NSDictionary *config = configPath ? [NSDictionary dictionaryWithContentsOfFile:configPath] : @{};
     NSString *modulePath = [self modulePathFromConfiguration:config forSlippi:YES];
     if (modulePath.length == 0 || ![[NSFileManager defaultManager] fileExistsAtPath:modulePath])
         return NO;
-    if (revision != 2)
-        return YES;
     NSString *identity = [NSString stringWithContentsOfFile:
         [modulePath stringByAppendingString:@".dol-sha256"]
         encoding:NSUTF8StringEncoding error:nil];
@@ -1022,17 +1022,25 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 }
 
 - (BOOL)checkSlippiInstallForRevision:(NSInteger)revision {
-    if (revision >= 0 && [self hasSlippiModuleForRevision:revision])
+    if (revision == 2 && [self hasSlippiModuleForRevision:revision])
         return YES;
     BOOL needsGameData = revision < 0;
+    BOOL needsRevision = revision >= 0 && revision != 2;
+    NSString *message = nil;
+    if (needsGameData) {
+        message = @"Import your own supported Melee image first. Online play also needs a matching native Slippi module in a locally built, signed app; importing an image or account cannot add that module.";
+    } else if (needsRevision) {
+        message = @"Native Slippi needs USA Melee v1.02. Choose or import your own v1.02 image before starting online play. Your v1.00 data and saves remain separate.";
+    } else {
+        message = @"This app has game data, but its native Slippi module is missing or does not match. The public IPA is a module-free shell. Importing an image or account cannot make it playable; build and sign a complete app on your Mac.";
+    }
     UIAlertController *alert = [UIAlertController
         alertControllerWithTitle:@"Finish Slippi Setup"
-        message:needsGameData
-            ? @"Import your own supported Melee image first. Online play also needs a matching native Slippi module in a locally built, signed app; importing an image or account cannot add that module."
-            : @"This app has game data, but its native Slippi module is missing or does not match. The public IPA is a module-free shell. Importing an image or account cannot make it playable; build and sign a complete app on your Mac."
+        message:message
         preferredStyle:UIAlertControllerStyleAlert];
-    if (needsGameData) {
-        [alert addAction:[UIAlertAction actionWithTitle:@"Import Game Data"
+    if (needsGameData || needsRevision) {
+        [alert addAction:[UIAlertAction actionWithTitle:
+            needsRevision ? @"Choose Version or Import" : @"Import Game Data"
             style:UIAlertActionStyleDefault handler:^(__kindof UIAlertAction *action) {
                 (void)action;
                 [self presentGameDataImport];
@@ -1206,16 +1214,21 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
         slippiHost = [[MeleePadSlippiHost alloc] initWithLayer:(CAMetalLayer *)_gameView.layer];
     BOOL slippiModuleReady = [self hasSlippiModuleForRevision:revision];
     BOOL slippiAccountReady = [slippiHost hasImportedAccount];
-    NSString *slippiDetail = !ready
-        ? @"Import game data, then install a build with a matching Slippi module."
-        : !slippiModuleReady
-            ? @"Matching native Slippi module missing or incompatible."
-            : slippiAccountReady
-                ? @"Game, matching module and account found · start Slippi"
-                : @"Game and matching module found · import your own Slippi user.json.";
+    NSString *slippiDetail = nil;
+    if (!ready)
+        slippiDetail = @"Import game data, then install a build with a matching Slippi module.";
+    else if (revision != 2)
+        slippiDetail = @"Slippi needs USA v1.02 game data; v1.00 remains available offline.";
+    else if (!slippiModuleReady)
+        slippiDetail = @"Matching native Slippi module missing or incompatible.";
+    else if (!slippiAccountReady)
+        slippiDetail = @"Game and matching module found · import your own Slippi user.json.";
+    else
+        slippiDetail = [NSString stringWithFormat:@"Game, module and account found · %ldF input delay",
+            (long)[MeleePadSettings sharedSettings].slippiInputDelayFrames];
     [choices addArrangedSubview:(makeChoiceCard(
         @"Slippi Multiplayer", slippiDetail,
-        slippiModuleReady && slippiAccountReady ? @"PLAY SLIPPI" : @"SET UP SLIPPI",
+        revision == 2 && slippiModuleReady && slippiAccountReady ? @"PLAY SLIPPI" : @"SET UP SLIPPI",
         [UIImage systemImageNamed:@"person.2.wave.2"],
         [UIColor colorWithRed:0.40 green:0.82 blue:0.95 alpha:1],
         @selector(playSlippiFromHome), @"home.slippi"))];
@@ -1699,6 +1712,17 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 }
 
 #pragma mark - MeleePadGameOverlayDelegate
+
+- (void)gameOverlaySlippiDelayDidChange:(MeleePadGameOverlay *)overlay {
+    (void)overlay;
+    if (_homeView != nil) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (self->_homeView != nil)
+                [self showHomeForRevision:MeleePadRevisionAtRoot(
+                    [MeleePadSettings sharedSettings].extractedGameRoot)];
+        });
+    }
+}
 
 - (void)gameOverlayRequestsGameDataChange:(MeleePadGameOverlay *)overlay {
     (void)overlay;
