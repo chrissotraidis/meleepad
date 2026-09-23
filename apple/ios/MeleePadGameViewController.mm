@@ -59,6 +59,16 @@ static NSString *MeleePadThermalStateName(NSProcessInfoThermalState state) {
     }
 }
 
+static NSString *MeleePadSlippiReadinessAdvice(void) {
+    NSProcessInfo *process = NSProcessInfo.processInfo;
+    if (process.isLowPowerModeEnabled)
+        return @"Low Power Mode is on. Turn it off before online play for steadier timing.";
+    if (process.thermalState == NSProcessInfoThermalStateSerious ||
+        process.thermalState == NSProcessInfoThermalStateCritical)
+        return @"This device is hot and may slow down. Let it cool before online play.";
+    return nil;
+}
+
 static BOOL MeleePadProcessUsage(double *cpuSeconds, double *residentMiB) {
     struct rusage usage = {};
     if (getrusage(RUSAGE_SELF, &usage) != 0)
@@ -1226,6 +1236,11 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     else
         slippiDetail = [NSString stringWithFormat:@"Game, module and account found · %ldF input delay",
             (long)[MeleePadSettings sharedSettings].slippiInputDelayFrames];
+    if (slippiModuleReady && slippiAccountReady && revision == 2) {
+        NSString *advice = MeleePadSlippiReadinessAdvice();
+        if (advice.length > 0)
+            slippiDetail = [slippiDetail stringByAppendingFormat:@"\n%@", advice];
+    }
     [choices addArrangedSubview:(makeChoiceCard(
         @"Slippi Multiplayer", slippiDetail,
         revision == 2 && slippiModuleReady && slippiAccountReady ? @"PLAY SLIPPI" : @"SET UP SLIPPI",
