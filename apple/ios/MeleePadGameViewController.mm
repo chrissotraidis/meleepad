@@ -28,6 +28,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include "../../scripts/slippi-replay-library.hpp"
+
 static constexpr CGFloat MeleePadDrawableScale = 1.0;
 
 
@@ -1733,6 +1735,69 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 }
 
 #pragma mark - MeleePadGameOverlayDelegate
+
+- (void)gameOverlayRequestsRecentReplays:(MeleePadGameOverlay *)overlay {
+    (void)overlay;
+    if (_slippiHost.isRunning) {
+        UIAlertController *active = [UIAlertController
+            alertControllerWithTitle:@"Finish This Run First"
+                            message:@"Return to Home before sharing a replay so the file is no longer being written."
+                     preferredStyle:UIAlertControllerStyleAlert];
+        [active addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault
+                                              handler:nil]];
+        [self presentViewController:active animated:YES completion:nil];
+        return;
+    }
+
+    NSString *userDirectory = [[self meleePadSupportRoot]
+        stringByAppendingPathComponent:@"User-r2"];
+    const auto replays = SlippiReplayLibrary::Recent(
+        std::filesystem::path(userDirectory.fileSystemRepresentation));
+    UIAlertController *picker = [UIAlertController
+        alertControllerWithTitle:@"Recent Slippi Replays"
+                        message:replays.empty()
+            ? @"No saved Slippi replays yet. Play a match, then return here to share its replay."
+            : @"Choose one saved replay to share. Replays may include player names and connect codes. An interrupted run may leave an incomplete file. Nothing is uploaded automatically."
+                 preferredStyle:UIAlertControllerStyleAlert];
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    dateFormatter.dateStyle = NSDateFormatterMediumStyle;
+    dateFormatter.timeStyle = NSDateFormatterShortStyle;
+    for (const auto& replay : replays) {
+        NSString *path = [NSString stringWithUTF8String:replay.path.c_str()];
+        if (path == nil) continue;
+        NSDate *modified = [[NSFileManager defaultManager]
+            attributesOfItemAtPath:path error:nil][NSFileModificationDate];
+        NSString *label = modified == nil ? path.lastPathComponent
+            : [dateFormatter stringFromDate:modified];
+        NSString *title = [NSString stringWithFormat:@"%@ · %.1f MB", label,
+            static_cast<double>(replay.bytes) / (1024.0 * 1024.0)];
+        [picker addAction:[UIAlertAction actionWithTitle:title
+            style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+                (void)action;
+                if (!SlippiReplayLibrary::IsStillShareable(replay)) {
+                    UIAlertController *changed = [UIAlertController
+                        alertControllerWithTitle:@"Replay Changed"
+                                        message:@"This replay changed or is no longer available. Open Recent Slippi Replays again."
+                                 preferredStyle:UIAlertControllerStyleAlert];
+                    [changed addAction:[UIAlertAction actionWithTitle:@"OK"
+                        style:UIAlertActionStyleDefault handler:nil]];
+                    [self presentViewController:changed animated:YES completion:nil];
+                    return;
+                }
+                NSURL *url = [NSURL fileURLWithPath:path];
+                UIActivityViewController *share = [[UIActivityViewController alloc]
+                    initWithActivityItems:@[url] applicationActivities:nil];
+                UIPopoverPresentationController *popover = share.popoverPresentationController;
+                popover.sourceView = self.view;
+                popover.sourceRect = CGRectMake(CGRectGetMidX(self.view.bounds),
+                    CGRectGetMidY(self.view.bounds), 1, 1);
+                [self presentViewController:share animated:YES completion:nil];
+            }]];
+    }
+    [picker addAction:[UIAlertAction actionWithTitle:@"Cancel"
+        style:UIAlertActionStyleCancel handler:nil]];
+    [self presentViewController:picker animated:YES completion:nil];
+}
 
 - (void)gameOverlaySlippiDelayDidChange:(MeleePadGameOverlay *)overlay {
     (void)overlay;

@@ -88,6 +88,11 @@ and Party are admitted by the host but are not equivalently hardware-validated.
 Poor connection quality and local performance stalls remain under investigation.
 Replay and numeric diagnostic files stay local until shared by the user; treat
 replays as potentially identifying when submitting reports.
+**Settings → Recent Slippi Replays** lists up to eight saved files after a run
+and opens the system share sheet for the one you select. An interrupted run can
+leave an incomplete replay; this list does not verify game completion or a
+winner. Sharing is disabled while Slippi is running so the selected file is no
+longer being written. No replay is uploaded automatically.
 
 ## Compare completed replays during development
 

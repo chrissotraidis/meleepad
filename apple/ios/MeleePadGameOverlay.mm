@@ -723,6 +723,14 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
         [weakSelf reportProblem];
     }];
 
+    UIAction *replaysAction =
+        [UIAction actionWithTitle:@"Recent Slippi Replays…"
+                            image:[UIImage systemImageNamed:@"film"]
+                       identifier:nil handler:^(__kindof UIAction *action) {
+        (void)action;
+        [weakSelf.delegate gameOverlayRequestsRecentReplays:weakSelf];
+    }];
+
     UIAction *dpadAction = [UIAction actionWithTitle:@"Show D-Pad"
         image:[UIImage systemImageNamed:@"dpad"] identifier:nil handler:^(__kindof UIAction *action) {
         NSUserDefaults *defaults = NSUserDefaults.standardUserDefaults;
@@ -793,7 +801,7 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
 
     if (startup) {
         return [UIMenu menuWithTitle:@"MeleePad Settings" children:@[
-            displayMenu, slippiDelayMenu, dataMenu, reportProblemAction,
+            displayMenu, slippiDelayMenu, replaysAction, dataMenu, reportProblemAction,
         ]];
     }
 
@@ -801,6 +809,7 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
         MeleePadRevisionLabel(MeleePadRevisionAtRoot(settings.extractedGameRoot))] children:@[
         onlinePlayAction,
         slippiDelayMenu,
+        replaysAction,
         exitToHomeAction,
         displayMenu,
         fpsAction,
