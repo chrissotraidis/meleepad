@@ -86,8 +86,8 @@ is separate from preparing the game and native module.
 The account stays in this device's Keychain. A temporary plaintext copy is
 needed while the native runtime runs; the next app startup removes any copy
 left by a force-quit without deleting run diagnostics or the imported account.
-To switch accounts later, use **Home → Settings → Import or Replace Slippi
-Account**. A successful replacement returns to Home; it does not start a match.
+To switch accounts later, use **Home → Settings → Slippi Account**. A successful
+replacement returns to Home; it does not start a match.
 
 ## Modes and support boundary
 

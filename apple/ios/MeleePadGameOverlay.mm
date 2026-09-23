@@ -732,7 +732,7 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
     }];
 
     UIAction *accountAction =
-        [UIAction actionWithTitle:@"Import or Replace Slippi Account…"
+        [UIAction actionWithTitle:@"Slippi Account…"
                             image:[UIImage systemImageNamed:@"person.crop.circle.badge.checkmark"]
                        identifier:nil handler:^(__kindof UIAction *action) {
         (void)action;
