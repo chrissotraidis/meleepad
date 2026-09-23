@@ -20,6 +20,7 @@ python3 tests/test-slippi-rust-source.py
 python3 tests/test-compare-slippi-replays.py
 python3 scripts/test_slippi_incident_log.py
 python3 scripts/test_slippi_account_cleanup.py
+python3 scripts/test_slippi_replay_library.py
 python3 scripts/test_slippi_network_diagnostics.py
 python3 scripts/test_slippi_enet_disconnect.py
 python3 scripts/test_frame_interval_summary.py
