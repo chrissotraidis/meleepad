@@ -38,6 +38,13 @@ bootloader and matching game resources. The diagnostic generation scripts under
 `--help` options. This remains a developer workflow, not a turnkey end-user
 on-device compiler. A base offline module is not a substitute for a Slippi module.
 
+The supported, owner-tested preparation path uses an Apple Silicon Mac. An
+Intel Mac can sign or sideload an already complete ARM64 iPhone/iPad IPA, but
+the repository has no validated Intel-only playable-module build path. The
+public module-free IPA cannot become playable by sideloading, importing an ISO,
+or importing a Slippi account. Do not share a private completed IPA: it can
+contain generated game code or game data.
+
 Stage the resulting matching inputs with `scripts/stage-ios-modules.py`, then
 sign the complete bundle using your own identity. Do not publish that bundle.
 Retain the source pin, executable and module hashes, settings/code-set identity,
@@ -59,3 +66,23 @@ and Party are admitted by the host but are not equivalently hardware-validated.
 Poor connection quality and local performance stalls remain under investigation.
 Replay and numeric diagnostic files stay local until shared by the user; treat
 replays as potentially identifying when submitting reports.
+
+## Compare completed replays during development
+
+DashDance's replay reader inspired a strict, offline comparison command. Supply
+one recorded `.slp` and a separately generated reference for the same game:
+
+```sh
+python3 scripts/compare-slippi-replays.py \
+  --recorded /private/path/recorded.slp \
+  --reference /private/path/reference.slp \
+  --output /private/path/comparison.json
+```
+
+The command checks matching replay versions, player/frame coverage, required
+fields and game-end events, then reports the first differing finalized pre- or
+post-frame field or unmapped payload byte. Exit codes are 0 equivalent, 1 divergent, 2 incomplete, 3
+invalid and 4 unsupported. Repeated rollback records are counted, but equality
+of the final records does not prove each rollback step matched. The tool does not
+generate the reference replay or authenticate to Slippi. Keep both replays and
+the report private unless you have reviewed their contents for player data.

@@ -250,6 +250,8 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 - (void)presentGameDataImport;
 - (void)presentGameDataFolderImport;
 - (void)playSlippiFromHome;
+- (BOOL)checkSlippiInstallForRevision:(NSInteger)revision;
+- (BOOL)hasSlippiModuleForRevision:(NSInteger)revision;
 - (void)presentSlippiAccountImport;
 - (void)startSlippiFromCurrentGame;
 - (void)gameOverlayRequestsExitToHome:(MeleePadGameOverlay *)overlay;
@@ -958,6 +960,9 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 }
 
 - (void)playSlippiFromHome {
+    NSInteger revision = MeleePadRevisionAtRoot([MeleePadSettings sharedSettings].extractedGameRoot);
+    if (![self checkSlippiInstallForRevision:revision])
+        return;
     if (_slippiHost == nil)
         _slippiHost = [[MeleePadSlippiHost alloc]
             initWithLayer:(CAMetalLayer *)_gameView.layer];
@@ -983,6 +988,9 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     if (_slippiHost == nil)
         _slippiHost = [[MeleePadSlippiHost alloc]
             initWithLayer:(CAMetalLayer *)_gameView.layer];
+    NSInteger revision = MeleePadRevisionAtRoot([MeleePadSettings sharedSettings].extractedGameRoot);
+    if (![self checkSlippiInstallForRevision:revision])
+        return;
     if (![_slippiHost hasImportedAccount]) {
         [self presentSlippiAccountImport];
         return;
@@ -994,6 +1002,52 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
         _coreHost = nil;
     }
     [self startGameIfProvisioned];
+}
+
+- (BOOL)hasSlippiModuleForRevision:(NSInteger)revision {
+    if (revision < 0)
+        return NO;
+    NSString *configPath = [NSBundle.mainBundle pathForResource:@"dev-config" ofType:@"plist"];
+    NSDictionary *config = configPath ? [NSDictionary dictionaryWithContentsOfFile:configPath] : @{};
+    NSString *modulePath = [self modulePathFromConfiguration:config forSlippi:YES];
+    if (modulePath.length == 0 || ![[NSFileManager defaultManager] fileExistsAtPath:modulePath])
+        return NO;
+    if (revision != 2)
+        return YES;
+    NSString *identity = [NSString stringWithContentsOfFile:
+        [modulePath stringByAppendingString:@".dol-sha256"]
+        encoding:NSUTF8StringEncoding error:nil];
+    identity = [identity stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
+    return [identity isEqualToString:MeleePadRevision(revision)[@"dol_sha256"]];
+}
+
+- (BOOL)checkSlippiInstallForRevision:(NSInteger)revision {
+    if (revision >= 0 && [self hasSlippiModuleForRevision:revision])
+        return YES;
+    BOOL needsGameData = revision < 0;
+    UIAlertController *alert = [UIAlertController
+        alertControllerWithTitle:@"Finish Slippi Setup"
+        message:needsGameData
+            ? @"Import your own supported Melee image first. Online play also needs a matching native Slippi module in a locally built, signed app; importing an image or account cannot add that module."
+            : @"This app has game data, but its native Slippi module is missing or does not match. The public IPA is a module-free shell. Importing an image or account cannot make it playable; build and sign a complete app on your Mac."
+        preferredStyle:UIAlertControllerStyleAlert];
+    if (needsGameData) {
+        [alert addAction:[UIAlertAction actionWithTitle:@"Import Game Data"
+            style:UIAlertActionStyleDefault handler:^(__kindof UIAlertAction *action) {
+                (void)action;
+                [self presentGameDataImport];
+            }]];
+    }
+    [alert addAction:[UIAlertAction actionWithTitle:@"Build Instructions"
+        style:UIAlertActionStyleDefault handler:^(__kindof UIAlertAction *action) {
+            (void)action;
+            NSURL *url = [NSURL URLWithString:@"https://github.com/chrissotraidis/meleepad/blob/main/docs/SLIPPI-BUILD.md"];
+            [UIApplication.sharedApplication openURL:url options:@{} completionHandler:nil];
+        }]];
+    [alert addAction:[UIAlertAction actionWithTitle:@"Close"
+        style:UIAlertActionStyleCancel handler:nil]];
+    [self presentViewController:alert animated:YES completion:nil];
+    return NO;
 }
 
 - (void)showHomeForRevision:(NSInteger)revision {
@@ -1150,12 +1204,18 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     MeleePadSlippiHost *slippiHost = _slippiHost;
     if (slippiHost == nil)
         slippiHost = [[MeleePadSlippiHost alloc] initWithLayer:(CAMetalLayer *)_gameView.layer];
-    NSString *slippiDetail = [slippiHost hasImportedAccount]
-        ? @"Native Slippi · account ready · all online modes"
-        : @"Import your own Slippi user.json to connect online.";
+    BOOL slippiModuleReady = [self hasSlippiModuleForRevision:revision];
+    BOOL slippiAccountReady = [slippiHost hasImportedAccount];
+    NSString *slippiDetail = !ready
+        ? @"Import game data, then install a build with a matching Slippi module."
+        : !slippiModuleReady
+            ? @"Matching native Slippi module missing or incompatible."
+            : slippiAccountReady
+                ? @"Game, matching module and account found · start Slippi"
+                : @"Game and matching module found · import your own Slippi user.json.";
     [choices addArrangedSubview:(makeChoiceCard(
         @"Slippi Multiplayer", slippiDetail,
-        [slippiHost hasImportedAccount] ? @"PLAY SLIPPI" : @"SET UP SLIPPI",
+        slippiModuleReady && slippiAccountReady ? @"PLAY SLIPPI" : @"SET UP SLIPPI",
         [UIImage systemImageNamed:@"person.2.wave.2"],
         [UIColor colorWithRed:0.40 green:0.82 blue:0.95 alpha:1],
         @selector(playSlippiFromHome), @"home.slippi"))];

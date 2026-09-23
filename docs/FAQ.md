@@ -83,17 +83,22 @@ extracts the data the runtime needs. That data stays on your device.
 <details>
 <summary>Can I download a playable IPA?</summary>
 
-No. The [Preview 4 prerelease](https://github.com/chrissotraidis/meleepad/releases/tag/v0.1.0-preview.4)
+No. The [Preview 5 prerelease](https://github.com/chrissotraidis/meleepad/releases/tag/v0.1.0-preview.5)
 includes source and an unsigned, module-free IPA shell for inspection and
-signing-workflow development. It deliberately excludes
-`gGALE01_recomp.dylib`, and `gGALE01r2_recomp.dylib`, so importing an ISO into that IPA cannot make it
-playable.
+signing-workflow development. It excludes the generated game and Slippi modules,
+so importing an ISO or Slippi account into that IPA cannot make it playable.
 
 A playable iPhone or iPad build must be generated locally from your own
-supported disc image on an Apple Silicon Mac, then signed with your Apple
-development account. Start with the [requirements](../README.md#requirements), follow the
+supported disc image, then signed with your Apple development account. The
+documented and validated build path uses an Apple Silicon Mac. Start with the
+[requirements](../README.md#requirements), follow the
 [physical-device build steps](../README.md#build-for-a-physical-iphone-or-ipad), and finish
 with [first-launch game-data import](../README.md#first-launch-on-iphone-or-ipad).
+
+An Intel Mac can sideload an already complete, appropriately signed iPhone/iPad
+IPA. The current playable-build workflow is documented and tested on Apple
+Silicon; an Intel-only build path is not currently validated. Signing or
+sideloading the public module-free IPA will not add the missing modules.
 
 </details>
 
@@ -297,7 +302,8 @@ working. Treat four-seat rooms as development UI until that gate passes.
 Yes. Preview 5 adds MeleePad-supported Slippi integration for iOS/iPadOS, with
 completed Unranked matches verified on the maintainer's physical iPad. Download
 your own `user.json` from [Slippi](https://slippi.gg/online/enable), save it in
-Files, then select **Slippi Multiplayer → SET UP SLIPPI → Import Account**.
+Files, then select **Slippi Multiplayer → SET UP SLIPPI → Import Account**
+after installing a complete build with the matching module and game data.
 See the [step-by-step README guide](../README.md#import-your-slippi-profile-on-iphone-or-ipad).
 
 The public IPA is still an unsigned, module-free shell. Profile import alone
