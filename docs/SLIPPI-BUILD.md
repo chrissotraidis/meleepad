@@ -23,6 +23,13 @@ xcodebuild -project MeleePad.xcodeproj -scheme MeleePad -configuration Release \
 bash scripts/package-public-ios-ipa.sh build-release/Build/Products/Release-iphoneos/MeleePad.app
 ```
 
+The [Intel build probe](../.github/workflows/intel-ios-shell-build.yml) also
+passed on a GitHub-hosted x86_64 Mac: it built the host `dolrecomp` compiler,
+cross-built the ARM64 iOS app, and passed the unsigned module-free IPA audit.
+That verifies the public shell build on Intel, not generation of the private
+game/Slippi modules, signing, or playable iPhone/iPad operation. The complete
+Intel-only path remains unvalidated.
+
 The Rust build requires a new output directory. Preserve or relocate an existing
 `build-slippi-device/rust` before rebuilding; old archives are never silently reused.
 The pinned RecompCore `SlippiAdapter` holds the C++ adapter, upstream externals
