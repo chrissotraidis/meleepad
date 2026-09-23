@@ -74,6 +74,9 @@ match or repair packet loss or local performance stalls.
 The ready-to-play home card now flags Low Power Mode or serious heat before a
 Slippi run. Startup diagnostics record those conditions and the screen refresh
 rate to help interpret a later timing report; this is advice, not a network fix.
+The card also updates when the device's network path becomes unavailable or
+cellular-only. A usable path does not prove Slippi's servers are reachable or
+measure latency, so this guidance does not block starting a match.
 
 ## Import your Slippi profile
 
@@ -83,6 +86,8 @@ is separate from preparing the game and native module.
 The account stays in this device's Keychain. A temporary plaintext copy is
 needed while the native runtime runs; the next app startup removes any copy
 left by a force-quit without deleting run diagnostics or the imported account.
+To switch accounts later, use **Home → Settings → Slippi Account**. A successful
+replacement returns to Home; it does not start a match.
 
 ## Modes and support boundary
 
