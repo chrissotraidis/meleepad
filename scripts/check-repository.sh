@@ -42,6 +42,7 @@ tests/test-benchmark-route.sh
 tests/test-pipe-short-tap-latching.sh
 tests/test-controller-mapping.sh
 tests/test-controller-slots.sh
+tests/test-slippi-delay-settings.sh
 tests/test-diagnostics.sh
 tests/test-offline-cheats.sh
 tests/test-macos-diagnostics-export.sh

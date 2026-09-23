@@ -37,6 +37,9 @@ bootloader and matching game resources. The diagnostic generation scripts under
 `scripts/build-slippi-*.py` document the current private pipeline through their
 `--help` options. This remains a developer workflow, not a turnkey end-user
 on-device compiler. A base offline module is not a substitute for a Slippi module.
+Native Slippi currently starts only with USA v1.02. A v1.00 import remains
+usable for standalone play; choose or import v1.02 for the Slippi route. The
+home card reports this version mismatch before requesting your account.
 
 The supported, owner-tested preparation path uses an Apple Silicon Mac. An
 Intel Mac can sign or sideload an already complete ARM64 iPhone/iPad IPA, but
@@ -51,6 +54,12 @@ Retain the source pin, executable and module hashes, settings/code-set identity,
 compiler and SDK versions for each test build. Verify the app's readiness message
 before entering online play. Update existing devices in place with the same
 bundle identifier and signing team to preserve user data.
+
+Home **Settings → Slippi Input Delay** selects 1–4 local input-delay frames
+(default 2). The choice is captured when the next native Slippi session starts and sent
+to Slippi's existing online-delay configuration. It is separate from the older
+experimental lobby's buffer setting. Changing it does not alter a running
+match or repair packet loss or local performance stalls.
 
 ## Import your Slippi profile
 

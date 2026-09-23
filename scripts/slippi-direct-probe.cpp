@@ -24,6 +24,7 @@
 #include "VideoCommon/VideoConfig.h"
 #include "VideoCommon/PerformanceMetrics.h"
 #include <enet/enet.h>
+#include <algorithm>
 #include <chrono>
 #include <cstdlib>
 #include <dlfcn.h>
@@ -137,6 +138,7 @@ bool WriteCheckpoint(const std::filesystem::path& root, const char* phase,
 
 int SlippiDirectMain(const char* game, const char* iso, const char* module,
                     const char* user, const std::string& account, void* surface,
+                    int input_delay_frames,
                     const std::function<void()>& on_runtime_ready) {
   const auto runtime_user = std::filesystem::path(user);
   const auto run_root = runtime_user.parent_path();
@@ -243,6 +245,12 @@ int SlippiDirectMain(const char* game, const char* iso, const char* module,
     WriteCheckpoint(run_root, "failed", "revision", false);
     return 4;
   }
+  // Capture the launch selection once. EXI reads this setting both for the
+  // delay response and the online match block; changing the saved preference
+  // during a match must not alter that match.
+  const int selected_delay_frames = std::clamp(input_delay_frames, 1, 4);
+  Config::SetCurrent(Config::SLIPPI_ONLINE_DELAY, selected_delay_frames);
+  Config::SetBase(Config::SLIPPI_ONLINE_DELAY, selected_delay_frames);
   Config::SetCurrent(Config::GetInfoForSIDevice(0), SerialInterface::SIDEVICE_GC_CONTROLLER);
   for (int i=1; i<4; ++i) Config::SetCurrent(Config::GetInfoForSIDevice(i), SerialInterface::SIDEVICE_NONE);
   Pad::GetConfig()->GetController(0)->SetInputOverrideFunction(
@@ -516,7 +524,9 @@ int SlippiDirectMain(const char* game, const char* iso, const char* module,
   SlippiCompat::game_frame_observer={};
   const bool trace_written=trace->Write(user); timing->Write(); audio->Write(user);
   std::ofstream report(config.user_directory/"direct-runtime.json");
-  report << "{\"boot_error\":" << bool(result.error) << ",\"memory_errors\":" << memory_errors.load()
+  report << "{\"boot_error\":" << bool(result.error)
+         << ",\"slippi_input_delay_frames\":" << selected_delay_frames
+         << ",\"memory_errors\":" << memory_errors.load()
          << ",\"graphics_errors\":" << graphics_errors.load() << ",\"direct_searches\":" << SlippiDirectProbe::direct_searches.load()
          << ",\"unranked_searches\":" << SlippiDirectProbe::unranked_searches.load()
          << ",\"ranked_searches\":" << SlippiDirectProbe::ranked_searches.load()
