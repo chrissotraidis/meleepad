@@ -60,6 +60,14 @@ class ReplayComparisonTests(unittest.TestCase):
         self.assertEqual((result["outcome"], result["frame"], result["field"]),
                          ("divergent", 0, "pre.state"))
 
+    def test_unmapped_frame_byte_is_still_compared(self):
+        altered = bytearray(replay())
+        pre_start = altered.index(b"\x37", 12 + 14 + 4) + 1
+        altered[pre_start + 0x42] = 1
+        result = self.compare(replay(), altered)
+        self.assertEqual((result["outcome"], result["field"], result["offset"]),
+                         ("divergent", "pre.raw_byte", 0x42))
+
     def test_missing_frame_or_follower_cannot_pass(self):
         self.assertEqual(self.compare(replay(), replay(frames=(0,)))["outcome"],
                          "incomplete")

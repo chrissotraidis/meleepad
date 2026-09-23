@@ -57,10 +57,20 @@ def compare(recorded, reference):
                     return {"outcome": "divergent", "frame": key[0], "port": key[1],
                             "follower": key[2], "field": f"{label}.{field}",
                             "recorded": left[field], "reference": right[field]}
+            command = 0x37 if label == "pre" else 0x38
+            left_body = a.event_bodies[command][key]
+            right_body = b.event_bodies[command][key]
+            if left_body != right_body:
+                offset = next((i for i, (x, y) in enumerate(zip(left_body, right_body))
+                               if x != y), min(len(left_body), len(right_body)))
+                return {"outcome": "divergent", "frame": key[0], "port": key[1],
+                        "follower": key[2], "field": f"{label}.raw_byte",
+                        "offset": offset, "recorded": left_body[offset:offset + 1].hex(),
+                        "reference": right_body[offset:offset + 1].hex()}
     if a.game_end != b.game_end:
         return {"outcome": "divergent", "field": "game_end",
                 "recorded": a.game_end, "reference": b.game_end}
-    return {"outcome": "equivalent", "scope": "finalized frame fields only",
+    return {"outcome": "equivalent", "scope": "finalized frame payloads and game end only",
             "version": a.version,
             "frames": len({frame for frame, _, _ in a.post}),
             "players": len(a.players()),

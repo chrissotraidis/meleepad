@@ -80,6 +80,7 @@ class Replay:
             sizes[cmd] = struct.unpack(">H", raw[3 + 3 * k:5 + 3 * k])[0]
         self.pre, self.post = {}, {}
         self.history = {0x37: {}, 0x38: {}}
+        self.event_bodies = {0x37: {}, 0x38: {}}
         self.version = None
         self.game_end = None
         pos = 1 + raw[1]
@@ -114,6 +115,7 @@ class Replay:
                     raise ValueError(f"{path}: frame event lacks required fields")
                 key = (frame, port, follower)
                 self.history[cmd].setdefault(key, []).append(rec)
+                self.event_bodies[cmd][key] = body
                 (self.pre if cmd == 0x37 else self.post)[key] = rec
             elif cmd == 0x39:
                 if not body:
