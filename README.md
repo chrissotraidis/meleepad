@@ -356,12 +356,15 @@ Slippi account; MeleePad does not include a shared account.
    in **Files**.
 2. Make sure `user.json` is available in **Files → Downloads** (under iCloud Drive
    or On My iPhone/iPad, depending on your Safari download setting).
-3. Open MeleePad. On the home screen, find **Slippi Multiplayer** and tap
-   **SET UP SLIPPI**.
-4. Tap **Import Account**, then select your `user.json` in the Files picker.
-5. After import, MeleePad attempts to start Slippi. On subsequent launches, the
-   home card shows **PLAY SLIPPI** and “account ready.” Start with **Unranked**;
-   Ranked follows Slippi's subscription/free-day eligibility.
+3. Install a locally built, signed app with the matching native Slippi module
+   and import your supported game data. The home card shows which of these is
+   missing; **SET UP SLIPPI → Build Instructions** explains a missing module.
+4. On the home screen, tap **SET UP SLIPPI**.
+5. Tap **Import Account**, then select your `user.json` in the Files picker.
+6. After import, MeleePad attempts to start Slippi. On subsequent launches, the
+   home card shows **PLAY SLIPPI** when game data, module and account are present.
+   Start with **Unranked**. Ranked follows Slippi's subscription/free-day
+   eligibility.
 
 **Account import does not install the game or native module.** The downloadable
 unsigned IPA is a module-free shell. You still need a locally signed playable
