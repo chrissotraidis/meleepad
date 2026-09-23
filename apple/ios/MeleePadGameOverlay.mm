@@ -731,6 +731,14 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
         [weakSelf.delegate gameOverlayRequestsRecentReplays:weakSelf];
     }];
 
+    UIAction *accountAction =
+        [UIAction actionWithTitle:@"Import or Replace Slippi Account…"
+                            image:[UIImage systemImageNamed:@"person.crop.circle.badge.checkmark"]
+                       identifier:nil handler:^(__kindof UIAction *action) {
+        (void)action;
+        [weakSelf.delegate gameOverlayRequestsSlippiAccountImport:weakSelf];
+    }];
+
     UIAction *dpadAction = [UIAction actionWithTitle:@"Show D-Pad"
         image:[UIImage systemImageNamed:@"dpad"] identifier:nil handler:^(__kindof UIAction *action) {
         NSUserDefaults *defaults = NSUserDefaults.standardUserDefaults;
@@ -801,7 +809,8 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
 
     if (startup) {
         return [UIMenu menuWithTitle:@"MeleePad Settings" children:@[
-            displayMenu, slippiDelayMenu, replaysAction, dataMenu, reportProblemAction,
+            displayMenu, slippiDelayMenu, accountAction, replaysAction,
+            dataMenu, reportProblemAction,
         ]];
     }
 

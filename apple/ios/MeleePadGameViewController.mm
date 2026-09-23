@@ -285,7 +285,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 - (void)playSlippiFromHome;
 - (BOOL)checkSlippiInstallForRevision:(NSInteger)revision;
 - (BOOL)hasSlippiModuleForRevision:(NSInteger)revision;
-- (void)presentSlippiAccountImport;
+- (void)presentSlippiAccountImportAndStart:(BOOL)startAfterImport;
 - (void)startSlippiFromCurrentGame;
 - (void)gameOverlayRequestsExitToHome:(MeleePadGameOverlay *)overlay;
 - (void)publishInputFromController:(GCController *)controller
@@ -316,6 +316,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     BOOL _playRequested;
     BOOL _slippiRequested;
     BOOL _slippiAccountImportPending;
+    BOOL _slippiAccountImportStartsGame;
     MeleePadControllerSlots _controllerSlots;
     NSMutableDictionary<NSNumber *, GCController *> *_configuredControllers;
     CGSize _lastLoggedDrawableSize;
@@ -1042,7 +1043,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
         _slippiHost = [[MeleePadSlippiHost alloc]
             initWithLayer:(CAMetalLayer *)_gameView.layer];
     if (![_slippiHost hasImportedAccount]) {
-        [self presentSlippiAccountImport];
+        [self presentSlippiAccountImportAndStart:YES];
         return;
     }
     [self startSlippiFromCurrentGame];
@@ -1067,7 +1068,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     if (![self checkSlippiInstallForRevision:revision])
         return;
     if (![_slippiHost hasImportedAccount]) {
-        [self presentSlippiAccountImport];
+        [self presentSlippiAccountImportAndStart:YES];
         return;
     }
     _slippiRequested = YES;
@@ -1799,6 +1800,15 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 
 #pragma mark - MeleePadGameOverlayDelegate
 
+- (void)gameOverlayRequestsSlippiAccountImport:(MeleePadGameOverlay *)overlay {
+    (void)overlay;
+    if (_slippiHost.isRunning) {
+        [self presentBootError:@"Return to Home before changing the Slippi account."];
+        return;
+    }
+    [self presentSlippiAccountImportAndStart:NO];
+}
+
 - (void)gameOverlayRequestsRecentReplays:(MeleePadGameOverlay *)overlay {
     (void)overlay;
     if (_slippiHost.isRunning) {
@@ -2372,7 +2382,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     [self presentViewController:alert animated:YES completion:nil];
 }
 
-- (void)presentSlippiAccountImport {
+- (void)presentSlippiAccountImportAndStart:(BOOL)startAfterImport {
     if (_slippiHost == nil)
         _slippiHost = [[MeleePadSlippiHost alloc]
             initWithLayer:(CAMetalLayer *)_gameView.layer];
@@ -2392,6 +2402,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
         if (strongSelf == nil)
             return;
         strongSelf->_slippiAccountImportPending = YES;
+        strongSelf->_slippiAccountImportStartsGame = startAfterImport;
         UIDocumentPickerViewController *picker =
             [[UIDocumentPickerViewController alloc] initForOpeningContentTypes:@[UTTypeJSON]
                                                                            asCopy:NO];
@@ -2518,10 +2529,15 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls {
     (void)controller;
     NSURL *url = urls.firstObject;
-    if (url == nil)
+    if (url == nil) {
+        _slippiAccountImportPending = NO;
+        _slippiAccountImportStartsGame = NO;
         return;
+    }
     if (_slippiAccountImportPending) {
         _slippiAccountImportPending = NO;
+        BOOL startAfterImport = _slippiAccountImportStartsGame;
+        _slippiAccountImportStartsGame = NO;
         BOOL securityScoped = [url startAccessingSecurityScopedResource];
         NSNumber *isRegular = nil;
         NSNumber *fileSize = nil;
@@ -2541,7 +2557,20 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
             return;
         }
         MeleePadLog(@"Slippi account imported into device-only Keychain");
-        [self playSlippiFromHome];
+        if (startAfterImport) {
+            [self playSlippiFromHome];
+        } else {
+            if (_homeView != nil)
+                [self showHomeForRevision:MeleePadRevisionAtRoot(
+                    [MeleePadSettings sharedSettings].extractedGameRoot)];
+            UIAlertController *updated = [UIAlertController
+                alertControllerWithTitle:@"Slippi Account Ready"
+                                message:@"The account on this device was updated. Choose Play Slippi when you're ready."
+                         preferredStyle:UIAlertControllerStyleAlert];
+            [updated addAction:[UIAlertAction actionWithTitle:@"OK"
+                style:UIAlertActionStyleDefault handler:nil]];
+            [self presentViewController:updated animated:YES completion:nil];
+        }
         return;
     }
     [self importGameDataFromURL:url];
@@ -2550,6 +2579,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 - (void)documentPickerWasCancelled:(UIDocumentPickerViewController *)controller {
     (void)controller;
     _slippiAccountImportPending = NO;
+    _slippiAccountImportStartsGame = NO;
 }
 
 - (void)importGameDataFromURL:(NSURL *)url {

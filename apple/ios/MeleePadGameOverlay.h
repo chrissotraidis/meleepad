@@ -21,6 +21,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)gameOverlayRequestsOnlinePlay:(MeleePadGameOverlay *)overlay;
 /* The user asked to choose and explicitly share a saved Slippi replay. */
 - (void)gameOverlayRequestsRecentReplays:(MeleePadGameOverlay *)overlay;
+/* Manage the device's private Slippi account from Home Settings. */
+- (void)gameOverlayRequestsSlippiAccountImport:(MeleePadGameOverlay *)overlay;
 /* The saved Slippi delay changed; refresh the home Settings menu if visible. */
 - (void)gameOverlaySlippiDelayDidChange:(MeleePadGameOverlay *)overlay;
 /* The user asked to stop the active runtime and return to the launcher. */
