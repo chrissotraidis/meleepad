@@ -126,4 +126,5 @@ inline void ObserveMatchmakingState(int state) {
 }
 int SlippiDirectMain(const char* game, const char* iso, const char* module,
                     const char* user, const std::string& account, void* surface,
+                    int input_delay_frames = 2,
                     const std::function<void()>& on_runtime_ready = {});

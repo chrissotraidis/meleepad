@@ -760,6 +760,29 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
         [weakSelf.delegate gameOverlayRequestsOnlinePlay:weakSelf];
     }];
 
+    NSMutableArray<UIAction *> *delayActions = [NSMutableArray array];
+    for (NSInteger frames = 1; frames <= 4; ++frames) {
+        UIAction *delayAction = [UIAction actionWithTitle:
+            [NSString stringWithFormat:@"%ld frame%@%@", (long)frames,
+                frames == 1 ? @"" : @"s", frames == 2 ? @" · Default" : @""]
+            image:nil identifier:nil handler:^(__kindof UIAction *action) {
+                (void)action;
+                MeleePadSettings *current = [MeleePadSettings sharedSettings];
+                current.slippiInputDelayFrames = frames;
+                [current synchronize];
+                [weakSelf refreshMenuButton];
+                [weakSelf.delegate gameOverlaySlippiDelayDidChange:weakSelf];
+            }];
+        delayAction.state = settings.slippiInputDelayFrames == frames ?
+            UIMenuElementStateOn : UIMenuElementStateOff;
+        [delayActions addObject:delayAction];
+    }
+    UIMenu *slippiDelayMenu = [UIMenu menuWithTitle:
+        [NSString stringWithFormat:@"Slippi Input Delay · %ldF (next run)",
+            (long)settings.slippiInputDelayFrames]
+        image:[UIImage systemImageNamed:@"clock"]
+        identifier:nil options:0 children:delayActions];
+
     UIAction *exitToHomeAction =
         [UIAction actionWithTitle:@"Exit to Home"
                             image:[UIImage systemImageNamed:@"rectangle.portrait.and.arrow.right"]
@@ -770,13 +793,14 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
 
     if (startup) {
         return [UIMenu menuWithTitle:@"MeleePad Settings" children:@[
-            displayMenu, dataMenu, reportProblemAction,
+            displayMenu, slippiDelayMenu, dataMenu, reportProblemAction,
         ]];
     }
 
     return [UIMenu menuWithTitle:[NSString stringWithFormat:@"MeleePad · %@",
         MeleePadRevisionLabel(MeleePadRevisionAtRoot(settings.extractedGameRoot))] children:@[
         onlinePlayAction,
+        slippiDelayMenu,
         exitToHomeAction,
         displayMenu,
         fpsAction,

@@ -44,6 +44,19 @@
         [[NSUserDefaults standardUserDefaults] setInteger:revision forKey:@"MeleePadGameRevision"];
 }
 
+- (NSInteger)slippiInputDelayFrames {
+    NSNumber *value = [[NSUserDefaults standardUserDefaults]
+        objectForKey:@"MeleePadSlippiInputDelayFrames"];
+    if (value == nil)
+        return 2;
+    return MAX(1, MIN(4, value.integerValue));
+}
+
+- (void)setSlippiInputDelayFrames:(NSInteger)frames {
+    [[NSUserDefaults standardUserDefaults]
+        setInteger:MAX(1, MIN(4, frames)) forKey:@"MeleePadSlippiInputDelayFrames"];
+}
+
 - (NSInteger)renderScale {
     NSNumber *value = [[NSUserDefaults standardUserDefaults] objectForKey:@"MeleePadRenderScale"];
     if (value == nil)
