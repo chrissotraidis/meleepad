@@ -24,6 +24,11 @@ The Apple integration builds on SunPad. Melee decompilation, m-ex, and Slippi
 sources retain their original notices and attribution. Their presence as research
 references does not imply that every reference is linked into a public build.
 
+The offline replay reader at `third_party/dashdance/slp.py` derives from
+DashDance's `tools/mac/slp.py`, distributed under GPL-2.0-or-later. Its pinned
+source commit, original hash, local changes, and GPL-2.0 text are preserved in
+`third_party/dashdance/`. It is a developer tool, not linked into the app.
+
 For each release, retain the exact app revision, dependency base commits and
 patches, build instructions, original third-party license texts, and the source
 corresponding to the code actually distributed. Include notices with the binary,
