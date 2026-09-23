@@ -83,6 +83,7 @@ class Replay:
         self.event_bodies = {0x37: {}, 0x38: {}}
         self.version = None
         self.game_end = None
+        self.game_end_body = None
         pos = 1 + raw[1]
         while pos < len(raw):
             cmd = raw[pos]
@@ -121,6 +122,7 @@ class Replay:
                 if not body:
                     raise ValueError(f"{path}: empty game end event")
                 self.game_end = body[0]
+                self.game_end_body = body
             pos += 1 + size
         if self.version is None:
             raise ValueError(f"{path}: missing game start")
