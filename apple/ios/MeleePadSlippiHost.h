@@ -19,6 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_UNAVAILABLE;
 
 - (BOOL)hasImportedAccount;
++ (NSUInteger)removeAbandonedAccountCopiesAtUserDirectory:(NSString *)userDirectory;
 - (BOOL)storeAccountData:(NSData *)data error:(NSString *_Nullable *_Nullable)error;
 - (BOOL)removeImportedAccount;
 - (NSString *)matchmakingStatusSummary;

@@ -73,6 +73,9 @@ match or repair packet loss or local performance stalls.
 Follow the [README account-import steps](../README.md#import-your-slippi-profile-on-iphone-or-ipad): download your own `user.json`, save it in Files, then choose
 **Slippi Multiplayer → SET UP SLIPPI → Import Account**. The account import
 is separate from preparing the game and native module.
+The account stays in this device's Keychain. A temporary plaintext copy is
+needed while the native runtime runs; the next app startup removes any copy
+left by a force-quit without deleting run diagnostics or the imported account.
 
 ## Modes and support boundary
 
