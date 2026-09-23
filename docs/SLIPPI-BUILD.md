@@ -47,6 +47,10 @@ on-device compiler. A base offline module is not a substitute for a Slippi modul
 Native Slippi currently starts only with USA v1.02. A v1.00 import remains
 usable for standalone play; choose or import v1.02 for the Slippi route. The
 home card reports this version mismatch before requesting your account.
+Home and runtime boot now use the same retained-disc lookup. If extracted files
+remain but the disc image is gone, Home offers reimport before starting either
+game mode. A moved app container is handled by finding the image in the current
+game-data folder; a declared private QA bundle image remains a valid fallback.
 When the game, module and account are ready, the home card also flags Low Power
 Mode, serious heat, or a wireless audio route that can affect timing. Audio
 advice refreshes when the output route changes; these are guidance, not blocks
