@@ -289,8 +289,9 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 - (void)presentGameDataImport;
 - (void)presentGameDataFolderImport;
 - (void)playSlippiFromHome;
+- (void)presentOriginalModuleSetup;
 - (BOOL)checkSlippiInstallForRevision:(NSInteger)revision;
-- (BOOL)hasSlippiModuleForRevision:(NSInteger)revision;
+- (BOOL)hasNativeModuleForRevision:(NSInteger)revision slippi:(BOOL)slippi;
 - (NSString *)availableDiscImagePathForRevision:(NSInteger)revision;
 - (void)presentSlippiAccountImportAndStart:(BOOL)startAfterImport;
 - (void)startSlippiFromCurrentGame;
@@ -1034,6 +1035,15 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 }
 
 - (void)playFromHome {
+    NSInteger revision = MeleePadRevisionAtRoot([MeleePadSettings sharedSettings].extractedGameRoot);
+    if ([self availableDiscImagePathForRevision:revision].length == 0) {
+        [self presentGameDataImport];
+        return;
+    }
+    if (![self hasNativeModuleForRevision:revision slippi:NO]) {
+        [self presentOriginalModuleSetup];
+        return;
+    }
     _slippiRequested = NO;
     _playRequested = YES;
     [_homeView removeFromSuperview];
@@ -1087,21 +1097,39 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     [self startGameIfProvisioned];
 }
 
-- (BOOL)hasSlippiModuleForRevision:(NSInteger)revision {
-    // The native Slippi host accepts only USA v1.02, even if an older
-    // standalone module is present for the selected v1.00 installation.
-    if (revision != 2)
+- (BOOL)hasNativeModuleForRevision:(NSInteger)revision slippi:(BOOL)slippi {
+    // The resolver reads the selected revision from Settings. Check that the
+    // Home revision matches it before claiming either module is available.
+    if (revision < 0 || revision != [MeleePadSettings sharedSettings].gameRevision ||
+        (slippi && revision != 2))
         return NO;
     NSString *configPath = [NSBundle.mainBundle pathForResource:@"dev-config" ofType:@"plist"];
     NSDictionary *config = configPath ? [NSDictionary dictionaryWithContentsOfFile:configPath] : @{};
-    NSString *modulePath = [self modulePathFromConfiguration:config forSlippi:YES];
+    NSString *modulePath = [self modulePathFromConfiguration:config forSlippi:slippi];
     if (modulePath.length == 0 || ![[NSFileManager defaultManager] fileExistsAtPath:modulePath])
         return NO;
+    if (revision != 2)
+        return YES;
     NSString *identity = [NSString stringWithContentsOfFile:
         [modulePath stringByAppendingString:@".dol-sha256"]
         encoding:NSUTF8StringEncoding error:nil];
     identity = [identity stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
     return [identity isEqualToString:MeleePadRevision(revision)[@"dol_sha256"]];
+}
+
+- (void)presentOriginalModuleSetup {
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Finish Melee Setup"
+        message:@"Your game data is ready, but this build has no matching native game module. The public IPA is a module-free shell; reimporting the disc cannot add the module. Build and sign a complete app on your Mac."
+        preferredStyle:UIAlertControllerStyleAlert];
+    [alert addAction:[UIAlertAction actionWithTitle:@"Build Instructions"
+        style:UIAlertActionStyleDefault handler:^(__kindof UIAlertAction *action) {
+            (void)action;
+            NSURL *url = [NSURL URLWithString:@"https://github.com/chrissotraidis/meleepad/blob/main/docs/SLIPPI-BUILD.md"];
+            [UIApplication.sharedApplication openURL:url options:@{} completionHandler:nil];
+        }]];
+    [alert addAction:[UIAlertAction actionWithTitle:@"Close"
+        style:UIAlertActionStyleCancel handler:nil]];
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 - (NSString *)availableDiscImagePathForRevision:(NSInteger)revision {
@@ -1124,7 +1152,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 }
 
 - (BOOL)checkSlippiInstallForRevision:(NSInteger)revision {
-    BOOL moduleReady = [self hasSlippiModuleForRevision:revision];
+    BOOL moduleReady = [self hasNativeModuleForRevision:revision slippi:YES];
     BOOL discReady = revision == 2 &&
         [self availableDiscImagePathForRevision:revision].length > 0;
     if (revision == 2 && moduleReady && discReady)
@@ -1177,7 +1205,10 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     BOOL gameFilesReady = revision >= 0;
     BOOL discReady = gameFilesReady &&
         [self availableDiscImagePathForRevision:revision].length > 0;
-    BOOL ready = gameFilesReady && discReady;
+    BOOL gameDataReady = gameFilesReady && discReady;
+    BOOL originalModuleReady = [self hasNativeModuleForRevision:revision slippi:NO];
+    BOOL originalReady = gameDataReady && originalModuleReady;
+    BOOL slippiModuleReady = [self hasNativeModuleForRevision:revision slippi:YES];
     BOOL compact = CGRectGetHeight(self.view.bounds) < 500;
     UIColor *amber = [UIColor colorWithRed:1 green:0.69 blue:0.20 alpha:1];
     UIColor *muted = [UIColor colorWithRed:0.66 green:0.72 blue:0.86 alpha:1];
@@ -1233,7 +1264,8 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     content.translatesAutoresizingMaskIntoConstraints = NO;
     [panel addSubview:content];
     UILabel *eyebrow = [UILabel new];
-    eyebrow.text = ready ? @"CHOOSE YOUR EXPERIENCE" : @"BUILD YOUR SETUP";
+    eyebrow.text = originalReady || (gameDataReady && slippiModuleReady)
+        ? @"CHOOSE YOUR EXPERIENCE" : @"BUILD YOUR SETUP";
     eyebrow.font = [UIFont systemFontOfSize:11 weight:UIFontWeightHeavy];
     eyebrow.textColor = amber;
     [content addArrangedSubview:eyebrow];
@@ -1243,12 +1275,12 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     title.textColor = UIColor.whiteColor;
     [content addArrangedSubview:title];
     _homeStatusLabel = [UILabel new];
-    _homeStatusLabel.text = ready
-        ? [NSString stringWithFormat:@"%@  ·  Installed", MeleePadRevisionLabel(revision)]
+    _homeStatusLabel.text = gameDataReady
+        ? [NSString stringWithFormat:@"%@  ·  Game data ready", MeleePadRevisionLabel(revision)]
         : gameFilesReady ? @"Game files found · retained disc image missing."
         : @"Bring your own USA v1.02 or v1.00 disc image.";
     _homeStatusLabel.font = [UIFont systemFontOfSize:compact ? 13 : 15 weight:UIFontWeightMedium];
-    _homeStatusLabel.textColor = ready ? [UIColor colorWithRed:0.42 green:0.89 blue:0.75 alpha:1] : muted;
+    _homeStatusLabel.textColor = gameDataReady ? [UIColor colorWithRed:0.42 green:0.89 blue:0.75 alpha:1] : muted;
     _homeStatusLabel.numberOfLines = 0;
     [content addArrangedSubview:_homeStatusLabel];
 
@@ -1316,19 +1348,21 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 
     [choices addArrangedSubview:(makeChoiceCard(
         @"Original Melee",
-        ready ? [NSString stringWithFormat:@"%@ installed · standalone play", MeleePadRevisionLabel(revision)]
+        originalReady ? [NSString stringWithFormat:@"%@ ready · standalone play", MeleePadRevisionLabel(revision)]
+              : gameDataReady ? @"Matching native game module missing · build a complete app."
               : gameFilesReady ? @"Reimport your disc image to restore local play."
               : @"Play the original game locally with your imported disc image.",
-        ready ? @"PLAY MELEE" : @"IMPORT GAME DATA",
-        [UIImage systemImageNamed:ready ? @"play.fill" : @"square.and.arrow.down"],
+        originalReady ? @"PLAY MELEE" : gameDataReady ? @"BUILD TO PLAY" : @"IMPORT GAME DATA",
+        [UIImage systemImageNamed:originalReady ? @"play.fill" :
+            gameDataReady ? @"hammer.fill" : @"square.and.arrow.down"],
         amber,
-        ready ? @selector(playFromHome) : @selector(presentGameDataImport),
-        ready ? @"home.play" : @"home.import"))];
+        originalReady ? @selector(playFromHome) :
+            gameDataReady ? @selector(presentOriginalModuleSetup) : @selector(presentGameDataImport),
+        originalReady ? @"home.play" : gameDataReady ? @"home.build" : @"home.import"))];
 
     MeleePadSlippiHost *slippiHost = _slippiHost;
     if (slippiHost == nil)
         slippiHost = [[MeleePadSlippiHost alloc] initWithLayer:(CAMetalLayer *)_gameView.layer];
-    BOOL slippiModuleReady = [self hasSlippiModuleForRevision:revision];
     BOOL slippiAccountReady = [slippiHost hasImportedAccount];
     NSString *slippiDetail = nil;
     if (!gameFilesReady)
@@ -2445,7 +2479,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
             continue;
         BOOL discReady = [self availableDiscImagePathForRevision:revision].length > 0;
         NSString *title = [NSString stringWithFormat:@"%@ %@",
-            discReady ? @"Play" : @"Reimport",
+            discReady ? @"Select" : @"Reimport",
             MeleePadRevisionLabel(revision)];
         [choice addAction:[UIAlertAction actionWithTitle:title style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
             MeleePadGameViewController *strongSelf = weakSelf;

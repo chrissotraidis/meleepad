@@ -51,6 +51,10 @@ Home and runtime boot now use the same retained-disc lookup. If extracted files
 remain but the disc image is gone, Home offers reimport before starting either
 game mode. A moved app container is handled by finding the image in the current
 game-data folder; a declared private QA bundle image remains a valid fallback.
+The Original Melee card also checks for its matching native module. A public
+module-free shell points to build instructions instead of offering Play after
+game-data import; selecting another installed revision returns to Home to show
+that revision's readiness.
 When the game, module and account are ready, the home card also flags Low Power
 Mode, serious heat, or a wireless audio route that can affect timing. Audio
 advice refreshes when the output route changes; these are guidance, not blocks
