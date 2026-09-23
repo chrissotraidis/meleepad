@@ -1,0 +1,47 @@
+name: Intel iOS build probe
+on:
+  pull_request:
+    paths:
+      - .github/workflows/intel-ios-shell-build.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  intel-ios-shell-build:
+    runs-on: macos-15-intel
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Verify Intel host and toolchain
+        run: |
+          test "$(uname -m)" = x86_64
+          uname -m
+          xcodebuild -version
+          brew install cmake ninja ripgrep
+      - name: Check out pinned source graph
+        run: bash scripts/bootstrap-dependencies.sh
+      - name: Build the host compiler
+        run: |
+          cmake -S ref/ModernGekko/vendor/dolphin/DolRecomp \
+            -B build-intel-dolrecomp -G Ninja -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-intel-dolrecomp --target dolrecomp -j 4
+          test "$(lipo -archs build-intel-dolrecomp/dolrecomp)" = x86_64
+      - name: Cross-build the module-free iOS app
+        env:
+          MELEEPAD_CI: "1"
+        run: |
+          bash scripts/ios-build-core-device.sh --core-only
+          rustup toolchain install 1.88.0 --profile minimal
+          rustup target add --toolchain 1.88.0 aarch64-apple-ios
+          python3 scripts/build-slippi-dependencies.py
+          bash scripts/ios-provision.sh device
+          xcodebuild -project MeleePad.xcodeproj -scheme MeleePad \
+            -configuration Release -destination 'generic/platform=iOS' \
+            -derivedDataPath build-intel-ios CODE_SIGNING_ALLOWED=NO build
+          bash scripts/package-public-ios-ipa.sh \
+            build-intel-ios/Build/Products/Release-iphoneos/MeleePad.app \
+            artifacts/MeleePad-intel-build-probe-module-free-unsigned.ipa
+      - name: Verify pinned sources remain unchanged
+        run: python3 scripts/dependency-lock.py
