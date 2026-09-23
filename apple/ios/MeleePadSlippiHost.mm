@@ -121,6 +121,11 @@ static void MeleePadSlippiWriteWorkerFinished(const std::filesystem::path &runRo
     return MeleePadSlippiReadAccount() != nil;
 }
 
++ (NSUInteger)removeAbandonedAccountCopiesAtUserDirectory:(NSString *)userDirectory {
+    return SlippiProbeAccount::RemoveAbandonedRuntimeCopies(
+        std::filesystem::path(userDirectory.fileSystemRepresentation) / "SlippiDirectRuns");
+}
+
 - (NSString *)matchmakingStatusSummary {
     if (!self.isRunning)
         return @"Slippi is not running.";

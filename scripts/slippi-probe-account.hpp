@@ -3,6 +3,7 @@
 // This validates a local file only; Slippi's service still authenticates the key.
 #include <nlohmann/json.hpp>
 #include <array>
+#include <cctype>
 #include <cerrno>
 #include <filesystem>
 #include <fcntl.h>
@@ -11,6 +12,46 @@
 #include <unistd.h>
 
 namespace SlippiProbeAccount {
+inline bool IsRunId(const std::string& name) {
+  if (name.size() != 36) return false;
+  for (size_t i = 0; i < name.size(); ++i) {
+    if (i == 8 || i == 13 || i == 18 || i == 23) {
+      if (name[i] != '-') return false;
+    } else if (!std::isxdigit(static_cast<unsigned char>(name[i]))) {
+      return false;
+    }
+  }
+  return true;
+}
+
+// A force-quit skips RuntimeCopy's destructor. On the next app startup, remove
+// only the temporary plaintext account in our own completed or interrupted
+// run directories; leave replays, diagnostics, saves and the Keychain alone.
+inline size_t RemoveAbandonedRuntimeCopies(const std::filesystem::path& runs) {
+  auto real_directory = [](const std::filesystem::path& path) {
+    std::error_code error;
+    return std::filesystem::is_directory(std::filesystem::symlink_status(path, error)) && !error;
+  };
+  if (!real_directory(runs)) return 0;
+  std::error_code error;
+  size_t removed = 0;
+  for (std::filesystem::directory_iterator it(runs, error), end; !error && it != end;
+       it.increment(error)) {
+    const auto run = it->path();
+    if (!IsRunId(run.filename().string()) || !real_directory(run) ||
+        !real_directory(run / "User") || !real_directory(run / "User/Slippi"))
+      continue;
+    const auto account = run / "User/Slippi/user.json";
+    std::error_code remove_error;
+    const auto status = std::filesystem::symlink_status(account, remove_error);
+    if (!remove_error &&
+        (std::filesystem::is_regular_file(status) || std::filesystem::is_symlink(status)) &&
+        std::filesystem::remove(account, remove_error))
+      ++removed;
+  }
+  return removed;
+}
+
 inline bool Normalize(const std::string& input, std::string& output) {
   output.clear();
   if (input.empty() || input.size() > 16384) return false;

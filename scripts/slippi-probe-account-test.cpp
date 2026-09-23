@@ -41,6 +41,28 @@ int main(int argc, char** argv) {
     check(!copy.InstallSerialized(valid, root / "other-runtime"));
   }
   check(!std::filesystem::exists(user / "Slippi/user.json"));
+  const auto runs = root / "SlippiDirectRuns";
+  const auto run = runs / "12345678-1234-1234-1234-123456789abc";
+  const auto staged = run / "User/Slippi";
+  std::filesystem::create_directories(staged);
+  { std::ofstream file(staged / "user.json"); file << valid; }
+  { std::ofstream file(run / "incidents.csv"); file << "diagnostic\n"; }
+  const auto unrelated = runs / "not-a-run/User/Slippi";
+  std::filesystem::create_directories(unrelated);
+  { std::ofstream file(unrelated / "user.json"); file << valid; }
+  const auto outside = root / "outside";
+  std::filesystem::create_directories(outside / "User/Slippi");
+  { std::ofstream file(outside / "User/Slippi/user.json"); file << valid; }
+  std::filesystem::create_directory_symlink(outside, runs / "abcdefab-1234-1234-1234-123456789abc");
+  const auto nested_link_run = runs / "abcdefac-1234-1234-1234-123456789abc";
+  std::filesystem::create_directory(nested_link_run);
+  std::filesystem::create_directory_symlink(outside / "User", nested_link_run / "User");
+  check(SlippiProbeAccount::RemoveAbandonedRuntimeCopies(runs) == 1);
+  check(!std::filesystem::exists(staged / "user.json"));
+  check(std::filesystem::exists(run / "incidents.csv"));
+  check(std::filesystem::exists(unrelated / "user.json"));
+  check(std::filesystem::exists(outside / "User/Slippi/user.json"));
+  check(SlippiProbeAccount::RemoveAbandonedRuntimeCopies(runs) == 0);
   std::cout << "{\"checks\":" << checks << ",\"failures\":" << failures
             << ",\"synthetic_only\":true,\"network_attempted\":false}\n";
   return failures ? 1 : 0;

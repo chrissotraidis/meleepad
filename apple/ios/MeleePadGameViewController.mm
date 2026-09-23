@@ -1332,6 +1332,12 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     // derive imported data from the current sandbox instead of trusting an
     // absolute path persisted by a previous installation.
     NSString *supportRoot = [self meleePadSupportRoot];
+    NSUInteger abandonedAccounts = [MeleePadSlippiHost
+        removeAbandonedAccountCopiesAtUserDirectory:
+            [supportRoot stringByAppendingPathComponent:@"User-r2"]];
+    if (abandonedAccounts > 0)
+        MeleePadLog(@"removed abandoned Slippi account handoffs count=%lu",
+                    (unsigned long)abandonedAccounts);
     NSFileManager *fileManager = [NSFileManager defaultManager];
 #if !TARGET_OS_SIMULATOR
     // Private self-contained QA bundles declare the revision of their bundled
