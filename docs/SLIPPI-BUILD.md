@@ -95,9 +95,10 @@ python3 scripts/compare-slippi-replays.py \
   --output /private/path/comparison.json
 ```
 
-The command checks matching replay versions, player/frame coverage, required
-fields and game-end events, then reports the first differing finalized pre- or
-post-frame field or unmapped payload byte. Exit codes are 0 equivalent, 1 divergent, 2 incomplete, 3
+The command checks matching replay versions, coverage from Slippi's first frame,
+required fields and the full game-end payload, then reports the first differing
+finalized pre- or post-frame field or unmapped payload byte. Exit codes are
+0 equivalent, 1 divergent, 2 incomplete, 3
 invalid and 4 unsupported. Repeated rollback records are counted, but equality
 of the final records does not prove each rollback step matched. The tool does not
 generate the reference replay or authenticate to Slippi. Keep both replays and

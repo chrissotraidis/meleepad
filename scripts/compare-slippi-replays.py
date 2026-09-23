@@ -12,6 +12,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "third_party/dashdance"))
 from slp import IncompleteReplayError, Replay  # noqa: E402
 
+GAME_FIRST_FRAME = -123  # Slippi::GAME_FIRST_FRAME in the pinned adapter.
+
 
 def compare(recorded, reference):
     try:
@@ -38,8 +40,8 @@ def compare(recorded, reference):
                     "first_missing_key": missing[0]}
         players = {(port, follower) for _, port, follower in left}
         frames = {frame for frame, _, _ in left}
-        if not players or len(frames) != max(frames) - min(frames) + 1:
-            return {"outcome": "incomplete", "reason": f"{label}-frame coverage has gaps"}
+        if not players or min(frames) != GAME_FIRST_FRAME or len(frames) != max(frames) - min(frames) + 1:
+            return {"outcome": "incomplete", "reason": f"{label}-frame coverage omits the first frame or has gaps"}
         for frame in frames:
             if any((frame, port, follower) not in left for port, follower in players):
                 return {"outcome": "incomplete", "reason": f"{label}-frame player coverage has gaps"}
@@ -70,6 +72,13 @@ def compare(recorded, reference):
     if a.game_end != b.game_end:
         return {"outcome": "divergent", "field": "game_end",
                 "recorded": a.game_end, "reference": b.game_end}
+    if a.game_end_body != b.game_end_body:
+        left, right = a.game_end_body, b.game_end_body
+        offset = next((i for i, (x, y) in enumerate(zip(left, right)) if x != y),
+                      min(len(left), len(right)))
+        return {"outcome": "divergent", "field": "game_end.raw_byte",
+                "offset": offset, "recorded": left[offset:offset + 1].hex(),
+                "reference": right[offset:offset + 1].hex()}
     return {"outcome": "equivalent", "scope": "finalized frame payloads and game end only",
             "version": a.version,
             "frames": len({frame for frame, _, _ in a.post}),

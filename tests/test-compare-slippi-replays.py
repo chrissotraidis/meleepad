@@ -13,9 +13,9 @@ comparator = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(comparator)
 
 
-def replay(frames=(0, 1), state=1, game_end=True, declared_extra=0,
-           follower=False, rollback=False):
-    sizes = {0x36: 3, 0x37: 0x43, 0x38: 0x54, 0x39: 1}
+def replay(frames=(-123, -122), state=1, game_end=True, declared_extra=0,
+           follower=False, rollback=False, game_end_payload=b"\x01"):
+    sizes = {0x36: 3, 0x37: 0x43, 0x38: 0x54, 0x39: len(game_end_payload)}
     table = bytes([0x35, 1 + 3 * len(sizes)]) + b"".join(
         bytes([cmd]) + struct.pack(">H", size) for cmd, size in sizes.items())
     raw = bytearray(table + b"\x36\x03\x00\x00")
@@ -31,7 +31,7 @@ def replay(frames=(0, 1), state=1, game_end=True, declared_extra=0,
             if rollback:
                 raw += bytes([0x37]) + pre + bytes([0x38]) + post
     if game_end:
-        raw += b"\x39\x01"
+        raw += b"\x39" + game_end_payload
     return b"raw[$U#l" + struct.pack(">I", len(raw) + declared_extra) + raw
 
 
@@ -58,7 +58,7 @@ class ReplayComparisonTests(unittest.TestCase):
     def test_first_changed_state(self):
         result = self.compare(replay(state=1), replay(state=2))
         self.assertEqual((result["outcome"], result["frame"], result["field"]),
-                         ("divergent", 0, "pre.state"))
+                         ("divergent", -123, "pre.state"))
 
     def test_unmapped_frame_byte_is_still_compared(self):
         altered = bytearray(replay())
@@ -82,6 +82,16 @@ class ReplayComparisonTests(unittest.TestCase):
     def test_game_end_is_required(self):
         self.assertEqual(self.compare(replay(game_end=False), replay())["outcome"],
                          "incomplete")
+
+    def test_matching_late_start_does_not_count_as_complete_game(self):
+        late = replay(frames=(-122, -121))
+        self.assertEqual(self.compare(late, late)["outcome"], "incomplete")
+
+    def test_game_end_payload_difference_is_reported(self):
+        result = self.compare(replay(game_end_payload=b"\x01\x00"),
+                              replay(game_end_payload=b"\x01\x01"))
+        self.assertEqual((result["outcome"], result["field"]),
+                         ("divergent", "game_end.raw_byte"))
 
 
 if __name__ == "__main__":
