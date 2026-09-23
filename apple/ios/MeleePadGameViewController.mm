@@ -13,6 +13,7 @@
 #import "MeleePadRevision.h"
 #import "MeleePadSlippiHost.h"
 
+#import <AVFoundation/AVFoundation.h>
 #import <CommonCrypto/CommonDigest.h>
 #import <GameController/GameController.h>
 #import <Metal/Metal.h>
@@ -68,6 +69,14 @@ static NSString *MeleePadSlippiReadinessAdvice(void) {
     if (process.thermalState == NSProcessInfoThermalStateSerious ||
         process.thermalState == NSProcessInfoThermalStateCritical)
         return @"This device is hot and may slow down. Let it cool before online play.";
+    for (AVAudioSessionPortDescription *output in AVAudioSession.sharedInstance.currentRoute.outputs) {
+        NSString *port = output.portType;
+        if ([port isEqualToString:AVAudioSessionPortBluetoothA2DP] ||
+            [port isEqualToString:AVAudioSessionPortBluetoothHFP] ||
+            [port isEqualToString:AVAudioSessionPortBluetoothLE] ||
+            [port isEqualToString:AVAudioSessionPortAirPlay])
+            return @"Wireless audio can lag behind play. Use built-in or wired sound for timing-sensitive matches.";
+    }
     return nil;
 }
 
@@ -396,6 +405,10 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(settingsChanged:)
                                                  name:NSUserDefaultsDidChangeNotification
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(slippiAudioRouteChanged:)
+                                                 name:AVAudioSessionRouteChangeNotification
                                                object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(userDidTakeScreenshot:)
@@ -960,6 +973,15 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
               notification.name,
               NSStringFromCGRect(screen.bounds), NSStringFromCGRect(screen.nativeBounds),
               screen.scale, screen.nativeScale, (long)screen.maximumFramesPerSecond);
+}
+
+- (void)slippiAudioRouteChanged:(NSNotification *)notification {
+    (void)notification;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self->_homeView != nil)
+            [self showHomeForRevision:MeleePadRevisionAtRoot(
+                [MeleePadSettings sharedSettings].extractedGameRoot)];
+    });
 }
 
 - (void)playFromHome {
