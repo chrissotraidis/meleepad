@@ -67,6 +67,9 @@ Home **Settings → Slippi Input Delay** selects 1–4 local input-delay frames
 to Slippi's existing online-delay configuration. It is separate from the older
 experimental lobby's buffer setting. Changing it does not alter a running
 match or repair packet loss or local performance stalls.
+The ready-to-play home card now flags Low Power Mode or serious heat before a
+Slippi run. Startup diagnostics record those conditions and the screen refresh
+rate to help interpret a later timing report; this is advice, not a network fix.
 
 ## Import your Slippi profile
 

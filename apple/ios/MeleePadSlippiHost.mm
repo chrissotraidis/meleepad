@@ -311,9 +311,11 @@ static void MeleePadSlippiWriteWorkerFinished(const std::filesystem::path &runRo
                 [moduleHash appendFormat:@"%02x", byte];
             qos_class_t qos = QOS_CLASS_UNSPECIFIED;
             pthread_get_qos_class_np(pthread_self(), &qos, nullptr);
-            MeleePadLog(@"Slippi module path=%s sha256=%@ readable=%d thermal=%ld qos=%u",
+            MeleePadLog(@"Slippi module path=%s sha256=%@ readable=%d thermal=%ld lowPower=%d refreshHz=%ld qos=%u",
                         module.c_str(), moduleHash, moduleFile.eof(),
                         (long)NSProcessInfo.processInfo.thermalState,
+                        NSProcessInfo.processInfo.isLowPowerModeEnabled,
+                        (long)UIScreen.mainScreen.maximumFramesPerSecond,
                         (unsigned)qos);
             *self->_starting = false;
             *self->_running = true;
