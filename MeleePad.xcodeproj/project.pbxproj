@@ -25,6 +25,7 @@
 		AA0000000000000000000116 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000222 /* Security.framework */; };
 		AA0000000000000000000117 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000223 /* AudioToolbox.framework */; };
 		AA0000000000000000000118 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000224 /* SystemConfiguration.framework */; };
+		AA0000000000000000000148 /* Network.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA000000000000000000025C /* Network.framework */; };
 		AA0000000000000000000119 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000225 /* CoreMedia.framework */; };
 		AA000000000000000000011A /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000226 /* CoreVideo.framework */; };
 		AA000000000000000000011B /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000227 /* CoreMotion.framework */; };
@@ -95,6 +96,7 @@
 		AA0000000000000000000222 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		AA0000000000000000000223 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		AA0000000000000000000224 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		AA000000000000000000025C /* Network.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Network.framework; path = System/Library/Frameworks/Network.framework; sourceTree = SDKROOT; };
 		AA0000000000000000000225 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		AA0000000000000000000226 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		AA0000000000000000000227 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
@@ -159,6 +161,7 @@
 				AA000000000000000000011A /* CoreVideo.framework in Frameworks */,
 				AA0000000000000000000119 /* CoreMedia.framework in Frameworks */,
 				AA0000000000000000000118 /* SystemConfiguration.framework in Frameworks */,
+				AA0000000000000000000148 /* Network.framework in Frameworks */,
 				AA0000000000000000000117 /* AudioToolbox.framework in Frameworks */,
 				AA0000000000000000000116 /* Security.framework in Frameworks */,
 				AA0000000000000000000115 /* CoreText.framework in Frameworks */,
@@ -249,6 +252,7 @@
 				AA0000000000000000000226 /* CoreVideo.framework */,
 				AA0000000000000000000225 /* CoreMedia.framework */,
 				AA0000000000000000000224 /* SystemConfiguration.framework */,
+				AA000000000000000000025C /* Network.framework */,
 				AA0000000000000000000223 /* AudioToolbox.framework */,
 				AA0000000000000000000222 /* Security.framework */,
 				AA0000000000000000000221 /* CoreText.framework */,

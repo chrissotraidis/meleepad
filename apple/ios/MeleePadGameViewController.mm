@@ -17,6 +17,7 @@
 #import <CommonCrypto/CommonDigest.h>
 #import <GameController/GameController.h>
 #import <Metal/Metal.h>
+#import <Network/Network.h>
 #import <QuartzCore/QuartzCore.h>
 #import <TargetConditionals.h>
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
@@ -62,13 +63,24 @@ static NSString *MeleePadThermalStateName(NSProcessInfoThermalState state) {
     }
 }
 
-static NSString *MeleePadSlippiReadinessAdvice(void) {
+typedef NS_ENUM(NSInteger, MeleePadNetworkPath) {
+    MeleePadNetworkPathUnknown,
+    MeleePadNetworkPathUnavailable,
+    MeleePadNetworkPathCellular,
+    MeleePadNetworkPathOther,
+};
+
+static NSString *MeleePadSlippiReadinessAdvice(MeleePadNetworkPath networkPath) {
+    if (networkPath == MeleePadNetworkPathUnavailable)
+        return @"No network path is available. Connect before Slippi matchmaking.";
     NSProcessInfo *process = NSProcessInfo.processInfo;
     if (process.isLowPowerModeEnabled)
         return @"Low Power Mode is on. Turn it off before online play for steadier timing.";
     if (process.thermalState == NSProcessInfoThermalStateSerious ||
         process.thermalState == NSProcessInfoThermalStateCritical)
         return @"This device is hot and may slow down. Let it cool before online play.";
+    if (networkPath == MeleePadNetworkPathCellular)
+        return @"Cellular play may be less stable. Wi-Fi or wired Ethernet is preferable for rollback matches.";
     for (AVAudioSessionPortDescription *output in AVAudioSession.sharedInstance.currentRoute.outputs) {
         NSString *port = output.portType;
         if ([port isEqualToString:AVAudioSessionPortBluetoothA2DP] ||
@@ -322,6 +334,8 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     BOOL _automatedNetplay;
     BOOL _automatedNetplayStartRequested;
     BOOL _automatedNetplayRoomCodeReported;
+    nw_path_monitor_t _slippiNetworkMonitor;
+    MeleePadNetworkPath _slippiNetworkPath;
 }
 
 - (BOOL)shouldAutorotate {
@@ -410,6 +424,33 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
                                              selector:@selector(slippiAudioRouteChanged:)
                                                  name:AVAudioSessionRouteChangeNotification
                                                object:nil];
+    _slippiNetworkMonitor = nw_path_monitor_create();
+    __weak MeleePadGameViewController *weakSelf = self;
+    nw_path_monitor_set_update_handler(_slippiNetworkMonitor, ^(nw_path_t path) {
+        MeleePadNetworkPath kind = MeleePadNetworkPathUnavailable;
+        if (nw_path_get_status(path) == nw_path_status_satisfied) {
+            // A path can be eligible for multiple interfaces. Only call it cellular
+            // when no Wi-Fi or wired route is available on that path.
+            BOOL wiredOrWiFi = nw_path_uses_interface_type(path, nw_interface_type_wired) ||
+                nw_path_uses_interface_type(path, nw_interface_type_wifi);
+            kind = !wiredOrWiFi && nw_path_uses_interface_type(path, nw_interface_type_cellular)
+                ? MeleePadNetworkPathCellular : MeleePadNetworkPathOther;
+        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            MeleePadGameViewController *strongSelf = weakSelf;
+            if (strongSelf == nil || strongSelf->_slippiNetworkPath == kind) return;
+            strongSelf->_slippiNetworkPath = kind;
+            NSString *kindLabel = kind == MeleePadNetworkPathUnavailable ? @"unavailable"
+                : kind == MeleePadNetworkPathCellular ? @"cellular-only" : @"available";
+            MeleePadLog(@"Slippi device network path=%@", kindLabel);
+            if (strongSelf->_homeView != nil)
+                [strongSelf showHomeForRevision:MeleePadRevisionAtRoot(
+                    [MeleePadSettings sharedSettings].extractedGameRoot)];
+        });
+    });
+    nw_path_monitor_set_queue(_slippiNetworkMonitor,
+        dispatch_queue_create("app.meleepad.slippi-network-readiness", DISPATCH_QUEUE_SERIAL));
+    nw_path_monitor_start(_slippiNetworkMonitor);
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(userDidTakeScreenshot:)
                                                  name:UIApplicationUserDidTakeScreenshotNotification
@@ -1261,7 +1302,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
         slippiDetail = [NSString stringWithFormat:@"Game, module and account found · %ldF input delay",
             (long)[MeleePadSettings sharedSettings].slippiInputDelayFrames];
     if (slippiModuleReady && slippiAccountReady && revision == 2) {
-        NSString *advice = MeleePadSlippiReadinessAdvice();
+        NSString *advice = MeleePadSlippiReadinessAdvice(_slippiNetworkPath);
         if (advice.length > 0)
             slippiDetail = [slippiDetail stringByAppendingFormat:@"\n%@", advice];
     }
@@ -2774,6 +2815,12 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
                     (unsigned long)candidates.count);
     }
     return currentRoot;
+}
+
+- (void)dealloc {
+    if (_slippiNetworkMonitor != nil)
+        nw_path_monitor_cancel(_slippiNetworkMonitor);
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 @end
