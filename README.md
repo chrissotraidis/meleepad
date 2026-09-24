@@ -56,6 +56,15 @@ universal performance guarantee.*
 | **Online play** | Slippi integration on iOS/iPadOS; complete Unranked matches verified on the maintainer’s iPad. Other modes have limited acceptance. |
 | **Not included** | Melee, game assets, saves, signing material, or a generated game module |
 
+### Which install path do I need?
+
+| Goal | Start here |
+|---|---|
+| Inspect the app without playing | The [Preview 5 release](docs/releases/v0.1.0-preview.5.md) has an unsigned, module-free IPA shell. It cannot become playable through ISO or account import. |
+| Play on your own iPhone or iPad | Use an Apple Silicon Mac, your supported game image, and your Apple signing team to [build the matching native module and app](#build-from-source). Stage the private module before signing the complete app. |
+| Use Slippi online | Build for USA v1.02 and follow the [private Slippi build requirements](docs/SLIPPI-BUILD.md#playable-private-builds), then [import your own account](#import-your-slippi-profile-on-iphone-or-ipad). |
+| Update an existing installation | Keep the same bundle identifier and signing team, install in place, and retain your game files and app data. Do not uninstall the old app first. |
+
 ## What's new in Preview 5
 
 - **Slippi online play.** Account login, matchmaking and rollback integrated into
@@ -265,12 +274,16 @@ replace the playable local-build process below.
 
 ### Build for a physical iPhone or iPad
 
-First build the device core and locally generated game module:
+For the recommended USA v1.02 image, build its matching device core and
+offline native module:
 
 ```sh
-./scripts/ios-build-core-device.sh
+MELEEPAD_GAME_REVISION=2 ./scripts/ios-build-core-device.sh
 open MeleePad.xcodeproj
 ```
+
+For an existing v1.00 setup, omit `MELEEPAD_GAME_REVISION=2` and prepare the
+matching v1.00 image instead. Native Slippi currently requires v1.02.
 
 Then, in Xcode:
 
@@ -280,7 +293,15 @@ Then, in Xcode:
    owned by your team.
 3. Connect and unlock the iPhone or iPad, enable Developer Mode if required,
    and select that device as the run destination.
-4. Choose **Product → Run** to build, sign, install, and launch MeleePad.
+4. Choose **Product → Run** to build, sign, install, and launch the app shell.
+
+**Product → Run alone does not stage a playable native module or the Slippi
+resources.** For a playable device build, stage the matching private module and,
+for online play, the separate Slippi module and resources into the finished app;
+then sign the complete bundle before installation. Follow the
+[Slippi private-build steps](docs/SLIPPI-BUILD.md#playable-private-builds).
+Importing an ISO or Slippi account into the module-free shell does not replace
+these build steps.
 
 Keep the same bundle identifier for later updates if you want iOS to preserve
 the app's private game data, saves, controller settings, and preferences.
@@ -298,7 +319,8 @@ MeleePad never downloads or bundles game data.
 3. Select your supported raw ISO or GCM image in Files.
 4. Leave the app open while it validates, extracts, and atomically activates
    the private game data.
-5. Start playing after the first rendered frame appears.
+5. Start playing when Home confirms the matching native module is present.
+   Importing the image alone cannot make a module-free app playable.
 
 A failed reimport leaves the prior working data active. Removing stored game
 data keeps saves and control settings separate.
@@ -390,7 +412,8 @@ Private Room and Direct IP are available for controlled tests with people you
 trust. Both peers need the **same app build, game revision, matching modules and
 game data, and compatible gameplay settings**. For Preview 5,
 that means build 26 on both ends; USA v1.02 is recommended. v1.00 can only play
-with a compatible v1.00 peer. Private diagnostic builds are not the release.
+with a compatible v1.00 peer. The later build 27 diagnostic source is not the
+Preview 5 release.
 
 | Option | Current boundary |
 |---|---|
