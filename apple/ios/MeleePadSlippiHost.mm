@@ -149,6 +149,19 @@ static void MeleePadSlippiWriteWorkerFinished(const std::filesystem::path &runRo
     }
 }
 
+- (MeleePadSlippiConnectionMetrics)connectionMetrics {
+    if (!self.isRunning)
+        return {};
+    return {
+        slippi_network_diagnostics.connected_peer.load(std::memory_order_acquire) != nullptr,
+        SlippiDirectProbe::game_starts.load(std::memory_order_relaxed) >
+            SlippiDirectProbe::game_ends.load(std::memory_order_relaxed),
+        slippi_network_diagnostics.ping_samples.load(std::memory_order_acquire),
+        slippi_network_diagnostics.ping_total_us.load(std::memory_order_relaxed),
+        slippi_network_diagnostics.input_stalls.load(std::memory_order_relaxed),
+    };
+}
+
 - (BOOL)storeAccountData:(NSData *)data error:(NSString **)error {
     std::string normalized;
     if (data.length == 0 ||

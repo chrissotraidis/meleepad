@@ -88,7 +88,8 @@ struct SlippiNetworkDiagnostics {
     if (us >= 500000) ++ping_over500ms;
     ping_latest_us.store(us, std::memory_order_relaxed);
     ping_total_us.fetch_add(us, std::memory_order_relaxed);
-    ping_samples.fetch_add(1, std::memory_order_relaxed);
+    // Readers use this counter to acquire the preceding total update.
+    ping_samples.fetch_add(1, std::memory_order_release);
   }
   void ObserveThrottle(uint32_t value) {
     ++enet_throttle_samples;
