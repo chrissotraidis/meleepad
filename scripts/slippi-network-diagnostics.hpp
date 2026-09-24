@@ -14,6 +14,10 @@ struct SlippiNetworkDiagnostics {
   std::atomic<uint64_t> loop_max_us{0}, send_failures{0};
   std::atomic<uint64_t> enet_rtt_ms{0}, enet_rtt_variance_ms{0}, enet_packet_loss{0};
   std::atomic<uint64_t> enet_throttle_samples{0}, enet_throttle_min{32};
+  // The session minimum cannot show recovery after a bad interval. Windows
+  // aggregate every sampled peer; zero samples means the latest value is stale.
+  std::atomic<uint64_t> enet_throttle_latest{0}, enet_throttle_window_samples{0};
+  std::atomic<uint64_t> enet_throttle_window_min{32}, enet_throttle_window_max{0};
   std::atomic<uint64_t> native_dispatches{0}, fallback_steps{0}, failed_chunks{0};
   std::atomic<uint64_t> verifications{0}, reverify_events{0};
 
@@ -62,6 +66,8 @@ struct SlippiNetworkDiagnostics {
     queued_packets=0; queue_total_us=0; queue_max_us=0; loop_max_us=0; send_failures=0;
     enet_rtt_ms=0; enet_rtt_variance_ms=0; enet_packet_loss=0;
     enet_throttle_samples=0; enet_throttle_min=32;
+    enet_throttle_latest=0; enet_throttle_window_samples=0;
+    enet_throttle_window_min=32; enet_throttle_window_max=0;
     native_dispatches=0; fallback_steps=0; failed_chunks=0; verifications=0; reverify_events=0;
   }
   static void RecordMaximum(std::atomic<uint64_t>& target, uint64_t value) {
@@ -86,9 +92,15 @@ struct SlippiNetworkDiagnostics {
   }
   void ObserveThrottle(uint32_t value) {
     ++enet_throttle_samples;
+    enet_throttle_latest.store(value, std::memory_order_relaxed);
+    ++enet_throttle_window_samples;
     auto previous = enet_throttle_min.load(std::memory_order_relaxed);
     while (previous > value && !enet_throttle_min.compare_exchange_weak(
         previous, value, std::memory_order_relaxed)) {}
+    previous = enet_throttle_window_min.load(std::memory_order_relaxed);
+    while (previous > value && !enet_throttle_window_min.compare_exchange_weak(
+        previous, value, std::memory_order_relaxed)) {}
+    RecordMaximum(enet_throttle_window_max, value);
   }
   void ObserveLog(std::string_view text) {
     const auto starts = [&](std::string_view prefix) { return text.substr(0, prefix.size()) == prefix; };
@@ -126,7 +138,10 @@ struct SlippiNetworkDiagnostics {
     ack_received.Write(out, now_us);
     out << ',' << window_ping_us.exchange(0) << ',' << window_queue_us.exchange(0)
         << ',' << window_service_us.exchange(0) << ',' << unreliable_sent.load()
-        << ',' << unreliable_discarded.load() << ',' << local_player_port.load() << '\n';
+        << ',' << unreliable_discarded.load() << ',' << local_player_port.load()
+        << ',' << enet_throttle_latest.load() << ',' << enet_throttle_window_samples.exchange(0)
+        << ',' << enet_throttle_window_min.exchange(32)
+        << ',' << enet_throttle_window_max.exchange(0) << '\n';
   }
 };
 inline SlippiNetworkDiagnostics slippi_network_diagnostics;
