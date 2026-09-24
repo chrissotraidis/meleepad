@@ -20,7 +20,8 @@ Built with [ModernGekko](https://github.com/ExpansionPak/ModernGekko),
 runtime, with Apple integration based on [SunPad](https://github.com/chrissotraidis/sunpad).
 See [credits and maintained sources](#credits-licensing-and-contributing).
 
-**[Build and setup](#build-from-source) ·
+**[Preview 6 download](https://github.com/chrissotraidis/meleepad/releases/tag/v0.1.0-preview.6) ·
+[Build and setup](#build-from-source) ·
 [Slippi profile setup](#import-your-slippi-profile-on-iphone-or-ipad) ·
 [FAQ](#faq) · [Discord](https://discord.gg/xwHfUD2bxW)**
 
@@ -31,11 +32,11 @@ by scene and device; this image is evidence from one observed match, not a
 universal performance guarantee.*
 
 > [!IMPORTANT]
-> MeleePad v0.1.0 Preview 5 (build 26) adds officially supported Slippi integration
-> in MeleePad for iOS/iPadOS. Completed Unranked matches have been verified on the
-> maintainer's iPad. Ranked uses Slippi's normal subscription/free-day eligibility;
-> Direct, Teams and Party have less hardware testing. Connection and performance
-> problems remain under investigation, with local diagnostics enabled.
+> MeleePad v0.1.0 Preview 6 (build 28) adds a Slippi connection check and more
+> visible peer latency warnings. Completed Unranked matches were verified on the
+> maintainer's iPad in earlier builds; build 28 has launched on that iPad but
+> has not yet completed a live opponent retest. Connection and performance
+> problems remain under investigation.
 >
 > The downloadable IPA is unsigned and module-free: **not playable as downloaded**.
 > A playable build requires compatible native modules generated from your own
@@ -60,10 +61,25 @@ universal performance guarantee.*
 
 | Goal | Start here |
 |---|---|
-| Inspect the app without playing | The [Preview 5 release](docs/releases/v0.1.0-preview.5.md) has an unsigned, module-free IPA shell. It cannot become playable through ISO or account import. |
+| Inspect the app without playing | The [Preview 6 download](https://github.com/chrissotraidis/meleepad/releases/tag/v0.1.0-preview.6) has an unsigned, module-free IPA shell. It cannot become playable through ISO or account import. |
 | Play on your own iPhone or iPad | Use an Apple Silicon Mac, your supported game image, and your Apple signing team to [build the matching native module and app](#build-from-source). Stage the private module before signing the complete app. |
 | Use Slippi online | Build for USA v1.02 and follow the [private Slippi build requirements](docs/SLIPPI-BUILD.md#playable-private-builds), then [import your own account](#import-your-slippi-profile-on-iphone-or-ipad). |
 | Update an existing installation | Keep the same bundle identifier and signing team, install in place, and retain your game files and app data. Do not uninstall the old app first. |
+
+## What's new in Preview 6
+
+- **Check before a match.** Home Settings and the in-game three-dot menu offer
+  **Slippi Connection Check**, which tests the network path and Slippi website
+  response. This does not measure matchmaking UDP or predict opponent ping.
+- **See peer problems during play.** A larger banner reports live peer latency
+  and warns about sustained high latency, severe latency, rollback stalls, or
+  missing ping samples. A stall can also reflect a slow device.
+- **Safer setup and updates.** Home checks the selected game image and native
+  module before offering Play. An in-place private build 28 iPad update retained
+  its game payload and saved settings; build 28 opponent gameplay remains untested.
+
+See [Preview 6 release notes](docs/releases/v0.1.0-preview.6.md) and
+[Slippi build instructions](docs/SLIPPI-BUILD.md).
 
 ## What's new in Preview 5
 
@@ -186,7 +202,7 @@ contains setup instructions, verified results, and remaining acceptance gates.
 | iPhone and iPad | Native app shell, Metal gameplay, touch controls, controller mapping, More menu, exact-image import, persistent saves and settings, and diagnostic export | Serious water, reflection, and shadow rendering defects remain; the full visual, audio, controller, and lifecycle matrix has not passed |
 | Performance | A physical iPad can hold 59.9–60.0 FPS/VPS at 2x resolution during observed solo play | Latest iPhone 14 logs include 37.9–45.6 FPS dips and audio starvation; sustained heavy-scene performance remains unresolved |
 | Experimental multiplayer | Preview 4 fixed-delay Private Room and Direct IP transport, eight-character room codes, temporary peer chat, native Host/Join lobby, compatibility fingerprinting, and synchronized Mac/iPad Simulator runs in both host directions | These custom rooms are separate from Slippi; no public room browser or relay |
-| Distribution | Preview 5 source plus an unsigned, module-free IPA shell; locally generated, locally signed playable apps | Public IPA is not playable as downloaded; no App Store or TestFlight build; the locally generated game module is not distributed |
+| Distribution | Preview 6 source plus an unsigned, module-free IPA shell; locally generated, locally signed playable apps | Public IPA is not playable as downloaded; no App Store or TestFlight build; the locally generated game module is not distributed |
 
 The combat-only right-stick mapping has passed a hands-on physical-iPad retest,
 including the required menu/gameplay behavior. The current evidence, remaining
@@ -366,6 +382,13 @@ macOS Slippi interoperability has not received the same hardware acceptance.
 Use your own Slippi account. Replay and diagnostic files stay local unless you
 choose to share them. See [setup and build requirements](docs/SLIPPI-BUILD.md).
 
+Before matchmaking, open **Home Settings → Slippi Connection Check**. The same
+action is in the in-game three-dot menu. It makes three short requests to
+Slippi's website and shows a median response time; it does not test UDP
+matchmaking or another player's connection. During a peer session, the banner
+shows measured peer latency and warnings. A good website result is not a
+guarantee of a good match.
+
 ### Import your Slippi profile on iPhone or iPad
 
 MeleePad imports your Slippi **account file, `user.json`**. A replay (`.slp`),
@@ -410,10 +433,9 @@ module/game-data message refers to the playable build setup, not your profile.
 
 Private Room and Direct IP are available for controlled tests with people you
 trust. Both peers need the **same app build, game revision, matching modules and
-game data, and compatible gameplay settings**. For Preview 5,
-that means build 26 on both ends; USA v1.02 is recommended. v1.00 can only play
-with a compatible v1.00 peer. The later build 27 diagnostic source is not the
-Preview 5 release.
+game data, and compatible gameplay settings**. For Preview 6,
+that means build 28 on both ends; USA v1.02 is recommended. v1.00 can only play
+with a compatible v1.00 peer.
 
 | Option | Current boundary |
 |---|---|
