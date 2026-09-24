@@ -32,6 +32,7 @@
 
 #include "../../scripts/slippi-replay-library.hpp"
 #include "../shared/MeleePadDiscAvailability.hpp"
+#include "../shared/MeleePadSlippiConnectionQuality.hpp"
 
 static constexpr CGFloat MeleePadDrawableScale = 1.0;
 
@@ -306,6 +307,11 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 - (NSString *)meleePadSupportRoot;
 - (void)startPublicGameplayHeartbeat;
 - (void)stopPublicGameplayHeartbeatReturningToLobby:(BOOL)returningToLobby;
+- (void)updateSlippiConnectionBanner;
+- (void)runSlippiWebProbe:(NSUInteger)index
+                  samples:(NSMutableArray<NSNumber *> *)samples
+                 failures:(NSUInteger)failures
+                  session:(NSURLSession *)session;
 @end
 
 @implementation MeleePadGameViewController {
@@ -315,6 +321,12 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     MeleePadGameOverlay *_overlay;
     dispatch_source_t _controllerTimer;
     UILabel *_fpsLabel;
+    UIView *_connectionBanner;
+    UILabel *_connectionBannerText;
+    MeleePadSlippiConnectionQuality _connectionQuality;
+    MeleePadSlippiConnectionState _lastConnectionState;
+    NSURLSession *_slippiCheckSession;
+    UIAlertController *_slippiCheckAlert;
     UILabel *_bootStatusLabel;
     UIActivityIndicatorView *_bootActivityIndicator;
     UIButton *_gameDataImportButton;
@@ -423,6 +435,20 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     _fpsLabel.text = @"";
     _fpsLabel.hidden = YES;
     [self.view addSubview:_fpsLabel];
+
+    _connectionBanner = [UIView new];
+    _connectionBanner.hidden = YES;
+    _connectionBanner.userInteractionEnabled = NO;
+    _connectionBanner.backgroundColor = [UIColor colorWithWhite:0.08 alpha:0.88];
+    _connectionBanner.layer.cornerRadius = 12.0;
+    _connectionBanner.layer.borderWidth = 1.5;
+    _connectionBannerText = [UILabel new];
+    _connectionBannerText.textColor = UIColor.whiteColor;
+    _connectionBannerText.textAlignment = NSTextAlignmentCenter;
+    _connectionBannerText.font = [UIFont systemFontOfSize:15.0 weight:UIFontWeightSemibold];
+    _connectionBannerText.numberOfLines = 2;
+    [_connectionBanner addSubview:_connectionBannerText];
+    [self.view addSubview:_connectionBanner];
     [self startFPSMonitor];
 
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -707,6 +733,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 
 - (void)updateFPSLabel {
     [self reconcileControllersForReason:@"periodic"];
+    [self updateSlippiConnectionBanner];
     BOOL applicationActive = UIApplication.sharedApplication.applicationState ==
         UIApplicationStateActive;
     double fps = applicationActive ? [_coreHost currentFPS] : 0.0;
@@ -773,6 +800,59 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     } else {
         _fpsLabel.hidden = YES;
     }
+}
+
+- (void)updateSlippiConnectionBanner {
+    MeleePadSlippiConnectionSample sample;
+    if (UIApplication.sharedApplication.applicationState == UIApplicationStateActive &&
+        _homeView == nil && _slippiHost.isRunning) {
+        MeleePadSlippiConnectionMetrics metrics = [_slippiHost connectionMetrics];
+        sample = {metrics.connected, metrics.gameActive, metrics.pingSamples,
+                  metrics.pingTotalUs, metrics.rollbackStalls};
+    }
+    MeleePadSlippiConnectionResult result = _connectionQuality.Update(sample);
+    if (result.state != _lastConnectionState) {
+        MeleePadLog(@"Slippi peer connection state=%d averageMs=%u",
+                    static_cast<int>(result.state), result.average_ms);
+        _lastConnectionState = result.state;
+    }
+    NSString *message = nil;
+    UIColor *accent = UIColor.systemGreenColor;
+    switch (result.state) {
+    case MeleePadSlippiConnectionState::Disconnected:
+        break;
+    case MeleePadSlippiConnectionState::Measuring:
+        message = @"Opponent connected · measuring latency…";
+        accent = UIColor.systemBlueColor;
+        break;
+    case MeleePadSlippiConnectionState::Steady:
+        message = _slippiNetworkPath == MeleePadNetworkPathCellular
+            ? [NSString stringWithFormat:@"Cellular connection · peer %u ms", result.average_ms]
+            : [NSString stringWithFormat:@"Peer %u ms · connection steady", result.average_ms];
+        accent = _slippiNetworkPath == MeleePadNetworkPathCellular
+            ? UIColor.systemOrangeColor : UIColor.systemGreenColor;
+        break;
+    case MeleePadSlippiConnectionState::HighLatency:
+        message = [NSString stringWithFormat:@"High peer latency · %u ms average", result.average_ms];
+        accent = UIColor.systemOrangeColor;
+        break;
+    case MeleePadSlippiConnectionState::SevereLatency:
+        message = [NSString stringWithFormat:@"Severe peer latency · %u ms average", result.average_ms];
+        accent = UIColor.systemRedColor;
+        break;
+    case MeleePadSlippiConnectionState::Stalling:
+        message = @"Rollback stalling · network or device may be slow";
+        accent = UIColor.systemRedColor;
+        break;
+    case MeleePadSlippiConnectionState::NoFreshPing:
+        message = @"No fresh peer ping · connection may be stalled";
+        accent = UIColor.systemOrangeColor;
+        break;
+    }
+    _connectionBanner.hidden = message == nil;
+    _connectionBannerText.text = message;
+    _connectionBanner.layer.borderColor = accent.CGColor;
+    _connectionBannerText.accessibilityLabel = message;
 }
 
 - (void)userDidTakeScreenshot:(NSNotification *)notification {
@@ -1014,6 +1094,10 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     _fpsLabel.frame = CGRectMake(CGRectGetMinX(safe) + 8.0,
                                  CGRectGetMinY(safe) + 8.0,
                                  140.0, 22.0);
+    CGFloat bannerWidth = MIN(520.0, MAX(0.0, CGRectGetWidth(safe) - 100.0));
+    _connectionBanner.frame = CGRectMake(CGRectGetMidX(safe) - bannerWidth / 2.0,
+        CGRectGetMinY(safe) + 8.0, bannerWidth, 48.0);
+    _connectionBannerText.frame = CGRectInset(_connectionBanner.bounds, 12.0, 4.0);
 }
 
 - (void)displayConfigurationChanged:(NSNotification *)notification {
@@ -1851,6 +1935,100 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
         return;
     }
     [self presentSlippiAccountImportAndStart:NO];
+}
+
+- (void)gameOverlayRequestsSlippiConnectionCheck:(MeleePadGameOverlay *)overlay {
+    (void)overlay;
+    if (_slippiCheckAlert != nil)
+        return;
+    NSString *route = _slippiNetworkPath == MeleePadNetworkPathUnavailable ? @"No network path"
+        : _slippiNetworkPath == MeleePadNetworkPathCellular ? @"Cellular"
+        : _slippiNetworkPath == MeleePadNetworkPathOther ? @"Wi-Fi or wired network"
+        : @"Network path unknown";
+    NSString *peer = _connectionBanner.hidden ? @"No opponent connected."
+        : _connectionBannerText.text;
+    NSString *intro = [NSString stringWithFormat:
+        @"Path: %@\nPeer: %@\n\nThis checks Slippi's website. It cannot predict matchmaking UDP or an opponent's ping.",
+        route, peer];
+    _slippiCheckAlert = [UIAlertController alertControllerWithTitle:@"Slippi Connection Check"
+        message:_slippiNetworkPath == MeleePadNetworkPathUnavailable
+            ? [intro stringByAppendingString:@"\n\nConnect to a network and try again."]
+            : [intro stringByAppendingString:@"\n\nChecking website response…"]
+        preferredStyle:UIAlertControllerStyleAlert];
+    __weak MeleePadGameViewController *weakSelf = self;
+    [_slippiCheckAlert addAction:[UIAlertAction actionWithTitle:@"Done"
+        style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        (void)action;
+        MeleePadGameViewController *strongSelf = weakSelf;
+        if (strongSelf == nil)
+            return;
+        [strongSelf->_slippiCheckSession invalidateAndCancel];
+        strongSelf->_slippiCheckSession = nil;
+        strongSelf->_slippiCheckAlert = nil;
+    }]];
+    [self presentViewController:_slippiCheckAlert animated:YES completion:nil];
+    if (_slippiNetworkPath == MeleePadNetworkPathUnavailable)
+        return;
+    NSURLSessionConfiguration *configuration = NSURLSessionConfiguration.ephemeralSessionConfiguration;
+    configuration.timeoutIntervalForRequest = 4.0;
+    configuration.timeoutIntervalForResource = 5.0;
+    _slippiCheckSession = [NSURLSession sessionWithConfiguration:configuration];
+    [self runSlippiWebProbe:0 samples:[NSMutableArray new] failures:0
+                   session:_slippiCheckSession];
+}
+
+- (void)runSlippiWebProbe:(NSUInteger)index
+                  samples:(NSMutableArray<NSNumber *> *)samples
+                 failures:(NSUInteger)failures
+                  session:(NSURLSession *)session {
+    if (_slippiCheckSession != session || _slippiCheckAlert == nil)
+        return;
+    if (index == 3) {
+        NSString *summary = nil;
+        if (samples.count == 0) {
+            summary = @"Slippi website did not respond. Check your network and try again.";
+        } else {
+            NSArray<NSNumber *> *sorted = [samples sortedArrayUsingSelector:@selector(compare:)];
+            NSUInteger middle = sorted.count / 2;
+            summary = [NSString stringWithFormat:
+                @"Slippi website responded in %.0f ms median (%lu of 3 checks).%@",
+                sorted[middle].doubleValue, (unsigned long)sorted.count,
+                failures ? @" Some checks failed; your connection may be unstable." : @""];
+        }
+        NSString *prefix = [_slippiCheckAlert.message
+            componentsSeparatedByString:@"\n\nChecking website response…"].firstObject;
+        _slippiCheckAlert.message = [prefix stringByAppendingFormat:@"\n\n%@", summary];
+        MeleePadLog(@"Slippi web check responses=%lu failures=%lu medianMs=%.0f",
+            (unsigned long)samples.count, (unsigned long)failures,
+            samples.count ? [[samples sortedArrayUsingSelector:@selector(compare:)][samples.count / 2] doubleValue] : 0.0);
+        [session finishTasksAndInvalidate];
+        _slippiCheckSession = nil;
+        return;
+    }
+    NSMutableURLRequest *request = [NSMutableURLRequest
+        requestWithURL:[NSURL URLWithString:@"https://slippi.gg/"]
+        cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:4.0];
+    request.HTTPMethod = @"HEAD";
+    NSTimeInterval started = NSProcessInfo.processInfo.systemUptime;
+    __weak MeleePadGameViewController *weakSelf = self;
+    [[session dataTaskWithRequest:request completionHandler:^(NSData *data,
+        NSURLResponse *response, NSError *error) {
+        (void)data;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            MeleePadGameViewController *strongSelf = weakSelf;
+            if (strongSelf == nil || strongSelf->_slippiCheckSession != session)
+                return;
+            NSHTTPURLResponse *http = [response isKindOfClass:NSHTTPURLResponse.class]
+                ? (NSHTTPURLResponse *)response : nil;
+            BOOL received = error == nil && http != nil && http.statusCode < 500;
+            if (received) {
+                NSTimeInterval elapsed = NSProcessInfo.processInfo.systemUptime - started;
+                [samples addObject:@(elapsed * 1000.0)];
+            }
+            [strongSelf runSlippiWebProbe:index + 1 samples:samples
+                failures:failures + (received ? 0 : 1) session:session];
+        });
+    }] resume];
 }
 
 - (void)gameOverlayRequestsRecentReplays:(MeleePadGameOverlay *)overlay {
@@ -2900,6 +3078,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 }
 
 - (void)dealloc {
+    [_slippiCheckSession invalidateAndCancel];
     if (_slippiNetworkMonitor != nil)
         nw_path_monitor_cancel(_slippiNetworkMonitor);
     [[NSNotificationCenter defaultCenter] removeObserver:self];

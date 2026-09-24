@@ -739,6 +739,14 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
         [weakSelf.delegate gameOverlayRequestsSlippiAccountImport:weakSelf];
     }];
 
+    UIAction *connectionCheckAction =
+        [UIAction actionWithTitle:@"Slippi Connection Check…"
+                            image:[UIImage systemImageNamed:@"wifi"]
+                       identifier:nil handler:^(__kindof UIAction *action) {
+        (void)action;
+        [weakSelf.delegate gameOverlayRequestsSlippiConnectionCheck:weakSelf];
+    }];
+
     UIAction *dpadAction = [UIAction actionWithTitle:@"Show D-Pad"
         image:[UIImage systemImageNamed:@"dpad"] identifier:nil handler:^(__kindof UIAction *action) {
         NSUserDefaults *defaults = NSUserDefaults.standardUserDefaults;
@@ -809,7 +817,7 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
 
     if (startup) {
         return [UIMenu menuWithTitle:@"MeleePad Settings" children:@[
-            displayMenu, slippiDelayMenu, accountAction, replaysAction,
+            displayMenu, slippiDelayMenu, connectionCheckAction, accountAction, replaysAction,
             dataMenu, reportProblemAction,
         ]];
     }
@@ -817,6 +825,7 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
     return [UIMenu menuWithTitle:[NSString stringWithFormat:@"MeleePad · %@",
         MeleePadRevisionLabel(MeleePadRevisionAtRoot(settings.extractedGameRoot))] children:@[
         onlinePlayAction,
+        connectionCheckAction,
         slippiDelayMenu,
         replaysAction,
         exitToHomeAction,

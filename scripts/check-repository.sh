@@ -23,6 +23,7 @@ python3 scripts/test_slippi_account_cleanup.py
 python3 scripts/test_slippi_replay_library.py
 python3 tests/test-disc-availability.py
 python3 scripts/test_slippi_network_diagnostics.py
+tests/test-slippi-connection-quality.sh
 python3 scripts/test_slippi_enet_disconnect.py
 python3 scripts/test_frame_interval_summary.py
 python3 scripts/test_classify_g5_intervals.py

@@ -6,6 +6,14 @@
 #include "MeleePadInputState.h"
 #import "MeleePadSettings.h"
 
+typedef struct {
+    BOOL connected;
+    BOOL gameActive;
+    uint64_t pingSamples;
+    uint64_t pingTotalUs;
+    uint64_t rollbackStalls;
+} MeleePadSlippiConnectionMetrics;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /* Hosts the native Slippi runtime in the main MeleePad process. The runtime
@@ -23,6 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)storeAccountData:(NSData *)data error:(NSString *_Nullable *_Nullable)error;
 - (BOOL)removeImportedAccount;
 - (NSString *)matchmakingStatusSummary;
+/* Atomic, numeric-only peer observations for the in-game connection banner. */
+- (MeleePadSlippiConnectionMetrics)connectionMetrics;
 
 - (void)startWithGameRoot:(NSString *)gameRoot
             discImagePath:(NSString *)discImagePath
