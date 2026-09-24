@@ -103,6 +103,10 @@ Completed Unranked games have been tested on the maintainer's physical iPad.
 Ranked uses Slippi's ordinary subscription/free-day eligibility. Direct, Teams
 and Party are admitted by the host but are not equivalently hardware-validated.
 Poor connection quality and local performance stalls remain under investigation.
+Build 27 adds per-sample-window ENet throttle values and a sample count to the
+numeric network CSV. The older session-wide minimum could stay low after the
+peer recovered; a zero window sample count means there was no current peer
+observation. This changes diagnostics only, not packet scheduling or timeouts.
 Replay and numeric diagnostic files stay local until shared by the user; treat
 replays as potentially identifying when submitting reports.
 **Settings → Recent Slippi Replays** lists up to eight saved files after a run
