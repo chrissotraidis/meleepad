@@ -599,7 +599,7 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
                                                         weight:UIImageSymbolWeightBold];
     UIImage *ellipsis = [UIImage systemImageNamed:@"ellipsis" withConfiguration:symbol];
     [_menuButton setImage:ellipsis forState:UIControlStateNormal];
-    _menuButton.accessibilityLabel = @"Menu";
+    _menuButton.accessibilityLabel = @"MeleePad menu";
     _menuButton.showsMenuAsPrimaryAction = YES;
     if (@available(iOS 15.0, *))
         _menuButton.changesSelectionAsPrimaryAction = NO;
@@ -655,12 +655,6 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
         [self aspectRatioAction:@"16:9 (Experimental)" mode:MeleePadAspectRatioWidescreen],
         [self aspectRatioAction:@"Fill Screen (Experimental)" mode:MeleePadAspectRatioFillScreen],
     ]];
-
-    UIMenu *displayMenu = [UIMenu menuWithTitle:@"Display"
-                                          image:[UIImage systemImageNamed:@"display"]
-                                     identifier:nil
-                                        options:0
-                                       children:@[renderMenu, aspectMenu]];
 
     UIMenu *dataMenu = [UIMenu menuWithTitle:@"Game Data & Saves"
                                        image:[UIImage systemImageNamed:@"internaldrive"]
@@ -807,6 +801,12 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
         image:[UIImage systemImageNamed:@"clock"]
         identifier:nil options:0 children:delayActions];
 
+    UIMenu *displayMenu = [UIMenu menuWithTitle:@"Display"
+                                          image:[UIImage systemImageNamed:@"display"]
+                                     identifier:nil
+                                        options:0
+                                       children:@[renderMenu, aspectMenu, fpsAction]];
+
     UIAction *exitToHomeAction =
         [UIAction actionWithTitle:@"Exit to Home"
                             image:[UIImage systemImageNamed:@"rectangle.portrait.and.arrow.right"]
@@ -817,30 +817,37 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
 
     if (startup) {
         return [UIMenu menuWithTitle:@"MeleePad Settings" children:@[
-            displayMenu, slippiDelayMenu, connectionCheckAction, accountAction, replaysAction,
-            dataMenu, reportProblemAction,
+            [UIMenu menuWithTitle:@"Slippi & Online"
+                            image:[UIImage systemImageNamed:@"person.2.wave.2"]
+                       identifier:nil options:0
+                        children:@[connectionCheckAction, accountAction,
+                                   slippiDelayMenu, replaysAction]],
+            displayMenu, dataMenu, reportProblemAction,
         ]];
     }
 
     return [UIMenu menuWithTitle:[NSString stringWithFormat:@"MeleePad · %@",
         MeleePadRevisionLabel(MeleePadRevisionAtRoot(settings.extractedGameRoot))] children:@[
-        onlinePlayAction,
-        connectionCheckAction,
-        slippiDelayMenu,
-        replaysAction,
-        exitToHomeAction,
+        [UIMenu menuWithTitle:@"Slippi & Online"
+                        image:[UIImage systemImageNamed:@"person.2.wave.2"]
+                   identifier:nil options:0
+                    children:@[onlinePlayAction, connectionCheckAction,
+                               slippiDelayMenu, replaysAction]],
         displayMenu,
-        fpsAction,
         controlsMenu,
         cheatsMenu,
         dataMenu,
-        reportProblemAction,
-        [UIAction actionWithTitle:@"About & Credits…"
-                            image:[UIImage systemImageNamed:@"info.circle"]
-                       identifier:nil handler:^(__kindof UIAction *action) {
-            (void)action;
-            [weakSelf presentCredits];
-        }],
+        [UIMenu menuWithTitle:@"Help & About"
+                        image:[UIImage systemImageNamed:@"questionmark.circle"]
+                   identifier:nil options:0
+                    children:@[reportProblemAction,
+            [UIAction actionWithTitle:@"About & Credits…"
+                                image:[UIImage systemImageNamed:@"info.circle"]
+                           identifier:nil handler:^(__kindof UIAction *action) {
+                (void)action;
+                [weakSelf presentCredits];
+            }]]],
+        exitToHomeAction,
     ]];
 }
 
