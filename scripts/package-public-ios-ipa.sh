@@ -6,7 +6,7 @@ set -euo pipefail
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 SOURCE_APP=${1:-}
-OUTPUT=${2:-"$ROOT/artifacts/MeleePad-v0.1.0-preview.6-module-free-unsigned.ipa"}
+OUTPUT=${2:-"$ROOT/artifacts/MeleePad-v0.1.0-build29-module-free-unsigned.ipa"}
 
 if [[ -z "$SOURCE_APP" || ! -d "$SOURCE_APP" ]]; then
   echo "usage: $0 /path/to/MeleePad.app [output.ipa]" >&2
@@ -51,7 +51,7 @@ executable="$(plutil -extract CFBundleExecutable raw -o - "$APP/Info.plist")"
 
 [[ "$identifier" == com.meleepad.MeleePad ]]
 [[ "$version" == 0.1.0 ]]
-[[ "$build" == 28 ]]
+[[ "$build" == 29 ]]
 [[ "$(lipo -archs "$APP/$executable")" == arm64 ]]
 
 if codesign -d "$APP" >/dev/null 2>&1; then

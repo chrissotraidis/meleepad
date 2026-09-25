@@ -440,13 +440,15 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     _connectionBanner.hidden = YES;
     _connectionBanner.userInteractionEnabled = NO;
     _connectionBanner.backgroundColor = [UIColor colorWithWhite:0.08 alpha:0.88];
-    _connectionBanner.layer.cornerRadius = 12.0;
-    _connectionBanner.layer.borderWidth = 1.5;
+    _connectionBanner.layer.cornerRadius = 9.0;
+    _connectionBanner.layer.borderWidth = 1.0;
     _connectionBannerText = [UILabel new];
     _connectionBannerText.textColor = UIColor.whiteColor;
     _connectionBannerText.textAlignment = NSTextAlignmentCenter;
-    _connectionBannerText.font = [UIFont systemFontOfSize:15.0 weight:UIFontWeightSemibold];
-    _connectionBannerText.numberOfLines = 2;
+    _connectionBannerText.font = [UIFont systemFontOfSize:13.0 weight:UIFontWeightSemibold];
+    _connectionBannerText.numberOfLines = 1;
+    _connectionBannerText.adjustsFontSizeToFitWidth = YES;
+    _connectionBannerText.minimumScaleFactor = 0.85;
     [_connectionBanner addSubview:_connectionBannerText];
     [self.view addSubview:_connectionBanner];
     [self startFPSMonitor];
@@ -822,30 +824,29 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     case MeleePadSlippiConnectionState::Disconnected:
         break;
     case MeleePadSlippiConnectionState::Measuring:
-        message = @"Opponent connected · measuring latency…";
-        accent = UIColor.systemBlueColor;
+        // The connection check remains available in the menu; don't occupy
+        // the match HUD while the first peer samples are arriving.
         break;
     case MeleePadSlippiConnectionState::Steady:
-        message = _slippiNetworkPath == MeleePadNetworkPathCellular
-            ? [NSString stringWithFormat:@"Cellular connection · peer %u ms", result.average_ms]
-            : [NSString stringWithFormat:@"Peer %u ms · connection steady", result.average_ms];
-        accent = _slippiNetworkPath == MeleePadNetworkPathCellular
-            ? UIColor.systemOrangeColor : UIColor.systemGreenColor;
+        if (_slippiNetworkPath == MeleePadNetworkPathCellular) {
+            message = [NSString stringWithFormat:@"Cellular · %u ms ping", result.average_ms];
+            accent = UIColor.systemOrangeColor;
+        }
         break;
     case MeleePadSlippiConnectionState::HighLatency:
-        message = [NSString stringWithFormat:@"High peer latency · %u ms average", result.average_ms];
+        message = [NSString stringWithFormat:@"High ping · %u ms", result.average_ms];
         accent = UIColor.systemOrangeColor;
         break;
     case MeleePadSlippiConnectionState::SevereLatency:
-        message = [NSString stringWithFormat:@"Severe peer latency · %u ms average", result.average_ms];
+        message = [NSString stringWithFormat:@"Severe ping · %u ms", result.average_ms];
         accent = UIColor.systemRedColor;
         break;
     case MeleePadSlippiConnectionState::Stalling:
-        message = @"Rollback stalling · network or device may be slow";
+        message = @"Rollback stalls · network / device";
         accent = UIColor.systemRedColor;
         break;
     case MeleePadSlippiConnectionState::NoFreshPing:
-        message = @"No fresh peer ping · connection may be stalled";
+        message = @"Peer ping unavailable";
         accent = UIColor.systemOrangeColor;
         break;
     }
@@ -1094,10 +1095,12 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     _fpsLabel.frame = CGRectMake(CGRectGetMinX(safe) + 8.0,
                                  CGRectGetMinY(safe) + 8.0,
                                  140.0, 22.0);
-    CGFloat bannerWidth = MIN(520.0, MAX(0.0, CGRectGetWidth(safe) - 100.0));
-    _connectionBanner.frame = CGRectMake(CGRectGetMidX(safe) - bannerWidth / 2.0,
-        CGRectGetMinY(safe) + 8.0, bannerWidth, 48.0);
-    _connectionBannerText.frame = CGRectInset(_connectionBanner.bounds, 12.0, 4.0);
+    // Slippi's own performance warning uses the top-left; the match timer
+    // occupies the top-center. Keep one compact warning below our menu button.
+    CGFloat bannerWidth = MIN(260.0, MAX(0.0, CGRectGetWidth(safe) - 24.0));
+    _connectionBanner.frame = CGRectMake(CGRectGetMaxX(safe) - bannerWidth - 8.0,
+        CGRectGetMinY(safe) + 60.0, bannerWidth, 32.0);
+    _connectionBannerText.frame = CGRectInset(_connectionBanner.bounds, 8.0, 2.0);
 }
 
 - (void)displayConfigurationChanged:(NSNotification *)notification {

@@ -32,11 +32,12 @@ by scene and device; this image is evidence from one observed match, not a
 universal performance guarantee.*
 
 > [!IMPORTANT]
-> MeleePad v0.1.0 Preview 6 (build 28) adds a Slippi connection check and more
-> visible peer latency warnings. Completed Unranked matches were verified on the
-> maintainer's iPad in earlier builds; build 28 has launched on that iPad but
-> has not yet completed a live opponent retest. Connection and performance
-> problems remain under investigation.
+> MeleePad v0.1.0 Preview 6 (build 28) adds a Slippi connection check and peer
+> latency warnings. A live Unranked match on the maintainer's iPad confirmed
+> matchmaking and gameplay, but exposed severe lag and overlapping warnings.
+> The newer build 29 source groups the in-game menu and moves its warning below
+> the menu button; the Preview 6 download is still build 28. Connection and
+> performance problems remain under investigation.
 >
 > The downloadable IPA is unsigned and module-free: **not playable as downloaded**.
 > A playable build requires compatible native modules generated from your own
@@ -76,7 +77,8 @@ universal performance guarantee.*
   missing ping samples. A stall can also reflect a slow device.
 - **Safer setup and updates.** Home checks the selected game image and native
   module before offering Play. An in-place private build 28 iPad update retained
-  its game payload and saved settings; build 28 opponent gameplay remains untested.
+  its game payload and saved settings. A later live match exposed lag that is
+  still under investigation.
 
 See [Preview 6 release notes](docs/releases/v0.1.0-preview.6.md) and
 [Slippi build instructions](docs/SLIPPI-BUILD.md).

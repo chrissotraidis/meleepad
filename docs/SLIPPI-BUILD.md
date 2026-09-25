@@ -86,13 +86,15 @@ The card also updates when the device's network path becomes unavailable or
 cellular-only. A usable path does not prove Slippi's servers are reachable or
 measure latency, so this guidance does not block starting a match.
 
-Use **Settings → Slippi Connection Check** on Home, or the three-dot menu
-during a game, to check the current network path and response time from
+Use **Settings → Slippi & Online → Slippi Connection Check** on Home, or
+**three-dot menu → Slippi & Online → Slippi Connection Check** during a game,
+to check the current network path and response time from
 Slippi's website. The check makes three short web requests and does not send
 your account or game data. A successful web check cannot predict UDP
-matchmaking or an opponent's connection. Once a peer connects, a prominent
-in-game banner shows measured peer latency. It warns about sustained high
-latency, severe latency, rollback stalls, and missing fresh ping samples.
+matchmaking or an opponent's connection. During a match, a compact indicator
+below the three-dot menu warns about sustained high peer latency, severe
+latency, rollback stalls, and missing fresh ping samples. The Preview 6 IPA
+still has the older centered banner; this layout change is in build 29 source.
 The peer reading is more relevant to a match than the website check, but
 rollback stalls can also reflect a slow device.
 
