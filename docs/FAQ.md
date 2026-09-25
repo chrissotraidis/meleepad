@@ -83,7 +83,7 @@ extracts the data the runtime needs. That data stays on your device.
 <details>
 <summary>Can I download a playable IPA?</summary>
 
-No. The [Preview 5 prerelease](https://github.com/chrissotraidis/meleepad/releases/tag/v0.1.0-preview.5)
+No. The [Preview 7 prerelease](https://github.com/chrissotraidis/meleepad/releases/tag/v0.1.0-preview.7)
 includes source and an unsigned, module-free IPA shell for inspection and
 signing-workflow development. It excludes the generated game and Slippi modules,
 so importing an ISO or Slippi account into that IPA cannot make it playable.
@@ -164,8 +164,8 @@ the room appears, record roughly how long creation took; a delayed success is
 still useful test evidence.
 
 If it does not finish, tap **Cancel**, turn off any VPN, confirm that the device
-has working Internet access, and retry once. Then use **More (•••) → Share
-Diagnostic Logs** and report whether the attempt eventually succeeded. Never
+has working Internet access, and retry once. Then use **••• → Help & About →
+Report a Problem…** and report whether the attempt eventually succeeded. Never
 post the room code or an IP address in a public issue.
 
 </details>
@@ -238,9 +238,7 @@ marked **In match** so new players cannot enter midway through the session.
 
 If the synchronized runtime ends normally, MeleePad returns the public room to
 its waiting state and reopens the connected screen. The same group can chat,
-ready up, and start again. During play, **More (•••) → Experimental Multiplayer**
-shows the current players and room chat. **Return to Game** keeps the connection,
-while **Leave Session** disconnects and removes the player's public presence.
+ready up, and start again.
 
 </details>
 
@@ -299,7 +297,7 @@ working. Treat four-seat rooms as development UI until that gate passes.
 <details>
 <summary>Does MeleePad support Slippi, and how do I import my profile?</summary>
 
-Yes. Preview 5 adds MeleePad-supported Slippi integration for iOS/iPadOS, with
+Yes. MeleePad supports Slippi integration for iOS/iPadOS, with
 completed Unranked matches verified on the maintainer's physical iPad. Download
 your own `user.json` from [Slippi](https://slippi.gg/online/enable), save it in
 Files, then select **Slippi Multiplayer → SET UP SLIPPI → Import Account**
@@ -308,8 +306,8 @@ See the [step-by-step README guide](../README.md#import-your-slippi-profile-on-i
 
 The public IPA is still an unsigned, module-free shell. Profile import alone
 does not supply your game data or the matching native Slippi module; see
-[build requirements](SLIPPI-BUILD.md). Ranked follows Slippi's subscription and
-free-day rules. Direct, Teams and Party are enabled but lack equivalent
+[build requirements](SLIPPI-BUILD.md). Ranked follows Slippi's access rules.
+Direct, Teams and Party are enabled but lack equivalent
 full-match hardware acceptance. Connection quality and local slowdowns are
 still under investigation. MeleePad's custom private-room protocol is separate
 from this integration. Project Slippi has not endorsed the port.
@@ -326,8 +324,9 @@ resolution; another later run sustained 46–57 FPS under serious thermal
 pressure after an extended in-game pause.
 
 Known water, reflection, and shadow rendering defects remain, and the full
-device acceptance matrix is still in progress. Preview 5 has completed Slippi
-Unranked matches on the maintainer's iPad; broader mode/device acceptance is incomplete. Latest iPhone 14 logs include 37.9–45.6 FPS
+device acceptance matrix is still in progress. Slippi Unranked matches have
+completed on the maintainer's iPad, though a later match was laggy and broader
+mode/device acceptance is incomplete. Latest iPhone 14 logs include 37.9–45.6 FPS
 slowdowns and audio starvation. The September 9 follow-up retained diagnostics,
 not a proven speed fix; see the [resume handoff](SESSION-HANDOFF-2026-09-09.md).
 

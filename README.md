@@ -20,7 +20,7 @@ Built with [ModernGekko](https://github.com/ExpansionPak/ModernGekko),
 runtime, with Apple integration based on [SunPad](https://github.com/chrissotraidis/sunpad).
 See [credits and maintained sources](#credits-licensing-and-contributing).
 
-**[Preview 6 download](https://github.com/chrissotraidis/meleepad/releases/tag/v0.1.0-preview.6) ·
+**[Preview 7 download](https://github.com/chrissotraidis/meleepad/releases/tag/v0.1.0-preview.7) ·
 [Build and setup](#build-from-source) ·
 [Slippi profile setup](#import-your-slippi-profile-on-iphone-or-ipad) ·
 [FAQ](#faq) · [Discord](https://discord.gg/xwHfUD2bxW)**
@@ -32,95 +32,38 @@ by scene and device; this image is evidence from one observed match, not a
 universal performance guarantee.*
 
 > [!IMPORTANT]
-> MeleePad v0.1.0 Preview 6 (build 28) adds a Slippi connection check and peer
-> latency warnings. A live Unranked match on the maintainer's iPad confirmed
-> matchmaking and gameplay, but exposed severe lag and overlapping warnings.
-> The newer build 29 source groups the in-game menu and moves its warning below
-> the menu button; the Preview 6 download is still build 28. Connection and
-> performance problems remain under investigation.
->
-> The downloadable IPA is unsigned and module-free: **not playable as downloaded**.
-> A playable build requires compatible native modules generated from your own
-> supported game image and local signing. ISO import alone is insufficient.
->
-> Development has used AI assistance. The maintainer is responsible for reviewing
-> and validating accepted changes; upstream authors are not responsible for
-> MeleePad-specific modifications.
+> The public IPA is **unsigned and not playable as downloaded**. It contains no
+> game data, native game module, Slippi account, or signing material. To play,
+> build and sign a complete app locally using your own supported game image.
+> Importing an ISO or account into the public IPA does not add the missing module.
 
-### At a glance
+## Preview 7 (build 29)
 
-| | What to expect |
-|---|---|
-| **Platforms** | iPhone, iPad, and Apple Silicon Mac |
-| **Game input** | Verified USA v1.02 recommended; v1.00 retained, each requiring its matching local module |
-| **Distribution** | Source plus an unsigned, non-playable IPA shell; playable builds are generated and signed locally |
-| **Controls** | Touch, supported physical controllers, and keyboard on Mac |
-| **Online play** | Slippi integration on iOS/iPadOS; complete Unranked matches verified on the maintainer’s iPad. Other modes have limited acceptance. |
-| **Not included** | Melee, game assets, saves, signing material, or a generated game module |
+- The in-game three-dot menu groups Slippi, display, controls, game data, and
+  help so its main list fits on an iPad. Existing actions remain available.
+- Peer warnings are shorter and sit below the menu button, away from Slippi's
+  top-left performance message and the match timer. Steady Wi-Fi matches no
+  longer show a persistent status banner.
+- **Slippi Connection Check** remains available from Home Settings and the
+  in-game Slippi menu. It checks the network path and Slippi website response,
+  **not** matchmaking UDP or an opponent's ping.
 
-### Which install path do I need?
+Build 29 launched on the maintainer's iPad with the game, Slippi module, and
+account ready. An earlier build 28 Unranked match connected and played, but
+showed high peer latency and poor frame pacing. Build 29 changes the menu and
+warnings; it does **not** claim to fix match lag. A build 29 live-match UI retest
+remains open.
+See the [Preview 7 release notes](docs/releases/v0.1.0-preview.7.md) and
+[Slippi build guide](docs/SLIPPI-BUILD.md). [Older release notes](docs/releases/).
+
+## Choose an install path
 
 | Goal | Start here |
 |---|---|
-| Inspect the app without playing | The [Preview 6 download](https://github.com/chrissotraidis/meleepad/releases/tag/v0.1.0-preview.6) has an unsigned, module-free IPA shell. It cannot become playable through ISO or account import. |
-| Play on your own iPhone or iPad | Use an Apple Silicon Mac, your supported game image, and your Apple signing team to [build the matching native module and app](#build-from-source). Stage the private module before signing the complete app. |
-| Use Slippi online | Build for USA v1.02 and follow the [private Slippi build requirements](docs/SLIPPI-BUILD.md#playable-private-builds), then [import your own account](#import-your-slippi-profile-on-iphone-or-ipad). |
-| Update an existing installation | Keep the same bundle identifier and signing team, install in place, and retain your game files and app data. Do not uninstall the old app first. |
-
-## What's new in Preview 6
-
-- **Check before a match.** Home Settings and the in-game three-dot menu offer
-  **Slippi Connection Check**, which tests the network path and Slippi website
-  response. This does not measure matchmaking UDP or predict opponent ping.
-- **See peer problems during play.** A larger banner reports live peer latency
-  and warns about sustained high latency, severe latency, rollback stalls, or
-  missing ping samples. A stall can also reflect a slow device.
-- **Safer setup and updates.** Home checks the selected game image and native
-  module before offering Play. An in-place private build 28 iPad update retained
-  its game payload and saved settings. A later live match exposed lag that is
-  still under investigation.
-
-See [Preview 6 release notes](docs/releases/v0.1.0-preview.6.md) and
-[Slippi build instructions](docs/SLIPPI-BUILD.md).
-
-## What's new in Preview 5
-
-- **Slippi online play.** Account login, matchmaking and rollback integrated into
-  the native iOS/iPadOS build, with completed real Unranked matches on iPad.
-- **More modes available.** Ranked follows the Slippi service's access policy.
-  Direct, Teams and Party are enabled; full matches in these modes remain unverified.
-- **Persistent diagnostics.** Replay recording, disconnect classification and
-  timing/packet counters help investigate connection quality and local slowdowns.
-- **Maintained source builds.** The adapter and Rust FFI use pinned source commits;
-  bootstrap does not replay source patches.
-
-See [Preview 5 release notes](docs/releases/v0.1.0-preview.5.md) and
-[Slippi build instructions](docs/SLIPPI-BUILD.md). MeleePad maintains this
-integration independently; Project Slippi has not endorsed this port.
-
-## What's new in Preview 4
-
-Preview 4 (build 18) rolls up the latest device-tested changes:
-
-- **USA v1.02 recommended, v1.00 retained.** Import or switch versions with
-  separate game data and saves. The menu and Online Play show the active version.
-- **Floating touch stick.** Your thumb sets the stick center inside its pickup
-  zone; the stick hides when released. The D-pad is hidden by default and can
-  be restored in Controls.
-- **Lower CPU-loop overhead.** Normal gameplay compiles out disabled diagnostic
-  bookkeeping. Physical testing supports a modest improvement; heavy iPhone
-  scenes still slow down, especially under thermal pressure.
-- **Better gameplay logs.** Ten-second summaries include frame-time average,
-  p95 upper bound, maximum, slow-frame counts, and new audio underruns, alongside
-  FPS, CPU usage, thermal state, resolution, and graphics workload. No manual
-  profiler activation is needed. Logs remain local and can be shared through
-  **Report a Problem**.
-- **Clearer Online Play and macOS fixes.** Refreshed styling, version-compatibility
-  guidance, consistent fallback policy, corrected app branding and keyboard bindings.
-
-See [version choices](docs/MELEE-VERSIONS.md) and
-[Preview 4 notes](docs/releases/v0.1.0-preview.4.md). The decompilation supports
-revision-aware development and debugging; it does not itself guarantee a speedup.
+| Inspect the app without playing | Download the [Preview 7 unsigned IPA](https://github.com/chrissotraidis/meleepad/releases/tag/v0.1.0-preview.7). It is a module-free shell, not a playable build. |
+| Play on your own iPhone or iPad | Use an Apple Silicon Mac, a supported USA Melee image, and your Apple signing team to [build the matching native module and app](#build-from-source). |
+| Use Slippi online | Build for USA v1.02 with the [private Slippi build requirements](docs/SLIPPI-BUILD.md#playable-private-builds), then [import your own account](#import-your-slippi-profile-on-iphone-or-ipad). |
+| Update an existing installation | Keep the same bundle identifier and signing team. Install a **complete private build** in place to retain app data; the public shell would replace your bundled modules. |
 
 ## How MeleePad works
 
@@ -202,9 +145,9 @@ contains setup instructions, verified results, and remaining acceptance gates.
 |---|---|---|
 | macOS | Native Apple Silicon launcher and runner, Metal rendering, keyboard and controller profiles, matches, saves, and settings | Final display and worst-frame acceptance work remains |
 | iPhone and iPad | Native app shell, Metal gameplay, touch controls, controller mapping, More menu, exact-image import, persistent saves and settings, and diagnostic export | Serious water, reflection, and shadow rendering defects remain; the full visual, audio, controller, and lifecycle matrix has not passed |
-| Performance | A physical iPad can hold 59.9–60.0 FPS/VPS at 2x resolution during observed solo play | Latest iPhone 14 logs include 37.9–45.6 FPS dips and audio starvation; sustained heavy-scene performance remains unresolved |
+| Performance | A physical iPad held 59.9–60.0 FPS/VPS at 2x resolution in one observed solo scene | A later Slippi match had high ping, rollback stalls, and a 54.5 FPS median; iPhone 14 heavy-scene slowdowns also remain unresolved |
 | Experimental multiplayer | Preview 4 fixed-delay Private Room and Direct IP transport, eight-character room codes, temporary peer chat, native Host/Join lobby, compatibility fingerprinting, and synchronized Mac/iPad Simulator runs in both host directions | These custom rooms are separate from Slippi; no public room browser or relay |
-| Distribution | Preview 6 source plus an unsigned, module-free IPA shell; locally generated, locally signed playable apps | Public IPA is not playable as downloaded; no App Store or TestFlight build; the locally generated game module is not distributed |
+| Distribution | Preview 7 source plus an unsigned, module-free IPA shell; locally generated and signed playable apps | Public IPA is not playable as downloaded; no App Store or TestFlight build; the locally generated game module is not distributed |
 
 The combat-only right-stick mapping has passed a hands-on physical-iPad retest,
 including the required menu/gameplay behavior. The current evidence, remaining
@@ -216,25 +159,12 @@ The accepted Preview 1 performance debt and the retained physical-device
 measurements are summarized in
 [the physical-iPad thermal slowdown record](docs/artifacts/2026-09-03/preview1-physical-ipad-thermal-slowdown.md).
 
-## Development handoff
-
-The September 9 performance session is stopped. Private build 20 adds scene
-logging with the stable game modules; the matrix optimization candidate was not
-promoted. **No new release or proven gameplay speedup resulted.**
-
-Start with the [resume handoff](docs/SESSION-HANDOFF-2026-09-09.md) for preserved
-builds, findings, and the next bounded investigation. Research code is preserved
-on `codex/decomp-connected-performance`; it is separate from the public release.
-
-See [potential expansions](docs/EXPANSION-AVENUES.md) for researched feature
-ideas, integration prerequisites, and first validation steps.
-
 ## Requirements
 
 To build MeleePad, you need:
 
 - an Apple Silicon Mac;
-- Xcode 26.x;
+- Xcode 26 or 27 (this release was built locally with Xcode 27.0);
 - CMake, Ninja, Git, ripgrep, and Python 3; and
 - your own supported USA Melee disc image (`GALE01`): v1.02 recommended,
   or v1.00 for existing setups.
@@ -332,12 +262,13 @@ locally recompiled modules are ignored and must not be committed.
 
 MeleePad never downloads or bundles game data.
 
-1. Launch MeleePad and open the **More (•••)** menu.
-2. Choose **Game Data & Saves**, then **Import or Reimport Game Data**.
-3. Select your supported raw ISO or GCM image in Files.
-4. Leave the app open while it validates, extracts, and atomically activates
+1. Tap **IMPORT GAME DATA** on the Original Melee card. For an existing setup,
+   use **Game Data** on Home instead.
+2. Choose **Import a Disc Image**, then select your supported raw ISO or GCM
+   image in Files.
+3. Leave the app open while it validates, extracts, and atomically activates
    the private game data.
-5. Start playing when Home confirms the matching native module is present.
+4. Start playing when Home confirms the matching native module is present.
    Importing the image alone cannot make a module-free app playable.
 
 A failed reimport leaves the prior working data active. Removing stored game
@@ -347,10 +278,11 @@ data keeps saves and control settings separate.
 
 The landscape touch layout provides move and C sticks, compact L and R
 shoulder buttons, A/B/X/Y/Z, Start, and a grouped editable directional pad.
-The **More (•••)** menu contains render scale, aspect ratio, FPS diagnostics,
-touch-layout editing and reset, controller mapping, game-data controls, and
-diagnostic export. Connecting a physical controller can automatically hide the
-touch overlay.
+The **•••** menu groups **Slippi & Online**, **Display**, **Controls**,
+**Offline Cheats**, **Game Data & Saves**, and **Help & About**, with
+**Exit to Home** at the bottom. Display contains render scale, aspect ratio,
+and the FPS counter. Controls contains mapping and touch settings. A physical
+controller can automatically hide the touch overlay.
 
 The built-in macOS keyboard controls are:
 
@@ -371,25 +303,25 @@ physical-controller profiles are preserved.
 
 ## Slippi support
 
-**MeleePad officially supports its Slippi integration starting with Preview 5.**
-The maintainer completed real Unranked matches on a physical iPad, corroborated
-by normal game-end logs. This does not establish universal connection stability:
-earlier disconnects and a later degraded match remain relevant.
+MeleePad's iOS/iPadOS Slippi integration has completed real Unranked matches on
+the maintainer's physical iPad, corroborated by game-end logs. Connection
+stability and performance remain under investigation after earlier disconnects
+and a later laggy match. Project Slippi has not endorsed this port.
 
-Ranked requires the normal Slippi subscription or free ranked-day eligibility.
-A service message asking for a subscription is an access gate, not an app failure.
+Ranked follows Slippi's current access rules. A subscription prompt from
+Slippi is an access gate, not an app failure.
 Direct, Teams and Party are enabled but lack equivalent completed-match testing.
 macOS Slippi interoperability has not received the same hardware acceptance.
 
 Use your own Slippi account. Replay and diagnostic files stay local unless you
 choose to share them. See [setup and build requirements](docs/SLIPPI-BUILD.md).
 
-Before matchmaking, open **Home Settings → Slippi Connection Check**. The same
-action is in the in-game three-dot menu. It makes three short requests to
-Slippi's website and shows a median response time; it does not test UDP
-matchmaking or another player's connection. During a peer session, the banner
-shows measured peer latency and warnings. A good website result is not a
-guarantee of a good match.
+Before matchmaking, use **Home Settings → Slippi & Online → Slippi Connection
+Check** or **••• → Slippi & Online → Slippi Connection Check** in-game. It makes
+three short requests to Slippi's website and shows a median response time;
+it cannot test matchmaking UDP or predict an opponent's ping. During a match,
+a compact warning below the menu button reports high peer ping, rollback
+stalls, or missing ping samples. Stalls can reflect the network or the device.
 
 ### Import your Slippi profile on iPhone or iPad
 
@@ -410,8 +342,7 @@ Slippi account; MeleePad does not include a shared account.
 5. Tap **Import Account**, then select your `user.json` in the Files picker.
 6. After import, MeleePad attempts to start Slippi. On subsequent launches, the
    home card shows **PLAY SLIPPI** when game data, module and account are present.
-   Start with **Unranked**. Ranked follows Slippi's subscription/free-day
-   eligibility.
+   Start with **Unranked**. Ranked follows Slippi's access rules.
 
 **Account import does not install the game or native module.** The downloadable
 unsigned IPA is a module-free shell. You still need a locally signed playable
@@ -435,8 +366,8 @@ module/game-data message refers to the playable build setup, not your profile.
 
 Private Room and Direct IP are available for controlled tests with people you
 trust. Both peers need the **same app build, game revision, matching modules and
-game data, and compatible gameplay settings**. For Preview 6,
-that means build 28 on both ends; USA v1.02 is recommended. v1.00 can only play
+game data, and compatible gameplay settings**. For Preview 7,
+that means build 29 on both ends; USA v1.02 is recommended. v1.00 can only play
 with a compatible v1.00 peer.
 
 | Option | Current boundary |
@@ -459,7 +390,7 @@ For setup, troubleshooting, privacy, and the full test history, see the
 Join the [Discord community](https://discord.gg/xwHfUD2bxW) for discussion and
 setup help. Report reproducible bugs through GitHub using the steps below.
 
-Use **More (•••) → Report a Problem…** to review and share a diagnostic package.
+Use **••• → Help & About → Report a Problem…** to review and share a diagnostic package.
 Gameplay timing summaries are collected automatically; note the approximate time
 and scene when a slowdown happens. No profiler switch is required. Then
 [open a MeleePad GitHub issue](https://github.com/chrissotraidis/meleepad/issues/new)
@@ -535,6 +466,9 @@ See [Credits](CREDITS.md), [third-party notices](THIRD-PARTY-NOTICES.md), and
 licensed under [GPL-3.0-or-later](LICENSE); upstream files retain their original
 licenses, notices, and authorship. This does not grant rights to Nintendo's game,
 generated game code, artwork, or trademarks.
+
+Development has used AI assistance. The maintainer reviews accepted changes;
+upstream authors are not responsible for MeleePad-specific modifications.
 
 Runtime and compiler changes should retain upstream history and be reviewed in
 the relevant dependency fork. The [dependency guide](docs/DEPENDENCIES.md)
