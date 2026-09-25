@@ -6,7 +6,7 @@ set -euo pipefail
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 SOURCE_APP=${1:-}
-OUTPUT=${2:-"$ROOT/artifacts/MeleePad-v0.1.0-build29-module-free-unsigned.ipa"}
+OUTPUT=${2:-"$ROOT/artifacts/MeleePad-v0.1.0-preview.7-module-free-unsigned.ipa"}
 
 if [[ -z "$SOURCE_APP" || ! -d "$SOURCE_APP" ]]; then
   echo "usage: $0 /path/to/MeleePad.app [output.ipa]" >&2
