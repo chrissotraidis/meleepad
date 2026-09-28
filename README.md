@@ -20,8 +20,7 @@ Built with [ModernGekko](https://github.com/ExpansionPak/ModernGekko),
 runtime, with Apple integration based on [SunPad](https://github.com/chrissotraidis/sunpad).
 See [credits and maintained sources](#credits-licensing-and-contributing).
 
-**[Preview 7 download](https://github.com/chrissotraidis/meleepad/releases/tag/v0.1.0-preview.7) ·
-[Build and setup](#build-from-source) ·
+**[Build and setup](#build-from-source) ·
 [Slippi profile setup](#import-your-slippi-profile-on-iphone-or-ipad) ·
 [FAQ](#faq) · [Discord](https://discord.gg/xwHfUD2bxW)**
 
@@ -32,10 +31,8 @@ by scene and device; this image is evidence from one observed match, not a
 universal performance guarantee.*
 
 > [!IMPORTANT]
-> The public IPA is **unsigned and not playable as downloaded**. It contains no
-> game data, native game module, Slippi account, or signing material. To play,
+> Previous builds have been retired; a new version is in progress. To play,
 > build and sign a complete app locally using your own supported game image.
-> Importing an ISO or account into the public IPA does not add the missing module.
 
 ## Preview 7 (build 29)
 
@@ -60,7 +57,6 @@ See the [Preview 7 release notes](docs/releases/v0.1.0-preview.7.md) and
 
 | Goal | Start here |
 |---|---|
-| Inspect the app without playing | Download the [Preview 7 unsigned IPA](https://github.com/chrissotraidis/meleepad/releases/tag/v0.1.0-preview.7). It is a module-free shell, not a playable build. |
 | Play on your own iPhone or iPad | Use an Apple Silicon Mac, a supported USA Melee image, and your Apple signing team to [build the matching native module and app](#build-from-source). |
 | Use Slippi online | Build for USA v1.02 with the [private Slippi build requirements](docs/SLIPPI-BUILD.md#playable-private-builds), then [import your own account](#import-your-slippi-profile-on-iphone-or-ipad). |
 | Update an existing installation | Keep the same bundle identifier and signing team. Install a **complete private build** in place to retain app data; the public shell would replace your bundled modules. |
@@ -112,8 +108,7 @@ the audited reuse candidates and the limits of the performance evidence.
 <details>
 <summary>Can I download a playable IPA?</summary>
 
-The public IPA is an unsigned, module-free shell. Importing an ISO alone cannot
-make it playable. Build the matching game module locally and sign the app with
+Previous builds have been retired; a new version is in progress. Build the matching game module locally and sign the app with
 your Apple development account using the instructions below.
 
 </details>
@@ -344,11 +339,9 @@ Slippi account; MeleePad does not include a shared account.
    home card shows **PLAY SLIPPI** when game data, module and account are present.
    Start with **Unranked**. Ranked follows Slippi's access rules.
 
-**Account import does not install the game or native module.** The downloadable
-unsigned IPA is a module-free shell. You still need a locally signed playable
+**Account import does not install the game or native module.** You still need a locally signed playable
 build with your own USA v1.02 game data and matching native Slippi module;
-see [Slippi build requirements](docs/SLIPPI-BUILD.md). Importing `user.json` or
-an ISO by itself cannot make the public shell playable.
+see [Slippi build requirements](docs/SLIPPI-BUILD.md).
 
 The imported account is saved in this device's Keychain; Slippi receives a
 restricted temporary runtime copy while running. Keep the downloaded file
