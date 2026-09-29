@@ -39,7 +39,9 @@ universal performance guarantee.*
 You need an Apple Silicon Mac with Xcode, your own GALE01 USA v1.00 or v1.02
 disc image, and AltStore Classic, SideStore or Sideloadly.
 
-1. Once, install the build tools: `brew install cmake ninja ripgrep`.
+1. Once, install the build tools PadForge does not fetch itself: `brew install ripgrep`,
+   then [rustup](https://rustup.rs) and
+   `rustup toolchain install 1.88.0 --target aarch64-apple-ios`.
 2. Download [PadForge](https://github.com/chrissotraidis/padforge/releases/latest),
    unzip it and double-click `PadForge.command`. Choose MeleePad and drag in
    your disc image. PadForge downloads the published app from the
