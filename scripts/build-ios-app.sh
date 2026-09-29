@@ -12,6 +12,7 @@ derived="$(mktemp -d /tmp/meleepad-app.XXXXXX)"
 trap 'rm -rf "$derived"' EXIT
 
 "$ROOT/scripts/ios-build-core-device.sh" --core-only
+python3 "$ROOT/scripts/build-slippi-dependencies.py"   # Slippi link inputs (docs/SLIPPI-BUILD.md)
 "$ROOT/scripts/ios-provision.sh" device
 xcodebuild -project "$ROOT/MeleePad.xcodeproj" -scheme MeleePad -configuration Release \
   -destination generic/platform=iOS -derivedDataPath "$derived" \
