@@ -46,7 +46,8 @@ CMAKE_COMMON=(
   -DMODERNGEKKO_GAMECUBE_CONTROLLERS=ON
   -DUSE_SANITIZERS=OFF
   "-DCMAKE_C_FLAGS=-ffile-prefix-map=$ROOT=."
-  "-DCMAKE_CXX_FLAGS=-ffile-prefix-map=$ROOT=."
+  # PADFORGE_PUBLIC_APP: the published app carries no Nintendo keys (IOSC.cpp).
+  "-DCMAKE_CXX_FLAGS=-ffile-prefix-map=$ROOT=. -DPADFORGE_PUBLIC_APP"
   "-DCMAKE_OBJC_FLAGS=-ffile-prefix-map=$ROOT=."
   "-DCMAKE_OBJCXX_FLAGS=-ffile-prefix-map=$ROOT=."
 )

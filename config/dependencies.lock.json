@@ -16,19 +16,19 @@
     },
     "recompCore": {
       "url": "https://github.com/chrissotraidis/RecompCore.git",
-      "revision": "a697cb8f5e85aa488c9afb722f14ff37d0d76a0e",
+      "revision": "3f2a51fb1b29476432aa755fa9916c808bac45a9",
       "upstreamRevision": "e13ab348f13cd67879f6db6e9d7185410f8f62c6",
       "upstreamUrl": "https://github.com/ExpansionPak/RecompCore.git"
     },
     "modernGekko": {
       "url": "https://github.com/chrissotraidis/ModernGekko.git",
-      "revision": "caa300853745b21ef4fa68e4137a0830c8d9b5a8",
+      "revision": "9be2c5b0a4ef1a3dfacee4de1bce6094c12abb6d",
       "upstreamRevision": "048c426ba3db0369e40826d22ad3adcce7fe7c58",
       "upstreamUrl": "https://github.com/ExpansionPak/ModernGekko.git"
     }
   },
   "vendorRevisions": {
-    "modernGekkoRecompCoreDolphin": "a697cb8f5e85aa488c9afb722f14ff37d0d76a0e"
+    "modernGekkoRecompCoreDolphin": "3f2a51fb1b29476432aa755fa9916c808bac45a9"
   },
   "references": {
     "sunpad": {
