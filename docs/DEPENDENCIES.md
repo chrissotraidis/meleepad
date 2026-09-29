@@ -17,8 +17,8 @@ MeleePad
 
 | Component | MeleePad fork commit | Upstream base |
 | --- | --- | --- |
-| modernGekko | [`caa300853745b21ef4fa68e4137a0830c8d9b5a8`](https://github.com/chrissotraidis/ModernGekko/commit/caa300853745b21ef4fa68e4137a0830c8d9b5a8) | [`048c426ba3db0369e40826d22ad3adcce7fe7c58`](https://github.com/ExpansionPak/ModernGekko/commit/048c426ba3db0369e40826d22ad3adcce7fe7c58) |
-| recompCore | [`a697cb8f5e85aa488c9afb722f14ff37d0d76a0e`](https://github.com/chrissotraidis/RecompCore/commit/a697cb8f5e85aa488c9afb722f14ff37d0d76a0e) | [`e13ab348f13cd67879f6db6e9d7185410f8f62c6`](https://github.com/ExpansionPak/RecompCore/commit/e13ab348f13cd67879f6db6e9d7185410f8f62c6) |
+| modernGekko | [`9be2c5b0a4ef1a3dfacee4de1bce6094c12abb6d`](https://github.com/chrissotraidis/ModernGekko/commit/9be2c5b0a4ef1a3dfacee4de1bce6094c12abb6d) | [`048c426ba3db0369e40826d22ad3adcce7fe7c58`](https://github.com/ExpansionPak/ModernGekko/commit/048c426ba3db0369e40826d22ad3adcce7fe7c58) |
+| recompCore | [`3f2a51fb1b29476432aa755fa9916c808bac45a9`](https://github.com/chrissotraidis/RecompCore/commit/3f2a51fb1b29476432aa755fa9916c808bac45a9) | [`e13ab348f13cd67879f6db6e9d7185410f8f62c6`](https://github.com/ExpansionPak/RecompCore/commit/e13ab348f13cd67879f6db6e9d7185410f8f62c6) |
 | dolRecomp | [`7a18425130a98596364d6063a49562d0f731230b`](https://github.com/chrissotraidis/DolRecomp/commit/7a18425130a98596364d6063a49562d0f731230b) | [`93b881c8f73df1d64a88491f2aa50c7c9ed2384d`](https://github.com/ExpansionPak/DolRecomp/commit/93b881c8f73df1d64a88491f2aa50c7c9ed2384d) |
 | enet | [`c8827b136c5681d0b12d30a0746492527d7cfced`](https://github.com/chrissotraidis/enet/commit/c8827b136c5681d0b12d30a0746492527d7cfced) | [`2662c0de09e36f2a2030ccc2c528a3e4c9e8138a`](https://github.com/lsalzman/enet/commit/2662c0de09e36f2a2030ccc2c528a3e4c9e8138a) |
 

@@ -1206,12 +1206,12 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 
 - (void)presentOriginalModuleSetup {
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Finish Melee Setup"
-        message:@"Your game data is ready, but this build has no matching native game module. The public IPA is a module-free shell; reimporting the disc cannot add the module. Build and sign a complete app on your Mac."
+        message:@"Your game data is ready, but this app has no matching game module. The published app contains no game code: on a Mac, PadForge makes it from your own disc and adds it to the app. Reimporting the disc here cannot add it."
         preferredStyle:UIAlertControllerStyleAlert];
-    [alert addAction:[UIAlertAction actionWithTitle:@"Build Instructions"
+    [alert addAction:[UIAlertAction actionWithTitle:@"How to Get It"
         style:UIAlertActionStyleDefault handler:^(__kindof UIAlertAction *action) {
             (void)action;
-            NSURL *url = [NSURL URLWithString:@"https://github.com/chrissotraidis/meleepad/blob/main/docs/SLIPPI-BUILD.md"];
+            NSURL *url = [NSURL URLWithString:@"https://github.com/chrissotraidis/meleepad#get-meleepad"];
             [UIApplication.sharedApplication openURL:url options:@{} completionHandler:nil];
         }]];
     [alert addAction:[UIAlertAction actionWithTitle:@"Close"

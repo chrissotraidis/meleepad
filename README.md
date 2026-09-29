@@ -31,8 +31,29 @@ by scene and device; this image is evidence from one observed match, not a
 universal performance guarantee.*
 
 > [!IMPORTANT]
-> Previous builds have been retired; a new version is in progress. To play,
-> build and sign a complete app locally using your own supported game image.
+> Releases publish the app without any game code. [PadForge](https://github.com/chrissotraidis/padforge/releases/latest)
+> makes the game part on your Mac from your own disc and adds it. See [Get MeleePad](#get-meleepad).
+
+## Get MeleePad
+
+You need an Apple Silicon Mac with Xcode, your own GALE01 USA v1.00 or v1.02
+disc image, and AltStore Classic, SideStore or Sideloadly.
+
+1. Once, install the build tools PadForge does not fetch itself: `brew install ripgrep`,
+   then [rustup](https://rustup.rs) and
+   `rustup toolchain install 1.88.0 --target aarch64-apple-ios`.
+2. Download [PadForge](https://github.com/chrissotraidis/padforge/releases/latest),
+   unzip it and double-click `PadForge.command`. Choose MeleePad and drag in
+   your disc image. PadForge downloads the published app from the
+   [latest release](https://github.com/chrissotraidis/meleepad/releases/latest),
+   builds your game module from your disc and adds it, then saves your MeleePad
+   IPA in the folder you choose.
+3. Install that IPA with your sideloading tool, over an existing MeleePad to keep
+   your data, then import the same disc image in the app.
+
+The IPA contains code translated from your disc: it is yours alone; never share
+it. This covers offline play. Native Slippi online play still needs the
+[developer build](docs/SLIPPI-BUILD.md#playable-private-builds).
 
 ## Preview 7 (build 29)
 
@@ -57,7 +78,7 @@ See the [Preview 7 release notes](docs/releases/v0.1.0-preview.7.md) and
 
 | Goal | Start here |
 |---|---|
-| Play on your own iPhone or iPad | Use an Apple Silicon Mac, a supported USA Melee image, and your Apple signing team to [build the matching native module and app](#build-from-source). |
+| Play on your own iPhone or iPad | Make your copy with PadForge on an Apple Silicon Mac: see [Get MeleePad](#get-meleepad). |
 | Use Slippi online | Build for USA v1.02 with the [private Slippi build requirements](docs/SLIPPI-BUILD.md#playable-private-builds), then [import your own account](#import-your-slippi-profile-on-iphone-or-ipad). |
 | Update an existing installation | Keep the same bundle identifier and signing team. Install a **complete private build** in place to retain app data; the public shell would replace your bundled modules. |
 
@@ -108,8 +129,8 @@ the audited reuse candidates and the limits of the performance evidence.
 <details>
 <summary>Can I download a playable IPA?</summary>
 
-Previous builds have been retired; a new version is in progress. Build the matching game module locally and sign the app with
-your Apple development account using the instructions below.
+No. The release has the app without game code; PadForge builds your game module
+from your own disc and adds it. See [Get MeleePad](#get-meleepad).
 
 </details>
 

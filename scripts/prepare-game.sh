@@ -64,7 +64,8 @@ cmake -S "$MG" -B "$BUILD" -G Ninja \
   -DUSE_SYSTEM_LIBS=OFF -DENABLE_VULKAN=OFF \
   -DENABLE_QT=OFF -DENABLE_TESTS=OFF -DUSE_DISCORD_PRESENCE=OFF \
   -DUSE_MGBA=OFF -DUSE_RETRO_ACHIEVEMENTS=OFF -DENABLE_AUTOUPDATE=OFF \
-  -DENABLE_ANALYTICS=OFF -DUSE_UPNP=OFF
+  -DENABLE_ANALYTICS=OFF -DUSE_UPNP=OFF \
+  -DHAVE_PIPE2=OFF  # the macOS 27 SDK marks pipe2 as macOS 27+ only (as sunpad#49)
 cmake --build "$BUILD" --target moderngekko-port moderngekko-run \
   -j"${MELEEPAD_JOBS:-8}"
 # moderngekko-port's POST_BUILD copy does not rerun when only its dolrecomp
