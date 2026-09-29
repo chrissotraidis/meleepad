@@ -83,10 +83,10 @@ extracts the data the runtime needs. That data stays on your device.
 <details>
 <summary>Can I download a playable IPA?</summary>
 
-No. The [Preview 7 prerelease](https://github.com/chrissotraidis/meleepad/releases/tag/v0.1.0-preview.7)
-includes source and an unsigned, module-free IPA shell for inspection and
-signing-workflow development. It excludes the generated game and Slippi modules,
-so importing an ISO or Slippi account into that IPA cannot make it playable.
+No. The retired Preview 7 prerelease (no longer published) included source and
+an unsigned, module-free IPA shell for inspection and signing-workflow
+development. It excluded the generated game and Slippi modules, so importing an
+ISO or Slippi account into that IPA could not make it playable.
 
 A playable iPhone or iPad build must be generated locally from your own
 supported disc image, then signed with your Apple development account. The
