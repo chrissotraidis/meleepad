@@ -43,6 +43,13 @@
           ]
         },
         {
+          "stage": "slippi",
+          "command": [
+            "python3",
+            "{repo}/scripts/build-slippi-dependencies.py"
+          ]
+        },
+        {
           "stage": "translate",
           "command": [
             "{repo}/scripts/ios-build-core-device.sh"
@@ -103,6 +110,13 @@
           "-version"
         ],
         "note": "Install Xcode and its iOS platform"
+      },
+      {
+        "name": "rustup",
+        "version_args": [
+          "--version"
+        ],
+        "note": "Rust 1.88.0 with the aarch64-apple-ios target builds MeleePad's Slippi pieces"
       }
     ]
   },
