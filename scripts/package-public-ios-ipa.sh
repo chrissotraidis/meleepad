@@ -6,7 +6,10 @@ set -euo pipefail
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 SOURCE_APP=${1:-}
-OUTPUT=${2:-"$ROOT/artifacts/MeleePad-v0.1.0-preview.7-module-free-unsigned.ipa"}
+# One version for the app, its release and PadForge: version.json.
+VERSION="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["version"])' "$ROOT/version.json")"
+BUILD="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["build"])' "$ROOT/version.json")"
+OUTPUT=${2:-"$ROOT/artifacts/MeleePad-v$VERSION-ios-unsigned.ipa"}
 
 if [[ -z "$SOURCE_APP" || ! -d "$SOURCE_APP" ]]; then
   echo "usage: $0 /path/to/MeleePad.app [output.ipa]" >&2
@@ -50,8 +53,8 @@ build="$(plutil -extract CFBundleVersion raw -o - "$APP/Info.plist")"
 executable="$(plutil -extract CFBundleExecutable raw -o - "$APP/Info.plist")"
 
 [[ "$identifier" == com.meleepad.MeleePad ]]
-[[ "$version" == 0.1.0 ]]
-[[ "$build" == 29 ]]
+[[ "$version" == "$VERSION" ]]
+[[ "$build" == "$BUILD" ]]
 [[ "$(lipo -archs "$APP/$executable")" == arm64 ]]
 
 if codesign -d "$APP" >/dev/null 2>&1; then

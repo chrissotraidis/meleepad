@@ -10,6 +10,15 @@ TPL="$ROOT/ref/ModernGekko-Template"
 TOOLCHAIN="$ROOT/scripts/ios-device-toolchain.cmake"
 BUILD="$MG/build-ios-iphoneos-meleepad-static"
 MODULE_BUILD="/tmp/meleepad-module-ios-device"
+# Without MELEEPAD_GAME_REVISION, build the revision prepare-game.sh prepared
+# last (v1.00 or v1.02, from the disc the player supplied).
+if [[ -z "${MELEEPAD_GAME_REVISION:-}" ]]; then
+  r0="$TPL/build/modules-macos14/GALE01/active-module.txt"
+  r2="$TPL/build/modules-macos14-r2/GALE01/active-module.txt"
+  if [[ -f "$r2" && ( ! -f "$r0" || "$r2" -nt "$r0" ) ]]; then
+    MELEEPAD_GAME_REVISION=2
+  fi
+fi
 REVISION=${MELEEPAD_GAME_REVISION:-0}
 case "$REVISION" in 0|2) ;; *) echo "supported revisions: 0 or 2" >&2; exit 2;; esac
 MODULES="$TPL/build/modules-macos14"
