@@ -47,7 +47,7 @@ disc image, and AltStore Classic, SideStore or Sideloadly.
    your disc image. PadMint downloads the published app from the
    [latest release](https://github.com/chrissotraidis/meleepad/releases/latest),
    builds your game module from your disc and adds it, then saves your MeleePad
-   IPA in the folder you choose.
+   IPA in your Downloads folder.
 3. Install that IPA with your sideloading tool, over an existing MeleePad to keep
    your data, then import the same disc image in the app.
 
