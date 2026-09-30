@@ -1206,7 +1206,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 
 - (void)presentOriginalModuleSetup {
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Finish Melee Setup"
-        message:@"Your game data is ready, but this app has no matching game module. The published app contains no game code: on a Mac, PadForge makes it from your own disc and adds it to the app. Reimporting the disc here cannot add it."
+        message:@"Your game data is ready, but this app has no matching game module. The published app contains no game code: on a Mac, PadMint makes it from your own disc and adds it to the app. Reimporting the disc here cannot add it."
         preferredStyle:UIAlertControllerStyleAlert];
     [alert addAction:[UIAlertAction actionWithTitle:@"How to Get It"
         style:UIAlertActionStyleDefault handler:^(__kindof UIAlertAction *action) {

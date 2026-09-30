@@ -123,6 +123,6 @@
   "notes": "The app loads the translated game from a separate module (gGALE01_recomp.dylib or gGALE01r2_recomp.dylib); package-ios.sh stages it into the published app with scripts/stage-ios-modules.py. Offline play only; the Slippi module stays a developer build.",
   "publication": {
     "public_binaries": false,
-    "reason": "The release publishes the app without game code; PadForge adds the module translated from the player's own disc, which stays personal."
+    "reason": "The release publishes the app without game code; PadMint adds the module translated from the player's own disc, which stays personal."
   }
 }

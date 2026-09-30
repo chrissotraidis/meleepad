@@ -6,7 +6,7 @@ set -euo pipefail
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 SOURCE_APP=${1:-}
-# One version for the app, its release and PadForge: version.json.
+# One version for the app, its release and PadMint: version.json.
 VERSION="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["version"])' "$ROOT/version.json")"
 BUILD="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["build"])' "$ROOT/version.json")"
 OUTPUT=${2:-"$ROOT/artifacts/MeleePad-v$VERSION-ios-unsigned.ipa"}
