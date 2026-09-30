@@ -5,6 +5,7 @@ import hashlib
 import json
 from pathlib import Path
 import subprocess
+import time
 
 ROOT = Path(__file__).resolve().parents[1]
 ADAPTER = ROOT / 'ref/ModernGekko/vendor/dolphin/SlippiAdapter'
@@ -33,10 +34,18 @@ def main():
         run(['xcrun', 'clang++', '-std=c++14', '-O2', '-target', target, '-isysroot', sdkroot,
              flags, '-I' + str(ADAPTER / 'Externals/semver/include'), '-c', source,
              '-o', out / (source.stem + '.o')])
-    # Rust builder requires a new output directory: an existing build must be
-    # explicitly relocated before rebuilding so stale libraries are never reused.
+    # Rust builder requires a new output directory so stale libraries are never
+    # reused. A rerun (for example after a failed build) moves the earlier one
+    # aside, outside this folder so its libraries are not recorded below, instead
+    # of stopping; nothing is deleted.
+    rust_out = out / 'rust'
+    if rust_out.exists():
+        earlier = ROOT / 'build-slippi-earlier' / f'{args.platform}-rust-{time.strftime("%Y%m%d-%H%M%S")}'
+        earlier.parent.mkdir(exist_ok=True)
+        rust_out.rename(earlier)
+        print(f'Moved the earlier Slippi Rust build aside: {earlier}', flush=True)
     run(['python3', ROOT / 'scripts/build-slippi-rust.py', '--source', ADAPTER / 'rust',
-         '--output', out / 'rust', '--platform', args.platform])
+         '--output', rust_out, '--platform', args.platform])
     records = {str(p.relative_to(out)): hashlib.sha256(p.read_bytes()).hexdigest()
                for p in sorted(out.rglob('*')) if p.is_file() and p.suffix in ('.a', '.o')}
     (out / 'libraries.sha256.json').write_text(json.dumps(records, indent=2) + '\n')
