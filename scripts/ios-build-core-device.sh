@@ -83,6 +83,15 @@ if [[ ! -f "$GEN/generated.c" || ! -f "$GEN/generated.h" ]]; then
   echo "prepared module sources missing; run scripts/prepare-game.sh first" >&2
   exit 1
 fi
+# The module build folder is shared by every MeleePad folder on this Mac. If it
+# was set up from another one (an earlier version PadMint built, or another
+# checkout), CMake refuses it; move it aside (nothing is deleted).
+if [[ -f "$MODULE_BUILD/CMakeCache.txt" ]] && \
+   ! grep -qxF "CMAKE_HOME_DIRECTORY:INTERNAL=$MG/vendor/dolphin/module-template" "$MODULE_BUILD/CMakeCache.txt"; then
+  EARLIER="$MODULE_BUILD.earlier-$(date +%Y%m%d-%H%M%S)"
+  mv "$MODULE_BUILD" "$EARLIER"
+  echo "Moved a module build from another MeleePad folder aside: $EARLIER"
+fi
 cmake -S "$MG/vendor/dolphin/module-template" -B "$MODULE_BUILD" -G Ninja \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_TOOLCHAIN_FILE="$TOOLCHAIN" \
