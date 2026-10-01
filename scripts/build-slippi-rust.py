@@ -20,8 +20,11 @@ def output(command, cwd=None):
 
 
 def digest(path):
+    hashed = hashlib.sha256()
     with path.open('rb') as stream:
-        return hashlib.file_digest(stream, 'sha256').hexdigest()
+        for chunk in iter(lambda: stream.read(1024 * 1024), b''):
+            hashed.update(chunk)
+    return hashed.hexdigest()
 
 
 def verify_source(source):
