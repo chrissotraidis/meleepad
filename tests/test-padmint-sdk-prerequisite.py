@@ -13,8 +13,11 @@ class SDKPrerequisiteTests(unittest.TestCase):
 
     def test_player_sdk_probe(self):
         players = [tool for tool in self.recipe['requirements']['tools'] if tool.get('player')]
-        self.assertEqual(len(players), 1)
-        sdk = players[0]
+        self.assertEqual([tool['name'] for tool in players], ['xcodebuild', 'xcrun'])
+        xcode, sdk = players
+        self.assertEqual(xcode['version_args'], ['-version'])
+        self.assertIs(xcode['player'], True)
+        self.assertEqual(xcode['note'], sdk['note'])
         self.assertEqual(sdk['name'], 'xcrun')
         self.assertEqual(sdk['label'], 'Xcode iOS SDK')
         self.assertEqual(sdk['version_args'], ['--sdk', 'iphoneos', '--show-sdk-path'])
@@ -44,6 +47,9 @@ class SDKPrerequisiteTests(unittest.TestCase):
             {'stage': 'translate', 'command': ['{repo}/scripts/ios-build-core-device.sh']},
             {'stage': 'package', 'command': ['{repo}/scripts/package-ios.sh', '{app}', '{output}']},
         ])
+
+    def test_personal_ipa_uses_generic_package_validation(self):
+        self.assertEqual(self.recipe['targets']['ios']['check'], 'ipa')
 
 
 if __name__ == '__main__':

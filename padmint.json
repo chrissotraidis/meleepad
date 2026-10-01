@@ -27,7 +27,7 @@
       ],
       "published_app": "MeleePad-v{version}-ios-unsigned.ipa",
       "output": "ipa",
-      "check": "none",
+      "check": "ipa",
       "steps": [
         {
           "stage": "dependencies",
@@ -103,6 +103,14 @@
         "version_args": [
           "--version"
         ]
+      },
+      {
+        "name": "xcodebuild",
+        "version_args": [
+          "-version"
+        ],
+        "player": true,
+        "note": "Install full Xcode and its iOS platform; select Xcode's command-line tools in Xcode Settings > Locations, then run PadMint again."
       },
       {
         "name": "xcrun",
