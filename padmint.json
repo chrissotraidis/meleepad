@@ -105,11 +105,15 @@
         ]
       },
       {
-        "name": "xcodebuild",
+        "name": "xcrun",
+        "label": "Xcode iOS SDK",
         "version_args": [
-          "-version"
+          "--sdk",
+          "iphoneos",
+          "--show-sdk-path"
         ],
-        "note": "Install Xcode and its iOS platform"
+        "player": true,
+        "note": "Install full Xcode and its iOS platform; select Xcode's command-line tools in Xcode Settings > Locations, then run PadMint again."
       },
       {
         "name": "rustup",

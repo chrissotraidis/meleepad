@@ -7,6 +7,7 @@ cd "$ROOT"
 git diff --check
 python3 scripts/dependency-lock.py
 python3 tests/test-dependency-lock.py
+python3 tests/test-padmint-sdk-prerequisite.py
 python3 scripts/test_slippi_enet_startup.py
 for script in scripts/*.sh; do
   bash -n "$script"
