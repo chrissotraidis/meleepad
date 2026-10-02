@@ -27,7 +27,7 @@
       ],
       "published_app": "MeleePad-v{version}-ios-unsigned.ipa",
       "output": "ipa",
-      "check": "none",
+      "check": "ipa",
       "steps": [
         {
           "stage": "dependencies",
@@ -109,14 +109,31 @@
         "version_args": [
           "-version"
         ],
-        "note": "Install Xcode and its iOS platform"
+        "player": true,
+        "note": "Install full Xcode and its iOS platform; select Xcode's command-line tools in Xcode Settings > Locations, then run PadMint again."
+      },
+      {
+        "name": "xcrun",
+        "label": "Xcode iOS SDK",
+        "version_args": [
+          "--sdk",
+          "iphoneos",
+          "--show-sdk-path"
+        ],
+        "player": true,
+        "note": "Install full Xcode and its iOS platform; select Xcode's command-line tools in Xcode Settings > Locations, then run PadMint again."
       },
       {
         "name": "rustup",
+        "label": "Rust 1.88.0",
         "version_args": [
+          "run",
+          "1.88.0",
+          "rustc",
           "--version"
         ],
-        "note": "Rust 1.88.0 with the aarch64-apple-ios target builds MeleePad's Slippi pieces"
+        "player": true,
+        "note": "Install Rustup, then run: rustup toolchain install 1.88.0 --target aarch64-apple-ios"
       }
     ]
   },
