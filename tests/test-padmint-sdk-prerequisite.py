@@ -13,8 +13,8 @@ class SDKPrerequisiteTests(unittest.TestCase):
 
     def test_player_sdk_probe(self):
         players = [tool for tool in self.recipe['requirements']['tools'] if tool.get('player')]
-        self.assertEqual([tool['name'] for tool in players], ['xcodebuild', 'xcrun'])
-        xcode, sdk = players
+        self.assertEqual([tool['name'] for tool in players], ['xcodebuild', 'xcrun', 'rustup'])
+        xcode, sdk = players[:2]
         self.assertEqual(xcode['version_args'], ['-version'])
         self.assertIs(xcode['player'], True)
         self.assertEqual(xcode['note'], sdk['note'])
@@ -26,12 +26,14 @@ class SDKPrerequisiteTests(unittest.TestCase):
                             'Xcode Settings > Locations', 'run PadMint again'):
             self.assertIn(instruction, sdk['note'])
 
-    def test_rust_requirement_remains_unchanged(self):
+    def test_player_rust_probe_selects_the_backend_toolchain(self):
         rust = next(tool for tool in self.recipe['requirements']['tools'] if tool['name'] == 'rustup')
         self.assertEqual(rust, {
             'name': 'rustup',
-            'version_args': ['--version'],
-            'note': "Rust 1.88.0 with the aarch64-apple-ios target builds MeleePad's Slippi pieces",
+            'label': 'Rust 1.88.0',
+            'version_args': ['run', '1.88.0', 'rustc', '--version'],
+            'player': True,
+            'note': 'Install Rustup, then run: rustup toolchain install 1.88.0 --target aarch64-apple-ios',
         })
 
     def test_host_support_remains_unchanged(self):

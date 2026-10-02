@@ -125,10 +125,15 @@
       },
       {
         "name": "rustup",
+        "label": "Rust 1.88.0",
         "version_args": [
+          "run",
+          "1.88.0",
+          "rustc",
           "--version"
         ],
-        "note": "Rust 1.88.0 with the aarch64-apple-ios target builds MeleePad's Slippi pieces"
+        "player": true,
+        "note": "Install Rustup, then run: rustup toolchain install 1.88.0 --target aarch64-apple-ios"
       }
     ]
   },
