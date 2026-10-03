@@ -43,8 +43,8 @@ disc image, and AltStore Classic, SideStore or Sideloadly.
    then [rustup](https://rustup.rs) and
    `rustup toolchain install 1.88.0 --target aarch64-apple-ios`.
 2. Download [PadMint](https://github.com/chrissotraidis/padmint/releases/latest),
-   unzip it and double-click `PadMint.command`. Choose MeleePad and drag in
-   your disc image. PadMint downloads the published app from the
+   unzip it and double-click `PadMint.command`. In the PadMint page that opens in
+   your browser, choose MeleePad and your disc image, then click **Make my copy**. PadMint downloads the published app from the
    [latest release](https://github.com/chrissotraidis/meleepad/releases/latest),
    builds your game module from your disc and adds it, then saves your MeleePad
    IPA in your Downloads folder.
