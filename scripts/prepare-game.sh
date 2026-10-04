@@ -43,7 +43,7 @@ if [[ "$image_format" == ciso ]]; then
     python3 "$ROOT/scripts/identify-game.py" "$ISO" --normalize "$normalized" >/dev/null
   fi
   normalized_revision=$(python3 "$ROOT/scripts/identify-game.py" "$normalized" --field revision)
-  [[ "$normalized_revision" == "$revision" ]]
+  [[ "$normalized_revision" == "$revision" ]] || { echo "prepare-game.sh: check failed (line 46)" >&2; exit 1; }
   ISO="$normalized"
   EXPECTED_SHA256=$(shasum -a 256 "$ISO" | awk '{print $1}')
 fi
@@ -83,20 +83,20 @@ else
   staging="$GAME.importing.$$"
   trap 'rm -rf "$staging"' EXIT
   "$BUILD/dolrecomp" extract "$ISO" "$staging"
-  [[ -f "$staging/sys/boot.bin" && -f "$staging/sys/main.dol" ]]
-  [[ "$(find "$staging/files" -type f | wc -l | tr -d ' ')" == "$EXPECTED_FILES" ]]
+  [[ -f "$staging/sys/boot.bin" && -f "$staging/sys/main.dol" ]] || { echo "prepare-game.sh: check failed (line 86)" >&2; exit 1; }
+  [[ "$(find "$staging/files" -type f | wc -l | tr -d ' ')" == "$EXPECTED_FILES" ]] || { echo "prepare-game.sh: check failed (line 87)" >&2; exit 1; }
   printf '%s\n' "$EXPECTED_SHA256" > "$staging/.meleepad-source-sha256"
   mv "$staging" "$GAME"
   trap - EXIT
 fi
 
-[[ -f "$GAME/sys/boot.bin" && -f "$GAME/sys/main.dol" ]]
-[[ "$(find "$GAME/files" -type f | wc -l | tr -d ' ')" == "$EXPECTED_FILES" ]]
+[[ -f "$GAME/sys/boot.bin" && -f "$GAME/sys/main.dol" ]] || { echo "prepare-game.sh: check failed (line 93)" >&2; exit 1; }
+[[ "$(find "$GAME/files" -type f | wc -l | tr -d ' ')" == "$EXPECTED_FILES" ]] || { echo "prepare-game.sh: check failed (line 94)" >&2; exit 1; }
 if [[ ! -f "$MARKER" ]]; then
   printf '%s\n' "$EXPECTED_SHA256" > "$MARKER"
 fi
 
-[[ "$(shasum -a 256 "$GAME/sys/main.dol" | awk '{print $1}')" == "$EXPECTED_DOL_SHA256" ]]
+[[ "$(shasum -a 256 "$GAME/sys/main.dol" | awk '{print $1}')" == "$EXPECTED_DOL_SHA256" ]] || { echo "prepare-game.sh: check failed (line 99)" >&2; exit 1; }
 
 export MACOSX_DEPLOYMENT_TARGET=14.0
 build_args=(build "$GAME" --backend c --toolchain clang --output "$MODULES")

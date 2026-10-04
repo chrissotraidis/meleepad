@@ -52,10 +52,10 @@ version="$(plutil -extract CFBundleShortVersionString raw -o - "$APP/Info.plist"
 build="$(plutil -extract CFBundleVersion raw -o - "$APP/Info.plist")"
 executable="$(plutil -extract CFBundleExecutable raw -o - "$APP/Info.plist")"
 
-[[ "$identifier" == com.meleepad.MeleePad ]]
-[[ "$version" == "$VERSION" ]]
-[[ "$build" == "$BUILD" ]]
-[[ "$(lipo -archs "$APP/$executable")" == arm64 ]]
+[[ "$identifier" == com.meleepad.MeleePad ]] || { echo "package-public-ios-ipa.sh: check failed (line 55)" >&2; exit 1; }
+[[ "$version" == "$VERSION" ]] || { echo "package-public-ios-ipa.sh: check failed (line 56)" >&2; exit 1; }
+[[ "$build" == "$BUILD" ]] || { echo "package-public-ios-ipa.sh: check failed (line 57)" >&2; exit 1; }
+[[ "$(lipo -archs "$APP/$executable")" == arm64 ]] || { echo "package-public-ios-ipa.sh: check failed (line 58)" >&2; exit 1; }
 
 if codesign -d "$APP" >/dev/null 2>&1; then
   echo "refusing to package a signed app" >&2
