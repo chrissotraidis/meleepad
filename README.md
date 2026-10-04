@@ -4,6 +4,7 @@
   <img alt="Requires iOS or iPadOS 16 or later" src="https://img.shields.io/badge/iOS%20%2F%20iPadOS-16%2B-0A84FF?logo=apple">
   <img alt="Requires macOS 14 or later" src="https://img.shields.io/badge/macOS-14%2B-0A84FF?logo=apple">
   <img alt="Game data is not included" src="https://img.shields.io/badge/game%20data-not%20included-FF453A">
+  <a href="https://github.com/chrissotraidis/padmint"><img alt="Build MeleePad with PadMint" src="https://img.shields.io/badge/PadMint-build%20your%20own-3EB489"></a>
   <a href="https://discord.gg/xwHfUD2bxW"><img alt="Join the community on Discord" src="https://img.shields.io/badge/Discord-Join%20the%20community-5865F2?logo=discord&amp;logoColor=white"></a>
 </p>
 
@@ -456,6 +457,16 @@ must still review the recording and every phase.
 See the [product requirements](docs/PRD.md), [engineering journal](docs/JOURNAL.md),
 and [current status](docs/STATUS.md) for the acceptance contract, chronology,
 and detailed evidence.
+
+## Community and support
+
+[Join the Discord](https://discord.gg/xwHfUD2bxW) for help and news. It is one
+community for MeleePad and its sibling projects, such as KartPad, BlueWake and
+SunPad: ask about setup, building with PadMint, and installing, share how it
+runs on your device, and hear about new releases first.
+
+Found a bug? [Open an issue](https://github.com/chrissotraidis/meleepad/issues)
+with your device, its OS version, and the steps that led to it.
 
 ## Credits, licensing, and contributing
 
