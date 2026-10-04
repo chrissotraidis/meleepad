@@ -11,6 +11,13 @@
 - (void)endSaveFlushGraceForApplication:(UIApplication *)application reason:(NSString *)reason;
 @end
 
+// Apps built with the iOS 27 SDK must start through UIKit scenes. The single
+// application scene (Info.plist) owns the window and forwards its lifecycle to the
+// app delegate's existing handlers, which UIKit no longer calls for scene apps.
+@interface MeleePadSceneDelegate : UIResponder <UIWindowSceneDelegate>
+@property(nonatomic, strong) UIWindow *window;
+@end
+
 static void MeleePadRestorePreferencesIfRequested(void) {
     NSArray<NSString *> *arguments = NSProcessInfo.processInfo.arguments;
     if (![arguments containsObject:@"-meleepadRestorePreferences"])
@@ -97,10 +104,7 @@ static void MeleePadMigrateRenamedPreferences(void) {
               NSStringFromCGRect(screen.bounds), NSStringFromCGRect(screen.nativeBounds),
               screen.scale, screen.nativeScale, (long)screen.maximumFramesPerSecond);
 
-    self.window = [[UIWindow alloc] initWithFrame:UIScreen.mainScreen.bounds];
-    MeleePadGameViewController *root = [[MeleePadGameViewController alloc] init];
-    self.window.rootViewController = root;
-    [self.window makeKeyAndVisible];
+    // The window is created when UIKit connects the application scene.
     return YES;
 }
 
@@ -177,6 +181,50 @@ static void MeleePadMigrateRenamedPreferences(void) {
 - (void)applicationWillTerminate:(UIApplication *)application {
     (void)application;
     MeleePadLog(@"lifecycle willTerminate");
+}
+
+@end
+
+@implementation MeleePadSceneDelegate
+
+- (MeleePadAppDelegate *)appDelegate {
+    return (MeleePadAppDelegate *)UIApplication.sharedApplication.delegate;
+}
+
+- (void)scene:(UIScene *)scene
+    willConnectToSession:(UISceneSession *)session
+                 options:(UISceneConnectionOptions *)connectionOptions {
+    (void)session;
+    (void)connectionOptions;
+    if (![scene isKindOfClass:UIWindowScene.class] || self.window != nil)
+        return;
+    self.window = [[UIWindow alloc] initWithWindowScene:(UIWindowScene *)scene];
+    self.window.rootViewController = [[MeleePadGameViewController alloc] init];
+    // Existing code reaches the game through the app delegate's window.
+    self.appDelegate.window = self.window;
+    [self.window makeKeyAndVisible];
+    MeleePadLog(@"lifecycle scene connected bounds=%@",
+              NSStringFromCGRect(((UIWindowScene *)scene).coordinateSpace.bounds));
+}
+
+- (void)sceneDidBecomeActive:(UIScene *)scene {
+    (void)scene;
+    [self.appDelegate applicationDidBecomeActive:UIApplication.sharedApplication];
+}
+
+- (void)sceneWillResignActive:(UIScene *)scene {
+    (void)scene;
+    [self.appDelegate applicationWillResignActive:UIApplication.sharedApplication];
+}
+
+- (void)sceneWillEnterForeground:(UIScene *)scene {
+    (void)scene;
+    [self.appDelegate applicationWillEnterForeground:UIApplication.sharedApplication];
+}
+
+- (void)sceneDidEnterBackground:(UIScene *)scene {
+    (void)scene;
+    [self.appDelegate applicationDidEnterBackground:UIApplication.sharedApplication];
 }
 
 @end
