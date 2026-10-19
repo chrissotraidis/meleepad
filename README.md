@@ -499,6 +499,13 @@ records the exact fork commits and upstream bases used by this app.
 
 ## Legal
 
+MeleePad is an unofficial, fan-made project. It is not affiliated with, endorsed
+by, or sponsored by Nintendo. Super Smash Bros. Melee and related names and
+marks are trademarks of Nintendo (and their respective owners). This repository
+contains no game data, disc images, or extracted assets. To use it, you need
+your own legally obtained copy of the game, and you build it yourself on your
+own machine. Please don't share game files or builds made from them.
+
 MeleePad is an independent compatibility project and is not affiliated with or
 endorsed by Nintendo, HAL Laboratory, or the Dolphin project. MeleePad does not
 provide copyrighted game data; users are responsible for supplying and using
