@@ -25,12 +25,6 @@ See [credits and maintained sources](#credits-licensing-and-contributing).
 [Slippi profile setup](#import-your-slippi-profile-on-iphone-or-ipad) ·
 [FAQ](#faq) · [Discord](https://discord.gg/xwHfUD2bxW)**
 
-![MeleePad running a four-player match on an iPad at 59.9 frames per second, with translucent touch controls and the More menu button visible](docs/images/meleepad-ipad-gameplay.png)
-
-*A physical-iPad development build running at 2x resolution. Performance varies
-by scene and device; this image is evidence from one observed match, not a
-universal performance guarantee.*
-
 > [!IMPORTANT]
 > Releases publish the app without any game code. [PadMint](https://github.com/chrissotraidis/padmint/releases/latest)
 > makes the game part on your Mac from your own disc and adds it. See [Get MeleePad](#get-meleepad).
