@@ -67,8 +67,65 @@
     },
     "macos": {
       "hosts": {
-        "macos-arm64": "planned"
-      }
+        "macos-arm64": "experimental"
+      },
+      "tools": [
+        "git",
+        "cmake",
+        "ninja"
+      ],
+      "output": "zip",
+      "check": "none",
+      "steps": [
+        {
+          "stage": "dependencies",
+          "command": [
+            "{repo}/scripts/bootstrap-dependencies.sh"
+          ]
+        },
+        {
+          "stage": "prepare",
+          "command": [
+            "{repo}/scripts/prepare-game.sh",
+            "{disc}"
+          ]
+        },
+        {
+          "stage": "slippi",
+          "command": [
+            "python3",
+            "{repo}/scripts/build-slippi-dependencies.py"
+          ]
+        },
+        {
+          "stage": "compile",
+          "command": [
+            "{repo}/scripts/package-macos-app.sh"
+          ]
+        },
+        {
+          "stage": "sign",
+          "command": [
+            "/usr/bin/codesign",
+            "--force",
+            "--deep",
+            "--sign",
+            "-",
+            "{repo}/build-macos/MeleePad.app"
+          ]
+        },
+        {
+          "stage": "package",
+          "command": [
+            "/usr/bin/ditto",
+            "-c",
+            "-k",
+            "--keepParent",
+            "{repo}/build-macos/MeleePad.app",
+            "{output}"
+          ]
+        }
+      ]
     }
   },
   "requirements": {
