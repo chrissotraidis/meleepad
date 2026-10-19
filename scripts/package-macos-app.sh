@@ -12,9 +12,11 @@ OUTPUT="${MELEEPAD_MACOS_OUTPUT:-$ROOT/build-macos/MeleePad.app}"
 "$ROOT/scripts/bootstrap-dependencies.sh"
 export MACOSX_DEPLOYMENT_TARGET=14.0
 
+# curl finds pipe2 in the macOS 27 SDK, but the app targets macOS 14, where it is missing.
 cmake -S "$MG" -B "$BUILD" -G Ninja \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_OSX_DEPLOYMENT_TARGET=14.0 \
+  -DHAVE_PIPE2=OFF \
   -DMODERNGEKKO_FRONTEND_NAME=MeleePad \
   -DMODERNGEKKO_LAUNCHER_OUTPUT_NAME=MeleePadFrontend \
   -DMODERNGEKKO_RUNNER_OUTPUT_NAME=MeleePadRunner \
