@@ -39,7 +39,12 @@ class SDKPrerequisiteTests(unittest.TestCase):
     def test_host_support_remains_unchanged(self):
         self.assertEqual(set(self.recipe['targets']), {'ios', 'macos'})
         self.assertEqual(self.recipe['targets']['ios']['hosts'], {'macos-arm64': 'experimental'})
-        self.assertEqual(self.recipe['targets']['macos'], {'hosts': {'macos-arm64': 'planned'}})
+        mac = self.recipe['targets']['macos']
+        self.assertEqual(mac['hosts'], {'macos-arm64': 'experimental'})
+        self.assertEqual((mac['output'], mac['check']), ('zip', 'none'))
+        self.assertEqual([step['stage'] for step in mac['steps']],
+                         ['dependencies', 'prepare', 'slippi', 'compile', 'version', 'sign', 'package'])
+        self.assertEqual(mac['steps'][-1]['command'][-2:], ['{repo}/build-macos/MeleePad.app', '{output}'])
 
     def test_backend_steps_remain_unchanged(self):
         self.assertEqual(self.recipe['targets']['ios']['steps'], [
