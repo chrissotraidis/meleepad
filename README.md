@@ -52,8 +52,12 @@ disc image, and AltStore Classic, SideStore or Sideloadly.
 3. Install that IPA with your sideloading tool, over an existing MeleePad to keep
    your data, then import the same disc image in the app.
 
-The IPA contains code translated from your disc: it is yours alone; never share
-it. This covers offline play. Native Slippi online play still needs the
+With PadMint 0.5.5 or newer you can also choose **This Mac**: PadMint builds
+`MeleePad.app` from your disc and saves it as a zip; move it to Applications and
+choose your disc image under **Game Data**.
+
+The IPA and the Mac app contain code translated from your disc: they are yours
+alone; never share them. This covers offline play. Native Slippi online play still needs the
 [developer build](docs/SLIPPI-BUILD.md#playable-private-builds).
 
 ## Preview 7 (build 29)
