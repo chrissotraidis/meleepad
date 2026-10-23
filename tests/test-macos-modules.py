@@ -70,11 +70,11 @@ class MacOSModuleTests(unittest.TestCase):
             self.stage()
         self.assertFalse(self.output.exists(), "Invalid input must not leave a partially staged app")
 
-    def test_revision_102_only_is_staged_and_used_as_fallback(self):
+    def test_revision_102_only_is_staged_without_a_legacy_fallback(self):
         source, digest = self.module(2)
         self.stage()
         self.assert_staged(source, digest)
-        self.assertEqual((self.output / source.name).read_bytes(), source.read_bytes())
+        self.assertFalse((self.output / source.name).exists())
 
     def test_revision_100_only_is_staged_and_used_as_fallback(self):
         source, digest = self.module(0)

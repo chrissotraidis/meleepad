@@ -32,19 +32,20 @@ def stage_modules(template, output):
         deps = subprocess.check_output(["otool", "-L", str(module)], text=True)
         if "/opt/homebrew" in deps or "/usr/local" in deps:
             raise ValueError(f"Revision {revision} module has non-portable dependencies")
-        prepared.append((module, digest))
+        prepared.append((module, digest, revision))
     if not prepared:
         raise ValueError("No prepared desktop modules found; run scripts/prepare-game.sh with your Melee disc first")
 
     # Validate every available revision before copying. A fresh v1.02 build has
     # only modules-macos14-r2; it must not depend on a previous v1.00 build.
-    for module, digest in prepared:
+    for module, digest, revision in prepared:
         destination = output / "StaticRecompModules" / digest
         destination.mkdir(parents=True, exist_ok=True)
         shutil.copy2(module, destination / "gGALE01_recomp.dylib")
-    # Preserve the bundle's legacy filename, preferring v1.00 when available.
-    # The runner selects v1.02 by its executable hash, not this legacy copy.
-    shutil.copy2(prepared[0][0], output / "gGALE01_recomp.dylib")
+        # The runner permits this legacy filename only for v1.00. Never put a
+        # v1.02 module here: importing v1.00 could otherwise select its code.
+        if revision == 0:
+            shutil.copy2(module, output / "gGALE01_recomp.dylib")
 
 
 def main():
