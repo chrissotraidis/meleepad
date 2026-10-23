@@ -16,6 +16,7 @@ for script in tests/*.sh; do
   bash -n "$script"
 done
 python3 tests/test-revisions.py
+python3 tests/test-macos-modules.py
 python3 tests/test-ios-slippi-build-inputs.py
 python3 tests/test-slippi-rust-source.py
 python3 tests/test-compare-slippi-replays.py

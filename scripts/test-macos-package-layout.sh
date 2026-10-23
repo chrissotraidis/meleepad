@@ -8,7 +8,8 @@ SYS="$APP/Contents/Resources/Sys"
 test -x "$APP/Contents/MacOS/MeleePad"
 test -x "$APP/Contents/MacOS/MeleePadFrontend"
 test -x "$APP/Contents/MacOS/MeleePadRunner"
-test -f "$APP/Contents/MacOS/gGALE01_recomp.dylib"
+modules=("$APP/Contents/MacOS/StaticRecompModules/"*/gGALE01_recomp.dylib)
+test -f "${modules[0]}"
 cmp "$ROOT/apple/ios/Assets.xcassets/AppIcon.appiconset/AppIcon.png" \
   "$APP/Contents/Resources/AppIcon.png"
 strings "$APP/Contents/MacOS/MeleePadRunner" | grep -Fx "MeleePad Netplay Lobby" >/dev/null
