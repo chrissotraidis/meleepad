@@ -13,7 +13,8 @@ recorded. Neither Windows x64 nor Linux is implied by a Windows ARM64 test.
 
 ## Shared packaging prerequisite
 
-The recipe requires PadMint's schema 2 module-result support, after the shared
+The recipe requires PadMint's schema 2 module-result support in
+[PR 179](https://github.com/chrissotraidis/padmint/pull/179), after the shared
 Windows hardening and installed-input changes (PadMint PRs 177 and 178).
 Older PadMint versions must reject schema 2 rather than run a partial recipe.
 Do not publish the new recipe or change PadMint's catalog until the required

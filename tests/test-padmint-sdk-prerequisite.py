@@ -13,7 +13,8 @@ class SDKPrerequisiteTests(unittest.TestCase):
 
     def test_player_sdk_probe(self):
         players = [tool for tool in self.recipe['requirements']['tools']
-                   if tool.get('player') and 'ios' in tool.get('targets', ['ios'])]
+                   if tool.get('player') and 'ios' in tool.get('targets', ['ios'])
+                   and 'macos-arm64' in tool.get('hosts', ['macos-arm64'])]
         sdk, = players
         self.assertEqual(sdk['name'], 'xcrun')
         self.assertEqual(sdk['version_args'], ['--sdk', 'macosx', '--show-sdk-path'])
@@ -31,15 +32,27 @@ class SDKPrerequisiteTests(unittest.TestCase):
             'note': 'Install Rustup, then run: rustup toolchain install 1.88.0 --target aarch64-apple-ios',
         })
 
-    def test_host_support_remains_unchanged(self):
+    def test_host_support_requires_an_explicit_route(self):
         self.assertEqual(set(self.recipe['targets']), {'ios', 'macos'})
-        self.assertEqual(self.recipe['targets']['ios']['hosts'], {'macos-arm64': 'experimental'})
+        self.assertEqual(self.recipe['targets']['ios']['hosts'],
+                         {'macos-arm64': 'experimental', 'windows-arm64': 'experimental'})
         mac = self.recipe['targets']['macos']
         self.assertEqual(mac['hosts'], {'macos-arm64': 'experimental'})
         self.assertEqual((mac['output'], mac['check']), ('zip', 'none'))
         self.assertEqual([step['stage'] for step in mac['steps']],
                          ['dependencies', 'prepare', 'slippi', 'compile', 'version', 'sign', 'package'])
         self.assertEqual(mac['steps'][-1]['command'][-2:], ['{repo}/build-macos/MeleePad.app', '{output}'])
+
+    def test_windows_prerequisite_accepts_native_or_x64_cpp_tools(self):
+        windows = [tool for tool in self.recipe['requirements']['tools']
+                   if tool.get('player') and 'ios' in tool.get('targets', ['ios'])
+                   and 'windows-arm64' in tool.get('hosts', ['windows-arm64'])]
+        compiler, = windows
+        self.assertTrue(compiler['name'].endswith('/vswhere.exe'))
+        self.assertEqual(compiler['min_version'], '17')
+        self.assertIn('-requiresAny', compiler['version_args'])
+        self.assertIn('Microsoft.VisualStudio.Component.VC.Tools.ARM64', compiler['version_args'])
+        self.assertIn('Microsoft.VisualStudio.Component.VC.Tools.x86.x64', compiler['version_args'])
 
     def test_recipe_requires_safe_revision_aware_packaging(self):
         self.assertEqual(self.recipe['schema_version'], 2)

@@ -126,6 +126,26 @@ class ModulePreparationTests(unittest.TestCase):
             module.identify.normalize_ciso(source, destination)
         self.assertEqual(destination.read_bytes(), b'preserve existing image')
 
+    def test_ciso_reuses_the_equivalent_verified_iso_extraction(self):
+        image = self.work / 'GALE01-r2.iso'
+        image.write_bytes(b'synthetic canonical ISO')
+        game = self.work / 'extracted-r2'
+        (game / 'sys').mkdir(parents=True)
+        (game / 'files').mkdir()
+        dol = game / 'sys/main.dol'
+        dol.write_bytes(b'synthetic DOL')
+        (game / 'sys/boot.bin').write_bytes(b'synthetic boot')
+        for index in range(1209):
+            (game / 'files' / str(index)).touch()
+        normalized = {**self.identity, 'image_sha256': module.sha256(image),
+                      'dol_sha256': module.sha256(dol)}
+        (game / '.meleepad-source-sha256').write_text(normalized['image_sha256'])
+        container = {**normalized, 'format': 'ciso', 'image_sha256': 'c' * 64}
+        with mock.patch.object(module.identify, 'identify', return_value=normalized), \
+                mock.patch.object(module, 'run') as run:
+            self.assertEqual(module.extract(self.work / 'disc.ciso', container, 'never-run', self.work, {}), dol)
+        run.assert_not_called()
+
     def test_generation_uses_wrapper_flags_and_separates_revision_chunks(self):
         dolphin = self.work / 'dependency'
         dolphin.mkdir()

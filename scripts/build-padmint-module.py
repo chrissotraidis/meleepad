@@ -131,6 +131,9 @@ def extract(disc, identity, tool, work, env):
         normalized = identify.identify(image)
         if normalized['dol_sha256'] != identity['dol_sha256']:
             raise ValueError('Existing normalized image belongs to another revision; preserved')
+        # As in prepare-game.sh, identify the bytes actually extracted. A CISO
+        # and its equivalent reviewed ISO can then reuse the same safe cache.
+        identity = {**identity, 'image_sha256': normalized['image_sha256']}
     game = work / f'extracted-r{identity["revision"]}'
     if game.exists():
         check_extraction(game, identity)
