@@ -2,6 +2,9 @@
 """Portable module preparation tests; all game bytes here are synthetic."""
 import importlib.util
 import json
+import os
+import subprocess
+import sys
 from pathlib import Path
 import struct
 import tempfile
@@ -19,7 +22,7 @@ class ModulePreparationTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
-        self.work = Path(self.temporary.name) / 'private work with spaces'
+        self.work = Path(self.temporary.name) / 'private work with spaces 雪'
         self.work.mkdir()
         self.identity = {'revision': 2, 'format': 'iso', 'image_sha256': 'a' * 64,
                          'dol_sha256': 'b' * 64}
@@ -222,11 +225,15 @@ class ModulePreparationTests(unittest.TestCase):
         result = SimpleNamespace(stdout='Path=prepared path\nINCLUDE=compiler headers\n')
         with mock.patch.object(module, 'os', SimpleNamespace(name='nt', environ=env)), \
                 mock.patch.object(module.platform, 'machine', return_value='ARM64'), \
-                mock.patch.object(module.subprocess, 'check_output', return_value=str(installation)), \
+                mock.patch.object(module.subprocess, 'check_output', return_value=str(installation)) as discover, \
                 mock.patch.object(module.subprocess, 'run', return_value=result) as run, \
                 mock.patch.object(module.shutil, 'which', return_value=str(compiler)):
             prepared = module.host_environment()
         self.assertIn('" arm64 >nul', run.call_args.args[0])
+        self.assertIn(' /u ', run.call_args.args[0])
+        self.assertEqual(run.call_args.kwargs['encoding'], 'utf-16le')
+        self.assertIn('-utf8', discover.call_args.args[0])
+        self.assertEqual(discover.call_args.kwargs['encoding'], 'utf-8')
         self.assertEqual(prepared['PATH'], 'prepared path')
         self.assertNotIn('Path', prepared)
         self.assertNotIn('SDKROOT', prepared)
@@ -257,6 +264,35 @@ class ModulePreparationTests(unittest.TestCase):
         self.assertIn(str(x64), run.call_args.args[0])
         self.assertIn('" x64 >nul', run.call_args.args[0])
         self.assertEqual(prepared['PATH'], 'x64 path')
+
+    def test_completed_module_status_survives_legacy_windows_output_encoding(self):
+        # Exercise the real final status line after a synthetic result is written.
+        fixture = r"""
+import importlib.util, pathlib, sys
+from unittest.mock import patch
+from types import SimpleNamespace
+spec = importlib.util.spec_from_file_location('builder', sys.argv[1])
+m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+work = pathlib.Path(sys.argv[2]); work.mkdir()
+with patch.object(m, 'os', SimpleNamespace(name='nt')), patch.object(sys, 'argv', ['build', '--rom', str(work/'rom'), '--work', str(work), '--toolchain', sys.argv[1]]), patch.object(m.identify, 'identify', return_value={}), patch.object(m, 'host_environment', return_value={}), patch.object(m, 'prepare_sources', return_value=work), patch.object(m, 'host_tool'), patch.object(m, 'extract'), patch.object(m, 'generate', return_value=work), patch.object(m, 'run'), patch.object(m, 'write_result', side_effect=lambda *args:(work/'result').write_bytes(b'completed')):
+    m.main()
+"""
+        work = self.work / 'completed 雪'
+        result = subprocess.run([sys.executable, '-X', 'utf8=0', '-c', fixture,
+                                 str(ROOT / 'scripts/build-padmint-module.py'), str(work)],
+                                env={**os.environ, 'PYTHONIOENCODING': 'cp1252'}, capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stderr.decode('utf-8', 'replace'))
+        self.assertEqual((work / 'result').read_bytes(), b'completed')
+        self.assertIn(str(work.resolve()), result.stdout.decode('utf-8'))
+
+    def test_normalization_child_uses_utf8(self):
+        identity = {**self.identity, 'format': 'ciso'}
+        class StopAfterLaunch(Exception):
+            pass
+        with mock.patch.object(module, 'run', side_effect=StopAfterLaunch) as run:
+            with self.assertRaises(StopAfterLaunch):
+                module.extract(self.work / 'input.ciso', identity, 'unused', self.work, {})
+        self.assertEqual(run.call_args.args[:3], (sys.executable, '-X', 'utf8'))
 
 
 if __name__ == '__main__':

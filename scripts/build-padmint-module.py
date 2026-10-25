@@ -38,8 +38,24 @@ def sha256(path):
     return digest.hexdigest()
 
 
-def run(*args, env=None):
-    subprocess.run([str(arg) for arg in args], check=True, env=env)
+def run(*args, env=None, host=False):
+    command = [str(arg) for arg in args]
+    options = {}
+    if host and os.name == 'nt':
+        # MSVC /showIncludes uses the console code page even with redirected
+        # output. A private hidden console keeps Ninja's dependency paths UTF-8.
+        bootstrap = (
+            "import ctypes,subprocess,sys\n"
+            "k=ctypes.windll.kernel32\n"
+            "if not k.SetConsoleCP(65001) or not k.SetConsoleOutputCP(65001): raise ctypes.WinError()\n"
+            "sys.exit(subprocess.call(sys.argv[1:]))\n")
+        startup = subprocess.STARTUPINFO()
+        startup.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        startup.wShowWindow = 0
+        options = {'creationflags': subprocess.CREATE_NEW_CONSOLE, 'startupinfo': startup,
+                   'stdout': sys.stdout, 'stderr': sys.stderr}
+        command = [sys.executable, '-X', 'utf8', '-c', bootstrap, *command]
+    subprocess.run(command, check=True, env=env, **options)
 
 
 def prepare_sources(source_root):
@@ -85,7 +101,7 @@ def host_environment():
         components.append('Microsoft.VisualStudio.Component.VC.Tools.ARM64')
     installation = subprocess.check_output([str(installer), '-latest', '-products', '*',
                                             *(['-requiresAny'] if native_arm else []), '-requires', *components,
-                                            '-property', 'installationPath'], text=True).strip()
+                                            '-property', 'installationPath', '-utf8'], text=True, encoding='utf-8').strip()
     if not installation:
         raise ValueError(help_text)
     versions = list((Path(installation) / 'VC/Tools/MSVC').glob('*'))
@@ -93,8 +109,8 @@ def host_environment():
     if not any((v / f'bin/Host{arch}/{arch}/cl.exe').is_file() for v in versions):
         raise ValueError(help_text)
     script = Path(installation) / 'VC/Auxiliary/Build/vcvarsall.bat'
-    command = subprocess.list2cmdline([env.get('COMSPEC', 'cmd.exe')]) + f' /d /s /c ""{script}" {arch} >nul && set"'
-    result = subprocess.run(command, capture_output=True, text=True, check=True, env=env)
+    command = subprocess.list2cmdline([env.get('COMSPEC', 'cmd.exe')]) + f' /u /d /s /c ""{script}" {arch} >nul && set"'
+    result = subprocess.run(command, capture_output=True, encoding='utf-16le', check=True, env=env)
     for line in result.stdout.splitlines():
         key, separator, value = line.partition('=')
         if separator and key:
@@ -107,10 +123,11 @@ def host_environment():
 
 def host_tool(dolphin, work, jobs, env):
     build = work / 'dolrecomp-host'
-    compilers = ['-DCMAKE_C_COMPILER=cl'] if os.name == 'nt' else []
+    compilers = ['-DCMAKE_C_COMPILER=cl',
+                 f'-DCMAKE_PROJECT_DolRecomp_INCLUDE={ROOT / "scripts/windows-host-tools.cmake"}'] if os.name == 'nt' else []
     run('cmake', '--fresh', '-S', dolphin / 'DolRecomp', '-B', build, '-G', 'Ninja',
-        '-DCMAKE_BUILD_TYPE=Release', '-DDOLRECOMP_ENABLE_LLVM=OFF', *compilers, env=env)
-    run('cmake', '--build', build, '--target', 'dolrecomp', '--parallel', jobs, env=env)
+        '-DCMAKE_BUILD_TYPE=Release', '-DDOLRECOMP_ENABLE_LLVM=OFF', *compilers, env=env, host=True)
+    run('cmake', '--build', build, '--target', 'dolrecomp', '--parallel', jobs, env=env, host=True)
     return build / ('dolrecomp.exe' if os.name == 'nt' else 'dolrecomp')
 
 
@@ -129,7 +146,7 @@ def extract(disc, identity, tool, work, env):
     if identity['format'] == 'ciso':
         image = work / f'GALE01-r{identity["revision"]}.iso'
         if not image.exists():
-            run(sys.executable, ROOT / 'scripts/identify-game.py', disc, '--normalize', image)
+            run(sys.executable, '-X', 'utf8', ROOT / 'scripts/identify-game.py', disc, '--normalize', image)
         normalized = identify.identify(image)
         if normalized['dol_sha256'] != identity['dol_sha256']:
             raise ValueError('Existing normalized image belongs to another revision; preserved')
@@ -183,6 +200,10 @@ def write_result(work, module, identity):
 
 
 def main():
+    if os.name == 'nt':
+        for stream in (sys.stdout, sys.stderr):
+            if hasattr(stream, 'reconfigure'):
+                stream.reconfigure(encoding='utf-8')
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--rom', required=True, type=Path)
     parser.add_argument('--work', required=True, type=Path)
