@@ -232,6 +232,32 @@ class ModulePreparationTests(unittest.TestCase):
         self.assertNotIn('SDKROOT', prepared)
         self.assertEqual(prepared['INCLUDE'], 'compiler headers')
 
+    def test_x64_host_ignores_newer_arm_only_visual_studio_installation(self):
+        programs = self.work / 'Program Files (x86)'
+        installer = programs / 'Microsoft Visual Studio/Installer/vswhere.exe'
+        installer.parent.mkdir(parents=True)
+        installer.touch()
+        x64, arm = programs / 'older x64', programs / 'newer ARM only'
+        compiler = x64 / 'VC/Tools/MSVC/14.44/bin/Hostx64/x64/cl.exe'
+        arm_compiler = arm / 'VC/Tools/MSVC/14.45/bin/Hostarm64/arm64/cl.exe'
+        for path in (compiler, arm_compiler):
+            path.parent.mkdir(parents=True)
+            path.touch()
+        def installations(command, **kwargs):
+            # vswhere -latest must filter out a newer install that cannot
+            # produce the executable architecture this host needs.
+            return str(arm if '-requiresAny' in command else x64)
+        env = {'ProgramFiles(x86)': str(programs), 'PATH': 'original'}
+        with mock.patch.object(module, 'os', SimpleNamespace(name='nt', environ=env)), \
+                mock.patch.object(module.platform, 'machine', return_value='AMD64'), \
+                mock.patch.object(module.subprocess, 'check_output', side_effect=installations), \
+                mock.patch.object(module.subprocess, 'run', return_value=SimpleNamespace(stdout='Path=x64 path\n')) as run, \
+                mock.patch.object(module.shutil, 'which', return_value=str(compiler)):
+            prepared = module.host_environment()
+        self.assertIn(str(x64), run.call_args.args[0])
+        self.assertIn('" x64 >nul', run.call_args.args[0])
+        self.assertEqual(prepared['PATH'], 'x64 path')
+
 
 if __name__ == '__main__':
     unittest.main()

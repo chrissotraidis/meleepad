@@ -79,14 +79,16 @@ def host_environment():
     help_text = 'Install Visual Studio 2022 Build Tools with Desktop development with C++ and a Windows SDK.'
     if not installer.is_file():
         raise ValueError(help_text)
-    installation = subprocess.check_output([str(installer), '-latest', '-products', '*', '-requiresAny', '-requires',
-                                            'Microsoft.VisualStudio.Component.VC.Tools.x86.x64',
-                                            'Microsoft.VisualStudio.Component.VC.Tools.ARM64',
+    native_arm = platform.machine().lower() in ('arm64', 'aarch64')
+    components = ['Microsoft.VisualStudio.Component.VC.Tools.x86.x64']
+    if native_arm:
+        components.append('Microsoft.VisualStudio.Component.VC.Tools.ARM64')
+    installation = subprocess.check_output([str(installer), '-latest', '-products', '*',
+                                            *(['-requiresAny'] if native_arm else []), '-requires', *components,
                                             '-property', 'installationPath'], text=True).strip()
     if not installation:
         raise ValueError(help_text)
     versions = list((Path(installation) / 'VC/Tools/MSVC').glob('*'))
-    native_arm = platform.machine().lower() in ('arm64', 'aarch64')
     arch = 'arm64' if native_arm and any((v / 'bin/Hostarm64/arm64/cl.exe').is_file() for v in versions) else 'x64'
     if not any((v / f'bin/Host{arch}/{arch}/cl.exe').is_file() for v in versions):
         raise ValueError(help_text)

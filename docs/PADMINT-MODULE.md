@@ -6,10 +6,10 @@ backend is `scripts/build-padmint-module.py`. It uses the committed standalone
 DolRecomp generator and RecompCore module template. It does not build the app,
 the runtime, Rust Slippi, or a native player executable.
 
-This unreleased recipe offers experimental Apple Silicon Mac and Windows ARM64
+This unreleased recipe offers experimental Apple Silicon Mac and Windows ARM64/x64
 builds. It is not a release or a device acceptance result. The public-release
-pause in `AGENTS.md` still applies. Windows x64 and Linux are not advertised;
-their complete private-game builds have not been validated.
+pause in `AGENTS.md` still applies. Linux is not advertised. The x64 compiler proof ran under Windows ARM emulation;
+a native x64 Windows player run remains unverified.
 
 ## Shared packaging prerequisite
 
@@ -97,7 +97,13 @@ Recorded private build validation on 2026-10-26:
   already verified tools and an existing checked extraction, with local build
   files. It was a warm-cache pre-release check, not a clean-machine or published
   `make` check. A complete v1.02 Windows run remains unverified.
-- Both routes preserved all 3,317 members of the v0.2.4 published app, including
+- Windows x64 toolchain: a fresh v1.00 extraction, generation, default module
+  compile and personal IPA passed with actual x64 MSVC 19.44, DolRecomp and
+  LLVM/LLD 21.1.8 executables. The test ran under Windows ARM64 emulation with
+  an explicit x64 compiler environment; CMake and Ninja were ARM64 coordinators.
+  It establishes x64 compiler compatibility, not a native x64 host or default
+  player run. All 241 generated files matched the Windows ARM64 output exactly.
+- All three routes preserved all 3,317 members of the v0.2.4 published app, including
   their ZIP metadata, and added only the chosen module and its identity sidecar.
   The final v1.00 generator outputs matched between Mac and Windows after text
   line-ending normalization. No private inputs or outputs were uploaded.

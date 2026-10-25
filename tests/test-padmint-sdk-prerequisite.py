@@ -35,7 +35,7 @@ class SDKPrerequisiteTests(unittest.TestCase):
     def test_host_support_requires_an_explicit_route(self):
         self.assertEqual(set(self.recipe['targets']), {'ios', 'macos'})
         self.assertEqual(self.recipe['targets']['ios']['hosts'],
-                         {'macos-arm64': 'experimental', 'windows-arm64': 'experimental'})
+                         {'macos-arm64': 'experimental', 'windows-arm64': 'experimental', 'windows-x64': 'experimental'})
         mac = self.recipe['targets']['macos']
         self.assertEqual(mac['hosts'], {'macos-arm64': 'experimental'})
         self.assertEqual((mac['output'], mac['check']), ('zip', 'none'))
@@ -53,6 +53,14 @@ class SDKPrerequisiteTests(unittest.TestCase):
         self.assertIn('-requiresAny', compiler['version_args'])
         self.assertIn('Microsoft.VisualStudio.Component.VC.Tools.ARM64', compiler['version_args'])
         self.assertIn('Microsoft.VisualStudio.Component.VC.Tools.x86.x64', compiler['version_args'])
+
+    def test_x64_prerequisite_requires_the_x64_compiler(self):
+        compiler, = [tool for tool in self.recipe['requirements']['tools']
+                     if tool.get('player') and tool.get('hosts') == ['windows-x64']]
+        self.assertNotIn('-requiresAny', compiler['version_args'])
+        self.assertNotIn('Microsoft.VisualStudio.Component.VC.Tools.ARM64', compiler['version_args'])
+        self.assertIn('Microsoft.VisualStudio.Component.VC.Tools.x86.x64', compiler['version_args'])
+        self.assertEqual(compiler['targets'], ['ios'])
 
     def test_recipe_requires_safe_revision_aware_packaging(self):
         self.assertEqual(self.recipe['schema_version'], 2)
