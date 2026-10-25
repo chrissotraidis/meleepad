@@ -6,10 +6,10 @@ backend is `scripts/build-padmint-module.py`. It uses the committed standalone
 DolRecomp generator and RecompCore module template. It does not build the app,
 the runtime, Rust Slippi, or a native player executable.
 
-This is source preparation for a future PadMint recipe. It is not a release or
-a device acceptance result. The public-release pause in `AGENTS.md` still
-applies. Windows remains unadvertised until a complete Windows build has been
-recorded. Neither Windows x64 nor Linux is implied by a Windows ARM64 test.
+This unreleased recipe offers experimental Apple Silicon Mac and Windows ARM64
+builds. It is not a release or a device acceptance result. The public-release
+pause in `AGENTS.md` still applies. Windows x64 and Linux are not advertised;
+their complete private-game builds have not been validated.
 
 ## Shared packaging prerequisite
 
@@ -48,8 +48,8 @@ renaming the module without its identity is insufficient.
   lock, gitlinks and clean dependency contents must match the current recipe.
 - Generated chunks are separated by DOL, dependency-lock and generator-option
   identity. Inherited `DOLRECOMP_*` tuning variables are cleared so this recipe
-  uses reviewed defaults and cannot reuse obsolete chunks after an option change. The
-  current generator invocation matches `moderngekko-port`'s C/Gekko/GameCube
+  uses reviewed defaults and cannot reuse obsolete chunks after an option
+  change. The current generator invocation matches `moderngekko-port`'s C/Gekko/GameCube
   path. It stops if the runtime gains `Data/Sys/GameSettings/GALE01.ini`, because
   new default DOL patches would need a reviewed equivalent preparation step.
 
@@ -79,5 +79,28 @@ Windows needs Visual Studio 2022 C++ Build Tools and a Windows SDK. The backend
 selects the native ARM64 tools when available and otherwise uses x64 tools.
 macOS needs a native C compiler and the macOS SDK for the small host generator.
 PadMint's LLVM and public-source SDK compile the iPhone module on either host.
+Use a local Windows work folder: native CMake link commands cannot use a UNC
+working directory. Private inputs can remain on a shared volume.
+
+The module uses the maintained template's optimization and floating-point
+defaults, including its normal interprocedural optimization, plus the existing
+iPhone build's `apple-a15` CPU tuning. It adds no experimental compiler flags.
+
+Recorded private build validation on 2026-10-26:
+
+- Apple Silicon Mac: original v1.00 ISO and v1.02 CISO through the standalone
+  generator and LLVM 22.1.8 module build, strict imports, revision-specific
+  identity and final IPA checks passed.
+- Windows 11 ARM64: the bundled x64 Python 3.13.15 ran PadMint's checkout
+  `tools --repo` and `build --repo --revision --app` route successfully for
+  v1.00, with native ARM64 MSVC 19.44 host tools and LLVM 21.1.8. This used
+  already verified tools and an existing checked extraction, with local build
+  files. It was a warm-cache pre-release check, not a clean-machine or published
+  `make` check. A complete v1.02 Windows run remains unverified.
+- Both routes preserved all 3,317 members of the v0.2.4 published app, including
+  their ZIP metadata, and added only the chosen module and its identity sidecar.
+  The final v1.00 generator outputs matched between Mac and Windows after text
+  line-ending normalization. No private inputs or outputs were uploaded.
+
 An import or package check does not prove app launch, gameplay, sound, controls,
 or performance. Those remain separate physical-device checks.
