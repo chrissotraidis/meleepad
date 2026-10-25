@@ -206,8 +206,7 @@ def main():
         f'-DCMAKE_TOOLCHAIN_FILE={args.toolchain.resolve()}', '-DCMAKE_BUILD_TYPE=Release', '-DGAME_ID=GALE01',
         f'-DGENERATED_DIR={generated}', f'-DGXRUNTIME_DIR={dolphin / "GXRuntime"}',
         f'-DCHASSIS_ABI_DIR={dolphin / "Source/Core/Core/PowerPC/StaticRecomp"}',
-        f'-DPython3_EXECUTABLE={sys.executable}', '-DRECOMPCORE_MODULE_TUNE_CPU=apple-a15',
-        '-DCMAKE_C_FLAGS=-fno-slp-vectorize -mllvm -large-interval-freq-threshold=10', env=env)
+        f'-DPython3_EXECUTABLE={sys.executable}', '-DRECOMPCORE_MODULE_TUNE_CPU=apple-a15', env=env)
     run('cmake', '--build', build, '--parallel', args.jobs, env=env)
     write_result(work, build / 'gGALE01_recomp.dylib', identity)
     print('Private module and DOL identity ready for PadMint:', work / 'module-result.json')
