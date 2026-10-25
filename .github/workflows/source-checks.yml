@@ -10,6 +10,25 @@ concurrency:
   group: source-checks-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  portable-module:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, windows-11-arm]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Check portable preparation without game inputs
+        run: |
+          python tests/test-padmint-module.py
+          python tests/test-revisions.py
+          python tests/test-padmint-sdk-prerequisite.py
   source-checks:
     runs-on: macos-15
     timeout-minutes: 30
