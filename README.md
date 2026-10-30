@@ -223,14 +223,10 @@ Release maintainers can build the publishable module-free iPhoneOS shell and
 package it reproducibly with:
 
 ```sh
-xcodebuild -project MeleePad.xcodeproj -scheme MeleePad \
-  -configuration Release -destination 'generic/platform=iOS' \
-  -derivedDataPath build/DerivedData-public \
-  CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO build
-./scripts/package-public-ios-ipa.sh \
-  build/DerivedData-public/Build/Products/Release-iphoneos/MeleePad.app
+./scripts/build-ios-app.sh
 ```
 
+This builds the pinned runtime and app with the version from `version.json`.
 The packager refuses game modules, game/save files, provisioning profiles,
 signatures, and private host paths. Its output remains an app shell; it does not
 replace the playable local-build process below.
