@@ -58,6 +58,7 @@ tests/test-native-frame-mode.sh
 tests/test-iphone-touch-layout-defaults.sh
 tests/test-touch-stick-accessibility.sh
 tests/test-game-data-setup.sh
+tests/test-extraction-progress.sh
 tests/test-ios-audio-diagnostics.sh
 tests/test-ios-external-pipe-input.sh
 tests/test-ios-online-play-lobby.sh
