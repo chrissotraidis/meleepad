@@ -28,6 +28,34 @@ def identify(path):
     raise ValueError("Image hash is not in the reviewed catalog; no game data was changed.")
 
 
+def normalize_ciso(source, destination):
+    """Expand an already identified CISO; preserve existing files on every host."""
+    created = False
+    try:
+        with source.open("rb") as stream:
+            header = stream.read(0x8000)
+            if len(header) != 0x8000:
+                raise ValueError("Truncated CISO header")
+            block_size = struct.unpack_from("<I", header, 4)[0]
+            if header[:4] != b"CISO" or block_size != 2097152:
+                raise ValueError("Unsupported CISO layout")
+            with destination.open("xb") as output:
+                created = True
+                size = 1459978240
+                for index in range((size + block_size - 1) // block_size):
+                    block = stream.read(block_size) if header[8 + index] == 1 else bytes(block_size)
+                    if len(block) != block_size:
+                        raise ValueError("Truncated CISO")
+                    output.write(block[:min(block_size, size - index * block_size)])
+        return identify(destination)
+    except BaseException:
+        # Close the stream before removing a partial image: Windows refuses to
+        # unlink an open output. An existing destination was never ours to remove.
+        if created:
+            destination.unlink(missing_ok=True)
+        raise
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("image", type=Path)
@@ -39,25 +67,8 @@ def main():
         if args.normalize:
             if result["format"] != "ciso":
                 raise ValueError("Normalization requires a reviewed CISO")
-            # Only reviewed complete containers reach this parser. Keep the
-            # original intact and remove partial output after any failure.
-            with args.image.open("rb") as stream:
-                header = stream.read(0x8000)
-                block_size = struct.unpack_from("<I", header, 4)[0]
-                if header[:4] != b"CISO" or block_size != 2097152:
-                    raise ValueError("Unsupported CISO layout")
-                with args.normalize.open("xb") as output:
-                    try:
-                        size = 1459978240
-                        for index in range((size + block_size - 1) // block_size):
-                            block = stream.read(block_size) if header[8 + index] == 1 else bytes(block_size)
-                            if len(block) != block_size:
-                                raise ValueError("Truncated CISO")
-                            output.write(block[:min(block_size, size - index * block_size)])
-                    except BaseException:
-                        args.normalize.unlink(missing_ok=True)
-                        raise
-            result = identify(args.normalize)
+            # Only reviewed complete containers reach this parser.
+            result = normalize_ciso(args.image, args.normalize)
     except (OSError, ValueError) as error:
         parser.exit(1, f"{error}\n")
     print(result[args.field] if args.field else json.dumps(result, indent=2))

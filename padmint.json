@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "id": "meleepad",
   "name": "MeleePad",
   "game": "Super Smash Bros. Melee (GameCube, GALE01 USA v1.00 or v1.02)",
@@ -9,61 +9,51 @@
     {
       "type": "gamecube-disc",
       "formats": [
-        "iso"
+        "iso",
+        "gcm",
+        "ciso"
       ],
       "when": "build",
-      "description": "Your own GALE01 USA v1.00 or v1.02 disc image; prepare-game.sh checks it and extracts it privately. Native Slippi online play needs v1.02 and a separate developer build."
+      "description": "Your own reviewed GALE01 USA v1.00 or v1.02 disc image; the backend checks its full hash and extracts it privately. Native Slippi online play needs v1.02 and a separate developer build."
     }
   ],
   "targets": {
     "ios": {
       "hosts": {
-        "macos-arm64": "experimental"
+        "macos-arm64": "experimental",
+        "windows-arm64": "experimental",
+        "windows-x86_64": "experimental"
       },
       "tools": [
         "git",
         "cmake",
-        "ninja"
+        "ninja",
+        "llvm",
+        "libcxx"
       ],
       "published_app": "MeleePad-v{version}-ios-unsigned.ipa",
       "output": "ipa",
       "check": "ipa",
       "steps": [
         {
-          "stage": "dependencies",
+          "stage": "compile",
           "command": [
-            "{repo}/scripts/bootstrap-dependencies.sh"
-          ]
-        },
-        {
-          "stage": "prepare",
-          "command": [
-            "{repo}/scripts/prepare-game.sh",
-            "{disc}"
-          ]
-        },
-        {
-          "stage": "slippi",
-          "command": [
-            "python3",
-            "{repo}/scripts/build-slippi-dependencies.py"
-          ]
-        },
-        {
-          "stage": "translate",
-          "command": [
-            "{repo}/scripts/ios-build-core-device.sh"
-          ]
-        },
-        {
-          "stage": "package",
-          "command": [
-            "{repo}/scripts/package-ios.sh",
-            "{app}",
-            "{output}"
+            "{python}",
+            "{repo}/scripts/build-padmint-module.py",
+            "--rom",
+            "{disc}",
+            "--work",
+            "{work}",
+            "--toolchain",
+            "{ios_toolchain}",
+            "--jobs",
+            "{jobs}"
           ]
         }
-      ]
+      ],
+      "ios_module": {
+        "result": "{work}/module-result.json"
+      }
     },
     "macos": {
       "hosts": {
@@ -163,12 +153,18 @@
         "name": "python3",
         "version_args": [
           "--version"
+        ],
+        "targets": [
+          "macos"
         ]
       },
       {
         "name": "rg",
         "version_args": [
           "--version"
+        ],
+        "targets": [
+          "macos"
         ]
       },
       {
@@ -177,7 +173,10 @@
           "-version"
         ],
         "player": true,
-        "note": "Install full Xcode and its iOS platform; select Xcode's command-line tools in Xcode Settings > Locations, then run PadMint again."
+        "note": "Install full Xcode and its iOS platform; select Xcode's command-line tools in Xcode Settings > Locations, then run PadMint again.",
+        "targets": [
+          "macos"
+        ]
       },
       {
         "name": "xcrun",
@@ -188,7 +187,10 @@
           "--show-sdk-path"
         ],
         "player": true,
-        "note": "Install full Xcode and its iOS platform; select Xcode's command-line tools in Xcode Settings > Locations, then run PadMint again."
+        "note": "Install full Xcode and its iOS platform; select Xcode's command-line tools in Xcode Settings > Locations, then run PadMint again.",
+        "targets": [
+          "macos"
+        ]
       },
       {
         "name": "rustup",
@@ -200,11 +202,77 @@
           "--version"
         ],
         "player": true,
-        "note": "Install Rustup, then run: rustup toolchain install 1.88.0 --target aarch64-apple-ios"
+        "note": "Install Rustup, then run: rustup toolchain install 1.88.0 --target aarch64-apple-ios",
+        "targets": [
+          "macos"
+        ]
+      },
+      {
+        "name": "xcrun",
+        "label": "macOS command-line SDK",
+        "version_args": [
+          "--sdk",
+          "macosx",
+          "--show-sdk-path"
+        ],
+        "player": true,
+        "hosts": [
+          "macos-arm64"
+        ],
+        "targets": [
+          "ios"
+        ],
+        "note": "Install Apple Command Line Tools with xcode-select --install, then run PadMint again. Full Xcode is optional for this iPhone module build."
+      },
+      {
+        "name": "%ProgramFiles(x86)%/Microsoft Visual Studio/Installer/vswhere.exe",
+        "version_args": [
+          "-latest",
+          "-products",
+          "*",
+          "-requiresAny",
+          "-requires",
+          "Microsoft.VisualStudio.Component.VC.Tools.x86.x64",
+          "Microsoft.VisualStudio.Component.VC.Tools.ARM64",
+          "-property",
+          "installationVersion"
+        ],
+        "min_version": "17",
+        "player": true,
+        "hosts": [
+          "windows-arm64"
+        ],
+        "targets": [
+          "ios"
+        ],
+        "label": "Visual Studio C++ Build Tools",
+        "note": "Install Visual Studio 2022 Build Tools with Desktop development with C++ and a Windows SDK. On Windows ARM64, add the ARM64 C++ tools (preferred) or the x64/x86 C++ tools."
+      },
+      {
+        "name": "%ProgramFiles(x86)%/Microsoft Visual Studio/Installer/vswhere.exe",
+        "version_args": [
+          "-latest",
+          "-products",
+          "*",
+          "-requires",
+          "Microsoft.VisualStudio.Component.VC.Tools.x86.x64",
+          "-property",
+          "installationVersion"
+        ],
+        "min_version": "17",
+        "player": true,
+        "hosts": [
+          "windows-x86_64"
+        ],
+        "targets": [
+          "ios"
+        ],
+        "label": "Visual Studio C++ Build Tools",
+        "note": "Install Visual Studio 2022 Build Tools with Desktop development with C++, the x64/x86 C++ tools, and a Windows SDK."
       }
     ]
   },
-  "notes": "The app loads the translated game from a separate module (gGALE01_recomp.dylib or gGALE01r2_recomp.dylib); package-ios.sh stages it into the published app with scripts/stage-ios-modules.py. Offline play only; the Slippi module stays a developer build.",
+  "notes": "PadMint compiles the offline game module and stages it with its matching DOL-identity sidecar into the published app. The selected revision keeps its existing gGALE01_recomp.dylib or gGALE01r2_recomp.dylib name. Requires schema 2 module-result support; do not release this recipe before that PadMint support ships. The macOS and Slippi developer build paths are unchanged.",
   "publication": {
     "public_binaries": false,
     "reason": "The release publishes the app without game code; PadMint adds the module translated from the player's own disc, which stays personal."

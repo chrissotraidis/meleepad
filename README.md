@@ -54,6 +54,10 @@ The IPA and the Mac app contain code translated from your disc: they are yours
 alone; never share them. This covers offline play. Native Slippi online play still needs the
 [developer build](docs/SLIPPI-BUILD.md#playable-private-builds).
 
+The next recipe's [portable offline module backend](docs/PADMINT-MODULE.md) has
+private build validation on Apple Silicon Mac and Windows 11 ARM64, plus an x64
+compiler proof under Windows ARM emulation. It requires unreleased PadMint support; the released setup instructions above still apply.
+
 ## Preview 7 (build 29)
 
 - The in-game three-dot menu groups Slippi, display, controls, game data, and
