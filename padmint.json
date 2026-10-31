@@ -22,7 +22,7 @@
       "hosts": {
         "macos-arm64": "experimental",
         "windows-arm64": "experimental",
-        "windows-x64": "experimental"
+        "windows-x86_64": "experimental"
       },
       "tools": [
         "git",
@@ -262,7 +262,7 @@
         "min_version": "17",
         "player": true,
         "hosts": [
-          "windows-x64"
+          "windows-x86_64"
         ],
         "targets": [
           "ios"

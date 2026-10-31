@@ -35,7 +35,7 @@ class SDKPrerequisiteTests(unittest.TestCase):
     def test_host_support_requires_an_explicit_route(self):
         self.assertEqual(set(self.recipe['targets']), {'ios', 'macos'})
         self.assertEqual(self.recipe['targets']['ios']['hosts'],
-                         {'macos-arm64': 'experimental', 'windows-arm64': 'experimental', 'windows-x64': 'experimental'})
+                         {'macos-arm64': 'experimental', 'windows-arm64': 'experimental', 'windows-x86_64': 'experimental'})
         mac = self.recipe['targets']['macos']
         self.assertEqual(mac['hosts'], {'macos-arm64': 'experimental'})
         self.assertEqual((mac['output'], mac['check']), ('zip', 'none'))
@@ -56,7 +56,7 @@ class SDKPrerequisiteTests(unittest.TestCase):
 
     def test_x64_prerequisite_requires_the_x64_compiler(self):
         compiler, = [tool for tool in self.recipe['requirements']['tools']
-                     if tool.get('player') and tool.get('hosts') == ['windows-x64']]
+                     if tool.get('player') and tool.get('hosts') == ['windows-x86_64']]
         self.assertNotIn('-requiresAny', compiler['version_args'])
         self.assertNotIn('Microsoft.VisualStudio.Component.VC.Tools.ARM64', compiler['version_args'])
         self.assertIn('Microsoft.VisualStudio.Component.VC.Tools.x86.x64', compiler['version_args'])
@@ -74,6 +74,16 @@ class SDKPrerequisiteTests(unittest.TestCase):
 
     def test_personal_ipa_uses_generic_package_validation(self):
         self.assertEqual(self.recipe['targets']['ios']['check'], 'ipa')
+
+
+    def test_every_host_name_is_one_padmint_knows(self):
+        # PadMint's host names (padmint/manifest.py HOSTS). An unknown target host makes PadMint
+        # reject the whole recipe; an unknown tool host silently skips that check on real PCs.
+        known = {'macos-arm64', 'macos-x86_64', 'linux-x86_64', 'linux-arm64', 'windows-x86_64', 'windows-arm64'}
+        for name, target in self.recipe['targets'].items():
+            self.assertLessEqual(set(target['hosts']), known, name)
+        for tool in self.recipe['requirements']['tools']:
+            self.assertLessEqual(set(tool.get('hosts', [])), known, tool['name'])
 
 
 if __name__ == '__main__':
