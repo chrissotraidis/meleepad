@@ -334,6 +334,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     UIActivityIndicatorView *_bootActivityIndicator;
     UIButton *_gameDataImportButton;
     UIView *_homeView;
+    uint16_t _homeButtons;  // controller buttons down at the last input tick
     UILabel *_homeStatusLabel;
     UIButton *_homeSettingsButton;
     BOOL _playRequested;
@@ -1952,6 +1953,14 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 
 - (void)publishMergedInput {
     MeleePadInputState merged = [[MeleePadInputMixer sharedMixer] consumeMergedState];
+    // A controller plays from the home screen too: A or Start, as Play does.
+    uint16_t pressed = merged.buttons & ~_homeButtons;
+    _homeButtons = merged.buttons;
+    if (_homeView != nil && self.presentedViewController == nil &&
+        (pressed & (MeleePadButtonA | MeleePadButtonStart))) {
+        [self playFromHome];
+        return;
+    }
     MeleePadSettings *settings = [MeleePadSettings sharedSettings];
     constexpr int kRightStickSmashThreshold = 82;
     BOOL cStickPastThreshold =
