@@ -3,6 +3,7 @@
 
 #import "MeleePadDiagnostics.h"
 #import "MeleePadInputMixer.h"
+#import "MeleePadNSOGCBridge.h"
 #import "MeleePadSettings.h"
 
 #import <GameController/GameController.h>
@@ -751,6 +752,20 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
     }];
     dpadAction.state = [NSUserDefaults.standardUserDefaults boolForKey:@"MeleePadShowDPad"]
         ? UIMenuElementStateOn : UIMenuElementStateOff;
+    UIAction *hideTouchAction =
+        [UIAction actionWithTitle:@"Hide Touch Controls with a Controller"
+                            image:[UIImage systemImageNamed:@"eye.slash"]
+                       identifier:nil handler:^(__kindof UIAction *action) {
+        (void)action;
+        MeleePadSettings *currentSettings = [MeleePadSettings sharedSettings];
+        currentSettings.hideTouchControlsWhenControllerConnected =
+            !currentSettings.hideTouchControlsWhenControllerConnected;
+        [currentSettings synchronize];
+        [weakSelf syncHideControlsSwitch];
+        [weakSelf refreshMenuButton];
+    }];
+    hideTouchAction.state = [MeleePadSettings sharedSettings].hideTouchControlsWhenControllerConnected ?
+        UIMenuElementStateOn : UIMenuElementStateOff;
     UIMenu *controlsMenu = [UIMenu menuWithTitle:@"Controls"
                                            image:[UIImage systemImageNamed:@"gamecontroller"]
                                       identifier:nil
@@ -767,6 +782,13 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
                        identifier:nil handler:^(__kindof UIAction *action) {
             (void)action;
             [weakSelf toggleSettingsPanel];
+        }],
+        hideTouchAction,
+        // Built when the menu opens, so it shows the controllers as they are now.
+        [UIDeferredMenuElement elementWithUncachedProvider:^(
+                                   void (^completion)(NSArray<UIMenuElement *> *elements)) {
+            MeleePadGameOverlay *strongSelf = weakSelf;
+            completion(strongSelf != nil ? @[[strongSelf nsoControllerMenu]] : @[]);
         }],
     ]];
 
@@ -1089,6 +1111,89 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
     renderAction.state = [MeleePadSettings sharedSettings].renderScale == scale ?
         UIMenuElementStateOn : UIMenuElementStateOff;
     return renderAction;
+}
+
+- (void)syncHideControlsSwitch {
+    _hideControlsSwitch.on = [MeleePadSettings sharedSettings].hideTouchControlsWhenControllerConnected;
+    [self applyControllerVisibility];
+}
+
+// The NSO GameCube controllers' section of the Controls menu.
+- (UIMenu *)nsoControllerMenu {
+    __weak MeleePadGameOverlay *weakSelf = self;
+    MeleePadNSOGCBridge *bridge = [MeleePadNSOGCBridge sharedBridge];
+    MeleePadNSOGCStatus status = bridge.status;
+    NSMutableArray<UIMenuElement *> *children = [NSMutableArray array];
+
+    void (^addInfo)(NSString *, NSString *) = ^(NSString *title, NSString *image) {
+        UIAction *info = [UIAction actionWithTitle:title
+                                             image:[UIImage systemImageNamed:image]
+                                        identifier:nil
+                                           handler:^(__kindof UIAction *action) { (void)action; }];
+        info.attributes = UIMenuElementAttributesDisabled;
+        [children addObject:info];
+    };
+    switch (status) {
+        case MeleePadNSOGCStatusConnected:
+            for (NSString *description in bridge.connectedDescriptions)
+                addInfo(description, @"checkmark.circle.fill");
+            if (bridge.connectedCount < 4)
+                addInfo(@"Another player: press SYNC on their controller", @"plus.circle");
+            break;
+        case MeleePadNSOGCStatusSearching:
+            addInfo(@"Searching: press SYNC on the controller", @"dot.radiowaves.left.and.right");
+            break;
+        case MeleePadNSOGCStatusUnavailable:
+            addInfo(@"Bluetooth is off or not allowed", @"exclamationmark.triangle");
+            break;
+        case MeleePadNSOGCStatusOff:
+            addInfo(@"Off", @"power");
+            break;
+    }
+
+    if (status == MeleePadNSOGCStatusOff) {
+        [children addObject:[UIAction actionWithTitle:@"Connect"
+                                                image:[UIImage systemImageNamed:@"link"]
+                                           identifier:nil handler:^(__kindof UIAction *action) {
+            (void)action;
+            [[MeleePadNSOGCBridge sharedBridge] connect];
+            [weakSelf showNSOControllerPairingHint];
+        }]];
+    } else {
+        NSString *title = status == MeleePadNSOGCStatusConnected ? @"Disconnect All" : @"Stop Searching";
+        [children addObject:[UIAction actionWithTitle:title
+                                                image:[UIImage systemImageNamed:@"xmark.circle"]
+                                           identifier:nil handler:^(__kindof UIAction *action) {
+            (void)action;
+            [[MeleePadNSOGCBridge sharedBridge] disconnect];
+        }]];
+    }
+    if (bridge.hasRememberedControllers) {
+        UIAction *forgetAction = [UIAction actionWithTitle:@"Forget Controllers"
+                                                     image:[UIImage systemImageNamed:@"trash"]
+                                                identifier:nil handler:^(__kindof UIAction *action) {
+            (void)action;
+            [[MeleePadNSOGCBridge sharedBridge] forgetControllers];
+        }];
+        forgetAction.attributes = UIMenuElementAttributesDestructive;
+        [children addObject:forgetAction];
+    }
+    return [UIMenu menuWithTitle:@"NSO GameCube Controllers"
+                           image:[UIImage systemImageNamed:@"gamecontroller.fill"]
+                      identifier:nil
+                         options:0
+                        children:children];
+}
+
+- (void)showNSOControllerPairingHint {
+    UIAlertController *alert = [UIAlertController
+        alertControllerWithTitle:@"Pair the Controllers"
+                         message:@"Press the small SYNC button on each NSO GameCube controller, "
+                                 @"one after the other. The first becomes player 1, the next "
+                                 @"players 2 to 4."
+                  preferredStyle:UIAlertControllerStyleAlert];
+    [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+    [self.window.rootViewController presentViewController:alert animated:YES completion:nil];
 }
 
 - (void)refreshMenuButton {
@@ -2086,6 +2191,8 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
             break;
         }
     }
+    if ([MeleePadNSOGCBridge sharedBridge].playerOneConnected)
+        controllerConnected = YES;
     BOOL shouldHide = !_editingLayout && controllerConnected &&
         [MeleePadSettings sharedSettings].hideTouchControlsWhenControllerConnected;
     [self setTouchControlsHidden:shouldHide animated:YES];

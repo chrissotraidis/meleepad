@@ -67,6 +67,16 @@ NS_ASSUME_NONNULL_BEGIN
  * device. Safe to call from any thread at ~60 Hz. */
 - (void)publishInput:(MeleePadInputState)input;
 
+/* Players 2 to 4: GameCube ports 1-3 (0-based), each with its own pipe, fed by
+ * NSO GameCube controllers. Writes to the running core host's pipe for that
+ * port; call from one thread per port. */
++ (void)publishInput:(MeleePadInputState)input port:(NSInteger)port;
+
+/* Plugs a standard controller into GameCube port 1-3 (players 2-4) or unplugs
+ * it, as a cable would. A port plugged before boot is applied at boot. Main
+ * thread. */
+- (void)setControllerConnected:(BOOL)connected port:(NSInteger)port;
+
 /* Applies the render-resolution scale (1 = native GameCube EFB, 2..4 = scale)
  * to the running runtime. Safe to call from any thread. */
 - (void)setRenderScale:(NSInteger)scale;

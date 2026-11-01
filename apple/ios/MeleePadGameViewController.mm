@@ -7,6 +7,7 @@
 #import "MeleePadDiscExtractor.h"
 #import "MeleePadGameOverlay.h"
 #import "MeleePadInputMixer.h"
+#import "MeleePadNSOGCBridge.h"
 #import "MeleePadOnlinePlayViewController.h"
 #import "MeleePadPublicLobbyClient.h"
 #import "MeleePadSettings.h"
@@ -26,6 +27,7 @@
 #include <pthread.h>
 #include <sys/resource.h>
 #include <algorithm>
+#include <atomic>
 #include <cmath>
 #include <unordered_map>
 #include <vector>
@@ -320,6 +322,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     MeleePadSlippiHost *_slippiHost;
     MeleePadGameOverlay *_overlay;
     dispatch_source_t _controllerTimer;
+    std::atomic<bool> _inputPublishPending;
     UILabel *_fpsLabel;
     UIView *_connectionBanner;
     UILabel *_connectionBannerText;
@@ -874,6 +877,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
                                                  name:GCControllerDidDisconnectNotification
                                                object:nil];
     [self reconcileControllersForReason:@"launch"];
+    [self startNSOControllers];
     if (GCController.controllers.count == 0) {
         MeleePadLog(@"controller discovery started reason=launch");
         __weak MeleePadGameViewController *weakSelf = self;
@@ -940,6 +944,36 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     [self publishInputFromController:controller gamepad:gamepad];
 }
 
+// NSO GameCube controllers have no iOS driver; MeleePad connects up to four
+// itself. The first is player one, the others take ports 2-4.
+- (void)startNSOControllers {
+    __weak MeleePadGameViewController *weakSelf = self;
+    MeleePadNSOGCBridge *bridge = [MeleePadNSOGCBridge sharedBridge];
+    bridge.connectionChangedHandler = ^{
+        MeleePadGameViewController *strongSelf = weakSelf;
+        if (strongSelf != nil)
+            [strongSelf->_overlay refreshControllerVisibility];
+    };
+    bridge.playerOneInputHandler = ^{
+        [weakSelf publishInputSoon];
+    };
+    bridge.portInputHandler = ^(NSInteger port, MeleePadInputState state) {
+        [MeleePadCoreHost publishInput:state port:port];
+    };
+    bridge.portConnectionHandler = ^(NSInteger port, BOOL connected) {
+        MeleePadGameViewController *strongSelf = weakSelf;
+        if (strongSelf == nil)
+            return;
+        // Online matches keep the port layout Slippi set up.
+        if (connected && strongSelf->_slippiHost.isRunning) {
+            MeleePadLog(@"nsogc player %ld not plugged in during an online match", (long)port + 1);
+            return;
+        }
+        [strongSelf->_coreHost setControllerConnected:connected port:port];
+    };
+    [bridge start];
+}
+
 - (void)publishInputFromController:(GCController *)controller
                            gamepad:(GCExtendedGamepad *)gamepad {
     NSArray<GCController *> *currentControllers = GCController.controllers;
@@ -954,6 +988,9 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 
     uintptr_t instance = MeleePadControllerInstanceID(controller);
     if (_controllerSlots.SlotFor(instance) != 0)
+        return;
+    // A connected NSO GameCube controller is player one.
+    if ([MeleePadNSOGCBridge sharedBridge].playerOneConnected)
         return;
 
     // Every callback is a complete snapshot. Leaving buttons uninitialized
@@ -979,6 +1016,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     if (state.triggerL > 30) state.buttons |= MeleePadButtonL;
     if (physicalTriggerR > 30) state.buttons |= MeleePadButtonR;
     [[MeleePadInputMixer sharedMixer] setInputState:state fromTouch:NO];
+    [self publishInputSoon];
 }
 
 - (void)reconcileControllersForReason:(NSString *)reason {
@@ -1883,15 +1921,33 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     }
     if (_controllerTimer)
         return;
+    // 120 Hz; controllers also publish as soon as they report
+    // (publishInputSoon).
     _controllerTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0,
                                               dispatch_get_main_queue());
     dispatch_source_set_timer(_controllerTimer, dispatch_time(DISPATCH_TIME_NOW, 0),
-                              1.0 / 60.0 * NSEC_PER_SEC, 0);
+                              NSEC_PER_SEC / 120, NSEC_PER_MSEC);
     __weak MeleePadGameViewController *weakSelf = self;
     dispatch_source_set_event_handler(_controllerTimer, ^{
         [weakSelf publishMergedInput];
     });
     dispatch_resume(_controllerTimer);
+}
+
+// Any thread. Publishes player one's input on the main queue now instead of at
+// the next tick; calls while one is queued fold into it.
+- (void)publishInputSoon {
+    if (_inputPublishPending.exchange(true))
+        return;
+    __weak MeleePadGameViewController *weakSelf = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        MeleePadGameViewController *strongSelf = weakSelf;
+        if (strongSelf == nil)
+            return;
+        strongSelf->_inputPublishPending.store(false);
+        if (strongSelf->_controllerTimer != nil)
+            [strongSelf publishMergedInput];
+    });
 }
 
 - (void)publishMergedInput {
