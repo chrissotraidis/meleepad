@@ -31,14 +31,15 @@ See [credits and maintained sources](#credits-licensing-and-contributing).
 
 ## Get MeleePad
 
-**No Mac?** Building MeleePad for iPhone or iPad needs an Apple Silicon Mac
-today. MeleePad reads your own disc image while it builds, so it can't use
-[GitHub's
-Mac](https://github.com/chrissotraidis/padmint#no-mac-build-on-githubs-mac) the
-way some other ports do: that would mean uploading your game file. A Windows
-build is in progress; [PadMint's Windows
-list](https://github.com/chrissotraidis/padmint/blob/main/docs/WINDOWS.md) shows
-where it stands.
+**No Mac? Build it on a Windows PC (experimental).** PadMint 0.5.27 or newer
+builds MeleePad for iPhone or iPad on Windows 11 (x64 or ARM64) from your own
+Super Smash Bros. Melee (NTSC v1.02) disc image. Install Visual Studio 2022 Build Tools with **Desktop development with
+C++**, then choose MeleePad in PadMint. PadMint downloads the game-free MeleePad app
+from this release and adds the game code it builds from your file on your PC;
+nothing of yours is uploaded. The Mac build is unchanged. This Windows route is
+new: builds pass on Windows 11 ARM64, but a Windows-built copy has not yet been
+played on a device. GitHub's Mac can't build MeleePad, because that would mean
+uploading your game file. Details: [portable module backend](docs/PADMINT-MODULE.md).
 
 You need an Apple Silicon Mac with Xcode, your own GALE01 USA v1.00 or v1.02
 disc image, and AltStore Classic, SideStore or Sideloadly.
@@ -63,9 +64,8 @@ The IPA and the Mac app contain code translated from your disc: they are yours
 alone; never share them. This covers offline play. Native Slippi online play still needs the
 [developer build](docs/SLIPPI-BUILD.md#playable-private-builds).
 
-The next recipe's [portable offline module backend](docs/PADMINT-MODULE.md) has
-private build validation on Apple Silicon Mac and Windows 11 ARM64, plus an x64
-compiler proof under Windows ARM emulation. It requires unreleased PadMint support; the released setup instructions above still apply.
+On Windows, PadMint builds the offline game module from your disc with the
+[portable module backend](docs/PADMINT-MODULE.md); see **No Mac?** above.
 
 ## Preview 7 (build 29)
 

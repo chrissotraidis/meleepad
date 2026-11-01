@@ -36,6 +36,55 @@
       "check": "ipa",
       "steps": [
         {
+          "stage": "dependencies",
+          "command": [
+            "{repo}/scripts/bootstrap-dependencies.sh"
+          ],
+          "on": [
+            "macos"
+          ]
+        },
+        {
+          "stage": "prepare",
+          "command": [
+            "{repo}/scripts/prepare-game.sh",
+            "{disc}"
+          ],
+          "on": [
+            "macos"
+          ]
+        },
+        {
+          "stage": "slippi",
+          "command": [
+            "python3",
+            "{repo}/scripts/build-slippi-dependencies.py"
+          ],
+          "on": [
+            "macos"
+          ]
+        },
+        {
+          "stage": "translate",
+          "command": [
+            "{repo}/scripts/ios-build-core-device.sh"
+          ],
+          "on": [
+            "macos"
+          ]
+        },
+        {
+          "stage": "package",
+          "command": [
+            "{repo}/scripts/package-ios.sh",
+            "{app}",
+            "{output}"
+          ],
+          "on": [
+            "macos"
+          ]
+        },
+        {
           "stage": "compile",
           "command": [
             "{python}",
@@ -48,11 +97,17 @@
             "{ios_toolchain}",
             "--jobs",
             "{jobs}"
+          ],
+          "on": [
+            "windows"
           ]
         }
       ],
       "ios_module": {
-        "result": "{work}/module-result.json"
+        "result": "{work}/module-result.json",
+        "on": [
+          "windows"
+        ]
       }
     },
     "macos": {
@@ -135,18 +190,27 @@
         "name": "git",
         "version_args": [
           "--version"
+        ],
+        "hosts": [
+          "macos-arm64"
         ]
       },
       {
         "name": "cmake",
         "version_args": [
           "--version"
+        ],
+        "hosts": [
+          "macos-arm64"
         ]
       },
       {
         "name": "ninja",
         "version_args": [
           "--version"
+        ],
+        "hosts": [
+          "macos-arm64"
         ]
       },
       {
@@ -154,8 +218,8 @@
         "version_args": [
           "--version"
         ],
-        "targets": [
-          "macos"
+        "hosts": [
+          "macos-arm64"
         ]
       },
       {
@@ -163,8 +227,8 @@
         "version_args": [
           "--version"
         ],
-        "targets": [
-          "macos"
+        "hosts": [
+          "macos-arm64"
         ]
       },
       {
@@ -174,8 +238,8 @@
         ],
         "player": true,
         "note": "Install full Xcode and its iOS platform; select Xcode's command-line tools in Xcode Settings > Locations, then run PadMint again.",
-        "targets": [
-          "macos"
+        "hosts": [
+          "macos-arm64"
         ]
       },
       {
@@ -188,8 +252,8 @@
         ],
         "player": true,
         "note": "Install full Xcode and its iOS platform; select Xcode's command-line tools in Xcode Settings > Locations, then run PadMint again.",
-        "targets": [
-          "macos"
+        "hosts": [
+          "macos-arm64"
         ]
       },
       {
@@ -203,26 +267,9 @@
         ],
         "player": true,
         "note": "Install Rustup, then run: rustup toolchain install 1.88.0 --target aarch64-apple-ios",
-        "targets": [
-          "macos"
-        ]
-      },
-      {
-        "name": "xcrun",
-        "label": "macOS command-line SDK",
-        "version_args": [
-          "--sdk",
-          "macosx",
-          "--show-sdk-path"
-        ],
-        "player": true,
         "hosts": [
           "macos-arm64"
-        ],
-        "targets": [
-          "ios"
-        ],
-        "note": "Install Apple Command Line Tools with xcode-select --install, then run PadMint again. Full Xcode is optional for this iPhone module build."
+        ]
       },
       {
         "name": "%ProgramFiles(x86)%/Microsoft Visual Studio/Installer/vswhere.exe",
@@ -272,7 +319,7 @@
       }
     ]
   },
-  "notes": "PadMint compiles the offline game module and stages it with its matching DOL-identity sidecar into the published app. The selected revision keeps its existing gGALE01_recomp.dylib or gGALE01r2_recomp.dylib name. Requires schema 2 module-result support; do not release this recipe before that PadMint support ships. The macOS and Slippi developer build paths are unchanged.",
+  "notes": "The app loads the translated game from a separate module (gGALE01_recomp.dylib or gGALE01r2_recomp.dylib); package-ios.sh stages it into the published app with scripts/stage-ios-modules.py. Offline play only; the Slippi module stays a developer build. Windows: PadMint compiles the offline game module and stages it with its matching DOL-identity sidecar into the published app. The selected revision keeps its existing gGALE01_recomp.dylib or gGALE01r2_recomp.dylib name. Requires schema 2 module-result support; do not release this recipe before that PadMint support ships. The macOS and Slippi developer build paths are unchanged.",
   "publication": {
     "public_binaries": false,
     "reason": "The release publishes the app without game code; PadMint adds the module translated from the player's own disc, which stays personal."
