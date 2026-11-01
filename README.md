@@ -31,6 +31,15 @@ See [credits and maintained sources](#credits-licensing-and-contributing).
 
 ## Get MeleePad
 
+**No Mac?** Building MeleePad for iPhone or iPad needs an Apple Silicon Mac
+today. MeleePad reads your own disc image while it builds, so it can't use
+[GitHub's
+Mac](https://github.com/chrissotraidis/padmint#no-mac-build-on-githubs-mac) the
+way some other ports do: that would mean uploading your game file. A Windows
+build is in progress; [PadMint's Windows
+list](https://github.com/chrissotraidis/padmint/blob/main/docs/WINDOWS.md) shows
+where it stands.
+
 You need an Apple Silicon Mac with Xcode, your own GALE01 USA v1.00 or v1.02
 disc image, and AltStore Classic, SideStore or Sideloadly.
 
