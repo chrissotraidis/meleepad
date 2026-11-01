@@ -31,6 +31,15 @@ See [credits and maintained sources](#credits-licensing-and-contributing).
 
 ## Get MeleePad
 
+**No Mac?** Building MeleePad for iPhone or iPad needs an Apple Silicon Mac
+today. MeleePad reads your own disc image while it builds, so it can't use
+[GitHub's
+Mac](https://github.com/chrissotraidis/padmint#no-mac-build-on-githubs-mac) the
+way some other ports do: that would mean uploading your game file. A Windows
+build is in progress; [PadMint's Windows
+list](https://github.com/chrissotraidis/padmint/blob/main/docs/WINDOWS.md) shows
+where it stands.
+
 You need an Apple Silicon Mac with Xcode, your own GALE01 USA v1.00 or v1.02
 disc image, and AltStore Classic, SideStore or Sideloadly.
 
@@ -227,14 +236,10 @@ Release maintainers can build the publishable module-free iPhoneOS shell and
 package it reproducibly with:
 
 ```sh
-xcodebuild -project MeleePad.xcodeproj -scheme MeleePad \
-  -configuration Release -destination 'generic/platform=iOS' \
-  -derivedDataPath build/DerivedData-public \
-  CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO build
-./scripts/package-public-ios-ipa.sh \
-  build/DerivedData-public/Build/Products/Release-iphoneos/MeleePad.app
+./scripts/build-ios-app.sh
 ```
 
+This builds the pinned runtime and app with the version from `version.json`.
 The packager refuses game modules, game/save files, provisioning profiles,
 signatures, and private host paths. Its output remains an app shell; it does not
 replace the playable local-build process below.

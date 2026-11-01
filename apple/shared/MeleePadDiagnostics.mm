@@ -165,9 +165,11 @@ void MeleePadLog(NSString *format, ...) {
         if (![fileManager fileExistsAtPath:path])
             [fileManager createFileAtPath:path contents:nil attributes:nil];
         NSFileHandle *handle = [NSFileHandle fileHandleForWritingAtPath:path];
-        [handle seekToEndOfFile];
-        [handle writeData:data];
-        [handle closeFile];
+        // A storage error must not turn a runtime warning into an uncaught
+        // NSFileHandleOperationException. NSLog above still records the event.
+        if ([handle seekToEndReturningOffset:nullptr error:nil])
+            [handle writeData:data error:nil];
+        [handle closeAndReturnError:nil];
     }
 }
 
