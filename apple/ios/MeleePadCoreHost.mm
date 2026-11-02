@@ -93,7 +93,14 @@ static NSString *MeleePadRuntimeUserDirectory(NSString *userDirectory) {
     return userDirectory;
 }
 
-static NSString *const MeleePadUnlockAllCodeName = @"$All Characters and Stages";
+/* The selection of Dolphin's bundled code that unlocks every character and
+ * stage, in each revision's GameINI: v1.00's is the Action Replay code "$All
+ * Characters and Stages"; v1.02's exists only as the Gecko code "$Unlock All
+ * Characters and Stages [Datel]", which Dolphin names without its author's
+ * bracket. Both write the save's unlock flags, at each revision's address.
+ * Selecting v1.00's code for a v1.02 game selected nothing. */
+static NSString *const MeleePadUnlockAllCodeNameR0 = @"$All Characters and Stages";
+static NSString *const MeleePadUnlockAllCodeNameR2 = @"$Unlock All Characters and Stages";
 
 /* GameCube ports 1-3 (players 2-4) for NSO GameCube controllers. The running
  * core host publishes its pipe ends here, so writers on other threads never
@@ -141,8 +148,10 @@ static NSString *MeleePadPipePadSection(int port) {
 }
 
 /* Maintain only MeleePad's named activation in Dolphin's local GameINI. The
- * bundled Action Replay definition remains Dolphin-owned; this file merely
- * selects it. Unrelated user sections and code selections are preserved. */
+ * bundled code definition remains Dolphin-owned; this file merely selects it,
+ * in [ActionReplay_Enabled] (v1.00) or [Gecko_Enabled] (v1.02). Unrelated
+ * user sections and code selections are preserved; MeleePad's selection in
+ * the other section (a v1.00 name left in a v1.02 file) is dropped. */
 static BOOL MeleePadConfigureOfflineCheats(NSString *userDirectory,
                                            BOOL unlockAll,
                                            NSInteger revision,
@@ -157,12 +166,14 @@ static BOOL MeleePadConfigureOfflineCheats(NSString *userDirectory,
     if (existing == nil && !unlockAll)
         return NO;
 
+    NSString *unlockSection = revision == 2 ? @"[Gecko_Enabled]" : @"[ActionReplay_Enabled]";
+    NSString *unlockName = revision == 2 ? MeleePadUnlockAllCodeNameR2 : MeleePadUnlockAllCodeNameR0;
     NSMutableArray<NSString *> *output = [NSMutableArray array];
     NSArray<NSString *> *lines = [(existing ?: @"")
         componentsSeparatedByCharactersInSet:NSCharacterSet.newlineCharacterSet];
-    BOOL inActionReplayEnabled = NO;
+    BOOL inUnlockSection = NO;
     BOOL inAnyEnabledSection = NO;
-    BOOL foundActionReplayEnabled = NO;
+    BOOL foundUnlockSection = NO;
     BOOL insertedUnlock = NO;
     BOOL hasEnabledCode = NO;
 
@@ -171,20 +182,21 @@ static BOOL MeleePadConfigureOfflineCheats(NSString *userDirectory,
             NSCharacterSet.whitespaceAndNewlineCharacterSet];
         BOOL isSection = [trimmed hasPrefix:@"["] && [trimmed hasSuffix:@"]"];
         if (isSection) {
-            if (inActionReplayEnabled && unlockAll && !insertedUnlock) {
-                [output addObject:MeleePadUnlockAllCodeName];
+            if (inUnlockSection && unlockAll && !insertedUnlock) {
+                [output addObject:unlockName];
                 insertedUnlock = YES;
                 hasEnabledCode = YES;
             }
-            inActionReplayEnabled = [trimmed isEqualToString:@"[ActionReplay_Enabled]"];
-            inAnyEnabledSection = inActionReplayEnabled ||
+            inUnlockSection = [trimmed isEqualToString:unlockSection];
+            inAnyEnabledSection = [trimmed isEqualToString:@"[ActionReplay_Enabled]"] ||
                 [trimmed isEqualToString:@"[Gecko_Enabled]"];
-            foundActionReplayEnabled |= inActionReplayEnabled;
+            foundUnlockSection |= inUnlockSection;
             [output addObject:line];
             continue;
         }
-        if (inActionReplayEnabled &&
-            [trimmed isEqualToString:MeleePadUnlockAllCodeName]) {
+        if (inAnyEnabledSection &&
+            ([trimmed isEqualToString:MeleePadUnlockAllCodeNameR0] ||
+             [trimmed isEqualToString:MeleePadUnlockAllCodeNameR2])) {
             // Reinsert exactly once below when the preference is enabled.
             continue;
         }
@@ -193,15 +205,15 @@ static BOOL MeleePadConfigureOfflineCheats(NSString *userDirectory,
         [output addObject:line];
     }
 
-    if (inActionReplayEnabled && unlockAll && !insertedUnlock) {
-        [output addObject:MeleePadUnlockAllCodeName];
+    if (inUnlockSection && unlockAll && !insertedUnlock) {
+        [output addObject:unlockName];
         insertedUnlock = YES;
         hasEnabledCode = YES;
-    } else if (unlockAll && !foundActionReplayEnabled) {
+    } else if (unlockAll && !foundUnlockSection) {
         if (output.count > 0 && ((NSString *)output.lastObject).length > 0)
             [output addObject:@""];
-        [output addObject:@"[ActionReplay_Enabled]"];
-        [output addObject:MeleePadUnlockAllCodeName];
+        [output addObject:unlockSection];
+        [output addObject:unlockName];
         hasEnabledCode = YES;
     }
 
