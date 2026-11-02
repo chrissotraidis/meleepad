@@ -24,6 +24,34 @@ The Apple integration builds on SunPad. Melee decompilation, m-ex, and Slippi
 sources retain their original notices and attribution. Their presence as research
 references does not imply that every reference is linked into a public build.
 
+The NSO GameCube controller support in `apple/ios/NSOGC` is a copy of NSOGCKit from
+[pookee/nso-gamecube-ios](https://github.com/pookee/nso-gamecube-ios) at `fe4a2e4`,
+linked into the iPhone and iPad app under the MIT license:
+
+```text
+MIT License
+
+Copyright (c) 2026 pookee
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
 The offline replay reader at `third_party/dashdance/slp.py` derives from
 DashDance's `tools/mac/slp.py`, distributed under GPL-2.0-or-later. Its pinned
 source commit, original hash, local changes, and GPL-2.0 text are preserved in

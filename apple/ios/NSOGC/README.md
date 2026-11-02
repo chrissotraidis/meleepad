@@ -8,3 +8,6 @@ for it, so the app connects it itself through CoreBluetooth.
 
 `MeleePadNSOGCBridge` makes up to four of them players 1 to 4. Update these
 files from that repository rather than editing them here.
+
+NSOGCKit is under the MIT license in [LICENSE](LICENSE); the same text is in
+[THIRD-PARTY-NOTICES.md](../../../THIRD-PARTY-NOTICES.md), which the app bundles.

@@ -1920,11 +1920,11 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 }
 
 - (void)startInputConsumer {
-    if (_homeView != nil)
-        return;
     // Feed the game thread the merged touch+controller snapshot at 120 Hz, on
     // a queue of its own so a busy main thread does not delay it. Controllers
     // also publish as soon as they report (publishInputSoon).
+    // It also runs while the home screen is up, with no game host to feed, so
+    // a controller's A or Start can do what Play does (publishMergedInput).
     // Private automation can own the same FIFO directly. Without this guard,
     // the normal publisher overwrites a scripted stick position with its
     // neutral snapshot on the next tick.

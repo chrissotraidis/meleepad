@@ -22,8 +22,8 @@ typedef NS_ENUM(NSInteger, MeleePadNSOGCStatus) {
 
 + (instancetype)sharedBridge;
 
-/* Starts Bluetooth unless the controllers were turned off from the Controls
- * menu. The first start shows the Bluetooth permission prompt. */
+/* Starts Bluetooth if the controllers were turned on from the Controls menu
+ * (off until then). The first start shows the Bluetooth permission prompt. */
 - (void)start;
 
 /* Turns the controllers on: reconnects remembered ones and looks for one in

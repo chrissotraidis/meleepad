@@ -64,7 +64,9 @@ static MeleePadInputState MeleePadInputStateFromNSOGC(const nsogc_state &pad) {
 
 - (instancetype)init {
     if ((self = [super init])) {
-        [NSUserDefaults.standardUserDefaults registerDefaults:@{kEnabledKey : @YES}];
+        // Off until the player chooses Connect in the Controls menu, so nobody
+        // without one of these controllers gets the Bluetooth prompt or a scan.
+        [NSUserDefaults.standardUserDefaults registerDefaults:@{kEnabledKey : @NO}];
         _controllers = [NSMutableDictionary dictionary];
         _bluetoothAvailable = YES;
     }
