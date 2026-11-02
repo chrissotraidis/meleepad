@@ -30,6 +30,8 @@
 	<true/>
 	<key>GCSupportsGameMode</key>
 	<true/>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>MeleePad connects your Nintendo Switch Online GameCube controllers over Bluetooth.</string>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
 	<key>NSLocalNetworkUsageDescription</key>

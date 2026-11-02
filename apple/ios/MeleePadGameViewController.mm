@@ -7,6 +7,7 @@
 #import "MeleePadDiscExtractor.h"
 #import "MeleePadGameOverlay.h"
 #import "MeleePadInputMixer.h"
+#import "MeleePadNSOGCBridge.h"
 #import "MeleePadOnlinePlayViewController.h"
 #import "MeleePadPublicLobbyClient.h"
 #import "MeleePadSettings.h"
@@ -26,6 +27,8 @@
 #include <pthread.h>
 #include <sys/resource.h>
 #include <algorithm>
+#include <atomic>
+#include <os/lock.h>
 #include <cmath>
 #include <unordered_map>
 #include <vector>
@@ -320,6 +323,13 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     MeleePadSlippiHost *_slippiHost;
     MeleePadGameOverlay *_overlay;
     dispatch_source_t _controllerTimer;
+    dispatch_queue_t _inputQueue;
+    std::atomic<bool> _inputPublishPending;
+    // The input queue takes the game hosts under this lock; the main thread
+    // clears them under it (dropCoreHost, dropSlippiHost), so a publish never
+    // takes a host that is going away.
+    os_unfair_lock _inputHostLock;
+    std::atomic<bool> _homeShown;  // the home screen is up (set on main)
     UILabel *_fpsLabel;
     UIView *_connectionBanner;
     UILabel *_connectionBannerText;
@@ -331,6 +341,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     UIActivityIndicatorView *_bootActivityIndicator;
     UIButton *_gameDataImportButton;
     UIView *_homeView;
+    uint16_t _homeButtons;  // controller buttons down at the last input tick
     UILabel *_homeStatusLabel;
     UIButton *_homeSettingsButton;
     BOOL _playRequested;
@@ -874,6 +885,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
                                                  name:GCControllerDidDisconnectNotification
                                                object:nil];
     [self reconcileControllersForReason:@"launch"];
+    [self startNSOControllers];
     if (GCController.controllers.count == 0) {
         MeleePadLog(@"controller discovery started reason=launch");
         __weak MeleePadGameViewController *weakSelf = self;
@@ -940,6 +952,36 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     [self publishInputFromController:controller gamepad:gamepad];
 }
 
+// NSO GameCube controllers have no iOS driver; MeleePad connects up to four
+// itself. The first is player one, the others take ports 2-4.
+- (void)startNSOControllers {
+    __weak MeleePadGameViewController *weakSelf = self;
+    MeleePadNSOGCBridge *bridge = [MeleePadNSOGCBridge sharedBridge];
+    bridge.connectionChangedHandler = ^{
+        MeleePadGameViewController *strongSelf = weakSelf;
+        if (strongSelf != nil)
+            [strongSelf->_overlay refreshControllerVisibility];
+    };
+    bridge.playerOneInputHandler = ^{
+        [weakSelf publishInputSoon];
+    };
+    bridge.portInputHandler = ^(NSInteger port, MeleePadInputState state) {
+        [MeleePadCoreHost publishInput:state port:port];
+    };
+    bridge.portConnectionHandler = ^(NSInteger port, BOOL connected) {
+        MeleePadGameViewController *strongSelf = weakSelf;
+        if (strongSelf == nil)
+            return;
+        // Online matches keep the port layout Slippi set up.
+        if (connected && strongSelf->_slippiHost.isRunning) {
+            MeleePadLog(@"nsogc player %ld not plugged in during an online match", (long)port + 1);
+            return;
+        }
+        [strongSelf->_coreHost setControllerConnected:connected port:port];
+    };
+    [bridge start];
+}
+
 - (void)publishInputFromController:(GCController *)controller
                            gamepad:(GCExtendedGamepad *)gamepad {
     NSArray<GCController *> *currentControllers = GCController.controllers;
@@ -954,6 +996,9 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 
     uintptr_t instance = MeleePadControllerInstanceID(controller);
     if (_controllerSlots.SlotFor(instance) != 0)
+        return;
+    // A connected NSO GameCube controller is player one.
+    if ([MeleePadNSOGCBridge sharedBridge].playerOneConnected)
         return;
 
     // Every callback is a complete snapshot. Leaving buttons uninitialized
@@ -979,6 +1024,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     if (state.triggerL > 30) state.buttons |= MeleePadButtonL;
     if (physicalTriggerR > 30) state.buttons |= MeleePadButtonR;
     [[MeleePadInputMixer sharedMixer] setInputState:state fromTouch:NO];
+    [self publishInputSoon];
 }
 
 - (void)reconcileControllersForReason:(NSString *)reason {
@@ -1135,6 +1181,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     _playRequested = YES;
     [_homeView removeFromSuperview];
     _homeView = nil;
+    _homeShown.store(false);
     _overlay.hidden = NO;
     [self startGameIfProvisioned];
 }
@@ -1179,7 +1226,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     _playRequested = YES;
     if (_coreHost != nil) {
         [_coreHost stop];
-        _coreHost = nil;
+        [self dropCoreHost];
     }
     [self startGameIfProvisioned];
 }
@@ -1300,6 +1347,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     UIColor *amber = [UIColor colorWithRed:1 green:0.69 blue:0.20 alpha:1];
     UIColor *muted = [UIColor colorWithRed:0.66 green:0.72 blue:0.86 alpha:1];
     _homeView = [UIView new];
+    _homeShown.store(true);
     _homeView.backgroundColor = [UIColor colorWithRed:0.025 green:0.035 blue:0.085 alpha:1];
     _homeView.frame = self.view.bounds;
     _homeView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -1537,6 +1585,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
         return;
     [_homeView removeFromSuperview];
     _homeView = nil;
+    _homeShown.store(false);
     _overlay.hidden = NO;
     _gameDataImportButton.hidden = YES;
     _bootStatusLabel.hidden = NO;
@@ -1871,22 +1920,26 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 }
 
 - (void)startInputConsumer {
-    if (_homeView != nil)
-        return;
-    // Feed the game thread the merged touch+controller snapshot at 60 Hz.
+    // Feed the game thread the merged touch+controller snapshot at 120 Hz, on
+    // a queue of its own so a busy main thread does not delay it. Controllers
+    // also publish as soon as they report (publishInputSoon).
+    // It also runs while the home screen is up, with no game host to feed, so
+    // a controller's A or Start can do what Play does (publishMergedInput).
     // Private automation can own the same FIFO directly. Without this guard,
     // the normal publisher overwrites a scripted stick position with its
-    // neutral snapshot on the next 60 Hz tick.
+    // neutral snapshot on the next tick.
     if ([NSProcessInfo.processInfo.environment[@"MELEEPAD_EXTERNAL_PIPE_INPUT"] boolValue]) {
         MeleePadLog(@"input publisher disabled source=external-pipe");
         return;
     }
     if (_controllerTimer)
         return;
-    _controllerTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0,
-                                              dispatch_get_main_queue());
+    _inputQueue = dispatch_queue_create(
+        "meleepad.input",
+        dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, 0));
+    _controllerTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, _inputQueue);
     dispatch_source_set_timer(_controllerTimer, dispatch_time(DISPATCH_TIME_NOW, 0),
-                              1.0 / 60.0 * NSEC_PER_SEC, 0);
+                              NSEC_PER_SEC / 120, NSEC_PER_MSEC);
     __weak MeleePadGameViewController *weakSelf = self;
     dispatch_source_set_event_handler(_controllerTimer, ^{
         [weakSelf publishMergedInput];
@@ -1894,25 +1947,76 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     dispatch_resume(_controllerTimer);
 }
 
+// Any thread. Publishes player one's input on the input queue now instead of
+// at the next tick; calls while one is queued fold into it.
+- (void)publishInputSoon {
+    dispatch_queue_t queue = _inputQueue;
+    if (queue == nil || _inputPublishPending.exchange(true))
+        return;
+    __weak MeleePadGameViewController *weakSelf = self;
+    dispatch_async(queue, ^{
+        MeleePadGameViewController *strongSelf = weakSelf;
+        if (strongSelf == nil)
+            return;
+        strongSelf->_inputPublishPending.store(false);
+        [strongSelf publishMergedInput];
+    });
+}
+
+// Main thread. Clear a host under the input lock; it is released after.
+- (void)dropCoreHost {
+    os_unfair_lock_lock(&_inputHostLock);
+    MeleePadCoreHost *host = _coreHost;
+    _coreHost = nil;
+    os_unfair_lock_unlock(&_inputHostLock);
+    (void)host;
+}
+
+- (void)dropSlippiHost {
+    os_unfair_lock_lock(&_inputHostLock);
+    MeleePadSlippiHost *host = _slippiHost;
+    _slippiHost = nil;
+    os_unfair_lock_unlock(&_inputHostLock);
+    (void)host;
+}
+
+// Runs on the input queue only, so the pipe writes stay in order.
 - (void)publishMergedInput {
     MeleePadInputState merged = [[MeleePadInputMixer sharedMixer] consumeMergedState];
+    // A controller plays from the home screen too: A or Start, as Play does.
+    uint16_t pressed = merged.buttons & ~_homeButtons;
+    _homeButtons = merged.buttons;
+    if (_homeShown.load() && (pressed & (MeleePadButtonA | MeleePadButtonStart))) {
+        __weak MeleePadGameViewController *weakSelf = self;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            MeleePadGameViewController *strongSelf = weakSelf;
+            if (strongSelf != nil && strongSelf->_homeView != nil &&
+                strongSelf.presentedViewController == nil)
+                [strongSelf playFromHome];
+        });
+        return;
+    }
+    os_unfair_lock_lock(&_inputHostLock);
+    MeleePadCoreHost *coreHost = _coreHost;
+    MeleePadSlippiHost *slippiHost = _slippiHost;
+    os_unfair_lock_unlock(&_inputHostLock);
     MeleePadSettings *settings = [MeleePadSettings sharedSettings];
     constexpr int kRightStickSmashThreshold = 82;
     BOOL cStickPastThreshold =
         std::max(std::abs((int)merged.cStickX), std::abs((int)merged.cStickY)) >=
         kRightStickSmashThreshold;
     BOOL gameplayScene = settings.rightStickSmashAttacks && cStickPastThreshold &&
-        [_coreHost isGameplayScene];
+        [coreHost isGameplayScene];
     // Apply at the shared touch/controller boundary. The earlier controller-
     // only placement left the on-screen C-stick working in menus but inert in
     // single-player battles, exactly the physical-device regression reported.
     merged = MeleePadApplyRightStickSmashMode(
         merged, settings.rightStickSmashAttacks, gameplayScene,
         settings.modernCStickHorizontal);
-    if (_coreHost != nil)
-        [_coreHost publishInput:merged];
-    if (_slippiHost.isRunning)
-        [_slippiHost publishInput:merged];
+    if (coreHost != nil)
+        [coreHost publishInput:merged];
+    if (slippiHost.isRunning)
+        [slippiHost publishInput:merged];
 }
 
 - (void)pauseRuntimeForApplicationLifecycle {
@@ -2120,7 +2224,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     MeleePadLog(@"offline cheat configuration changed restart=requested");
     if (_coreHost != nil) {
         [_coreHost stop];
-        _coreHost = nil;
+        [self dropCoreHost];
     }
     [self startGameIfProvisioned];
 }
@@ -2138,7 +2242,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     (void)overlay;
     if (_coreHost != nil) {
         [_coreHost stop];
-        _coreHost = nil;
+        [self dropCoreHost];
     }
 
     NSString *dataDirectory = [[self meleePadSupportRoot]
@@ -2175,11 +2279,11 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
     [self stopPublicGameplayHeartbeatReturningToLobby:NO];
     if (_slippiHost.isRunning) {
         [_slippiHost stop];
-        _slippiHost = nil;
+        [self dropSlippiHost];
     }
     if (_coreHost != nil) {
         [_coreHost stop];
-        _coreHost = nil;
+        [self dropCoreHost];
     }
     _slippiRequested = NO;
     _playRequested = NO;
@@ -2440,7 +2544,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
             MeleePadGameViewController *strongSelf = weakSelf;
             strongSelf->_coreHost.onNetplayMatchStarted = nil;
             strongSelf->_coreHost.onNetplayMatchEnded = nil;
-            strongSelf->_coreHost = nil;
+            [strongSelf dropCoreHost];
             [strongSelf startGameIfProvisioned];
         }];
     }];
@@ -2670,7 +2774,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
                 return;
             }
             [strongSelf->_coreHost stop];
-            strongSelf->_coreHost = nil;
+            [strongSelf dropCoreHost];
             [MeleePadSettings sharedSettings].gameRevision = revision;
             [strongSelf startGameIfProvisioned];
         }]];
@@ -2942,7 +3046,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 
                 if (completedSelf->_coreHost != nil) {
                     [completedSelf->_coreHost stop];
-                    completedSelf->_coreHost = nil;
+                    [completedSelf dropCoreHost];
                 }
                 NSString *dataDirectory = [supportRoot stringByAppendingPathComponent:
                     revision == 2 ? @"GameData-r2" : @"GameData"];

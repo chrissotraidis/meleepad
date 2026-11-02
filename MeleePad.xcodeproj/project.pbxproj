@@ -68,6 +68,11 @@
 		AA0000000000000000000145 /* StaticRecompSettings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000259 /* StaticRecompSettings.cpp */; settings = {COMPILER_FLAGS = "-iquote $(SRCROOT)/ref/ModernGekko/vendor/dolphin/SlippiAdapter/Source -I$(SRCROOT)/ref/ModernGekko/vendor/dolphin/SlippiAdapter/Source"; }; };
 		AA0000000000000000000146 /* Interpreter_LoadStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000025A /* Interpreter_LoadStore.cpp */; settings = {COMPILER_FLAGS = "-iquote $(SRCROOT)/ref/ModernGekko/vendor/dolphin/SlippiAdapter/Source -I$(SRCROOT)/ref/ModernGekko/vendor/dolphin/SlippiAdapter/Source"; }; };
 		AA0000000000000000000147 /* StateFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000025B /* StateFile.cpp */; settings = {COMPILER_FLAGS = "-iquote $(SRCROOT)/ref/ModernGekko/vendor/dolphin/SlippiAdapter/Source -I$(SRCROOT)/ref/ModernGekko/vendor/dolphin/SlippiAdapter/Source -I$(SRCROOT)/ref/ModernGekko/vendor/dolphin/Externals/LZO -I$(SRCROOT)/ref/ModernGekko/vendor/dolphin/Externals/lz4/lz4/lib"; }; };
+		CC0000000000000000000101 /* MeleePadNSOGCBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC0000000000000000000201 /* MeleePadNSOGCBridge.mm */; };
+		CC0000000000000000000102 /* nsogc_protocol.c in Sources */ = {isa = PBXBuildFile; fileRef = CC0000000000000000000211 /* nsogc_protocol.c */; };
+		CC0000000000000000000103 /* NSOGCController.m in Sources */ = {isa = PBXBuildFile; fileRef = CC0000000000000000000213 /* NSOGCController.m */; };
+		CC0000000000000000000104 /* NSOGCManager.m in Sources */ = {isa = PBXBuildFile; fileRef = CC0000000000000000000215 /* NSOGCManager.m */; };
+		CC0000000000000000000105 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC0000000000000000000220 /* CoreBluetooth.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -147,6 +152,18 @@
 		AA0000000000000000000259 /* StaticRecompSettings.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ref/ModernGekko/vendor/dolphin/Source/Core/Core/Config/StaticRecompSettings.cpp; sourceTree = SOURCE_ROOT; };
 		AA000000000000000000025A /* Interpreter_LoadStore.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Core/PowerPC/Interpreter_LoadStore.cpp; sourceTree = "<group>"; };
 		AA000000000000000000025B /* StateFile.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ref/ModernGekko/vendor/dolphin/Source/Core/Core/StateFile.cpp; sourceTree = SOURCE_ROOT; };
+		CC0000000000000000000201 /* MeleePadNSOGCBridge.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = MeleePadNSOGCBridge.mm; sourceTree = "<group>"; };
+		CC0000000000000000000202 /* MeleePadNSOGCBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MeleePadNSOGCBridge.h; sourceTree = "<group>"; };
+		CC0000000000000000000211 /* nsogc_protocol.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = nsogc_protocol.c; sourceTree = "<group>"; };
+		CC0000000000000000000212 /* nsogc_protocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = nsogc_protocol.h; sourceTree = "<group>"; };
+		CC0000000000000000000213 /* NSOGCController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSOGCController.m; sourceTree = "<group>"; };
+		CC0000000000000000000214 /* NSOGCController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSOGCController.h; sourceTree = "<group>"; };
+		CC0000000000000000000215 /* NSOGCManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSOGCManager.m; sourceTree = "<group>"; };
+		CC0000000000000000000216 /* NSOGCManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSOGCManager.h; sourceTree = "<group>"; };
+		CC0000000000000000000217 /* NSOGCInternal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSOGCInternal.h; sourceTree = "<group>"; };
+		CC0000000000000000000218 /* NSOGCKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSOGCKit.h; sourceTree = "<group>"; };
+		CC0000000000000000000219 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		CC0000000000000000000220 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -168,6 +185,7 @@
 				AA0000000000000000000111 /* QuartzCore.framework in Frameworks */,
 				AA0000000000000000000110 /* CoreGraphics.framework in Frameworks */,
 				AA0000000000000000000109 /* GameController.framework in Frameworks */,
+				CC0000000000000000000105 /* CoreBluetooth.framework in Frameworks */,
 				AA0000000000000000000108 /* MetalKit.framework in Frameworks */,
 				AA0000000000000000000107 /* Metal.framework in Frameworks */,
 				AA0000000000000000000106 /* UIKit.framework in Frameworks */,
@@ -210,6 +228,9 @@
 				AA0000000000000000000211 /* MeleePadGameViewController.h */,
 				AA0000000000000000000203 /* MeleePadGameOverlay.mm */,
 				AA0000000000000000000210 /* MeleePadGameOverlay.h */,
+				CC0000000000000000000201 /* MeleePadNSOGCBridge.mm */,
+				CC0000000000000000000202 /* MeleePadNSOGCBridge.h */,
+				CC0000000000000000000401 /* NSOGC */,
 				AA0000000000000000000238 /* MeleePadOnlinePlayViewController.mm */,
 				AA0000000000000000000239 /* MeleePadOnlinePlayViewController.h */,
 				AA0000000000000000000240 /* MeleePadPublicLobbyClient.m */,
@@ -262,6 +283,7 @@
 				AA0000000000000000000207 /* Metal.framework */,
 				AA0000000000000000000208 /* MetalKit.framework */,
 				AA0000000000000000000209 /* GameController.framework */,
+				CC0000000000000000000220 /* CoreBluetooth.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -305,6 +327,22 @@
 			);
 			path = ref/ModernGekko/vendor/dolphin/SlippiAdapter/Source;
 			sourceTree = SOURCE_ROOT;
+		};
+		CC0000000000000000000401 /* NSOGC */ = {
+			isa = PBXGroup;
+			children = (
+				CC0000000000000000000219 /* README.md */,
+				CC0000000000000000000218 /* NSOGCKit.h */,
+				CC0000000000000000000212 /* nsogc_protocol.h */,
+				CC0000000000000000000211 /* nsogc_protocol.c */,
+				CC0000000000000000000214 /* NSOGCController.h */,
+				CC0000000000000000000213 /* NSOGCController.m */,
+				CC0000000000000000000216 /* NSOGCManager.h */,
+				CC0000000000000000000215 /* NSOGCManager.m */,
+				CC0000000000000000000217 /* NSOGCInternal.h */,
+			);
+			path = NSOGC;
+			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
@@ -391,6 +429,10 @@
 				AA0000000000000000000126 /* MeleePadOnlinePlayViewController.mm in Sources */,
 				AA0000000000000000000127 /* MeleePadPublicLobbyClient.m in Sources */,
 				AA0000000000000000000104 /* MeleePadSettings.mm in Sources */,
+				CC0000000000000000000101 /* MeleePadNSOGCBridge.mm in Sources */,
+				CC0000000000000000000102 /* nsogc_protocol.c in Sources */,
+				CC0000000000000000000103 /* NSOGCController.m in Sources */,
+				CC0000000000000000000104 /* NSOGCManager.m in Sources */,
 				AA0000000000000000000128 /* MeleePadSlippiHost.mm in Sources */,
 				AA0000000000000000000129 /* slippi-direct-probe.cpp in Sources */,
 				AA0000000000000000000130 /* SlippiDirectCodes.cpp in Sources */,

@@ -4,6 +4,7 @@
 #import "../shared/MeleePadBenchmarkRoute.h"
 #import "MeleePadDiagnostics.h"
 #import "MeleePadInputPipeEncoder.h"
+#import "MeleePadSettings.h"
 
 #import <AVFAudio/AVFAudio.h>
 #import <Metal/Metal.h>
@@ -45,6 +46,8 @@ namespace fs = std::filesystem;
 #include "Core/Config/StaticRecompSettings.h"
 #include "Core/Config/GraphicsSettings.h"
 #include "Core/HW/Memmap.h"
+#include "Core/HW/SI/SI.h"
+#include "Core/HW/SI/SI_Device.h"
 #include "Core/PowerPC/PowerPC.h"
 #include "Core/System.h"
 #include "UICommon/UICommon.h"
@@ -98,6 +101,51 @@ static NSString *MeleePadRuntimeUserDirectory(NSString *userDirectory) {
  * Selecting v1.00's code for a v1.02 game selected nothing. */
 static NSString *const MeleePadUnlockAllCodeNameR0 = @"$All Characters and Stages";
 static NSString *const MeleePadUnlockAllCodeNameR2 = @"$Unlock All Characters and Stages";
+
+/* GameCube ports 1-3 (players 2-4) for NSO GameCube controllers. The running
+ * core host publishes its pipe ends here, so writers on other threads never
+ * touch a core host that is being replaced; plugged ports outlive restarts. */
+static constexpr int MeleePadPortCount = 4;
+static std::atomic<int> gMeleePadPortPipes[MeleePadPortCount] = {-1, -1, -1, -1};
+static uint16_t gMeleePadPortLastButtons[MeleePadPortCount];
+static std::atomic<bool> gMeleePadPortConnected[MeleePadPortCount];
+
+static NSString *MeleePadPortPipeName(int port) {
+    return port == 0 ? @"meleepad" : [NSString stringWithFormat:@"meleepad%d", port + 1];
+}
+
+/* Dolphin's pipe backend has no default bindings: one stable mapping per pad. */
+static NSString *MeleePadPipePadSection(int port) {
+    return [NSString stringWithFormat:
+        @"[GCPad%d]\n"
+         "Device = Pipe/0/%@\n"
+         "Buttons/A = `Button A`\n"
+         "Buttons/B = `Button B`\n"
+         "Buttons/X = `Button X`\n"
+         "Buttons/Y = `Button Y`\n"
+         "Buttons/Z = `Button Z`\n"
+         "Buttons/Start = `Button START`\n"
+         "Main Stick/Up = `Axis MAIN Y -`\n"
+         "Main Stick/Down = `Axis MAIN Y +`\n"
+         "Main Stick/Left = `Axis MAIN X -`\n"
+         "Main Stick/Right = `Axis MAIN X +`\n"
+         "Main Stick/Calibration = 100.00\n"
+         "C-Stick/Up = `Axis C Y -`\n"
+         "C-Stick/Down = `Axis C Y +`\n"
+         "C-Stick/Left = `Axis C X -`\n"
+         "C-Stick/Right = `Axis C X +`\n"
+         "C-Stick/Calibration = 100.00\n"
+         "Triggers/L = `Axis L +`\n"
+         "Triggers/R = `Axis R +`\n"
+         "Triggers/L-Analog = `Axis L +`\n"
+         "Triggers/R-Analog = `Axis R +`\n"
+         "D-Pad/Up = `Button D_UP`\n"
+         "D-Pad/Down = `Button D_DOWN`\n"
+         "D-Pad/Left = `Button D_LEFT`\n"
+         "D-Pad/Right = `Button D_RIGHT`\n"
+         "Options/Always Connected = True\n",
+        port + 1, MeleePadPortPipeName(port)];
+}
 
 /* Maintain only MeleePad's named activation in Dolphin's local GameINI. The
  * bundled code definition remains Dolphin-owned; this file merely selects it,
@@ -332,6 +380,13 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
     ::unlink(pipePath.fileSystemRepresentation);
     int fifoResult = ::mkfifo(pipePath.fileSystemRepresentation, 0666);
     MeleePadLog(@"input pipe create result=%d errno=%d", fifoResult, fifoResult == 0 ? 0 : errno);
+    // Players 2-4's pipes, read by GCPad2-4. Their ports stay unplugged until
+    // an NSO GameCube controller takes them.
+    for (int port = 1; port < MeleePadPortCount; ++port) {
+        NSString *portPipe = [pipeDir stringByAppendingPathComponent:MeleePadPortPipeName(port)];
+        ::unlink(portPipe.fileSystemRepresentation);
+        ::mkfifo(portPipe.fileSystemRepresentation, 0666);
+    }
 
     // This is a dedicated virtual GameCube controller. Dolphin's pipe backend
     // is present in the iOS core, but it has no default bindings, so provide
@@ -341,34 +396,9 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
                               withIntermediateDirectories:YES
                                                attributes:nil
                                                     error:nil];
-    NSString *padConfig =
-        @"[GCPad1]\n"
-         "Device = Pipe/0/meleepad\n"
-         "Buttons/A = `Button A`\n"
-         "Buttons/B = `Button B`\n"
-         "Buttons/X = `Button X`\n"
-         "Buttons/Y = `Button Y`\n"
-         "Buttons/Z = `Button Z`\n"
-         "Buttons/Start = `Button START`\n"
-         "Main Stick/Up = `Axis MAIN Y -`\n"
-         "Main Stick/Down = `Axis MAIN Y +`\n"
-         "Main Stick/Left = `Axis MAIN X -`\n"
-         "Main Stick/Right = `Axis MAIN X +`\n"
-         "Main Stick/Calibration = 100.00\n"
-         "C-Stick/Up = `Axis C Y -`\n"
-         "C-Stick/Down = `Axis C Y +`\n"
-         "C-Stick/Left = `Axis C X -`\n"
-         "C-Stick/Right = `Axis C X +`\n"
-         "C-Stick/Calibration = 100.00\n"
-         "Triggers/L = `Axis L +`\n"
-         "Triggers/R = `Axis R +`\n"
-         "Triggers/L-Analog = `Axis L +`\n"
-         "Triggers/R-Analog = `Axis R +`\n"
-         "D-Pad/Up = `Button D_UP`\n"
-         "D-Pad/Down = `Button D_DOWN`\n"
-         "D-Pad/Left = `Button D_LEFT`\n"
-         "D-Pad/Right = `Button D_RIGHT`\n"
-         "Options/Always Connected = True\n";
+    NSMutableString *padConfig = [NSMutableString string];
+    for (int port = 0; port < MeleePadPortCount; ++port)
+        [padConfig appendString:MeleePadPipePadSection(port)];
     [padConfig writeToFile:[configDirectory stringByAppendingPathComponent:@"GCPadNew.ini"]
                  atomically:YES
                    encoding:NSUTF8StringEncoding
@@ -529,6 +559,15 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
         Config::SetBase(Config::MAIN_ENABLE_CHEATS,
                         offlineCheatsAllowed && hasEnabledOfflineCode);
         MeleePadLog(@"runtime offline cheats active=%d", offlineCheatsAllowed && hasEnabledOfflineCode);
+        // NSO GameCube controllers that took players 2-4 before boot. Only
+        // plugged ports are set, so netplay's own port layout is untouched.
+        for (int port = 1; port < MeleePadPortCount; ++port) {
+            if (!gMeleePadPortConnected[port].load())
+                continue;
+            Config::SetCurrent(Config::GetInfoForSIDevice(port),
+                               SerialInterface::SIDEVICE_GC_CONTROLLER);
+            MeleePadLog(@"controller port=%d plugged at boot", port + 1);
+        }
         {
             std::scoped_lock lock(*_runtimeMutex);
             _runtime = created.runtime.get();
@@ -578,6 +617,19 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
         if (_pipeFd < 0)
             MeleePadLog(@"input pipe unavailable after wait errno=%d stopRequested=%d", errno,
                       _stopRequested->load());
+        for (int port = 1; port < MeleePadPortCount && _pipeFd >= 0; ++port) {
+            NSString *portPipe = [[userDirectory stringByAppendingPathComponent:@"Pipes"]
+                stringByAppendingPathComponent:MeleePadPortPipeName(port)];
+            int fd = -1;
+            for (int attempt = 0; attempt < 20 && fd < 0 && !_stopRequested->load(); ++attempt) {
+                fd = ::open(portPipe.fileSystemRepresentation, O_WRONLY | O_NONBLOCK);
+                if (fd < 0)
+                    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            }
+            gMeleePadPortLastButtons[port] = 0;
+            gMeleePadPortPipes[port].store(fd);
+            MeleePadLog(@"input pipe port=%d connected=%d", port + 1, fd >= 0);
+        }
 
         // Run() marks the ModernGekko runtime active before booting. Re-apply
         // any lifecycle state on the main queue so a resign-active event that
@@ -612,9 +664,50 @@ static NSString *MeleePadNetplayFailureMessage(moderngekko::frontend::NetplayExi
             ::close(_pipeFd);
             _pipeFd = -1;
         }
+        for (int port = 1; port < MeleePadPortCount; ++port) {
+            int fd = gMeleePadPortPipes[port].exchange(-1);
+            if (fd >= 0)
+                ::close(fd);
+        }
     }
     *_running = false;
     *_starting = false;
+}
+
++ (void)publishInput:(MeleePadInputState)input port:(NSInteger)port {
+    if (port < 1 || port >= MeleePadPortCount)
+        return;
+    int fd = gMeleePadPortPipes[port].load();
+    if (fd < 0)
+        return;
+    BOOL modernCStick = [MeleePadSettings sharedSettings].modernCStickHorizontal;
+    std::string commands =
+        MeleePadEncodePipeCommands(input, gMeleePadPortLastButtons[port], modernCStick);
+    if (commands.empty())
+        return;
+    ssize_t written = ::write(fd, commands.data(), commands.size());
+    // As for player one: edges advance only once the whole message is in.
+    if (written == static_cast<ssize_t>(commands.size()))
+        gMeleePadPortLastButtons[port] = input.buttons;
+}
+
+- (void)setControllerConnected:(BOOL)connected port:(NSInteger)port {
+    if (port < 1 || port >= MeleePadPortCount)
+        return;
+    if (gMeleePadPortConnected[port].exchange(connected) == static_cast<bool>(connected))
+        return;
+    auto &system = Core::System::GetInstance();
+    if (!Core::IsRunning(system)) {
+        MeleePadLog(@"controller port=%ld %@ at next boot", (long)port + 1,
+                    connected ? @"plugged" : @"unplugged");
+        return;
+    }
+    // As Dolphin's own controller settings do while a game runs.
+    const auto device = connected ? SerialInterface::SIDEVICE_GC_CONTROLLER
+                                  : SerialInterface::SIDEVICE_NONE;
+    Config::SetCurrent(Config::GetInfoForSIDevice(static_cast<int>(port)), device);
+    system.GetSerialInterface().ChangeDevice(device, static_cast<int>(port));
+    MeleePadLog(@"controller port=%ld %@", (long)port + 1, connected ? @"plugged" : @"unplugged");
 }
 
 - (void)publishInput:(MeleePadInputState)input {
