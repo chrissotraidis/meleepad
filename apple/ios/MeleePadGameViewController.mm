@@ -13,6 +13,7 @@
 #import "MeleePadSettings.h"
 #import "MeleePadRevision.h"
 #import "MeleePadSlippiHost.h"
+#import "MeleePadTouchControlsVisibility.h"
 
 #import <AVFoundation/AVFoundation.h>
 #import <CommonCrypto/CommonDigest.h>
@@ -2034,6 +2035,12 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 }
 
 #pragma mark - MeleePadGameOverlayDelegate
+
+- (BOOL)gameOverlayTouchPlayerHasController:(MeleePadGameOverlay *)overlay {
+    (void)overlay;
+    return MeleePadTouchPlayerHasController(
+        _controllerSlots, [MeleePadNSOGCBridge sharedBridge].playerOneConnected);
+}
 
 - (void)gameOverlayRequestsSlippiAccountImport:(MeleePadGameOverlay *)overlay {
     (void)overlay;

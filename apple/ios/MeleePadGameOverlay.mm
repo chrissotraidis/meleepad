@@ -5,8 +5,8 @@
 #import "MeleePadInputMixer.h"
 #import "MeleePadNSOGCBridge.h"
 #import "MeleePadSettings.h"
+#import "MeleePadTouchControlsVisibility.h"
 
-#import <GameController/GameController.h>
 #import <QuartzCore/QuartzCore.h>
 
 #include <algorithm>
@@ -582,7 +582,6 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
         [self buildTouchControls];
         [self buildSettingsPanel];
         [self applySettings];
-        [self observeControllerConnection];
     }
     return self;
 }
@@ -753,16 +752,12 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
     dpadAction.state = [NSUserDefaults.standardUserDefaults boolForKey:@"MeleePadShowDPad"]
         ? UIMenuElementStateOn : UIMenuElementStateOff;
     UIAction *hideTouchAction =
-        [UIAction actionWithTitle:@"Hide Touch Controls with a Controller"
+        [UIAction actionWithTitle:@"Auto-hide Touch Controls with Controller"
                             image:[UIImage systemImageNamed:@"eye.slash"]
                        identifier:nil handler:^(__kindof UIAction *action) {
         (void)action;
-        MeleePadSettings *currentSettings = [MeleePadSettings sharedSettings];
-        currentSettings.hideTouchControlsWhenControllerConnected =
-            !currentSettings.hideTouchControlsWhenControllerConnected;
-        [currentSettings synchronize];
-        [weakSelf syncHideControlsSwitch];
-        [weakSelf refreshMenuButton];
+        [weakSelf setAutoHideTouchControls:
+            ![MeleePadSettings sharedSettings].hideTouchControlsWhenControllerConnected];
     }];
     hideTouchAction.state = [MeleePadSettings sharedSettings].hideTouchControlsWhenControllerConnected ?
         UIMenuElementStateOn : UIMenuElementStateOff;
@@ -848,8 +843,16 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
         ]];
     }
 
-    return [UIMenu menuWithTitle:[NSString stringWithFormat:@"MeleePad · %@",
-        MeleePadRevisionLabel(MeleePadRevisionAtRoot(settings.extractedGameRoot))] children:@[
+    NSMutableArray<UIMenuElement *> *rootItems = [NSMutableArray array];
+    if (_touchControlsHidden) {
+        [rootItems addObject:[UIAction actionWithTitle:@"Show Touch Controls"
+                                                 image:[UIImage systemImageNamed:@"hand.tap"]
+                                            identifier:nil handler:^(__kindof UIAction *action) {
+            (void)action;
+            [weakSelf setAutoHideTouchControls:NO];
+        }]];
+    }
+    [rootItems addObjectsFromArray:@[
         [UIMenu menuWithTitle:@"Slippi & Online"
                         image:[UIImage systemImageNamed:@"person.2.wave.2"]
                    identifier:nil options:0
@@ -871,6 +874,9 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
             }]]],
         exitToHomeAction,
     ]];
+    return [UIMenu menuWithTitle:[NSString stringWithFormat:@"MeleePad · %@",
+        MeleePadRevisionLabel(MeleePadRevisionAtRoot(settings.extractedGameRoot))]
+                        children:rootItems];
 }
 
 - (void)toggleUnlockAllCharactersAndStages {
@@ -1113,9 +1119,17 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
     return renderAction;
 }
 
-- (void)syncHideControlsSwitch {
-    _hideControlsSwitch.on = [MeleePadSettings sharedSettings].hideTouchControlsWhenControllerConnected;
+// The saved "Auto-hide Touch Controls with Controller" choice. Off shows the
+// controls immediately, on applies the current controller state immediately.
+// "Show Touch Controls" turns it off so the controls stay up with the
+// controller connected until the user turns auto-hide back on.
+- (void)setAutoHideTouchControls:(BOOL)autoHide {
+    MeleePadSettings *settings = [MeleePadSettings sharedSettings];
+    settings.hideTouchControlsWhenControllerConnected = autoHide;
+    [settings synchronize];
+    _hideControlsSwitch.on = autoHide;
     [self applyControllerVisibility];
+    [self refreshMenuButton];
 }
 
 // The NSO GameCube controllers' section of the Controls menu.
@@ -1337,7 +1351,7 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
 }
 
 - (void)stickChanged:(MeleePadStickView *)stick x:(float)x y:(float)y {
-    if (_editingLayout)
+    if (_editingLayout || _touchControlsHidden)
         return;
     int8_t xi = (int8_t)std::lround(x * 127.0f);
     int8_t yi = (int8_t)std::lround(y * 127.0f);
@@ -1353,7 +1367,7 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
 }
 
 - (void)buttonDown:(MeleePadGameButton *)button {
-    if (_editingLayout)
+    if (_editingLayout || _touchControlsHidden)
         return;
     _touchState.buttons |= button.inputMask;
     if (button.inputMask == MeleePadButtonL)
@@ -1379,7 +1393,7 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
 }
 
 - (void)rPressureChanged:(uint8_t)pressure fullPress:(BOOL)fullPress {
-    if (_editingLayout)
+    if (_editingLayout || _touchControlsHidden)
         return;
     _touchState.triggerR = pressure;
     if (fullPress)
@@ -1731,7 +1745,7 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
 
     _hideControlsSwitch = [UISwitch new];
     _hideControlsSwitch.on = [MeleePadSettings sharedSettings].hideTouchControlsWhenControllerConnected;
-    _hideControlsSwitch.accessibilityLabel = @"Hide touch controls when controller connected";
+    _hideControlsSwitch.accessibilityLabel = @"Auto-hide Touch Controls with Controller";
     [_hideControlsSwitch addTarget:self action:@selector(hideChanged:)
                   forControlEvents:UIControlEventValueChanged];
 
@@ -1760,7 +1774,7 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
         [self settingsRowWithTitle:@"Render" control:_renderScaleControl],
         [self settingsRowWithTitle:@"Opacity" control:_opacitySlider],
         [self settingsRowWithTitle:@"All sizes" control:_sizeSlider],
-        [self settingsRowWithTitle:@"Hide on controller" control:_hideControlsSwitch],
+        [self settingsRowWithTitle:@"Auto-hide with controller" control:_hideControlsSwitch],
         [self settingsRowWithTitle:@"Modern C-stick L/R" control:_modernCStickSwitch],
         [self settingsRowWithTitle:@"Move controls" control:_editLayoutSwitch],
         _resetLayoutButton,
@@ -1895,9 +1909,7 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
 }
 
 - (void)hideChanged:(UISwitch *)switcher {
-    [MeleePadSettings sharedSettings].hideTouchControlsWhenControllerConnected = switcher.on;
-    [[MeleePadSettings sharedSettings] synchronize];
-    [self applyControllerVisibility];
+    [self setAutoHideTouchControls:switcher.on];
 }
 
 - (void)modernCStickChanged:(UISwitch *)switcher {
@@ -2174,45 +2186,30 @@ static CGFloat MeleePadDefaultSizeScaleForControl(UIView *view, NSString *identi
 }
 
 - (void)setTouchControlsHidden:(BOOL)hidden animated:(BOOL)animated {
+    BOOL changed = _touchControlsHidden != hidden;
     _touchControlsHidden = hidden;
+    // Hidden controls must not leave a button, stick or trigger held.
+    if (hidden)
+        [self clearTouchInput];
     [UIView animateWithDuration:animated ? 0.25 : 0.0 animations:^{
         [self setNeedsLayout];
         [self layoutIfNeeded];
     }];
+    if (changed)
+        [self refreshMenuButton];
 }
 
 - (void)applyControllerVisibility {
-    BOOL controllerConnected = NO;
-    // Simulator-forwarded controllers exercise the same visibility and input
-    // clearing behavior as controllers connected to a physical device.
-    for (GCController *controller in GCController.controllers) {
-        if (controller.extendedGamepad != nil) {
-            controllerConnected = YES;
-            break;
-        }
-    }
-    if ([MeleePadNSOGCBridge sharedBridge].playerOneConnected)
-        controllerConnected = YES;
-    BOOL shouldHide = !_editingLayout && controllerConnected &&
-        [MeleePadSettings sharedSettings].hideTouchControlsWhenControllerConnected;
+    // The game view controller owns controller slots and the NSO bridge; touch
+    // is player 1. Simulator-forwarded controllers take part like device ones.
+    BOOL shouldHide = MeleePadTouchControlsHidden(
+        _editingLayout,
+        [MeleePadSettings sharedSettings].hideTouchControlsWhenControllerConnected,
+        [self.delegate gameOverlayTouchPlayerHasController:self]);
     [self setTouchControlsHidden:shouldHide animated:YES];
-    if (controllerConnected)
-        [self clearTouchInput];
 }
 
 - (void)refreshControllerVisibility {
-    [self applyControllerVisibility];
-}
-
-- (void)observeControllerConnection {
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(applyControllerVisibility)
-                                                 name:GCControllerDidConnectNotification
-                                               object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(applyControllerVisibility)
-                                                 name:GCControllerDidDisconnectNotification
-                                               object:nil];
     [self applyControllerVisibility];
 }
 

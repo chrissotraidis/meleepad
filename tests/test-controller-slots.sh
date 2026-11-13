@@ -9,6 +9,10 @@ clang++ -std=c++23 "$ROOT/tests/MeleePadControllerSlotsTests.cpp" \
   -o "$TEMP_DIR/MeleePadControllerSlotsTests"
 "$TEMP_DIR/MeleePadControllerSlotsTests"
 
+clang++ -std=c++23 "$ROOT/tests/MeleePadTouchControlsVisibilityTests.cpp" \
+  -o "$TEMP_DIR/MeleePadTouchControlsVisibilityTests"
+"$TEMP_DIR/MeleePadTouchControlsVisibilityTests"
+
 clang++ -x objective-c++ -std=gnu++2b -fobjc-arc -framework Foundation \
   -I"$ROOT/apple/shared" \
   "$ROOT/apple/shared/MeleePadControllerMapping.mm" \
@@ -38,10 +42,4 @@ if grep -Fq '#if !TARGET_OS_SIMULATOR' <<<"$visibility_block"; then
   echo "Simulator controllers must participate in touch-overlay visibility" >&2
   exit 1
 fi
-for contract in \
-  'for (GCController *controller in GCController.controllers)' \
-  '[MeleePadSettings sharedSettings].hideTouchControlsWhenControllerConnected' \
-  '[self clearTouchInput]'; do
-  grep -Fq "$contract" <<<"$visibility_block"
-done
 echo "Controller reconciliation source checks passed"
