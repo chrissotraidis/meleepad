@@ -376,9 +376,7 @@ static NSUInteger MeleePadRegularFileCount(NSString *directory) {
 }
 
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations {
-    // Super Smash Bros. Melee is a landscape game; the overlay is designed for
-    // landscape like the BellPad reference (never portrait).
-    return UIInterfaceOrientationMaskLandscape;
+    return UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad ? UIInterfaceOrientationMaskAll : UIInterfaceOrientationMaskLandscape;
 }
 
 - (void)viewDidLoad {

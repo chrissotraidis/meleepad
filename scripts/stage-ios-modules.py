@@ -4,6 +4,7 @@
 Never use the resulting playable app as input to the public IPA packager.
 """
 import argparse
+import os
 import json
 from pathlib import Path
 import shutil
@@ -118,7 +119,9 @@ def main():
     for revision in catalog:
         number = revision["revision"]
         suffix = "-r2" if number == 2 else ""
-        directory = Path(f"/tmp/meleepad-module-ios-{args.platform}{suffix}")
+        default = f"/tmp/meleepad-module-ios-{args.platform}"
+        base = os.getenv("MELEEPAD_IOS_DEVICE_MODULE_BUILD", default) if args.platform == "device" else default
+        directory = Path(f"{base}{suffix}")
         module = directory / "gGALE01_recomp.dylib"
         identity = directory / "gGALE01_recomp.dylib.dol-sha256"
         if not module.is_file():
