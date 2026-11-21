@@ -9,7 +9,7 @@ MG="$ROOT/ref/ModernGekko"
 TPL="$ROOT/ref/ModernGekko-Template"
 TOOLCHAIN="$ROOT/scripts/ios-device-toolchain.cmake"
 BUILD="$MG/build-ios-iphoneos-meleepad-static"
-MODULE_BUILD="/tmp/meleepad-module-ios-device"
+MODULE_BUILD="${MELEEPAD_IOS_DEVICE_MODULE_BUILD:-/tmp/meleepad-module-ios-device}"
 # Without MELEEPAD_GAME_REVISION, build the revision prepare-game.sh prepared
 # last (v1.00 or v1.02, from the disc the player supplied).
 if [[ -z "${MELEEPAD_GAME_REVISION:-}" ]]; then

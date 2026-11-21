@@ -86,8 +86,7 @@ static void MeleePadMigrateRenamedPreferences(void) {
     supportedInterfaceOrientationsForWindow:(UIWindow *)window {
     (void)application;
     (void)window;
-    // Super Smash Bros. Melee is a landscape-only experience.
-    return UIInterfaceOrientationMaskLandscape;
+    return UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad ? UIInterfaceOrientationMaskAll : UIInterfaceOrientationMaskLandscape;
 }
 
 - (BOOL)application:(UIApplication *)application
